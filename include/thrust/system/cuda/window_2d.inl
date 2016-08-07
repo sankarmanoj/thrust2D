@@ -22,7 +22,7 @@ namespace thrust
 		this->start_y = start_y;
     this->window_dim_y = window_dim_y;
 		assert(start_y + window_dim_y <= b->dim_y);
-		this->b = b->get_device_pointer();
+		this->b = b->devicePointer;
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
   }
@@ -33,7 +33,7 @@ namespace thrust
       this->start_y = obj.start_y;
       this->window_dim_x = obj.window_dim_x;
       this->window_dim_y = obj.window_dim_y;
-      this->b = obj.b;
+      this->b = obj.b->devicePointer;
       this->block_dim_y = obj.block_dim_y;
       this->block_dim_x = obj.block_dim_x;
     }
@@ -85,7 +85,7 @@ namespace thrust
     window_for_each_kernel<<<grid,block>>>(stride_x,stride_y,window_dim_x,window_dim_y,first.b->get_device_pointer(),wf);
   }
   template <class T>
-  window_2D<T> * getWindows(Block_2D<T> * parentBlock, int window_dim_x, int window_dim_y)
+  thrust::device_vector<window_2D<T> >getWindows(Block_2D<T> * parentBlock, int window_dim_x, int window_dim_y)
   {
 
     assert(window_dim_x%2);
@@ -103,11 +103,8 @@ namespace thrust
             windows[j*windowsX + i]=*(new window_2D<T>(parentBlock,i,j,window_dim_x,window_dim_y));
       }
     }
-    // window_2D<T> *returnwindows;
-    return windows;
-    // cudaMalloc(&returnwindows, sizeof(window_2D<T> )*windowsY*windowsX);
-    // cudaMemcpy(returnwindows,windows,sizeof(window_2D<T> )*windowsY*windowsX,cudaMemcpyHostToDevice);
-    // return returnwindows;
+    thrust::device_vector<window_2D<T> > windowVector (windows,windows+windowsX*windowsY);
+    return windowVector;
   }
 
   // template<class T, class Func>

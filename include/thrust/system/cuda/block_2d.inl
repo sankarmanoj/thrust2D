@@ -23,12 +23,12 @@ namespace thrust
 		device_iterator = device_data.begin();
   }
   template <class T>
-  Block_2D<T>* Block_2D<T>::get_device_pointer()
+  void Block_2D<T>::get_device_pointer()
   {
     Block_2D<T> * temp;
 		cudaMalloc((void **)&temp,sizeof(Block_2D));
 		cudaMemcpy(temp,this,sizeof(Block_2D),cudaMemcpyHostToDevice);
-		return temp;
+		this->devicePointer = temp;
   }
   template <class T>
   Block_2D<T>* Block_2D<T>::sub_block (int ul_x, int ul_y, int br_x, int br_y)
