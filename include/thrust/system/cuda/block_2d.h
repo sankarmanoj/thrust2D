@@ -48,7 +48,7 @@ namespace thrust
 
 	  Block_2D(Block_2D<T> &other);
 
- 		void get_device_pointer();
+ 		void initalize_device_memory();
 
 	  Block_2D* sub_block (int ul_x, int ul_y, int br_x, int br_y);
 
@@ -68,8 +68,8 @@ namespace thrust
 
 		__host__ __device__ thrust::detail::normal_iterator<thrust::device_ptr<T> > operator[] (int index);
 
-		block_iterator<T> begin();
-		block_iterator<T> end();
+	thrust::detail::normal_iterator<thrust::device_ptr<T> > begin();
+	thrust::detail::normal_iterator<thrust::device_ptr<T> > end();
 
 	};
 

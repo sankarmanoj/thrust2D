@@ -6,7 +6,7 @@
 using namespace thrust;
 
 // testing basic block functions
-class printFunctor
+class windowPrintFunctor
 {
 public:
 
@@ -20,27 +20,33 @@ __device__  void operator() (window_2D<int>  & a)
 
   }
 };
+class printFunctor
+{
+public:
+
+__device__  void operator() (int  & a)
+  {
+
+
+    printf("%d \n",a);
+
+  }
+};
+
 int main()
 {
-  Block_2D<int> a1(1000,1000);
+  Block_2D<int> a1(3,3);
   Block_2D<int> b = a1;
-  device_vector<int> a(1000*1000);
+  device_vector<int> a(3*3);
   sequence(a.begin(),a.end());
   b.copy(a.begin(),a.end());
-  // std::cout<<"Indexing Test \n";
-  // for (int i=0; i<4;i++)
-  // {
-  //   for (int j=0;j<5;j++)
-  //   {
-  //     std::cout<<b[i][j]<< " ";
-  //   }
-  //   std::cout<<"\n";
-  // }
-  b.get_device_pointer();
+  thrust::for_each(b.begin(),b.end(),printFunctor());
+
   thrust::device_vector<window_2D<int> >windowVector = getWindows(&(b),3,3);
+
   std::cout<<"Windows Created\n";
 
-    std::cout<<"Vector Created\n";
-   thrust::for_each(windowVector.begin(),windowVector.end(),printFunctor());
+ thrust::for_each(windowVector.begin(),windowVector.end(),windowPrintFunctor());
+   thrust::for_each(b.begin(),b.end(),printFunctor());
   return 0;
 }

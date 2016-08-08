@@ -23,7 +23,7 @@ namespace thrust
 		device_iterator = device_data.begin();
   }
   template <class T>
-  void Block_2D<T>::get_device_pointer()
+  void Block_2D<T>::initalize_device_memory()
   {
     Block_2D<T> * temp;
 		cudaMalloc((void **)&temp,sizeof(Block_2D));
@@ -47,22 +47,34 @@ namespace thrust
     return this->device_iterator + ((index * (this->dim_y + this->offset_y)) + offset_x);
   }
   template <class T>
-  block_iterator<T> Block_2D<T>::begin()
+  thrust::detail::normal_iterator<thrust::device_ptr<T> > Block_2D<T>::begin()
   {
-    block_iterator<T> it(this,this->offset_x,this->offset_y);
-    return it;
+    return this->device_data.begin();
+
   }
   template <class T>
-  block_iterator<T> Block_2D<T>::end()
+  thrust::detail::normal_iterator<thrust::device_ptr<T> > Block_2D<T>::end()
   {
-    block_iterator<T> it(this,this->offset_x,this->offset_y);
-    // TODO: Need two more cases here where only one of the offsets is 0
-    if (this->offset_x == 0 && this->offset_y == 0)
-      it = it + (this->dim_x *this->dim_y - 1);
-    else
-      it = it + ((this->dim_x + this->offset_x - 1)*(this->dim_y + this->offset_y - 1));
-    return it;
+    return this->device_data.end();
+
   }
+  // template <class T>
+  // block_iterator<T> Block_2D<T>::begin()
+  // {
+  //   block_iterator<T> it(this,this->offset_x,this->offset_y);
+  //   return it;
+  // }
+  // template <class T>
+  // block_iterator<T> Block_2D<T>::end()
+  // {
+  //   block_iterator<T> it(this,this->offset_x,this->offset_y);
+  //   // TODO: Need two more cases here where only one of the offsets is 0
+  //   if (this->offset_x == 0 && this->offset_y == 0)
+  //     it = it + (this->dim_x *this->dim_y - 1);
+  //   else
+  //     it = it + ((this->dim_x + this->offset_x - 1)*(this->dim_y + this->offset_y - 1));
+  //   return it;
+  // }
 
   template <class T>
   block_iterator<T>::block_iterator (Block_2D<T> *b, int start_x, int start_y)

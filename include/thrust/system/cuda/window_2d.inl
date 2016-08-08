@@ -82,7 +82,7 @@ namespace thrust
       y_threads=y_threads/DEFAULT_BLOCK_SIZE-1;
     dim3 grid(x_threads,y_threads);
     dim3 block(DEFAULT_BLOCK_SIZE,DEFAULT_BLOCK_SIZE);
-    window_for_each_kernel<<<grid,block>>>(stride_x,stride_y,window_dim_x,window_dim_y,first.b->get_device_pointer(),wf);
+    window_for_each_kernel<<<grid,block>>>(stride_x,stride_y,window_dim_x,window_dim_y,first.b->initalize_device_memory(),wf);
   }
   template <class T>
   thrust::device_vector<window_2D<T> >getWindows(Block_2D<T> * parentBlock, int window_dim_x, int window_dim_y)
@@ -90,6 +90,7 @@ namespace thrust
 
     assert(window_dim_x%2);
     assert(window_dim_y%2);
+    parentBlock->initalize_device_memory();
     int xSpacing = (window_dim_x-1)/2;
     int ySpacing = (window_dim_y-1)/2;
     int windowsX = (parentBlock->dim_x)-2*xSpacing;
