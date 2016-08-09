@@ -43,7 +43,7 @@ namespace thrust
 	  int offset_x, offset_y;
 		thrust::device_vector<T> device_data;
 		thrust::detail::normal_iterator<thrust::device_ptr<T> > device_iterator;
-		Block_2D * devicePointer ;
+		Block_2D * device_pointer ;
 	  Block_2D(int dim_x,int dim_y);
 
 	  Block_2D(Block_2D<T> &other);

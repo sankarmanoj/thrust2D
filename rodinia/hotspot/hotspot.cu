@@ -111,10 +111,9 @@ void readinput(float * vect, int grid_rows, int grid_cols, char *file){
 #define MIN(a, b) ((a)<=(b) ? (a) : (b))
 
 
-template<class T>
-class HotspotFunctor : public thrust::window_for_each_functor<T>
+class HotspotFunctor
 {
-    thrust::Block_2D<T> *MatrixPower;
+    thrust::Block_2D<float> *MatrixPower;
     int iteration;
     int col;
     int row;
@@ -126,7 +125,7 @@ class HotspotFunctor : public thrust::window_for_each_functor<T>
     float Rz_1;
 public:
 
-    HotspotFunctor (thrust::Block_2D<T> *MatrixPower,int iteration,int col,int row, int borderCols,int borderRows,float stepDivCap,float Rx_1,float Ry_1,float Rz_1)
+    HotspotFunctor (thrust::Block_2D<float> *MatrixPower,int iteration,int col,int row, int borderCols,int borderRows,float stepDivCap,float Rx_1,float Ry_1,float Rz_1)
     {
         this->MatrixPower = MatrixPower;
         this->iteration = iteration;
@@ -140,7 +139,7 @@ public:
         this->Rz_1 = Rz_1;
     }
 
-	__device__ void operator() (thrust::window_2D<T> w)
+	__device__ void operator() (thrust::window_2D<float> &w)
 	{
         int ty = w.window_dim_y/2;
         int tx = w.window_dim_x/2;
@@ -171,7 +170,7 @@ int thrustCompute(thrust::device_vector<float> MatrixPower,thrust::device_vector
   // dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
   // dim3 dimGrid(blockCols, blockRows);
 
-  thrust::counting_iterator<int> it_begin(0);		// used when thread ID is required
+  // thrust::counting_iterator<int> it_begin(0);		// used when thread ID is required
 
 	float grid_height = chip_height / row;
 	float grid_width = chip_width / col;
@@ -202,17 +201,16 @@ int thrustCompute(thrust::device_vector<float> MatrixPower,thrust::device_vector
   thrust::Block_2D<float> PowerBlock(col,row);
   PowerBlock.copy(MatrixPower.begin(), MatrixPower.end());
 
-	for (t = 0; t < total_iterations; t+=num_iterations) {
-        int requiredIterations = MIN(num_iterations,total_iterations-t);
-        //calculate_temp<<<dimGrid, dimBlock>>>(requiredIterations, MatrixPower,MatrixTemp[src],MatrixTemp[dst],\
-    col,row,borderCols, borderRows, Cap,Rx,Ry,Rz,step,time_elapsed);
-        HotspotFunctor<float> functor(PowerBlock.get_device_pointer(),requiredIterations,col,row,borderCols,borderRows,step_div_Cap,Rx_1,Ry_1,Rz_1);
-        thrust::window_for_each(TemperatureBlock.begin(),TemperatureBlock.end(),3,3,3,3,functor);
-        //thrust::transform(MatrixTemp[src].begin(), MatrixTemp[src].end(), it_begin,  MatrixTemp[dst].begin(), func_1);
-
+	for (t = 0; t < total_iterations; t+=num_iterations)
+  {
+    int requiredIterations = MIN(num_iterations,total_iterations-t);
+    PowerBlock.initalize_device_memory();
+    HotspotFunctor functor(PowerBlock.device_pointer,requiredIterations,col,row,borderCols,borderRows,step_div_Cap,Rx_1,Ry_1,Rz_1);
+    thrust::device_vector<thrust::window_2D<float> > window_vector = thrust::get_windows(&(TemperatureBlock),3,3,1,1);
+    thrust::for_each(window_vector.begin(),window_vector.end(),functor);
 	}
-    MatrixTemp=TemperatureBlock.device_data;
-        return 0;
+  MatrixTemp=TemperatureBlock.device_data;
+  return 0;
 }
 
 

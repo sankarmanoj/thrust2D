@@ -42,11 +42,11 @@ int main()
   b.copy(a.begin(),a.end());
   thrust::for_each(b.begin(),b.end(),printFunctor());
 
-  thrust::device_vector<window_2D<int> >windowVector = getWindows(&(b),3,3,2,2);
+  thrust::device_vector<window_2D<int> > window_vector = get_windows(&(b),3,3,2,2);
 
   std::cout<<"Windows Created\n";
 
- thrust::for_each(windowVector.begin(),windowVector.end(),windowPrintFunctor());
-   thrust::for_each(b.begin(),b.end(),printFunctor());
-  return 0;
+ thrust::for_each(window_vector.begin(),window_vector.end(),windowPrintFunctor());
+ thrust::for_each(b.begin(),b.end(),printFunctor());
+ return 0;
 }

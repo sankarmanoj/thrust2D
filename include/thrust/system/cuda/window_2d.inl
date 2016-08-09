@@ -22,7 +22,7 @@ namespace thrust
 		this->start_y = start_y;
     this->window_dim_y = window_dim_y;
 		assert(start_y + window_dim_y <= b->dim_y);
-		this->b = b->devicePointer;
+		this->b = b->device_pointer;
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
   }
@@ -33,7 +33,7 @@ namespace thrust
       this->start_y = obj.start_y;
       this->window_dim_x = obj.window_dim_x;
       this->window_dim_y = obj.window_dim_y;
-      this->b = obj.b->devicePointer;
+      this->b = obj.b->device_pointer;
       this->block_dim_y = obj.block_dim_y;
       this->block_dim_x = obj.block_dim_x;
     }
@@ -86,51 +86,51 @@ namespace thrust
   // }
 
   template <class T>
-  thrust::device_vector<window_2D<T> >getWindows(Block_2D<T> * parentBlock, int window_dim_x, int window_dim_y)
+  thrust::device_vector<window_2D<T> >get_windows(Block_2D<T> * parent_block, int window_dim_x, int window_dim_y)
   {
     // TODO: Better boundary and odd check
     assert(window_dim_x%2);
     assert(window_dim_y%2);
-    parentBlock->initalize_device_memory();
+    parent_block->initalize_device_memory();
     // int xSpacing = (window_dim_x-1)/2;
     // int ySpacing = (window_dim_y-1)/2;
-    int windowsX = (parentBlock->dim_x)-(window_dim_x-1);
-    int windowsY = (parentBlock->dim_y)-(window_dim_y-1);
+    int windowsX = (parent_block->dim_x)-(window_dim_x-1);
+    int windowsY = (parent_block->dim_y)-(window_dim_y-1);
     window_2D<T> *windows ;
     cudaHostAlloc(&windows, sizeof(window_2D<T> )*windowsY*windowsX,cudaHostAllocDefault);
     for(int j = 0; j<windowsY;j++)
     {
       for(int i = 0; i<windowsX;i++)
       {
-        windows[j*windowsX + i]=*(new window_2D<T>(parentBlock,i,j,window_dim_x,window_dim_y));
+        windows[j*windowsX + i]=*(new window_2D<T>(parent_block,i,j,window_dim_x,window_dim_y));
       }
     }
-    thrust::device_vector<window_2D<T> > windowVector (windows,windows+windowsX*windowsY);
-    return windowVector;
+    thrust::device_vector<window_2D<T> > window_vector (windows,windows+windowsX*windowsY);
+    return window_vector;
   }
 
   template <class T>
-  thrust::device_vector<window_2D<T> >getWindows(Block_2D<T> * parentBlock, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
+  thrust::device_vector<window_2D<T> >get_windows(Block_2D<T> * parent_block, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
   {
     // TODO: Better boundary and odd check
     assert(window_dim_x%2);
     assert(window_dim_y%2);
-    parentBlock->initalize_device_memory();
+    parent_block->initalize_device_memory();
     int xSpacing = (window_dim_x-1)/2;
     int ySpacing = (window_dim_y-1)/2;
-    int windowsX = (parentBlock->dim_x)-(stride_x + 1)*xSpacing;
-    int windowsY = (parentBlock->dim_y)-(stride_y + 1)*ySpacing;
+    int windowsX = (parent_block->dim_x)-(stride_x + 1)*xSpacing;
+    int windowsY = (parent_block->dim_y)-(stride_y + 1)*ySpacing;
     window_2D<T> *windows ;
     cudaHostAlloc(&windows, sizeof(window_2D<T> )*windowsY*windowsX,cudaHostAllocDefault);
     for(int j = 0; j<windowsY;j++)
     {
       for(int i = 0; i<windowsX;i++)
       {
-        windows[j*windowsX + i]=*(new window_2D<T>(parentBlock,stride_x*i,stride_y*j,window_dim_x,window_dim_y));
+        windows[j*windowsX + i]=*(new window_2D<T>(parent_block,stride_x*i,stride_y*j,window_dim_x,window_dim_y));
       }
     }
-    thrust::device_vector<window_2D<T> > windowVector (windows,windows+windowsX*windowsY);
-    return windowVector;
+    thrust::device_vector<window_2D<T> > window_vector (windows,windows+windowsX*windowsY);
+    return window_vector;
   }
 
   // template<class T, class Func>

@@ -28,7 +28,7 @@ namespace thrust
     Block_2D<T> * temp;
 		cudaMalloc((void **)&temp,sizeof(Block_2D));
 		cudaMemcpy(temp,this,sizeof(Block_2D),cudaMemcpyHostToDevice);
-		this->devicePointer = temp;
+		this->device_pointer = temp;
   }
   template <class T>
   Block_2D<T>* Block_2D<T>::sub_block (int ul_x, int ul_y, int br_x, int br_y)
