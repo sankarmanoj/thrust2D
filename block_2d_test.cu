@@ -35,14 +35,14 @@ __device__  void operator() (int  & a)
 
 int main()
 {
-  Block_2D<int> a1(3,3);
+  Block_2D<int> a1(5,5);
   Block_2D<int> b = a1;
-  device_vector<int> a(3*3);
+  device_vector<int> a(5*5);
   sequence(a.begin(),a.end());
   b.copy(a.begin(),a.end());
   thrust::for_each(b.begin(),b.end(),printFunctor());
 
-  thrust::device_vector<window_2D<int> >windowVector = getWindows(&(b),3,3);
+  thrust::device_vector<window_2D<int> >windowVector = getWindows(&(b),3,3,2,2);
 
   std::cout<<"Windows Created\n";
 

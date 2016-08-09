@@ -24,8 +24,12 @@ class window_transform_functor
 public:
 	__device__ virtual void operator() (window_2D<T> w_in1, window_2D<T> w_in2, window_2D<T> w_out) = 0;
 };
+
 template <class T>
 thrust::device_vector<window_2D<T> >getWindows(Block_2D<T> * parentBlock, int window_dim_x, int window_dim_y);
+
+template <class T>
+thrust::device_vector<window_2D<T> >getWindows(Block_2D<T> * parentBlock, int window_dim_x, int window_dim_y, int stride_x, int stride_y);
 
 template <class T>
 class window_for_each_functor
