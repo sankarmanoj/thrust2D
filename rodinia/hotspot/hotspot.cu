@@ -11,7 +11,6 @@
 #include <thrust/fill.h>
 #include <thrust/replace.h>
 #include <thrust/functional.h>
-#include <thrust/block_2d.h>
 #include <thrust/window_2d.h>
 
 #ifdef RD_WG_SIZE_0_0
@@ -139,7 +138,7 @@ public:
         this->Rz_1 = Rz_1;
     }
 
-	__device__ void operator() (thrust::window_2D<float> &w)
+	__device__ void operator() (thrust::window_2D<float> w)
 	{
         int ty = w.window_dim_y/2;
         int tx = w.window_dim_x/2;
@@ -157,7 +156,7 @@ public:
                 (w[S][tx] + w[N][tx] - 2.0*(w[ty][tx])) * Ry_1 + \
                 (w[ty][E] + w[ty][W] - 2.0*(w[ty][tx])) * Rx_1 + \
                 (AMBIENT_TEMP - w[ty][tx]) * Rz_1);
-            //printf("%d\n",(T) w[ty][tx]);
+            printf("%d\n",(float) w[ty][tx]);
          }
 	}
 };/*
@@ -206,8 +205,7 @@ int thrustCompute(thrust::device_vector<float> MatrixPower,thrust::device_vector
     int requiredIterations = MIN(num_iterations,total_iterations-t);
     PowerBlock.initalize_device_memory();
     HotspotFunctor functor(PowerBlock.device_pointer,requiredIterations,col,row,borderCols,borderRows,step_div_Cap,Rx_1,Ry_1,Rz_1);
-    thrust::device_vector<thrust::window_2D<float> > window_vector = thrust::get_windows(&(TemperatureBlock),3,3,1,1);
-    thrust::for_each(window_vector.begin(),window_vector.end(),functor);
+    thrust::for_each(TemperatureBlock.begin(3,3),TemperatureBlock.end(3,3),functor);
 	}
   MatrixTemp=TemperatureBlock.device_data;
   return 0;
