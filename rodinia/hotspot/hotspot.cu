@@ -205,7 +205,8 @@ int thrustCompute(thrust::device_vector<float> MatrixPower,thrust::device_vector
     int requiredIterations = MIN(num_iterations,total_iterations-t);
     PowerBlock.initalize_device_memory();
     HotspotFunctor functor(PowerBlock.device_pointer,requiredIterations,col,row,borderCols,borderRows,step_div_Cap,Rx_1,Ry_1,Rz_1);
-    thrust::for_each(TemperatureBlock.begin(3,3),TemperatureBlock.end(3,3),functor);
+    thrust::window_vector<float> wv = thrust::window_vector<float>(&(TemperatureBlock),3,3,1,1);
+    thrust::for_each(wv.begin(),wv.end(),functor);
 	}
   MatrixTemp=TemperatureBlock.device_data;
   return 0;

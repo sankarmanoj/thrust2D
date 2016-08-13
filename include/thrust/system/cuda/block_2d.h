@@ -2,39 +2,9 @@
 
 #include <thrust/device_vector.h>
 #include <thrust/device_ptr.h>
-// #include <thrust/transform.h>
-// #include <thrust/sequence.h>
-// #include <thrust/copy.h>
-// #include <thrust/fill.h>
-// #include <thrust/replace.h>
-// #include <thrust/functional.h>
 
 namespace thrust
 {
-	// template <class T> class Block_2D;
-	// template<class T>
-	// class block_iterator
-	// {
-	// public:
-	// 	Block_2D<T> *b;
-	// 	int current_x,current_y;
-	// 	int dim_x,dim_y;
-	// 	int start_x,start_y;
-	// 	int stride_x,stride_y;
-	// 	thrust::detail::normal_iterator<thrust::device_ptr<T> > device_iterator;
-	//
-	// 	block_iterator (Block_2D<T> *b, int start_x, int start_y);
-	// 	__host__ __device__ thrust::detail::normal_iterator<thrust::device_ptr<T> > operator[] (int index);
-	// 	__host__ __device__ block_iterator<T> operator + (int value);
-	// 	void move_forward();
-	// 	void move_backward();
-	// 	void move_upward();
-	// 	void move_downward();
-	//
-	//
-	// };
-	template <class T> class window_iterator;
-	template <class T> class window_2D;
 	template <class T>
 	class Block_2D
 	{
@@ -71,28 +41,7 @@ namespace thrust
 
 		thrust::detail::normal_iterator<thrust::device_ptr<T> > begin();
 		thrust::detail::normal_iterator<thrust::device_ptr<T> > end();
-		thrust::detail::normal_iterator<thrust::device_ptr<window_2D<T> > > begin(int window_dim_x,int window_dim_y);
-
-		thrust::detail::normal_iterator<thrust::device_ptr<window_2D<T> > > end(int window_dim_x,int window_dim_y);
-
-		thrust::detail::normal_iterator<thrust::device_ptr<window_2D<T> > > begin(int window_dim_x,int window_dim_y, int stride_x, int stride_y);
-
-		thrust::detail::normal_iterator<thrust::device_ptr<window_2D<T> > > end(int window_dim_x,int window_dim_y, int stride_x, int stride_y);
 
 	};
-
-	// template <class T>
-	// class block_transform_functor
-	// {
-	// public:
-	// 	__device__ virtual void operator() (T &b_in1, T &b_in2, T &b_out) = 0;
-	// };
-	//
-	// template <class T>
-	// class block_for_each_functor
-	// {
-	// public:
-	//   __device__ virtual void operator() (T &b) = 0;
-	// };
 }
 #include <thrust/system/cuda/block_2d.inl>

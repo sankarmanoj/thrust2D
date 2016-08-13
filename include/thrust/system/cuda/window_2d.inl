@@ -45,148 +45,177 @@ namespace thrust
     return (*b)[start_y + index] + start_x;
   }
 
-  // template <class T,class Func>
-  // __global__ void  window_for_each_kernel(int stride_x, int stride_y, int dimension_x, int dimension_y, Block_2D<T> *my_block, Func functor)
+  template <class T>
+  __host__ window_iterator<T>::window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
+  {
+
+      this->b = b;
+      this->b->initalize_device_memory();
+      // TODO: Better boundary and odd check
+      this->window_dim_x = window_dim_x;
+      this->window_dim_y = window_dim_y;
+      this->stride_x = stride_x;
+      this->stride_y = stride_y;
+      this->current_x = 0;
+      this->current_y = 0;
+  }
+
+  template <class T>
+  __host__ __device__ thrust::device_reference<window_2D<T> > window_iterator<T>::operator[] (unsigned int index)
+  {
+    // printf("Reached Here");
+    int start_x = stride_x * index;
+    int start_y = stride_y * index;
+    window_2D<T> temp = (b, start_x,start_y,this->window_dim_x, this->window_dim_y);
+    current_x = start_x;
+    current_y = start_y;
+    return (thrust::device_reference<window_2D<T> >) temp;
+  }
+
+  template <class T>
+  __host__ __device__ const thrust::device_reference<window_2D<T> > window_iterator<T>::operator[] (unsigned int index) const
+  {
+    // printf("Reached Here");
+    int start_x = stride_x * index;
+    int start_y = stride_y * index;
+    window_2D<T> temp = (b, start_x,start_y,this->window_dim_x, this->window_dim_y);
+    current_x = start_x;
+    current_y = start_y;
+    return (thrust::device_reference<window_2D<T> >) temp;
+  }
+
+  template <class T>
+  __host__ __device__ int window_iterator<T>::operator- (const window_iterator& it)
+  {
+    int diff_x = this->current_x - it.current_x + 1;
+    int diff_y = this->current_y - it.current_y + 1;
+    return (diff_x/stride_x) * (diff_y/stride_y);
+  }
+
+  template <class T>
+  __host__ __device__ window_iterator<T> window_iterator<T>::operator+ (long N)
+  {
+    if (b->dim_x - window_dim_x >= current_x + stride_x && b->dim_y - window_dim_y >= current_y +stride_y)
+    {
+      int i = 0;
+      while (i<= N)
+      {
+        current_y += stride_y;
+        i++;
+        if (current_y >= b->dim_y - window_dim_y)
+        {
+          current_x += stride_x;
+          i++;
+        }
+      }
+    }
+    return *this;
+  }
+
+  template <class T>
+  __host__ __device__ window_iterator<T> window_iterator<T>::operator- (long N)
+  {
+    if (current_x - stride_x >= 0 && current_y - stride_y >= 0)
+    {
+      int i = 0;
+      while (i<= N)
+      {
+        current_y -= stride_y;
+        i++;
+        if (current_y <= 0)
+        {
+          current_x -= stride_x;
+          i++;
+        }
+      }
+    }
+    return *this;
+  }
+
+  template <class T>
+  __host__ __device__ window_iterator<T>::window_iterator<T> (const window_iterator<T>& other)
+  {
+    this->b = other.b;
+    this->window_dim_x = other.window_dim_x;
+    this->window_dim_y = other.window_dim_y;
+    this->stride_x = other.stride_x;
+    this->stride_y = other.stride_y;
+    this->current_x = other.current_x;
+    this->current_y = other.current_y;
+    // this->device_it = other.device_it;
+  }
+
+  template <class T>
+  __host__ __device__ window_iterator<T>& window_iterator<T>::operator= (window_iterator<T> it)
+  {
+    this->b = it.b;
+    this->window_dim_x = it.window_dim_x;
+    this->window_dim_y = it.window_dim_y;
+    this->stride_x = it.stride_x;
+    this->stride_y = it.stride_y;
+    this->current_x = it.current_x;
+    this->current_y = it.current_y;
+    // this->device_it = it.device_it;
+    return this;
+  }
+
+  // template <class T>
+  // __host__ __device__ thrust::device_reference<window_2D<T> > window_iterator::operator* ()
   // {
-  //   int x = blockIdx.x*DEFAULT_BLOCK_SIZE + threadIdx.x;
-  //   int y = blockIdx.y*DEFAULT_BLOCK_SIZE + threadIdx.y;
-  //   if((stride_x*x + dimension_x < my_block->dim_x) && (stride_y*y+dimension_y < my_block->dim_y))
-  //   {
-  //     window_2D<T> my_window (my_block, stride_x*x , stride_y*y , dimension_x, dimension_y);
-  //     functor(my_window);
-  //   }
+  //
+  //   // return *(this->device_it);
   // }
   //
-  // template<class T, class Func>
-  // void window_for_each (block_iterator<T> first, block_iterator<T> last, int stride_x, int stride_y, int window_dim_x, int window_dim_y, Func wf)
+  // template <class T>
+  // __host__ __device__ const thrust::device_reference<window_2D<T> > window_iterator::operator* () const
   // {
-  //   if (stride_x>first.dim_x || stride_y>first.dim_y)
-  //   {
-  //     fprintf(stderr,"\n FATAL ERROR :Stride is Larger than Dimension\n");
-  //     exit(-1);
-  //   }
-  //   int x_threads = first.dim_x-stride_x + 1;
-  //   int y_threads = first.dim_y-stride_y +1;
-  //   if(x_threads % DEFAULT_BLOCK_SIZE)
-  //   {
-  //     x_threads=(x_threads/DEFAULT_BLOCK_SIZE)+1;
-  //   }
-  //   else
-  //     x_threads=x_threads/DEFAULT_BLOCK_SIZE-1;
   //
-  //   if(y_threads%DEFAULT_BLOCK_SIZE)
-  //   {
-  //     y_threads=(y_threads/DEFAULT_BLOCK_SIZE)+1;
-  //   }
-  //   else
-  //     y_threads=y_threads/DEFAULT_BLOCK_SIZE-1;
-  //   dim3 grid(x_threads,y_threads);
-  //   dim3 block(DEFAULT_BLOCK_SIZE,DEFAULT_BLOCK_SIZE);
-  //   window_for_each_kernel<<<grid,block>>>(stride_x,stride_y,window_dim_x,window_dim_y,first.b->initalize_device_memory(),wf);
+  //   // return *(this->device_it);
   // }
 
   // template <class T>
-  // thrust::device_vector<window_2D<T> >get_windows(Block_2D<T> * parent_block, int window_dim_x, int window_dim_y)
+  // __host__ __device__ __forceinline__ window_iterator<T> window_iterator::operator+= (int N)
   // {
-  //   // TODO: Better boundary and odd check
-  //   assert(window_dim_x%2);
-  //   assert(window_dim_y%2);
-  //   parent_block->initalize_device_memory();
-  //   // int xSpacing = (window_dim_x-1)/2;
-  //   // int ySpacing = (window_dim_y-1)/2;
-  //   int windowsX = (parent_block->dim_x)-(window_dim_x-1);
-  //   int windowsY = (parent_block->dim_y)-(window_dim_y-1);
-  //   window_2D<T> *windows ;
-  //   cudaHostAlloc(&windows, sizeof(window_2D<T> )*windowsY*windowsX,cudaHostAllocDefault);
-  //   for(int j = 0; j<windowsY;j++)
-  //   {
-  //     for(int i = 0; i<windowsX;i++)
-  //     {
-  //       windows[j*windowsX + i]=*(new window_2D<T>(parent_block,i,j,window_dim_x,window_dim_y));
-  //     }
-  //   }
-  //   thrust::device_vector<window_2D<T> > window_vector (windows,windows+windowsX*windowsY);
-  //   return window_vector;
-  // }
   //
+  //   this->device_it += N;
+  //   return *this;
+  //
+  // }
   // template <class T>
-  // thrust::device_vector<window_2D<T> >get_windows(Block_2D<T> * parent_block, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
+  // __host__ __device__ __forceinline__ const window_iterator<T> window_iterator::operator+= (int N) const
   // {
-  //   // TODO: Better boundary and odd check
-  //   assert(window_dim_x%2);
-  //   assert(window_dim_y%2);
-  //   parent_block->initalize_device_memory();
-  //   int xSpacing = (window_dim_x-1)/2;
-  //   int ySpacing = (window_dim_y-1)/2;
-  //   int windowsX = (parent_block->dim_x)-(stride_x + 1)*xSpacing;
-  //   int windowsY = (parent_block->dim_y)-(stride_y + 1)*ySpacing;
-  //   window_2D<T> *windows ;
-  //   cudaHostAlloc(&windows, sizeof(window_2D<T> )*windowsY*windowsX,cudaHostAllocDefault);
-  //   for(int j = 0; j<windowsY;j++)
-  //   {
-  //     for(int i = 0; i<windowsX;i++)
-  //     {
-  //       windows[j*windowsX + i]=*(new window_2D<T>(parent_block,stride_x*i,stride_y*j,window_dim_x,window_dim_y));
-  //     }
-  //   }
-  //   thrust::device_vector<window_2D<T> > window_vector (windows,windows+windowsX*windowsY);
-  //   return window_vector;
+  //
+  //   this->device_it += N;
+  //   return *this;
+  //
   // }
 
-  // template<class T, class Func>
-  // void window_for_each (block_iterator<T> first, block_iterator<T> last, Func wf)
-  // {
-  //
-  // }
-  //
-  // template<class T, class Func>
-  // void window_transform (block_iterator<T> first, block_iterator<T> last, block_iterator<T> second, block_iterator<T> dest, Func wf)
-  // {
-  //
-  // }
-  //
-  // template<class T, class Func>
-  // void window_transform (block_iterator<T> first, block_iterator<T> last, block_iterator<T> second, block_iterator<T> dest, int stride_x, int stride_y, Func wf)
-  // {
-  //
-  // }
-  //
-  // template<class T>
-  // void convolution_2D (block_iterator<T> first, block_iterator<T> last, block_iterator<T> dest, Block_2D<T> conv_kernel, int dim_x, int dim_y)
-  // {
-  //
-  // }
-  //
-  // template<class T, class Func>
-  // T block_reduce (block_iterator<T> first, block_iterator<T> last, Func f)
-  // {
-  //
-  // }
-  //
-  // template<class T, class Func>
-  // thrust::device_vector<T> row_reduce (block_iterator<T> first, block_iterator<T> last, Func f)
-  // {
-  //
-  // }
-  //
-  // template<class T, class Func>
-  // void block_scan (block_iterator<T> first, block_iterator<T> last, Func f)
-  // {
-  //
-  // }
-  // template<class T, class Func>
-  // void row_scan (block_iterator<T> first, block_iterator<T> last, Func f)
-  // {
-  //
-  // }
   // template <class T>
-  // void transpose (block_iterator<T> first, block_iterator<T> last, block_iterator<T> dest)
+  // __host__ __device__ bool window_iterator::operator< (const window_iterator<T>& it)
   // {
-  //
+  //   return this-template>device_it < it.device_it;
   // }
-  // template <class T>
-  // Block_2D<T> matrix_multiply (block_iterator<T> first, block_iterator<T> last, block_iterator<T> second, block_iterator<T> dest)
-  // {
-  //
-  // }
+  template <class T>
+  window_vector<T>::window_vector (Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
+  {
+    this->b = b;
+    this->window_dim_x = window_dim_x;
+    this->window_dim_y = window_dim_y;
+    this->stride_x = stride_x;
+    this->stride_y = stride_y;
+  }
+  template <class T>
+  thrust::detail::normal_iterator<thrust::device_ptr<window_2D<T> > > window_vector<T>::begin()
+  {
+    return window_iterator<T>(b,window_dim_x,window_dim_y,stride_x,stride_y);
+  }
+  template <class T>
+  thrust::detail::normal_iterator<thrust::device_ptr<window_2D<T> > > window_vector<T>::end()
+  {
+    int xSpacing = (window_dim_x-1)/2;
+      int ySpacing = (window_dim_y-1)/2;
+      int windowsX = (b->dim_x)-(stride_x + 1)*xSpacing;
+      int windowsY = (b->dim_y)-(stride_y + 1)*ySpacing;
+      return window_iterator<T>(b,window_dim_x,window_dim_y,stride_x,stride_y) + windowsX * windowsY;;
+  }
 }
