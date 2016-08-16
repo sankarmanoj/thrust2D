@@ -26,16 +26,22 @@ namespace thrust
     Block_2D<T> *b;
     int window_dim_x;
     int window_dim_y;
+    int block_dim_x;
+    int block_dim_y;
     int stride_x;
     int stride_y;
-    __host__ window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y);
+    __host__ window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y, int current_x, int current_y);
 
-    __host__ __device__ thrust::device_reference<window_2D<T> > operator[] (unsigned int index);
-    __host__ __device__ const thrust::device_reference<window_2D<T> > operator[] (unsigned int index) const;
+    __host__ __device__ window_2D<T> operator[] (unsigned int index);
+    __host__ __device__ const window_2D<T> operator[] (unsigned int index) const;
+    __host__ __device__ window_2D<T> operator* ();
+    __host__ __device__ const window_2D<T> operator* () const;
 
     __host__ __device__ int operator- (const window_iterator& it);
 
     __host__ __device__ window_iterator<T> operator+ (long N);
+
+    __host__ __device__ window_iterator<T> operator++ ();
 
     __host__ __device__ window_iterator<T> operator- (long N);
 
@@ -43,10 +49,12 @@ namespace thrust
 
     __host__ __device__ window_iterator<T>& operator= (window_iterator<T> it);
 
-    // __host__ __device__ thrust::device_reference<window_2D<T> > operator* ();
-    // __host__ __device__ const thrust::device_reference<window_2D<T> > operator* () const;
-    // __host__ __device__ __forceinline__ window_iterator<T> operator+= (int N);
-    // __host__ __device__ __forceinline__ const window_iterator<T> operator+= (int N) const;
+    __host__ __device__ __forceinline__ window_iterator<T> operator+= (long N);
+    __host__ __device__ __forceinline__ const window_iterator<T> operator+= (long N) const;
+
+    // __host__ __device__ __forceinline__ window_iterator<T> operator+= (long N);
+    // __host__ __device__ __forceinline__ const window_iterator<T> operator+= (long N) const;
+
     // __host__ __device__ bool operator< (const window_iterator<T>& it);
 
   };
@@ -61,8 +69,8 @@ namespace thrust
     int stride_x;
     int stride_y;
     window_vector(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y);
-    thrust::detail::normal_iterator<thrust::device_ptr<window_2D<T> > > begin();
-    thrust::detail::normal_iterator<thrust::device_ptr<window_2D<T> > > end();
+    window_iterator<T> begin();
+    window_iterator<T> end();
   };
 }
 #include <thrust/system/cuda/window_2d.inl>

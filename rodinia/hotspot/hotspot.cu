@@ -112,31 +112,31 @@ void readinput(float * vect, int grid_rows, int grid_cols, char *file){
 
 class HotspotFunctor
 {
-    thrust::Block_2D<float> *MatrixPower;
-    int iteration;
-    int col;
-    int row;
-    int borderCols;
-    int borderRows;
-    float stepDivCap;
-    float Rx_1;
-    float Ry_1;
-    float Rz_1;
+  thrust::Block_2D<float> *MatrixPower;
+  int iteration;
+  int col;
+  int row;
+  int borderCols;
+  int borderRows;
+  float stepDivCap;
+  float Rx_1;
+  float Ry_1;
+  float Rz_1;
 public:
 
-    HotspotFunctor (thrust::Block_2D<float> *MatrixPower,int iteration,int col,int row, int borderCols,int borderRows,float stepDivCap,float Rx_1,float Ry_1,float Rz_1)
-    {
-        this->MatrixPower = MatrixPower;
-        this->iteration = iteration;
-        this->col = col;
-        this->row = row;
-        this->borderCols = borderCols;
-        this->borderRows = borderRows;
-        this->stepDivCap = stepDivCap;
-        this->Rx_1 = Rx_1;
-        this->Ry_1 = Ry_1;
-        this->Rz_1 = Rz_1;
-    }
+  HotspotFunctor (thrust::Block_2D<float> *MatrixPower,int iteration,int col,int row, int borderCols,int borderRows,float stepDivCap,float Rx_1,float Ry_1,float Rz_1)
+  {
+      this->MatrixPower = MatrixPower;
+      this->iteration = iteration;
+      this->col = col;
+      this->row = row;
+      this->borderCols = borderCols;
+      this->borderRows = borderRows;
+      this->stepDivCap = stepDivCap;
+      this->Rx_1 = Rx_1;
+      this->Ry_1 = Ry_1;
+      this->Rz_1 = Rz_1;
+  }
 
 	__device__ void operator() (thrust::window_2D<float> w)
 	{
@@ -144,10 +144,10 @@ public:
         int tx = w.window_dim_x/2;
         int rty = w.start_y + ty;
         int rtx = w.start_x + tx;
-        int N = ty-1;
-        int S = ty+1;
-        int W = tx-1;
-        int E = tx+1;
+        int W = ty-1;
+        int E = ty+1;
+        int N = tx-1;
+        int S = tx+1;
 
         float my_power = (*MatrixPower)[rtx][rty];
         for (int i=0; i<iteration ; i++)
@@ -156,21 +156,15 @@ public:
                 (w[S][tx] + w[N][tx] - 2.0*(w[ty][tx])) * Ry_1 + \
                 (w[ty][E] + w[ty][W] - 2.0*(w[ty][tx])) * Rx_1 + \
                 (AMBIENT_TEMP - w[ty][tx]) * Rz_1);
-            printf("%d\n",(float) w[ty][tx]);
+            // printf("%f\n",(float) w[ty][tx]);
          }
 	}
 };/*
    compute N time steps
 */
-int thrustCompute(thrust::device_vector<float> MatrixPower,thrust::device_vector<float> MatrixTemp, int col, int row, \
+int thrustCompute(thrust::Block_2D<float> &PowerBlock,thrust::Block_2D<float> &TemperatureBlock, int col, int row, \
 		int total_iterations, int num_iterations, int blockCols, int blockRows, int borderCols, int borderRows, int size)
 {
-
-  // dim3 dimBlock(BLOCK_SIZE, BLOCK_SIZE);
-  // dim3 dimGrid(blockCols, blockRows);
-
-  // thrust::counting_iterator<int> it_begin(0);		// used when thread ID is required
-
 	float grid_height = chip_height / row;
 	float grid_width = chip_width / col;
 
@@ -182,10 +176,6 @@ int thrustCompute(thrust::device_vector<float> MatrixPower,thrust::device_vector
 	float max_slope = MAX_PD / (FACTOR_CHIP * t_chip * SPEC_HEAT_SI);
 	float step = PRECISION / max_slope;
 	float t;
-  // float time_elapsed=0.001;
-  //int src = 0, dst = 1;
-
-  // float amb_temp = 80.0;
   float step_div_Cap;
   float Rx_1,Ry_1,Rz_1;
   step_div_Cap=step/Cap;
@@ -193,12 +183,6 @@ int thrustCompute(thrust::device_vector<float> MatrixPower,thrust::device_vector
   Rx_1=1/Rx;
   Ry_1=1/Ry;
   Rz_1=1/Rz;
-
-  thrust::Block_2D<float> TemperatureBlock(col,row);
-  TemperatureBlock.copy(MatrixTemp.begin(), MatrixTemp.end());
-
-  thrust::Block_2D<float> PowerBlock(col,row);
-  PowerBlock.copy(MatrixPower.begin(), MatrixPower.end());
 
 	for (t = 0; t < total_iterations; t+=num_iterations)
   {
@@ -208,7 +192,6 @@ int thrustCompute(thrust::device_vector<float> MatrixPower,thrust::device_vector
     thrust::window_vector<float> wv = thrust::window_vector<float>(&(TemperatureBlock),3,3,1,1);
     thrust::for_each(wv.begin(),wv.end(),functor);
 	}
-  MatrixTemp=TemperatureBlock.device_data;
   return 0;
 }
 
@@ -238,7 +221,7 @@ void run(int argc, char** argv)
 {
     int size;
     int grid_rows,grid_cols;
-    float *FilesavingTemp,*FilesavingPower,*MatrixOut;
+    float *FilesavingTemp,*FilesavingPower;
     char *tfile, *pfile, *ofile;
 
     int total_iterations = 60;
@@ -269,9 +252,8 @@ void run(int argc, char** argv)
 
     FilesavingTemp = (float *) malloc(size*sizeof(float));
     FilesavingPower = (float *) malloc(size*sizeof(float));
-    MatrixOut = (float *) calloc (size, sizeof(float));
 
-    if( !FilesavingPower || !FilesavingTemp || !MatrixOut)
+    if( !FilesavingPower || !FilesavingTemp)
         fatal((char *)"unable to allocate memory");
 
     printf("pyramidHeight: %d\ngridSize: [%d, %d]\nborder:[%d, %d]\nblockGrid:[%d, %d]\ntargetBlock:[%d, %d]\n",\
@@ -279,37 +261,13 @@ void run(int argc, char** argv)
 
     readinput(FilesavingTemp, grid_rows, grid_cols, tfile);
     readinput(FilesavingPower, grid_rows, grid_cols, pfile);
-
-    //float *MatrixTemp[2], *MatrixPower;
-    //cudaMalloc((void**)&MatrixTemp[0], sizeof(float)*size);
-    //cudaMalloc((void**)&MatrixTemp[1], sizeof(float)*size);
-    thrust::device_vector<float> MatrixTemperature;//[2]=
-    // {
-    //     thrust::device_vector<float> (size),
-    //     thrust::device_vector<float> (size),
-    // };
-    //cudaMemcpy(MatrixTemp[0], FilesavingTemp, sizeof(float)*size, cudaMemcpyHostToDevice);
-    MatrixTemperature.assign(FilesavingTemp,FilesavingTemp+size);
-    //cudaMalloc((void**)&MatrixPower, sizeof(float)*size);
-    thrust::host_vector<float>HostMatrixPowerVector (size);
-    thrust::device_vector<float>MatrixPowerVector (size);
-    //cudaMemcpy(MatrixPower, FilesavingPower, sizeof(float)*size, cudaMemcpyHostToDevice);
-    HostMatrixPowerVector.assign(FilesavingPower,FilesavingPower+size);
-    MatrixPowerVector=HostMatrixPowerVector;
-    MatrixPowerVector[0]=1;
+    thrust::Block_2D<float> TemperatureBlock(grid_rows,grid_cols);
+    thrust::Block_2D<float> PowerBlock(grid_rows,grid_cols);
+    TemperatureBlock.device_data.assign(FilesavingTemp,FilesavingTemp+size);
+    PowerBlock.device_data.assign(FilesavingPower,FilesavingPower+size);
     printf("Start computing the transient temperature\n");
-    int ret = thrustCompute(MatrixPowerVector,MatrixTemperature,grid_cols,grid_rows, \
+    int ret = thrustCompute(PowerBlock,TemperatureBlock,grid_cols,grid_rows, \
 	  total_iterations,pyramid_height, blockCols, blockRows, borderCols, borderRows,size);
 	  printf("Ending simulation\n");
-    //cudaMemcpy(MatrixOut, MatrixTemp[ret], sizeof(float)*size, cudaMemcpyDeviceToHost);
-    //thrust::host_vector<float> MatrixOutput(size);
-    //thrust::device_vector<float> resultMatrix(size);
-    //resultMatrix.assign(MatrixTemp[ret],MatrixTemp[ret]+size);
-    //MatrixOutput=resultMatrix;
-    writeoutput(MatrixTemperature,grid_rows, grid_cols, ofile);
-
-    //cudaFree(MatrixPower);
-    //cudaFree(MatrixTemp[0]);
-    //cudaFree(MatrixTemp[1]);
-    //free(MatrixOut);
+    writeoutput(TemperatureBlock.device_data,grid_rows, grid_cols, ofile);
 }

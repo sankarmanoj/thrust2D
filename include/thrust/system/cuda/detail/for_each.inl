@@ -49,9 +49,7 @@ struct for_each_kernel
     Size grid_size = grid.size() * grid.this_exec.size();
 
     Size i = grid.this_exec.index() * grid.this_exec.size() + grid.this_exec.this_exec.index();
-
     first += i;
-
     while(i < n)
     {
       f(*first);
@@ -116,7 +114,6 @@ RandomAccessIterator for_each_n(execution_policy<DerivedPolicy> &exec,
       thrust::detail::wrapped_function<UnaryFunction,void> wrapped_f(f);
 
       // opportunistically narrow the type of n
-
       unsigned int narrow_n = static_cast<unsigned int>(n);
       unsigned int narrow_num_groups = 0;
       unsigned int narrow_group_size = 0;
@@ -158,7 +155,7 @@ RandomAccessIterator for_each_n(execution_policy<DerivedPolicy> &exec,
 #else
   return workaround::sequential_path(exec, first, n, f);
 #endif
-} 
+}
 
 
 template<typename DerivedPolicy,
@@ -178,4 +175,3 @@ InputIterator for_each(execution_policy<DerivedPolicy> &exec,
 } // end namespace cuda
 } // end namespace system
 } // end namespace thrust
-

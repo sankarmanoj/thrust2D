@@ -21,6 +21,7 @@ namespace thrust
     this->offset_y = other.offset_y;
 		device_data = thrust::device_vector<T>(other.device_data.begin(), other.device_data.end());
 		device_iterator = device_data.begin();
+    this->device_pointer = other.device_pointer;
   }
   template <class T>
   void Block_2D<T>::initalize_device_memory()

@@ -10,14 +10,11 @@ class windowPrintFunctor
 {
 public:
 
-__device__  void operator() (window_2D<int>  & a)
+__device__  void operator() (window_2D<int> a)
   {
-
-
-
-    int value = a[0][0];
     a[0][0]=3;
-
+    int value = a[0][0];
+    printf("%d \n",value);
   }
 };
 class printFunctor
@@ -26,10 +23,7 @@ public:
 
 __device__  void operator() (int  & a)
   {
-
-
     printf("%d \n",a);
-
   }
 };
 
@@ -42,11 +36,12 @@ int main()
   b.copy(a.begin(),a.end());
   thrust::for_each(b.begin(),b.end(),printFunctor());
 
-  thrust::device_vector<window_2D<int> > window_vector = get_windows(&(b),3,3,2,2);
-
-  std::cout<<"Windows Created\n";
-
- thrust::for_each(window_vector.begin(),window_vector.end(),windowPrintFunctor());
- thrust::for_each(b.begin(),b.end(),printFunctor());
- return 0;
+  thrust::window_vector<int> wv = window_vector<int>(&(b),3,3,1,1);
+  printf("Start\n");
+  // thrust::window_iterator<int> wi = wv.end();
+  // int num = wv.begin().operator-(wv.end());
+  // printf("%d\n", num);
+  thrust::for_each(wv.begin(),wv.end(),windowPrintFunctor());
+  thrust::for_each(b.begin(),b.end(),printFunctor());
+  return 0;
 }
