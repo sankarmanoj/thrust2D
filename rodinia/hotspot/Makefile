@@ -3,6 +3,8 @@ CC=nvcc
 CFLAGS=-I$(IDIR) -DTHRUST_DEBUG
 
 %.out: %.cu
+	clear
+	clear
 	$(CC)  -o $@ $< $(CFLAGS)
 
 rod_hotspot_64: hotspot.out

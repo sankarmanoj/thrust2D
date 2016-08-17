@@ -22,15 +22,19 @@ namespace thrust
   {
     int current_x;
     int current_y;
+    int windows_along_x, windows_along_y;
+    int position;
   public:
     Block_2D<T> *b;
+
     int window_dim_x;
     int window_dim_y;
     int block_dim_x;
     int block_dim_y;
     int stride_x;
     int stride_y;
-    __host__ window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y, int current_x, int current_y);
+    __host__ window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y);
+    __host__ window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y, int position);
 
     __host__ __device__ window_2D<T> operator[] (unsigned int index);
     __host__ __device__ const window_2D<T> operator[] (unsigned int index) const;
