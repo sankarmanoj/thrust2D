@@ -85,17 +85,17 @@ namespace thrust
   __host__ __device__ window_2D<T> window_iterator<T>::operator[] (unsigned int index)
   {
     // printf("Reached Here 1");
-    int j = index/windows_along_x;
-    int i = index%windows_along_x;
+    int i = index/windows_along_y;
+    int j = index%windows_along_y;
     int start_x = stride_x*i;
     int start_y = stride_y*j;
     // int x = index * stride_x / block_dim_y;
     // int y = index * stride_y % block_dim_y;
     // int start_x = stride_x * x;
     // int start_y = stride_y * y;
-    window_2D<T> temp = (b, start_x,start_y,this->window_dim_x, this->window_dim_y);
-    current_x = start_x;
-    current_y = start_y;
+        printf("Reached Here 3");
+    window_2D<T> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
+
     return temp;
   }
 
@@ -103,13 +103,13 @@ namespace thrust
   __host__ __device__ const window_2D<T> window_iterator<T>::operator[] (unsigned int index) const
   {
     // printf("Reached Here 2");
-    int j = index/windows_along_x;
-    int i = index%windows_along_x;
+    int i = index/windows_along_y;
+    int j = index%windows_along_y;
     int start_x = stride_x*i;
     int start_y = stride_y*j;
-    window_2D<T> temp = (b, start_x,start_y,this->window_dim_x, this->window_dim_y);
-    current_x = start_x;
-    current_y = start_y;
+        printf("Reached Here 3");
+    window_2D<T> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
+
     return temp;
   }
 
@@ -117,8 +117,11 @@ namespace thrust
   __host__ __device__ window_2D<T> window_iterator<T>::operator* ()
   {
     // printf("Reached Here 3");
-    int start_x = stride_x * current_x;
-    int start_y = stride_y * current_y;
+    int i = position/windows_along_y;
+    int j = position%windows_along_y;
+    int start_x = stride_x*i;
+    int start_y = stride_y*j;
+
     window_2D<T> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
     return temp;
   }
@@ -127,8 +130,10 @@ namespace thrust
   __host__ __device__ const window_2D<T> window_iterator<T>::operator* () const
   {
     // printf("Reached Here 4");
-    int start_x = stride_x * current_x;
-    int start_y = stride_y * current_y;
+    int i = position/windows_along_y;
+    int j = position%windows_along_y;
+    int start_x = stride_x*i;
+    int start_y = stride_y*j;
     window_2D<T> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
     return temp;
   }
@@ -143,7 +148,7 @@ namespace thrust
   __host__ __device__ window_iterator<T> window_iterator<T>::operator+ (long N)
   {
     this->position = this->position+N;
-    if(this->position>(this->windows_along_x*this->windows_along_y-1))
+    if(this->position>=(this->windows_along_x*this->windows_along_y-1))
     this->position=(this->windows_along_x*this->windows_along_y-1);
     return *this;
   }
@@ -240,6 +245,6 @@ namespace thrust
 
     int windowsX = int((b->dim_x-window_dim_x)/stride_x) +1;
     int windowsY = int((b->dim_y-window_dim_y)/stride_y)+1;
-    return window_iterator<T>(b,window_dim_x,window_dim_y,stride_x,stride_y) + (windowsX*windowsY-1);
+    return window_iterator<T>(b,window_dim_x,window_dim_y,stride_x,stride_y,windowsX*windowsY);
   }
 }

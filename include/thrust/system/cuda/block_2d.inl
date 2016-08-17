@@ -45,7 +45,7 @@ namespace thrust
   template <class T>
   __host__ __device__ thrust::detail::normal_iterator<thrust::device_ptr<T> > Block_2D<T>::operator[] (int index)
   {
-    return this->device_iterator + ((index * (this->dim_y + this->offset_y)) + offset_x);
+    return this->device_iterator + ((index * (this->dim_x + this->offset_x)) + offset_y);
   }
   template <class T>
   thrust::detail::normal_iterator<thrust::device_ptr<T> > Block_2D<T>::begin()
