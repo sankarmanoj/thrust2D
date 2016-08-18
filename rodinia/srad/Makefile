@@ -7,5 +7,5 @@ CFLAGS=-I$(IDIR)
 
 rod_srad_1: srad.out
 	#display image.pgm &
-	./srad.out 502 458 0.5 5
+	./srad.out 502 458 0.01 5
 	#display image_out.pgm &

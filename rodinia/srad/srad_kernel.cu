@@ -25,12 +25,14 @@ public:
 	int cols;
 	int rows;
 	float q0sqr;
+	float lambda;
 
-	SRADFunctor1 (int cols, int rows, float q0sqr)
+	SRADFunctor1 (int cols, int rows, float q0sqr, float lambda)
 	{
 		this->cols = cols;
 		this->rows = rows;
 		this->q0sqr = q0sqr;
+		this->lambda = lambda;
 	}
 
 	__device__ void operator() (thrust::window_2D<float> w)
@@ -65,60 +67,69 @@ public:
 		// diffusion coefficent (equ 33)
 		den = (qsqr-q0sqr) / (q0sqr * (1+q0sqr)) ;
 		c = 1.0 / (1.0+den) ;
-
-	  // saturate diffusion coefficent
-		if (c < 0){w[ty][tx] = 0;}
-		else if (c > 1) {w[ty][tx] = 1;}
-		else {w[ty][tx] = c;}
-
-		// printf("%f\n", (float) w[ty][tx]);
-	}
-
-};
-
-class SRADFunctor2
-{
-public:
-	int cols;
-	int rows;
-	float lambda;
-	float q0sqr;
-
-	SRADFunctor2 (int cols,int rows,float lambda,float q0sqr)
-	{
-		this->cols = cols;
-		this->rows = rows;
-		this->lambda = lambda;
-		this->q0sqr = q0sqr;
-	}
-
-	__device__ void operator() (thrust::window_2D<float> w)
-	{
-		// printf("functor2\n");
-		int ty = w.window_dim_y/2;
-		int tx = w.window_dim_x/2;
-		// int rty = w.start_y + ty;
-		// int rtx = w.start_x + tx;
-		int S = ty-1;
-		int N = ty+1;
-		int W = tx-1;
-		int E = tx+1;
-
 		float cc,cn,cs,cw,ce,d_sum;
 
 		cc = (float) w[ty][tx];
 
 		cn  = cc;
-    cs  = (float) w[S][tx];
-    cw  = cc;
-    ce  = (float) w[ty][E];
-
-		// divergence (equ 58)
+		cs  = (float) w[S][tx];
+		cw  = cc;
+		ce  = (float) w[ty][E];
 		d_sum = cn * ((float) w[N][tx]) + cs * ((float) w[S][tx]) + cw * ((float) w[ty][W]) + ce * ((float) w[ty][E]);
 
 		// image update (equ 61)
 		w[ty][tx] = (float) w[ty][tx] + 0.25 * lambda * d_sum;
+
+
+
 		// printf("%f\n", (float) w[ty][tx]);
 	}
 
 };
+
+// class SRADFunctor2
+// {
+// public:
+// 	int cols;
+// 	int rows;
+// 	float lambda;
+// 	float q0sqr;
+//
+// 	SRADFunctor2 (int cols,int rows,float lambda,float q0sqr)
+// 	{
+// 		this->cols = cols;
+// 		this->rows = rows;
+// 		this->lambda = lambda;
+// 		this->q0sqr = q0sqr;
+// 	}
+//
+// 	__device__ void operator() (thrust::window_2D<float> w)
+// 	{
+// 		// printf("functor2\n");
+// 		int ty = w.window_dim_y/2;
+// 		int tx = w.window_dim_x/2;
+// 		// int rty = w.start_y + ty;
+// 		// int rtx = w.start_x + tx;
+// 		int S = ty-1;
+// 		int N = ty+1;
+// 		int W = tx-1;
+// 		int E = tx+1;
+//
+// 		float cc,cn,cs,cw,ce,d_sum;
+//
+// 		cc = (float) w[ty][tx];
+//
+// 		cn  = cc;
+//     cs  = (float) w[S][tx];
+//     cw  = cc;
+//     ce  = (float) w[ty][E];
+//
+// 		// divergence (equ 58)
+// 		d_sum = cn * ((float) w[N][tx]) + cs * ((float) w[S][tx]) + cw * ((float) w[ty][W]) + ce * ((float) w[ty][E]);
+//
+// 		// image update (equ 61)
+// 		w[ty][tx] = (float) w[ty][tx] + 0.25 * lambda * d_sum;
+// 		// printf("%f\n", (float) w[ty][tx]);
+// 	}
+//
+// };
