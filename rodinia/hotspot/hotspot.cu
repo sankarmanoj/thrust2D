@@ -99,6 +99,7 @@ void readinput(float * vect, int grid_rows, int grid_cols, char *file){
 		if ((sscanf(str, "%f", &val) != 1))
 			fatal((char *)"invalid file format");
 		vect[i*grid_cols+j] = val;
+    // printf("%f %d %d\n", val,i,j);
 	}
 
 	fclose(fp);
@@ -144,10 +145,10 @@ public:
         int tx = w.window_dim_x/2;
         int rty = w.start_y + ty;
         int rtx = w.start_x + tx;
-        int W = ty-1;
-        int E = ty+1;
-        int N = tx-1;
-        int S = tx+1;
+        int S = ty-1;
+        int N = ty+1;
+        int W = tx-1;
+        int E = tx+1;
 
         float my_power = (*MatrixPower)[rtx][rty];
         for (int i=0; i<iteration ; i++)
@@ -156,7 +157,7 @@ public:
                 (w[S][tx] + w[N][tx] - 2.0*(w[ty][tx])) * Ry_1 + \
                 (w[ty][E] + w[ty][W] - 2.0*(w[ty][tx])) * Rx_1 + \
                 (AMBIENT_TEMP - w[ty][tx]) * Rz_1);
-            // printf("%f\n",(float) w[ty][tx]);
+            // printf("%f %d %d\n",(float) w[ty][tx],rty,rtx);
          }
 	}
 };/*
@@ -175,15 +176,14 @@ int thrustCompute(thrust::Block_2D<float> &PowerBlock,thrust::Block_2D<float> &T
 
 	float max_slope = MAX_PD / (FACTOR_CHIP * t_chip * SPEC_HEAT_SI);
 	float step = PRECISION / max_slope;
-	float t;
+	int t;
   float step_div_Cap;
   float Rx_1,Ry_1,Rz_1;
   step_div_Cap=step/Cap;
-
   Rx_1=1/Rx;
   Ry_1=1/Ry;
   Rz_1=1/Rz;
-
+  printf("step_div_Cap = %f\nrx,ry,rz = %f,%f,%f\n",step_div_Cap,Rx_1,Ry_1,Rz_1);
 	for (t = 0; t < total_iterations; t+=num_iterations)
   {
     int requiredIterations = MIN(num_iterations,total_iterations-t);

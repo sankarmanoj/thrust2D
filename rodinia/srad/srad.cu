@@ -4,6 +4,8 @@
 #include <string.h>
 #include <math.h>
 #include "srad.h"
+#include "graphics.c"
+#include "resize.c"
 // includes, project
 #include <cuda.h>
 
@@ -14,43 +16,13 @@ void random_matrix(float* I, int rows, int cols);
 void runTest( int argc, char** argv);
 void usage(int argc, char **argv)
 {
-	fprintf(stderr, "Usage: %s <rows> <cols> <y1> <y2> <x1> <x2> <lamda> <no. of iter>\n", argv[0]);
+	fprintf(stderr, "Usage: %s <rows> <cols> <lamda> <no. of iter>\n", argv[0]);
 	fprintf(stderr, "\t<rows>   - number of rows\n");
 	fprintf(stderr, "\t<cols>    - number of cols\n");
-	fprintf(stderr, "\t<y1> 	 - y1 value of the speckle\n");
-	fprintf(stderr, "\t<y2>      - y2 value of the speckle\n");
-	fprintf(stderr, "\t<x1>       - x1 value of the speckle\n");
-	fprintf(stderr, "\t<x2>       - x2 value of the speckle\n");
 	fprintf(stderr, "\t<lamda>   - lambda (0,1)\n");
 	fprintf(stderr, "\t<no. of iter>   - number of iterations\n");
 
 	exit(1);
-}
-//
-void writeoutput(thrust::host_vector<float> vect, int grid_rows, int grid_cols, char *file){
-	int i,j, index=0;
-	FILE *fp;
-	char str[STR_SIZE];
-
-	if( (fp = fopen(file, "w" )) == 0 )
-        printf( "The file was not opened\n" );
-
-
-	for (i=0; i < grid_rows; i++)
-	{
-	 for (j=0; j < grid_cols; j++)
-	 {
-		sprintf(str, "%g ", vect[i*grid_cols+j]);
-		// printf("%g ",vect[i*grid_cols+j]);
-		fputs(str,fp);
-		index++;
-	 }
-	 sprintf(str, "\n");
-	//  printf("\n");
-	 fputs(str,fp);
- }
-
-      fclose(fp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +35,6 @@ main( int argc, char** argv)
 	srand((unsigned) time(&t));
   printf("WG size of kernel = %d X %d\n", BLOCK_SIZE, BLOCK_SIZE);
   runTest( argc, argv);
-
   return EXIT_SUCCESS;
 }
 
@@ -72,23 +43,15 @@ void
 runTest( int argc, char** argv)
 {
   unsigned int rows, cols, size_I, size_R, niter = 10, iter;
-  float *J,*I,lambda, q0sqr, sum, sum2, tmp, meanROI,varROI ;
+  float *J,*image_ori,lambda, q0sqr, sum, sum2, tmp, meanROI,varROI ;
 	unsigned int r1, r2, c1, c2;
 
-	if (argc == 9)
+	if (argc == 5)
 	{
 		rows = atoi(argv[1]);  //number of rows in the domain
 		cols = atoi(argv[2]);  //number of cols in the domain
-		if ((rows%16!=0) || (cols%16!=0)){
-		fprintf(stderr, "rows and cols must be multiples of 16\n");
-		exit(1);
-		}
-		r1   = atoi(argv[3]);  //y1 position of the speckle
-		r2   = atoi(argv[4]);  //y2 position of the speckle
-		c1   = atoi(argv[5]);  //x1 position of the speckle
-		c2   = atoi(argv[6]);  //x2 position of the speckle
-		lambda = atof(argv[7]); //Lambda value
-		niter = atoi(argv[8]); //number of iterations
+		lambda = atof(argv[3]); //Lambda value
+		niter = atoi(argv[4]); //number of iterations
 
 	}
   else
@@ -96,28 +59,30 @@ runTest( int argc, char** argv)
 		usage(argc, argv);
   }
 
+	r1 = 0;
+	r2 = rows - 1;
+	c1 = 0;
+	c2 = cols - 1;
 
+	size_R = (r2-r1+1)*(c2-c1+1);
+
+	int image_ori_rows = 502;
+	int image_ori_cols = 458;
+	long image_ori_elem = image_ori_rows * image_ori_cols;
+
+	image_ori = (float*)malloc(sizeof(float) * image_ori_elem);
+
+	read_graphics("image.pgm",image_ori,image_ori_rows,image_ori_cols,1);
 
 	size_I = cols * rows;
-  size_R = (r2-r1+1)*(c2-c1+1);
 
-	J = (float *) malloc(size_I*sizeof(float));
-	I = (float *) malloc(size_I*sizeof(float));
+	J = (float*) malloc(sizeof(float) * size_I);
 
-	thrust::Block_2D<float> J_cuda (rows,cols);
+	resize(	image_ori,image_ori_rows,image_ori_cols,J,rows,cols,1);
 
-	printf("Randomizing the input matrix\n");
-	//Generate a random matrix
-	random_matrix(I, rows, cols);
-
-  for (int k = 0;  k < size_I; k++ )
-	{
-   	J[k] = (float) exp(I[k]) ;
-  }
+	thrust::Block_2D<float> J_cuda (cols,rows);
 
 	J_cuda.device_data.assign(J,J+size_I);
-
-	writeoutput(J_cuda.device_data,rows,cols,"input.out");
 
 	printf("Start the SRAD main loop\n");
  	for (iter=0; iter< niter; iter++)
@@ -148,18 +113,8 @@ runTest( int argc, char** argv)
 		cudaDeviceSynchronize();
 		printf("Iteration Ended\n");
 	}
-	printf("Printing Output:\n");
-  writeoutput(J_cuda.device_data,rows,cols,"result.out");
 	printf("Computation Done\n");
+	cudaMemcpy(J,thrust::raw_pointer_cast(J_cuda.device_data.data()),size_I,cudaMemcpyDeviceToHost);
+	write_graphics(	"image_out.pgm",J,rows,cols,0,255);
 	// cudaDeviceReset();
-}
-
-
-void random_matrix(float *I, int rows, int cols){
-	for( int i = 0 ; i < rows ; i++){
-		for ( int j = 0 ; j < cols ; j++){
-		 I[i * cols + j] = rand()/(float)RAND_MAX ;
-		}
-	}
-
 }

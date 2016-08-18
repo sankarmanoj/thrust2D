@@ -39,20 +39,20 @@ public:
 		int tx = w.window_dim_x/2;
 		// int rty = w.start_y + ty;
 		// int rtx = w.start_x + tx;
-		int W = ty-1;
-		int E = ty+1;
-		int N = tx-1;
-		int S = tx+1;
+		int S = ty-1;
+		int N = ty+1;
+		int W = tx-1;
+		int E = tx+1;
 
 		// printf("functor %d %d \n",w.start_x,w.start_y);
-		// printf("%f\n", (float) w[tx][ty]);
+		// printf("%f\n", (float) w[ty][tx]);
 
 		float jc,n,s,we,e,g2,l,num,den,qsqr,c;
-		jc = (float) w[tx][ty];
-		n  = (float) w[N][ty] - jc;
-    s  = (float) w[S][ty] - jc;
-    we = (float) w[tx][W]  - jc;
-    e  = (float) w[tx][E] - jc;
+		jc = (float) w[ty][tx];
+		n  = (float) w[N][tx] - jc;
+    s  = (float) w[S][tx] - jc;
+    we = (float) w[ty][W]  - jc;
+    e  = (float) w[ty][E] - jc;
 
 
     g2 = ( n * n + s * s + we * we + e * e ) / (jc * jc);
@@ -67,11 +67,11 @@ public:
 		c = 1.0 / (1.0+den) ;
 
 	  // saturate diffusion coefficent
-		if (c < 0){w[tx][ty] = 0;}
-		else if (c > 1) {w[tx][ty] = 1;}
-		else {w[tx][ty] = c;}
+		if (c < 0){w[ty][tx] = 0;}
+		else if (c > 1) {w[ty][tx] = 1;}
+		else {w[ty][tx] = c;}
 
-		// printf("%f\n", (float) w[tx][ty]);
+		// printf("%f\n", (float) w[ty][tx]);
 	}
 
 };
@@ -99,26 +99,26 @@ public:
 		int tx = w.window_dim_x/2;
 		// int rty = w.start_y + ty;
 		// int rtx = w.start_x + tx;
-		int W = ty-1;
-		int E = ty+1;
-		int N = tx-1;
-		int S = tx+1;
+		int S = ty-1;
+		int N = ty+1;
+		int W = tx-1;
+		int E = tx+1;
 
 		float cc,cn,cs,cw,ce,d_sum;
 
-		cc = (float) w[tx][ty];
+		cc = (float) w[ty][tx];
 
 		cn  = cc;
-    cs  = (float) w[S][ty];
+    cs  = (float) w[S][tx];
     cw  = cc;
-    ce  = (float) w[tx][E];
+    ce  = (float) w[ty][E];
 
 		// divergence (equ 58)
-		d_sum = cn * ((float) w[N][ty]) + cs * ((float) w[S][ty]) + cw * ((float) w[tx][W]) + ce * ((float) w[tx][E]);
+		d_sum = cn * ((float) w[N][tx]) + cs * ((float) w[S][tx]) + cw * ((float) w[ty][W]) + ce * ((float) w[ty][E]);
 
 		// image update (equ 61)
-		w[tx][ty] = (float) w[tx][ty] + 0.25 * lambda * d_sum;
-		// printf("%f\n", (float) w[tx][ty]);
+		w[ty][tx] = (float) w[ty][tx] + 0.25 * lambda * d_sum;
+		// printf("%f\n", (float) w[ty][tx]);
 	}
 
 };
