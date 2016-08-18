@@ -7,9 +7,10 @@
 
 // includes, project
 #include <cuda.h>
-
+#define OUTPUT
+#define CPU
 // includes, kernels
-#include "srad_kernel_kernel.cu"
+#include "srad_kernel_cuda.cu"
 
 void random_matrix(float *I, int rows, int cols);
 void runTest( int argc, char** argv);
