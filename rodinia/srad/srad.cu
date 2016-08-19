@@ -82,6 +82,10 @@ runTest( int argc, char** argv)
 	// resize(	image_ori,image_ori_rows,image_ori_cols,J,rows,cols,0);
 
 	thrust::Block_2D<float> J_cuda (cols,rows);
+	thrust::Block_2D<float> d_c(cols,rows);
+	thrust::Block_2D<float> nullBlock(cols,rows);
+
+	thrust::fill(d_c.begin(),d_c.end(),0);
 
 	J_cuda.device_data.assign(J,J+size_I);
 
@@ -104,13 +108,14 @@ runTest( int argc, char** argv)
 	  varROI  = (sum2 / size_R) - meanROI*meanROI;
 	  q0sqr   = varROI / (meanROI*meanROI);
 		// SRADFunctor0 functor0;
-		SRADFunctor1 functor1(cols,rows,q0sqr,lambda);
-		// SRADFunctor2 functor2(cols,rows,lambda,q0sqr);
+		SRADFunctor1 functor1(cols,rows,q0sqr);
+		SRADFunctor2 functor2(cols,rows,lambda,q0sqr);
 		thrust::window_vector<float> wv = thrust::window_vector<float>(&(J_cuda),3,3,1,1);
+		thrust::window_vector<float> d_cwv = thrust::window_vector<float>(&(d_c),3,3,1,1);
 		// thrust::for_each(wv.begin(),wv.end(),functor0);
-		thrust::for_each(wv.begin(),wv.end(),functor1);
+		thrust::transform(wv.begin(),wv.end(),wv.begin(),nullBlock.begin(),functor1);
 		// cudaDeviceSynchronize();
-		// thrust::for_each(wv.begin(),wv.end(),functor2);
+		thrust::for_each(wv.begin(),wv.end(),functor2);
 		// cudaDeviceSynchronize();
 		printf("Iteration Ended\n");
 	}
