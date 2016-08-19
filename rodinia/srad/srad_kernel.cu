@@ -12,7 +12,7 @@ public:
 	{
 	}
 
-	__device__ void operator() (thrust::window_2D<float> w)
+	__device__ void operator() (thrust::window_2D<float> &w)
 	{
 		printf("%f\n", (float) w[0][0]);
 	}
@@ -36,7 +36,7 @@ public:
 	// {
 	// 	return x + y;
 	// }
-	__device__ float operator() (thrust::window_2D<float> w,thrust::window_2D<float> yolo)
+	__device__ float operator() (thrust::window_2D<float> &w,thrust::window_2D<float> &yolo)
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
@@ -80,7 +80,7 @@ public:
 			c=1;
 		}
 		yolo[ty][tx] = c;
-		return 0;
+		return 0.0;
 
 		// printf("%f\n", (float) w[ty][tx]);
 	}

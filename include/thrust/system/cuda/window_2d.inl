@@ -47,6 +47,12 @@ namespace thrust
   }
 
   template <class T>
+  __host__ __device__ window_2D<T>::operator device_reference<window_2D<T> >() const
+  {
+    return *this;
+  }
+
+  template <class T>
   __host__ window_iterator<T>::window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
   {
 
@@ -89,11 +95,6 @@ namespace thrust
     int j = index%windows_along_y;
     int start_x = stride_x*i;
     int start_y = stride_y*j;
-    // int x = index * stride_x / block_dim_y;
-    // int y = index * stride_y % block_dim_y;
-    // int start_x = stride_x * x;
-    // int start_y = stride_y * y;
-        printf("Reached Here 3");
     window_2D<T> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
 
     return temp;
@@ -107,7 +108,7 @@ namespace thrust
     int j = index%windows_along_y;
     int start_x = stride_x*i;
     int start_y = stride_y*j;
-        printf("Reached Here 3");
+        // printf("Reached Here 3");
     window_2D<T> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
 
     return temp;
