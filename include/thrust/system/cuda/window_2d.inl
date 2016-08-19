@@ -220,11 +220,41 @@ namespace thrust
     return *this;
   }
 
-  // template <class T>
-  // __host__ __device__ bool window_iterator<T>::operator< (const window_iterator<T>& it)
-  // {
-  //   return this-template>device_it < it.device_it;
-  // }
+  template <class T>
+  __host__ __device__ bool window_iterator<T>::operator!= (const window_iterator<T>& it)
+  {
+    return this->position!=it.position;
+  }
+
+  template <class T>
+  __host__ __device__ bool window_iterator<T>::operator== (const window_iterator<T>& it)
+  {
+    return this->position==it.position;
+  }
+
+  template <class T>
+  __host__ __device__ bool window_iterator<T>::operator> (const window_iterator<T>& it)
+  {
+    return this->position>it.position;
+  }
+
+  template <class T>
+  __host__ __device__ bool window_iterator<T>::operator>= (const window_iterator<T>& it)
+  {
+    return this->position>=it.position;
+  }
+
+  template <class T>
+  __host__ __device__ bool window_iterator<T>::operator< (const window_iterator<T>& it)
+  {
+    return this->position<it.position;
+  }
+  template <class T>
+  __host__ __device__ bool window_iterator<T>::operator<= (const window_iterator<T>& it)
+  {
+    return this->position<=it.position;
+  }
+
   template <class T>
   window_vector<T>::window_vector (Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
   {

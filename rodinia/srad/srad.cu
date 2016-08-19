@@ -33,7 +33,7 @@ main( int argc, char** argv)
 {
 	time_t t;
 	srand((unsigned) time(&t));
-  printf("WG size of kernel = %d X %d\n", BLOCK_SIZE, BLOCK_SIZE);
+ 
   runTest( argc, argv);
   return EXIT_SUCCESS;
 }
@@ -113,9 +113,10 @@ runTest( int argc, char** argv)
 		thrust::window_vector<float> wv = thrust::window_vector<float>(&(J_cuda),3,3,1,1);
 		thrust::window_vector<float> d_cwv = thrust::window_vector<float>(&(d_c),3,3,1,1);
 		// thrust::for_each(wv.begin(),wv.end(),functor0);
-		thrust::transform(wv.begin(),wv.end(),wv.begin(),nullBlock.begin(),functor1);
+		thrust::transform(wv.begin(),wv.end(),d_cwv.begin(),nullBlock.begin(),functor1);
 		// cudaDeviceSynchronize();
-		thrust::for_each(wv.begin(),wv.end(),functor2);
+
+		thrust::transform(wv.begin(),wv.end(),d_cwv.begin(),nullBlock.begin(),functor2);
 		// cudaDeviceSynchronize();
 		printf("Iteration Ended\n");
 	}

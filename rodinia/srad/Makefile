@@ -13,5 +13,5 @@ endif
 rod_srad_1: srad.out
 	#display image.pgm &
 
-	./srad.out 502 458 0.5 5
-	$(display) image_out.pgm &
+	./srad.out 502 458 0.8 5
+	# $(display) image_out.pgm &
