@@ -33,7 +33,7 @@ main( int argc, char** argv)
 {
 	time_t t;
 	srand((unsigned) time(&t));
- 
+
   runTest( argc, argv);
   return EXIT_SUCCESS;
 }
@@ -88,11 +88,15 @@ runTest( int argc, char** argv)
 	thrust::fill(d_c.begin(),d_c.end(),0);
 
 	J_cuda.device_data.assign(J,J+size_I);
+	thrust::for_each(J_cuda.begin(),J_cuda.end(),extractFunctor());
 
 	printf("Start the SRAD main loop\n");
  	for (iter=0; iter< niter; iter++)
 	{
 		printf("Iteration Started\n");
+		sum = thrust::reduce(J_cuda.begin(),J_cuda.end());
+		sum2 = thrust::reduce(J_cuda.begin(),J_cuda.end(),squareplus());
+		printf("Thrust Reduce Sum = %f \n",sum2);
 		sum=0; sum2=0;
     for (int i=r1; i<=r2; i++)
 		{
@@ -104,6 +108,7 @@ runTest( int argc, char** argv)
           sum2 += tmp*tmp;
         }
     }
+		printf("Normal Sum = %f \n",sum2);
 	  meanROI = sum / size_R;
 	  varROI  = (sum2 / size_R) - meanROI*meanROI;
 	  q0sqr   = varROI / (meanROI*meanROI);
@@ -121,6 +126,7 @@ runTest( int argc, char** argv)
 		printf("Iteration Ended\n");
 	}
 	printf("Computation Done\n");
+	thrust::for_each(J_cuda.begin(),J_cuda.end(),compressFunctor());
 	cudaMemcpy(J,thrust::raw_pointer_cast(J_cuda.device_data.data()),size_I,cudaMemcpyDeviceToHost);
 	write_graphics(	"image_out.pgm",J,rows,cols,0,255);
 	// cudaDeviceReset();

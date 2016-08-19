@@ -8,6 +8,8 @@ else
 	display=display
 endif
 %.out: %.cu
+	clear
+	clear
 	$(CC)  -o $@ $< $(CFLAGS)
 
 rod_srad_1: srad.out

@@ -1,24 +1,30 @@
 #include "srad.h"
 #include <stdio.h>
 
-class SRADFunctor0
+class compressFunctor
 {
 public:
-	int cols;
-	int rows;
-	float q0sqr;
-
-	SRADFunctor0 ()
+	__device__ void operator() (float x)
 	{
+		x = log(x)*255;
 	}
-
-	__device__ void operator() (thrust::window_2D<float> &w)
+};
+class extractFunctor
+{
+public:
+	__device__ void operator() (float x)
 	{
-		printf("%f\n", (float) w[0][0]);
+		x = exp(x/255);
 	}
-
 };
 
+class squareplus
+{
+	float myValue=0;
+public:
+ __host__ __device__ float operator+ (const float &lhs)
+  {return lhs*lhs + myValue;}
+};
 class SRADFunctor1
 {
 public:
@@ -80,7 +86,7 @@ public:
 			c=1;
 		}
 		yolo[ty][tx] = c;
-		
+
 		printf("%f\n", (float) w[ty][tx]);
 		return 0.0;
 
@@ -124,7 +130,7 @@ public:
 	    cs  = (float) c[S][tx];
 	    cw  = cc;
 	    ce  = (float) c[ty][E];
-			
+
 		float jc,n,s,we,e,g2,l,num,den,qsqr;
 		jc = (float) w[ty][tx];
 		n  = (float) w[N][tx] - jc;
@@ -133,7 +139,7 @@ public:
 		e  = (float) w[ty][E] - jc;
 
 		// divergence (equ 58)
-		float d_D = cn*n +cs*s + ce*e + cw*we; 
+		float d_D = cn*n +cs*s + ce*e + cw*we;
 		// image update (equ 61)
 		w[tx][ty]=0;
 		// w[ty][tx] = (float) w[ty][tx] + 0.25 * lambda * d_D;

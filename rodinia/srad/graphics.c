@@ -59,7 +59,7 @@ void write_graphics(	char* filename,
 	if(major==0){
 		for(i=0; i<data_rows; i++){
 			for(j=0; j<data_cols; j++){
-				fprintf(fid, "%d ", (int)(255.0*log(input[i*data_cols+j])));
+				fprintf(fid, "%d ", (int)(input[i*data_cols+j]));
 			}
 			fprintf(fid, "\n");
 		}
@@ -68,7 +68,7 @@ void write_graphics(	char* filename,
 	else{
 		for(i=0; i<data_rows; i++){
 			for(j=0; j<data_cols; j++){
-				fprintf(fid, "%d ", (int)(255.0*log(input[j*data_rows+i])));
+				fprintf(fid, "%d ", (int)(input[j*data_rows+i]));
 			}
 			fprintf(fid, "\n");
 		}
@@ -133,7 +133,7 @@ void read_graphics(	char* filename,
 		for(i=0; i<data_rows; i++){
 			for(j=0; j<data_cols; j++){
 				fscanf(fid, "%d", &temp);
-				input[i*data_cols+j] = (float)exp((temp/255.0));
+				input[i*data_cols+j] = (float)(temp/255.0);
 			}
 		}
 	}
@@ -141,7 +141,7 @@ void read_graphics(	char* filename,
 		for(i=0; i<data_rows; i++){
 			for(j=0; j<data_cols; j++){
 				fscanf(fid, "%d", &temp);
-				input[j*data_rows+i] = (float)exp((temp/255.0));
+				input[j*data_rows+i] = (float)(temp/255.0);
 			}
 		}
 	}
