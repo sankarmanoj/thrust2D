@@ -14,7 +14,9 @@ class extractFunctor
 public:
 	__device__ void operator() (float &x)
 	{
+
 		x = exp(x/255);
+
 	}
 };
 
@@ -89,7 +91,9 @@ public:
 		}
 		yolo[ty][tx] = c;
 
+
 		printf("%f\n", (float) w[ty][tx]);
+
 		return 0.0;
 
 	}

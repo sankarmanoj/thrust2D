@@ -39,7 +39,15 @@ namespace thrust
   }
 
   template <class T>
-  __host__ __device__ thrust::detail::normal_iterator<thrust::device_ptr<T> > window_2D<T>::operator[] (int index)
+  __host__ __device__ thrust::detail::normal_iterator<thrust::device_ptr<T> > window_2D<T>::operator[] (long index)
+  {
+    // TODO: Check Indexing of Window of a SubBlock.
+    // printf("%d\n",b->dim_x);
+    return (*b)[start_y + index] + start_x;
+  }
+
+  template <class T>
+  __host__ __device__ const thrust::detail::normal_iterator<thrust::device_ptr<T> > window_2D<T>::operator[] (long index) const
   {
     // TODO: Check Indexing of Window of a SubBlock.
     // printf("%d\n",b->dim_x);
@@ -88,7 +96,7 @@ namespace thrust
 
   }
   template <class T>
-  __host__ __device__ window_2D<T> window_iterator<T>::operator[] (unsigned int index)
+  __host__ __device__ window_2D<T> window_iterator<T>::operator[] (long index)
   {
     // printf("Reached Here 1");
     int i = index/windows_along_y;
@@ -101,7 +109,7 @@ namespace thrust
   }
 
   template <class T>
-  __host__ __device__ const window_2D<T> window_iterator<T>::operator[] (unsigned int index) const
+  __host__ __device__ const window_2D<T> window_iterator<T>::operator[] (long index) const
   {
     // printf("Reached Here 2");
     int i = index/windows_along_y;
@@ -140,9 +148,31 @@ namespace thrust
   }
 
   template <class T>
-  __host__ __device__ int window_iterator<T>::operator- (const window_iterator& it)
+  __host__ __device__ long window_iterator<T>::operator- (const window_iterator& it)
   {
+    // printf("operator-\n");
     return this->position - it.position;
+  }
+
+  template <class T>
+  __host__ __device__ long window_iterator<T>::operator- (const window_iterator* it)
+  {
+    // printf("operator-\n");
+    return this->position - it->position;
+  }
+
+  template <class T>
+  __host__ __device__ long window_iterator<T>::operator- (const window_iterator& it) const
+  {
+    // printf("operator-\n");
+    return this->position - it.position;
+  }
+
+  template <class T>
+  __host__ __device__ long window_iterator<T>::operator- (const window_iterator* it) const
+  {
+    // printf("operator-\n");
+    return this->position - it->position;
   }
 
   template <class T>
@@ -229,6 +259,7 @@ namespace thrust
   template <class T>
   __host__ __device__ bool window_iterator<T>::operator== (const window_iterator<T>& it)
   {
+    // printf("==\n");
     return this->position==it.position;
   }
 
