@@ -55,9 +55,6 @@ namespace thrust
     __host__ __device__ __forceinline__ window_iterator<T> operator+= (long N);
     __host__ __device__ __forceinline__ const window_iterator<T> operator+= (long N) const;
 
-    // __host__ __device__ __forceinline__ window_iterator<T> operator+= (long N);
-    // __host__ __device__ __forceinline__ const window_iterator<T> operator+= (long N) const;
-
     // __host__ __device__ bool operator< (const window_iterator<T>& it);
 
   };
