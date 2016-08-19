@@ -50,48 +50,172 @@ namespace thrust
   template <class T>
   thrust::detail::normal_iterator<thrust::device_ptr<T> > Block_2D<T>::begin()
   {
-    return this->device_data.begin();
-
+    // block_iterator<T> it(this,this->offset_x,this->offset_y);
+    // return it;
+    return this->device_iterator;
   }
   template <class T>
   thrust::detail::normal_iterator<thrust::device_ptr<T> > Block_2D<T>::end()
   {
-    return this->device_data.end();
+    // block_iterator<T> it(this,this->offset_x,this->offset_y);
+    // // TODO: Need two more cases here where only one of the offsets is 0
+    // if (this->offset_x == 0 && this->offset_y == 0)
+    //   it = it + (this->dim_x *this->dim_y - 1);
+    // else
+    //   it = it + ((this->dim_x + this->offset_x - 1)*(this->dim_y + this->offset_y - 1));
+    // return it;
+    return this->device_iterator + dim_x*dim_y;
+  }
 
+  template <class T>
+  block_iterator<T>::block_iterator (Block_2D<T> *b, int start_x, int start_y)
+  {
+    this->dim_x = b->dim_x;
+    this->dim_y = b->dim_y;
+    this->start_x = start_x;
+    this->start_y = start_y;
+    // TODO: stride_x and stride_y should be passed as parameter. Overload.
+    this->stride_x = 1;
+    this->stride_y = 1;
+
+    this->current_x = 0;
+    this->current_y = 0;
+    // TODO: Should following be this instead. b->device_iterator +start_x*dim_y +start_y;
+    this->device_iterator = b->device_iterator;
+    this->b = b;
+  }
+  template <class T>
+  __host__ __device__ thrust::detail::normal_iterator<thrust::device_ptr<T> > block_iterator<T>::operator[] (unsigned int index)
+  {
+    return this->device_iterator + ((index * (this->dim_y + this->start_y)) + start_x);
+  }
+
+  template <class T>
+  __host__ __device__ const thrust::detail::normal_iterator<thrust::device_ptr<T> > block_iterator<T>::operator[] (unsigned int index) const
+  {
+    return this->device_iterator + ((index * (this->dim_y + this->start_y)) + start_x);
   }
 
   // template <class T>
-  // thrust::detail::normal_iterator<thrust::device_ptr<window_2D<T> > > Block_2D<T>::begin(int window_dim_x,int window_dim_y)
+  // __host__ __device__ thrust::detail::normal_iterator<thrust::device_ptr<T> > block_iterator<T>::operator* ()
   // {
-  //   // printf("Reached Here");
-  //   return window_iterator<T>(this,window_dim_x,window_dim_y,1,1);
-  // }
-  // template <class T>
-  // thrust::detail::normal_iterator<thrust::device_ptr<window_2D<T> > > Block_2D<T>::end(int window_dim_x,int window_dim_y)
-  // {
-  //   // printf("Reached Here");
-  //   int xSpacing = (window_dim_x-1)/2;
-  //   int ySpacing = (window_dim_y-1)/2;
-  //   int windowsX = (dim_x)-(2)*xSpacing;
-  //   int windowsY = (dim_y)-(2)*ySpacing;
-  //   return window_iterator<T>(this,window_dim_x,window_dim_y,1,1) + windowsX * windowsY;
-  //
+  //   // return this->device_iterator + ((index * (this->dim_y + this->start_y)) + start_x);
   // }
   //
   // template <class T>
-  // thrust::detail::normal_iterator<thrust::device_ptr<window_2D<T> > > Block_2D<T>::begin(int window_dim_x,int window_dim_y, int stride_x, int stride_y)
+  // __host__ __device__ const thrust::detail::normal_iterator<thrust::device_ptr<T> > block_iterator<T>::operator* () const
   // {
-  //   return window_iterator<T>(this,window_dim_x,window_dim_y,stride_x,stride_y);
+  //   // return this->device_iterator + ((index * (this->dim_y + this->start_y)) + start_x);
+  // }
+  //
+  // template <class T>
+  // __host__ __device__ int block_iterator<T>::operator- (const block_iterator& it)
+  // {
+  //
+  // }
+
+  template <class T>
+  __host__ __device__ block_iterator<T> block_iterator<T>::operator+ (long value)
+  {
+    int temp = this->current_x*(this->dim_y + this->start_y) + this->current_y;
+    // assert((this->dim_x + this->start_x)*(this->dim_y + this->start_y) - temp > value);
+    temp = temp + value;
+    this->current_x = temp / (this->dim_y + this->start_y);
+    this->current_y = temp % (this->dim_y + this->start_y);
+    this->device_iterator += value;
+    return *this;
+  }
+
+  template <class T>
+  __host__ __device__ block_iterator<T> block_iterator<T>::operator++ ()
+  {
+    int temp = this->current_x*(this->dim_y + this->start_y) + this->current_y;
+    // assert((this->dim_x + this->start_x)*(this->dim_y + this->start_y) - temp > value);
+    temp = temp + 1;
+    this->current_x = temp / (this->dim_y + this->start_y);
+    this->current_y = temp % (this->dim_y + this->start_y);
+    this->device_iterator += 1;
+    return *this;
+  }
+
+  // template <class T>
+  // __host__ __device__ block_iterator<T> block_iterator<T>::operator- (long N)
+  // {
+  //   return
+  // }
+  //
+  // template <class T>
+  // __host__ __device__ block_iterator<T>::block_iterator<T>(const block_iterator<T>& other)
+  // {
+  //
+  // }
+  //
+  // template <class T>
+  // __host__ __device__ block_iterator<T>& block_iterator<T>::operator= (block_iterator<T> it)
+  // {
+  //
+  // }
+  //
+  // template <class T>
+  // __host__ __device__ __forceinline__ block_iterator<T> block_iterator<T>::operator+= (long N)
+  // {
   //
   // }
   // template <class T>
-  // thrust::detail::normal_iterator<thrust::device_ptr<window_2D<T> > > Block_2D<T>::end(int window_dim_x,int window_dim_y, int stride_x, int stride_y)
+  // __host__ __device__ __forceinline__ const block_iterator<T> block_iterator<T>::operator+= (long N) const
   // {
-  //   int xSpacing = (window_dim_x-1)/2;
-  //   int ySpacing = (window_dim_y-1)/2;
-  //   int windowsX = (dim_x)-(stride_x + 1)*xSpacing;
-  //   int windowsY = (dim_y)-(stride_y + 1)*ySpacing;
-  //   return window_iterator<T>(this,window_dim_x,window_dim_y,stride_x,stride_y) + windowsX * windowsY;;
   //
   // }
+
+  template <class T>
+  void block_iterator<T>::move_forward ()
+  {
+    int temp = this->current_x*(this->dim_y + this->start_y) + this->current_y,ntemp;
+    if (this->dim_y - this->current_y > this->stride_y)
+      ntemp = temp + this->stride_y;
+    else
+      ntemp = temp - this->dim_y + this->stride_y;
+      this->current_x = ntemp / (this->dim_y + this->start_y);
+      this->current_y = ntemp % (this->dim_y + this->start_y);
+    this->device_iterator += (ntemp - temp);
+  }
+
+  template <class T>
+  void block_iterator<T>::move_backward ()
+  {
+    int temp = this->current_x*(this->dim_y + this->start_y) + this->current_y,ntemp;
+    if(this->current_y - this->stride_y >= 0)
+      ntemp = temp - this->stride_y;
+    else
+      ntemp = temp + this->dim_y -this->stride_y;
+      this->current_x = ntemp / (this->dim_y + this->start_y);
+      this->current_y = ntemp % (this->dim_y + this->start_y);
+    this->device_iterator += (ntemp - temp);
+  }
+
+  template <class T>
+  void block_iterator<T>::move_downward ()
+  {
+    int temp = this->current_x*(this->dim_y + this->start_y) + this->current_y,ntemp;
+    if (this->dim_x - this->current_x > this->stride_x)
+      ntemp = temp + this->stride_x * (this->dim_y + this->start_y);
+    else
+      ntemp = temp - (this->dim_x - this->stride_x)*(this->dim_y + this->start_y);
+      this->current_x = ntemp / (this->dim_y + this->start_y);
+      this->current_y = ntemp % (this->dim_y + this->start_y);
+    this->device_iterator += (ntemp - temp);
+  }
+
+  template <class T>
+  void block_iterator<T>::move_upward ()
+  {
+    int temp = this->current_x*(this->dim_y + this->start_y) + this->current_y,ntemp;
+    if(this->current_x - this->stride_x >= 0)
+      ntemp = temp - this->stride_x * (this->dim_y + this->start_y);
+    else
+      ntemp = temp + (this->dim_x - this->stride_x)*(this->dim_y + this->start_y);
+      this->current_x = ntemp / (this->dim_y + this->start_y);
+      this->current_y = ntemp % (this->dim_y + this->start_y);
+    this->device_iterator += (ntemp - temp);
+  }
 }
