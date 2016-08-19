@@ -82,25 +82,26 @@ runTest( int argc, char** argv)
 	// resize(	image_ori,image_ori_rows,image_ori_cols,J,rows,cols,0);
 
 	thrust::Block_2D<float> J_cuda (cols,rows);
+	thrust::Block_2D<float> J_square(cols,rows);
 	thrust::Block_2D<float> d_c(cols,rows);
 	thrust::Block_2D<float> nullBlock(cols,rows);
-
 	thrust::fill(d_c.begin(),d_c.end(),0);
-
 	J_cuda.device_data.assign(J,J+size_I);
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),extractFunctor());
-
 	printf("Start the SRAD main loop\n");
  	for (iter=0; iter< niter; iter++)
 	{
 		printf("Iteration Started\n");
 		sum = thrust::reduce(J_cuda.begin(),J_cuda.end());
-		sum2 = thrust::reduce(J_cuda.begin(),J_cuda.end(),squareplus());
-		printf("Thrust Reduce Sum = %f \n",sum2);
+		J_square.copy(J_cuda.begin(),J_cuda.end());
+		thrust::for_each(J_square.begin(),J_square.end(),square());
+		sum = thrust::reduce(J_cuda.begin(),J_cuda.end());
+		sum2 = thrust::reduce(J_square.begin(),J_square.end());
+		printf("Thrust Reduce Sum = %f \n",sum);
 		sum=0; sum2=0;
-    for (int i=r1; i<=r2; i++)
+    for (int i=0; i<rows; i++)
 		{
-        for (int j=c1; j<=c2; j++)
+        for (int j=0; j<cols; j++)
 				{
 					// printf("%f ", (float) J_cuda[i][j]);
           tmp   = J[i*cols+j];

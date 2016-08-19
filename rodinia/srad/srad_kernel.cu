@@ -4,7 +4,7 @@
 class compressFunctor
 {
 public:
-	__device__ void operator() (float x)
+	__device__ void operator() (float &x)
 	{
 		x = log(x)*255;
 	}
@@ -12,18 +12,20 @@ public:
 class extractFunctor
 {
 public:
-	__device__ void operator() (float x)
+	__device__ void operator() (float &x)
 	{
 		x = exp(x/255);
 	}
 };
 
-class squareplus
+class square
 {
-	float myValue=0;
+
 public:
- __host__ __device__ float operator+ (const float &lhs)
-  {return lhs*lhs + myValue;}
+ __host__ __device__ void operator() (float &lhs)
+  {
+		lhs = lhs*lhs;
+	}
 };
 class SRADFunctor1
 {
