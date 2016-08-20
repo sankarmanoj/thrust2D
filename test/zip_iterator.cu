@@ -11,7 +11,7 @@ using namespace thrust;
 class transformFunctor
 {
 public:
-  __device__ int operator() (window_2D<int> &myWindow, int &a)
+  __device__ int operator() (const window_2D<int> &myWindow, const int &a) const
   {
     int value = myWindow[0][0];
 
@@ -32,6 +32,13 @@ int main()
   window_vector<int> myVector = window_vector<int>(&b,3,3 ,1,1);
   std::cout<<"Size ="<<myVector.end()-myVector.begin()<<std::endl;
   std::cout<<"Size ="<<thrust::make_zip_iterator(thrust::make_tuple(myVector.end(),myVector.end()))-thrust::make_zip_iterator(thrust::make_tuple(myVector.begin(),myVector.begin()))<<std::endl;
-  transform(host,myVector.begin(),myVector.end(),a.begin(),a.begin(),transformFunctor());
+  printf("!= = %d\n",thrust::make_zip_iterator(thrust::make_tuple(myVector.end(),myVector.end()))!=thrust::make_zip_iterator(thrust::make_tuple(myVector.begin(),myVector.begin())));
+  printf("> = %d\n",thrust::make_zip_iterator(thrust::make_tuple(myVector.end(),myVector.end()))>thrust::make_zip_iterator(thrust::make_tuple(myVector.begin(),myVector.begin())));
+  printf("< = %d\n",thrust::make_zip_iterator(thrust::make_tuple(myVector.end(),myVector.end()))<thrust::make_zip_iterator(thrust::make_tuple(myVector.begin(),myVector.begin())));
+  printf("<= = %d\n",thrust::make_zip_iterator(thrust::make_tuple(myVector.end(),myVector.end()))<=thrust::make_zip_iterator(thrust::make_tuple(myVector.begin(),myVector.begin())));
+  printf("== = %d\n",thrust::make_zip_iterator(thrust::make_tuple(myVector.end(),myVector.end()))==thrust::make_zip_iterator(thrust::make_tuple(myVector.begin(),myVector.begin())));
+  // transform(myVector.begin(),myVector.end(),a.begin(),a.begin(),transformFunctor());
+  printf("== = %d\n",myVector.begin() == myVector.end());
+  printf("!= = %d\n",myVector.begin() != myVector.end());
   return 0;
 }
