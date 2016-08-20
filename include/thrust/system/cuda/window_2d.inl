@@ -148,6 +148,13 @@ namespace thrust
   }
 
   template <class T>
+  __host__ __device__ long window_iterator<T>::operator- (window_iterator& it)
+  {
+    // printf("operator-\n");
+    return this->position - it.position;
+  }
+
+  template <class T>
   __host__ __device__ long window_iterator<T>::operator- (const window_iterator& it)
   {
     // printf("operator-\n");
@@ -155,24 +162,10 @@ namespace thrust
   }
 
   template <class T>
-  __host__ __device__ long window_iterator<T>::operator- (const window_iterator* it)
-  {
-    // printf("operator-\n");
-    return this->position - it->position;
-  }
-
-  template <class T>
   __host__ __device__ long window_iterator<T>::operator- (const window_iterator& it) const
   {
     // printf("operator-\n");
     return this->position - it.position;
-  }
-
-  template <class T>
-  __host__ __device__ long window_iterator<T>::operator- (const window_iterator* it) const
-  {
-    // printf("operator-\n");
-    return this->position - it->position;
   }
 
   template <class T>

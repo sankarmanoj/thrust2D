@@ -40,10 +40,9 @@ namespace thrust
     __host__ __device__ window_2D<T> operator* ();
     __host__ __device__ const window_2D<T> operator* () const;
 
+    __host__ __device__ long operator- (window_iterator& it);
     __host__ __device__ long operator- (const window_iterator& it);
-    __host__ __device__ long operator- (const window_iterator* it);
     __host__ __device__ long operator- (const window_iterator& it) const;
-    __host__ __device__ long operator- (const window_iterator* it) const;
 
     __host__ __device__ window_iterator<T> operator+ (long N);
 
