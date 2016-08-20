@@ -52,6 +52,7 @@ struct for_each_kernel
     first += i;
     while(i < n)
     {
+      printf("yolo");
       f(*first);
       i += grid_size;
       first += grid_size;

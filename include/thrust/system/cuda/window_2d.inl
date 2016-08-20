@@ -188,6 +188,8 @@ namespace thrust
   __host__ __device__ window_iterator<T> window_iterator<T>::operator++ ()
   {
     this->position++;
+    if(this->position>=(this->windows_along_x*this->windows_along_y-1))
+    this->position=(this->windows_along_x*this->windows_along_y-1);
     return *this;
   }
 
@@ -240,6 +242,8 @@ namespace thrust
   {
     this->position+=N;
     // printf("Reached Here += %d %d \n",current_x,current_y);
+    if(this->position>=(this->windows_along_x*this->windows_along_y-1))
+    this->position=(this->windows_along_x*this->windows_along_y-1);
     return *this;
   }
 
@@ -247,6 +251,8 @@ namespace thrust
   __host__ __device__ __forceinline__ const window_iterator<T> window_iterator<T>::operator+= (long N) const
   {
     this->position+=N;
+    if(this->position>=(this->windows_along_x*this->windows_along_y-1))
+    this->position=(this->windows_along_x*this->windows_along_y-1);
     return *this;
   }
 
