@@ -257,37 +257,37 @@ namespace thrust
   }
 
   template <class T>
-  __host__ __device__ bool window_iterator<T>::operator!= (const window_iterator<T>& it)
+  __host__ __device__ bool window_iterator<T>::operator!= (const window_iterator<T>& it) const
   {
     return this->position!=it.position;
   }
 
   template <class T>
-  __host__ __device__ bool window_iterator<T>::operator== (const window_iterator<T>& it)
+  __host__ __device__ bool window_iterator<T>::operator== (const window_iterator<T>& it) const
   {
     // printf("==\n");
     return this->position==it.position;
   }
 
   template <class T>
-  __host__ __device__ bool window_iterator<T>::operator> (const window_iterator<T>& it)
+  __host__ __device__ bool window_iterator<T>::operator> (const window_iterator<T>& it) const
   {
     return this->position>it.position;
   }
 
   template <class T>
-  __host__ __device__ bool window_iterator<T>::operator>= (const window_iterator<T>& it)
+  __host__ __device__ bool window_iterator<T>::operator>= (const window_iterator<T>& it) const
   {
     return this->position>=it.position;
   }
 
   template <class T>
-  __host__ __device__ bool window_iterator<T>::operator< (const window_iterator<T>& it)
+  __host__ __device__ bool window_iterator<T>::operator< (const window_iterator<T>& it) const
   {
     return this->position<it.position;
   }
   template <class T>
-  __host__ __device__ bool window_iterator<T>::operator<= (const window_iterator<T>& it)
+  __host__ __device__ bool window_iterator<T>::operator<= (const window_iterator<T>& it) const
   {
     return this->position<=it.position;
   }
