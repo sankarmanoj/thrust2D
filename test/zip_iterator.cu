@@ -75,7 +75,7 @@ int main()
   printf("== = %d\n",thrust::make_zip_iterator(thrust::make_tuple(myVector.end(),myVector.end()))==thrust::make_zip_iterator(thrust::make_tuple(myVector.begin(),myVector.begin())));
   printf("== = %d\n",myVector.begin() == myVector.end());
   printf("!= = %d\n",myVector.begin() != myVector.end());
-  for_each(myVector.begin(),myVector.end(),printFunctor());
+  // for_each(myVector.begin(),myVector.end(),printFunctor());
 
   transform(myVector.begin(),myVector.end(),a.begin(),a.begin(),transformFunctor());
   return 0;

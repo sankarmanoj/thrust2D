@@ -133,7 +133,7 @@ void read_graphics(	char* filename,
 		for(i=0; i<data_rows; i++){
 			for(j=0; j<data_cols; j++){
 				fscanf(fid, "%d", &temp);
-				input[i*data_cols+j] = (float)(temp/255.0);
+				input[i*data_cols+j] = (float)(temp);
 			}
 		}
 	}
@@ -141,7 +141,7 @@ void read_graphics(	char* filename,
 		for(i=0; i<data_rows; i++){
 			for(j=0; j<data_cols; j++){
 				fscanf(fid, "%d", &temp);
-				input[j*data_rows+i] = (float)(temp/255.0);
+				input[j*data_rows+i] = (float)(temp);
 			}
 		}
 	}

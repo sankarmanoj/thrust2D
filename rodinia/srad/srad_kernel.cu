@@ -6,7 +6,9 @@ class compressFunctor
 public:
 	__device__ void operator() (float &x)
 	{
-		x = log(x)*255;
+		float y  = 255*log(x);
+		// printf("%f ,, %f \n",y,x);
+		x=y;
 	}
 };
 class extractFunctor
@@ -15,7 +17,7 @@ public:
 	__device__ void operator() (float &x)
 	{
 
-		x = exp(x/255);
+		x = exp((float)x/255);
 
 	}
 };
@@ -92,12 +94,18 @@ public:
 		yolo[ty][tx] = c;
 
 
-		printf("%f\n", (float) w[ty][tx]);
-
 		return 0.0;
 
 	}
 
+};
+class printFunctor
+{
+public:
+	__device__ void operator() (float x)
+	{
+		printf(" %f \n",x);
+	}
 };
 
 class SRADFunctor2
@@ -116,7 +124,7 @@ public:
 		this->q0sqr = q0sqr;
 	}
 
-	__device__ float operator() (thrust::window_2D<float> w, thrust::window_2D<float> c)
+	__device__ float operator() (thrust::window_2D<float> &w, thrust::window_2D<float> &c)
 	{
 		// printf("functor2\n");
 		int ty = w.window_dim_y/2;
@@ -128,7 +136,7 @@ public:
 		int W = tx-1;
 		int E = tx+1;
 
-		float cc,cn,cs,cw,ce,d_sum;
+		float cc,cn,cs,cw,ce;
 
 		cc = (float) c[ty][tx];
 
@@ -137,7 +145,7 @@ public:
 	    cw  = cc;
 	    ce  = (float) c[ty][E];
 
-		float jc,n,s,we,e,g2,l,num,den,qsqr;
+		float jc,n,s,we,e;
 		jc = (float) w[ty][tx];
 		n  = (float) w[N][tx] - jc;
 		s  = (float) w[S][tx] - jc;
@@ -147,8 +155,8 @@ public:
 		// divergence (equ 58)
 		float d_D = cn*n +cs*s + ce*e + cw*we;
 		// image update (equ 61)
-		w[tx][ty]=0;
-		// w[ty][tx] = (float) w[ty][tx] + 0.25 * lambda * d_D;
+		// w[ty][tx];
+		w[ty][tx] = (float) w[ty][tx] + 0.25 * lambda * d_D;
 		// printf("%f\n", (float) w[ty][tx]);
 		return 0.0f;
 	}

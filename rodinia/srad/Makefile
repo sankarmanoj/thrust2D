@@ -11,9 +11,10 @@ endif
 	clear
 	clear
 	$(CC)  -o $@ $< $(CFLAGS)
+srad.cu : srad_kernel.cu
 
 rod_srad_1: srad.out
 	#display image.pgm &
 
-	./srad.out 502 458 0.8 5
+	./srad.out 502 458 0.5 100
 	# $(display) image_out.pgm &

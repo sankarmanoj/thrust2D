@@ -89,15 +89,17 @@ runTest( int argc, char** argv)
 	J_cuda.device_data.assign(J,J+size_I);
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),extractFunctor());
 	printf("Start the SRAD main loop\n");
+
+			// thrust::for_each(J_cuda.begin()+280,J_cuda.begin()+500,printFunctor());
  	for (iter=0; iter< niter; iter++)
 	{
-		printf("Iteration Started\n");
-		sum = thrust::reduce(J_cuda.begin(),J_cuda.end());
-		J_square.copy(J_cuda.begin(),J_cuda.end());
-		thrust::for_each(J_square.begin(),J_square.end(),square());
-		sum = thrust::reduce(J_cuda.begin(),J_cuda.end());
-		sum2 = thrust::reduce(J_square.begin(),J_square.end());
-		printf("Thrust Reduce Sum = %f \n",sum);
+		// printf("Iteration Started\n");
+		// // sum = thrust::reduce(J_cuda.begin(),J_cuda.end());
+		// J_square.copy(J_cuda.begin(),J_cuda.end());
+		// thrust::for_each(J_square.begin(),J_square.end(),square());
+		// sum = thrust::reduce(J_cuda.begin(),J_cuda.end());
+		// sum2 = thrust::reduce(J_square.begin(),J_square.end());
+		// printf("Thru st Reduce Sum = %f \n",sum);
 		sum=0; sum2=0;
     for (int i=0; i<rows; i++)
 		{
@@ -109,7 +111,7 @@ runTest( int argc, char** argv)
           sum2 += tmp*tmp;
         }
     }
-		printf("Normal Sum = %f \n",sum2);
+		// printf("Normal Sum = %f \n",sum2);
 	  meanROI = sum / size_R;
 	  varROI  = (sum2 / size_R) - meanROI*meanROI;
 	  q0sqr   = varROI / (meanROI*meanROI);
@@ -123,12 +125,14 @@ runTest( int argc, char** argv)
 		// cudaDeviceSynchronize();
 
 		thrust::transform(wv.begin(),wv.end(),d_cwv.begin(),nullBlock.begin(),functor2);
+
 		// cudaDeviceSynchronize();
-		printf("Iteration Ended\n");
+		// printf("Iteration Ended\n");
 	}
 	printf("Computation Done\n");
+			thrust::for_each(J_cuda.begin()+480,J_cuda.begin()+500,printFunctor());
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),compressFunctor());
-	cudaMemcpy(J,thrust::raw_pointer_cast(J_cuda.device_data.data()),size_I,cudaMemcpyDeviceToHost);
+	cudaMemcpy(J,thrust::raw_pointer_cast(J_cuda.device_data.data()),size_I*sizeof(float),cudaMemcpyDeviceToHost);
 	write_graphics(	"image_out.pgm",J,rows,cols,0,255);
 	// cudaDeviceReset();
 }
