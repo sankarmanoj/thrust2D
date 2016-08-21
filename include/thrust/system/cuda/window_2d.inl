@@ -54,11 +54,11 @@ namespace thrust
     return (*b)[start_y + index] + start_x;
   }
 
-  template <class T>
-  __host__ __device__ window_2D<T>::operator device_reference<window_2D<T> >() const
-  {
-    return *this;
-  }
+  // template <class T>
+  //   __host__ __device__ window_2D<T>::operator device_reference<window_2D<T> >() const
+  //   {
+  //     return *this;
+  //   }
 
   template <class T>
   __host__ window_iterator<T>::window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
@@ -169,6 +169,12 @@ namespace thrust
   }
 
   template <class T>
+  __host__ __device__ long window_iterator<T>::operator- ( window_iterator& it) const
+  {
+    // printf("operator-\n");
+    return this->position - it.position;
+  }
+  template <class T>
   __host__ __device__ window_iterator<T> window_iterator<T>::operator+ (long N)
   {
     this->position = this->position+N;
@@ -213,7 +219,7 @@ namespace thrust
   }
 
   template <class T>
-  __host__ __device__ window_iterator<T>& window_iterator<T>::operator= (window_iterator<T> it)
+  __host__ __device__ window_iterator<T>& window_iterator<T>::operator= (window_iterator<T>& it)
   {
     // printf("Reached Here 2\n");
     this->b = it.b;
