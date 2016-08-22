@@ -1,13 +1,7 @@
 // includes, system
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
 #include "srad.h"
 #include "graphics.c"
 #include "resize.c"
-// includes, project
-#include <cuda.h>
 
 // includes, kernels
 #include "srad_kernel.cu"
@@ -43,7 +37,7 @@ void
 runTest( int argc, char** argv)
 {
   unsigned int rows, cols, size_I, size_R, niter = 10, iter;
-  float *J,*image_ori,lambda, q0sqr, sum, sum2, tmp, meanROI,varROI ;
+  float *J,lambda, q0sqr, sum, sum2,meanROI,varROI ;
 	unsigned int r1, r2, c1, c2;
 
 	if (argc == 5)
@@ -66,12 +60,9 @@ runTest( int argc, char** argv)
 
 	size_R = (r2-r1+1)*(c2-c1+1);
 
-	int image_ori_rows = 502;
-	int image_ori_cols = 458;
-	long image_ori_elem = image_ori_rows * image_ori_cols;
-
-	image_ori = (float*)malloc(sizeof(float) * image_ori_elem);
-
+	int image_ori_rows = rows;
+	int image_ori_cols = cols;
+	// long image_ori_elem = image_ori_rows * image_ori_cols;
 
 	size_I = cols * rows;
 
@@ -95,22 +86,22 @@ runTest( int argc, char** argv)
 	{
 		// printf("Iteration Started\n");
 		// // sum = thrust::reduce(J_cuda.begin(),J_cuda.end());
-		// J_square.copy(J_cuda.begin(),J_cuda.end());
-		// thrust::for_each(J_square.begin(),J_square.end(),square());
-		// sum = thrust::reduce(J_cuda.begin(),J_cuda.end());
-		// sum2 = thrust::reduce(J_square.begin(),J_square.end());
+		J_square.copy(J_cuda.begin(),J_cuda.end());
+		thrust::for_each(J_square.begin(),J_square.end(),square());
+		sum = thrust::reduce(J_cuda.begin(),J_cuda.end());
+		sum2 = thrust::reduce(J_square.begin(),J_square.end());
 		// printf("Thru st Reduce Sum = %f \n",sum);
-		sum=0; sum2=0;
-    for (int i=0; i<rows; i++)
-		{
-        for (int j=0; j<cols; j++)
-				{
-					// printf("%f ", (float) J_cuda[i][j]);
-          tmp   = J[i*cols+j];
-          sum  += tmp ;
-          sum2 += tmp*tmp;
-        }
-    }
+		// sum=0; sum2=0;
+    // for (int i=0; i<rows; i++)
+		// {
+    //     for (int j=0; j<cols; j++)
+		// 		{
+		// 			// printf("%f ", (float) J_cuda[i][j]);
+    //       tmp   = J[i*cols+j];
+    //       sum  += tmp ;
+    //       sum2 += tmp*tmp;
+    //     }
+    // }
 		// printf("Normal Sum = %f \n",sum2);
 	  meanROI = sum / size_R;
 	  varROI  = (sum2 / size_R) - meanROI*meanROI;
@@ -130,7 +121,7 @@ runTest( int argc, char** argv)
 		// printf("Iteration Ended\n");
 	}
 	printf("Computation Done\n");
-			thrust::for_each(J_cuda.begin()+480,J_cuda.begin()+500,printFunctor());
+	// thrust::for_each(J_cuda.begin()+480,J_cuda.begin()+500,printFunctor());
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),compressFunctor());
 	cudaMemcpy(J,thrust::raw_pointer_cast(J_cuda.device_data.data()),size_I*sizeof(float),cudaMemcpyDeviceToHost);
 	write_graphics(	"image_out.pgm",J,rows,cols,0,255);

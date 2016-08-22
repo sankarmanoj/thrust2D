@@ -4,7 +4,7 @@
 class compressFunctor
 {
 public:
-	__device__ void operator() (float &x)
+	__device__ void operator() (float &x) const
 	{
 		float y  = 255*log(x);
 		// printf("%f ,, %f \n",y,x);
@@ -14,7 +14,7 @@ public:
 class extractFunctor
 {
 public:
-	__device__ void operator() (float &x)
+	__device__ void operator() (float &x) const
 	{
 
 		x = exp((float)x/255);
@@ -26,7 +26,7 @@ class square
 {
 
 public:
- __host__ __device__ void operator() (float &lhs)
+ __host__ __device__ void operator() (float &lhs) const
   {
 		lhs = lhs*lhs;
 	}
@@ -48,7 +48,7 @@ public:
 	// {
 	// 	return x + y;
 	// }
-	__device__ float operator() (thrust::window_2D<float> &w,thrust::window_2D<float> &yolo)
+	__device__ float operator() (const thrust::window_2D<float> &w,const thrust::window_2D<float> &v) const
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
@@ -91,8 +91,16 @@ public:
 		{
 			c=1;
 		}
-		yolo[ty][tx] = c;
+		v[ty][tx] = c;
 
+		if(w.start_y == 0)
+			w[S][tx] = w[ty][tx];
+		if(w.start_y == rows - w.window_dim_y)
+			w[N][tx] = w[ty][tx];
+		if(w.start_x == 0)
+			w[ty][W] = w[ty][tx];
+		if(w.start_x == cols - w.window_dim_x)
+			w[ty][E] = w[ty][tx];
 
 		return 0.0;
 
@@ -102,7 +110,7 @@ public:
 class printFunctor
 {
 public:
-	__device__ void operator() (float x)
+	__device__ void operator() (const float &x) const
 	{
 		printf(" %f \n",x);
 	}
@@ -124,7 +132,7 @@ public:
 		this->q0sqr = q0sqr;
 	}
 
-	__device__ float operator() (thrust::window_2D<float> &w, thrust::window_2D<float> &c)
+	__device__ float operator() (const thrust::window_2D<float> &w, const thrust::window_2D<float> &c) const
 	{
 		// printf("functor2\n");
 		int ty = w.window_dim_y/2;
@@ -141,9 +149,9 @@ public:
 		cc = (float) c[ty][tx];
 
 		cn  = cc;
-	    cs  = (float) c[S][tx];
-	    cw  = cc;
-	    ce  = (float) c[ty][E];
+    cs  = (float) c[S][tx];
+    cw  = cc;
+    ce  = (float) c[ty][E];
 
 		float jc,n,s,we,e;
 		jc = (float) w[ty][tx];
@@ -157,6 +165,16 @@ public:
 		// image update (equ 61)
 		// w[ty][tx];
 		w[ty][tx] = (float) w[ty][tx] + 0.25 * lambda * d_D;
+
+		if(w.start_y == 0)
+			w[S][tx] = w[ty][tx];
+		if(w.start_y == rows - w.window_dim_y)
+			w[N][tx] = w[ty][tx];
+		if(w.start_x == 0)
+			w[ty][W] = w[ty][tx];
+		if(w.start_x == cols - w.window_dim_x)
+			w[ty][E] = w[ty][tx];
+
 		// printf("%f\n", (float) w[ty][tx]);
 		return 0.0f;
 	}

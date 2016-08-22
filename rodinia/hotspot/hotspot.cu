@@ -13,18 +13,7 @@
 #include <thrust/functional.h>
 #include <thrust/window_2d.h>
 
-#ifdef RD_WG_SIZE_0_0
-        #define BLOCK_SIZE RD_WG_SIZE_0_0
-#elif defined(RD_WG_SIZE_0)
-        #define BLOCK_SIZE RD_WG_SIZE_0
-#elif defined(RD_WG_SIZE)
-        #define BLOCK_SIZE RD_WG_SIZE
-#else
-        #define BLOCK_SIZE 16
-#endif
-
 #define STR_SIZE 256
-
 /* maximum power density possible (say 300W for a 10mm x 10mm chip)	*/
 #define MAX_PD	(3.0e6)
 /* required precision in degrees	*/
@@ -44,11 +33,6 @@ float chip_width = 0.016;
 float amb_temp = 80.0;
 
 void run(int argc, char** argv);
-
-/* define timer macros */
-#define pin_stats_reset()   startCycle()
-#define pin_stats_pause(cycles)   stopCycle(cycles)
-#define pin_stats_dump(cycles)    printf("timer: %Lu\n", cycles)
 
 void fatal(char *s)
 {
@@ -105,69 +89,69 @@ void readinput(float * vect, int grid_rows, int grid_cols, char *file){
 	fclose(fp);
 
 }
-
-#define IN_RANGE(x, min, max)   ((x)>=(min) && (x)<=(max))
-#define CLAMP_RANGE(x, min, max) x = (x<(min)) ? min : ((x>(max)) ? max : x )
 #define MIN(a, b) ((a)<=(b) ? (a) : (b))
 
 
 class HotspotFunctor
 {
-  thrust::Block_2D<float> *MatrixPower;
   int iteration;
-  int col;
-  int row;
-  int borderCols;
-  int borderRows;
+  int cols;
+  int rows;
   float stepDivCap;
   float Rx_1;
   float Ry_1;
   float Rz_1;
 public:
 
-  HotspotFunctor (thrust::Block_2D<float> *MatrixPower,int iteration,int col,int row, int borderCols,int borderRows,float stepDivCap,float Rx_1,float Ry_1,float Rz_1)
+  HotspotFunctor (int iteration,int cols,int rows,float stepDivCap,float Rx_1,float Ry_1,float Rz_1)
   {
-      this->MatrixPower = MatrixPower;
       this->iteration = iteration;
-      this->col = col;
-      this->row = row;
-      this->borderCols = borderCols;
-      this->borderRows = borderRows;
+      this->cols = cols;
+      this->rows = rows;
       this->stepDivCap = stepDivCap;
       this->Rx_1 = Rx_1;
       this->Ry_1 = Ry_1;
       this->Rz_1 = Rz_1;
   }
 
-	__device__ void operator() (thrust::window_2D<float> w)
+	__device__ int operator() (const thrust::window_2D<float> &w,const thrust::window_2D<float> &p ) const
 	{
-        int ty = w.window_dim_y/2;
-        int tx = w.window_dim_x/2;
-        int rty = w.start_y + ty;
-        int rtx = w.start_x + tx;
-        int S = ty-1;
-        int N = ty+1;
-        int W = tx-1;
-        int E = tx+1;
+      int ty = w.window_dim_y/2;
+      int tx = w.window_dim_x/2;
+      // int rty = w.start_y + ty;
+      // int rtx = w.start_x + tx;
+      int S = ty-1;
+      int N = ty+1;
+      int W = tx-1;
+      int E = tx+1;
 
-        float my_power = (*MatrixPower)[rtx][rty];
-        for (int i=0; i<iteration ; i++)
-        {
-            w[ty][tx] =  w[ty][tx] + stepDivCap * (my_power + \
-                (w[S][tx] + w[N][tx] - 2.0*(w[ty][tx])) * Ry_1 + \
-                (w[ty][E] + w[ty][W] - 2.0*(w[ty][tx])) * Rx_1 + \
-                (AMBIENT_TEMP - w[ty][tx]) * Rz_1);
-            // printf("%f %d %d\n",(float) w[ty][tx],rty,rtx);
-         }
+      // float my_power = (*MatrixPower)[rtx][rty];
+      for (int i=0; i<iteration ; i++)
+      {
+          w[ty][tx] =  w[ty][tx] + stepDivCap * (p[tx][ty] + \
+              (w[S][tx] + w[N][tx] - 2.0*(w[ty][tx])) * Ry_1 + \
+              (w[ty][E] + w[ty][W] - 2.0*(w[ty][tx])) * Rx_1 + \
+              (AMBIENT_TEMP - w[ty][tx]) * Rz_1);
+          if(w.start_y == 0)
+            w[S][tx] = w[ty][tx];
+          if(w.start_y == rows - w.window_dim_y)
+            w[N][tx] = w[ty][tx];
+          if(w.start_x == 0)
+            w[ty][W] = w[ty][tx];
+          if(w.start_x == cols - w.window_dim_x)
+            w[ty][E] = w[ty][tx];
+          // printf("%f\n",(float) w[ty][tx]);
+       }
+       return 0;
 	}
 };/*
    compute N time steps
 */
-int thrustCompute(thrust::Block_2D<float> &PowerBlock,thrust::Block_2D<float> &TemperatureBlock, int col, int row, \
-		int total_iterations, int num_iterations, int blockCols, int blockRows, int borderCols, int borderRows, int size)
+int thrust_compute(thrust::Block_2D<float> &PowerBlock,thrust::Block_2D<float> &TemperatureBlock, int cols, int rows, \
+		int total_iterations, int num_iterations)
 {
-	float grid_height = chip_height / row;
-	float grid_width = chip_width / col;
+	float grid_height = chip_height / rows;
+	float grid_width = chip_width / cols;
 
 	float Cap = FACTOR_CHIP * SPEC_HEAT_SI * t_chip * grid_width * grid_height;
 	float Rx = grid_width / (2.0 * K_SI * t_chip * grid_height);
@@ -187,10 +171,12 @@ int thrustCompute(thrust::Block_2D<float> &PowerBlock,thrust::Block_2D<float> &T
 	for (t = 0; t < total_iterations; t+=num_iterations)
   {
     int requiredIterations = MIN(num_iterations,total_iterations-t);
-    PowerBlock.initalize_device_memory();
-    HotspotFunctor functor(PowerBlock.device_pointer,requiredIterations,col,row,borderCols,borderRows,step_div_Cap,Rx_1,Ry_1,Rz_1);
+    // PowerBlock.initalize_device_memory();
+    HotspotFunctor functor(requiredIterations,cols,rows,step_div_Cap,Rx_1,Ry_1,Rz_1);
     thrust::window_vector<float> wv = thrust::window_vector<float>(&(TemperatureBlock),3,3,1,1);
-    thrust::for_each(wv.begin(),wv.end(),functor);
+    thrust::window_vector<float> wp = thrust::window_vector<float>(&(PowerBlock),3,3,1,1);
+    thrust::device_vector<int> null_vector(rows*cols);
+    thrust::transform(wv.begin(),wv.end(),wp.begin(),null_vector.begin(),functor);
 	}
   return 0;
 }
@@ -210,7 +196,7 @@ void usage(int argc, char **argv)
 
 int main(int argc, char** argv)
 {
-  printf("WG size of kernel = %d X %d\n", BLOCK_SIZE, BLOCK_SIZE);
+  // printf("WG size of kernel = %d X %d\n", BLOCK_SIZE, BLOCK_SIZE);
 
     run(argc,argv);
 
@@ -242,13 +228,13 @@ void run(int argc, char** argv)
     size=grid_rows*grid_cols;
 
     /* --------------- pyramid parameters --------------- */
-    # define EXPAND_RATE 2// add one iteration will extend the pyramid base by 2 per each borderline
-    int borderCols = (pyramid_height)*EXPAND_RATE/2;
-    int borderRows = (pyramid_height)*EXPAND_RATE/2;
-    int smallBlockCol = BLOCK_SIZE-(pyramid_height)*EXPAND_RATE;
-    int smallBlockRow = BLOCK_SIZE-(pyramid_height)*EXPAND_RATE;
-    int blockCols = grid_cols/smallBlockCol+((grid_cols%smallBlockCol==0)?0:1);
-    int blockRows = grid_rows/smallBlockRow+((grid_rows%smallBlockRow==0)?0:1);
+    // # define EXPAND_RATE 2// add one iteration will extend the pyramid base by 2 per each borderline
+    // int borderCols = (pyramid_height)*EXPAND_RATE/2;
+    // int borderRows = (pyramid_height)*EXPAND_RATE/2;
+    // int smallBlockCol = BLOCK_SIZE-(pyramid_height)*EXPAND_RATE;
+    // int smallBlockRow = BLOCK_SIZE-(pyramid_height)*EXPAND_RATE;
+    // int blockCols = grid_cols/smallBlockCol+((grid_cols%smallBlockCol==0)?0:1);
+    // int blockRows = grid_rows/smallBlockRow+((grid_rows%smallBlockRow==0)?0:1);
 
     FilesavingTemp = (float *) malloc(size*sizeof(float));
     FilesavingPower = (float *) malloc(size*sizeof(float));
@@ -256,8 +242,8 @@ void run(int argc, char** argv)
     if( !FilesavingPower || !FilesavingTemp)
         fatal((char *)"unable to allocate memory");
 
-    printf("pyramidHeight: %d\ngridSize: [%d, %d]\nborder:[%d, %d]\nblockGrid:[%d, %d]\ntargetBlock:[%d, %d]\n",\
-	   pyramid_height, grid_cols, grid_rows, borderCols, borderRows, blockCols, blockRows, smallBlockCol, smallBlockRow);
+    // printf("pyramidHeight: %d\ngridSize: [%d, %d]\nborder:[%d, %d]\nblockGrid:[%d, %d]\ntargetBlock:[%d, %d]\n",\
+	  //  pyramid_height, grid_cols, grid_rows, borderCols, borderRows, blockCols, blockRows, smallBlockCol, smallBlockRow);
 
     readinput(FilesavingTemp, grid_rows, grid_cols, tfile);
     readinput(FilesavingPower, grid_rows, grid_cols, pfile);
@@ -266,8 +252,8 @@ void run(int argc, char** argv)
     TemperatureBlock.device_data.assign(FilesavingTemp,FilesavingTemp+size);
     PowerBlock.device_data.assign(FilesavingPower,FilesavingPower+size);
     printf("Start computing the transient temperature\n");
-    int ret = thrustCompute(PowerBlock,TemperatureBlock,grid_cols,grid_rows, \
-	  total_iterations,pyramid_height, blockCols, blockRows, borderCols, borderRows,size);
+    int ret = thrust_compute(PowerBlock,TemperatureBlock,grid_cols,grid_rows, \
+	  total_iterations,pyramid_height);
 	  printf("Ending simulation\n");
     writeoutput(TemperatureBlock.device_data,grid_rows, grid_cols, ofile);
 }
