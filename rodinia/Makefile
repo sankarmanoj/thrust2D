@@ -4,3 +4,5 @@ rod_srad_%:
 	cd srad; make $@
 rod_leukocyte_%:
 	cd leukocyte; make $@
+rod_heartwall_%:
+	cd heartwall; make $@

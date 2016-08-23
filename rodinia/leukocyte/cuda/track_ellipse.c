@@ -184,7 +184,7 @@ void ellipsetrack(avi_t *video, double *xc0, double *yc0, int Nc, int R, int Np,
 		if (frame_num == Nf)
 		  {
 		    FILE * pFile;
-		    pFile = fopen ("result.txt","w+");
+		    pFile = fopen ("result.out","w+");
 
 		    for (cell_num = 0; cell_num < Nc; cell_num++)
 		      fprintf(pFile,"\n%d,%f,%f", cell_num, xci[cell_num], yci[cell_num]);
