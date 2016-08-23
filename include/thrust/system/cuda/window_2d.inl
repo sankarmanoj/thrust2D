@@ -1,5 +1,5 @@
 #pragma once
-#include<thrust/system/cuda/window_2d.h>
+#include <thrust/system/cuda/window_2d.h>
 #include <stdlib.h>
 #include <stdio.h>
 namespace thrust
@@ -39,7 +39,7 @@ namespace thrust
   }
 
   template <class T>
-  __host__ __device__ thrust::detail::normal_iterator<thrust::device_ptr<T> > window_2D<T>::operator[] (long index)
+  __host__ __device__ detail::normal_iterator<device_ptr<T> > window_2D<T>::operator[] (long index)
   {
     // TODO: Check Indexing of Window of a SubBlock.
     // printf("%d\n",b->dim_x);
@@ -47,7 +47,7 @@ namespace thrust
   }
 
   template <class T>
-  __host__ __device__ const thrust::detail::normal_iterator<thrust::device_ptr<T> > window_2D<T>::operator[] (long index) const
+  __host__ __device__ const detail::normal_iterator<device_ptr<T> > window_2D<T>::operator[] (long index) const
   {
     // TODO: Check Indexing of Window of a SubBlock.
     // printf("%d\n",b->dim_x);

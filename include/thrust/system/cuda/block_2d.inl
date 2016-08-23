@@ -9,7 +9,7 @@ namespace thrust
     this->dim_y = dim_y;
     this->offset_x = 0;
     this->offset_y = 0;
-		device_data = thrust::device_vector<T>(dim_x * dim_y);
+		device_data = device_vector<T>(dim_x * dim_y);
 		device_iterator = device_data.begin();
   }
   template <class T>
@@ -19,7 +19,7 @@ namespace thrust
     this->dim_y = other.dim_y;
     this->offset_x = other.offset_x;
     this->offset_y = other.offset_y;
-		device_data = thrust::device_vector<T>(other.device_data.begin(), other.device_data.end());
+		device_data = device_vector<T>(other.device_data.begin(), other.device_data.end());
 		device_iterator = device_data.begin();
     this->device_pointer = other.device_pointer;
   }
@@ -43,19 +43,19 @@ namespace thrust
     return this;
   }
   template <class T>
-  __host__ __device__ thrust::detail::normal_iterator<thrust::device_ptr<T> > Block_2D<T>::operator[] (int index)
+  __host__ __device__ detail::normal_iterator<device_ptr<T> > Block_2D<T>::operator[] (int index)
   {
     return this->device_iterator + ((index * (this->dim_x + this->offset_x)) + offset_y);
   }
   template <class T>
-  thrust::detail::normal_iterator<thrust::device_ptr<T> > Block_2D<T>::begin()
+  detail::normal_iterator<device_ptr<T> > Block_2D<T>::begin()
   {
     // block_iterator<T> it(this,this->offset_x,this->offset_y);
     // return it;
     return this->device_iterator;
   }
   template <class T>
-  thrust::detail::normal_iterator<thrust::device_ptr<T> > Block_2D<T>::end()
+  detail::normal_iterator<device_ptr<T> > Block_2D<T>::end()
   {
     // block_iterator<T> it(this,this->offset_x,this->offset_y);
     // // TODO: Need two more cases here where only one of the offsets is 0
@@ -85,25 +85,25 @@ namespace thrust
     this->b = b;
   }
   template <class T>
-  __host__ __device__ thrust::detail::normal_iterator<thrust::device_ptr<T> > block_iterator<T>::operator[] (unsigned int index)
+  __host__ __device__ detail::normal_iterator<device_ptr<T> > block_iterator<T>::operator[] (unsigned int index)
   {
     return this->device_iterator + ((index * (this->dim_y + this->start_y)) + start_x);
   }
 
   template <class T>
-  __host__ __device__ const thrust::detail::normal_iterator<thrust::device_ptr<T> > block_iterator<T>::operator[] (unsigned int index) const
+  __host__ __device__ const detail::normal_iterator<device_ptr<T> > block_iterator<T>::operator[] (unsigned int index) const
   {
     return this->device_iterator + ((index * (this->dim_y + this->start_y)) + start_x);
   }
 
   // template <class T>
-  // __host__ __device__ thrust::detail::normal_iterator<thrust::device_ptr<T> > block_iterator<T>::operator* ()
+  // __host__ __device__ detail::normal_iterator<device_ptr<T> > block_iterator<T>::operator* ()
   // {
   //   // return this->device_iterator + ((index * (this->dim_y + this->start_y)) + start_x);
   // }
   //
   // template <class T>
-  // __host__ __device__ const thrust::detail::normal_iterator<thrust::device_ptr<T> > block_iterator<T>::operator* () const
+  // __host__ __device__ const detail::normal_iterator<device_ptr<T> > block_iterator<T>::operator* () const
   // {
   //   // return this->device_iterator + ((index * (this->dim_y + this->start_y)) + start_x);
   // }
