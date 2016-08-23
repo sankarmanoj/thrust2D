@@ -15,5 +15,5 @@ srad.cu : srad_kernel.cu
 
 rod_srad_1: srad.out
 	#display image.pgm &
-	./srad.out 502 458 0.5 100
+	./srad.out 502 458 0.5 100 image.pgm image_out.pgm
 	# $(display) image_out.pgm &

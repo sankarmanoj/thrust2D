@@ -40,7 +40,7 @@ void fatal(char *s)
 
 }
 
-void writeoutput(thrust::host_vector<float> vect, int grid_rows, int grid_cols, char *file){
+void writeoutput(float *vect, int grid_rows, int grid_cols, char *file){
 	int i,j, index=0;
 	FILE *fp;
 	char str[STR_SIZE];
@@ -71,19 +71,15 @@ void readinput(float * vect, int grid_rows, int grid_cols, char *file){
 
 	if( (fp  = fopen(file, "r" )) ==0 )
         printf( "The file was not opened\n" );
-
-
 	for (i=0; i <= grid_rows-1; i++)
 	 for (j=0; j <= grid_cols-1; j++)
 	 {
 		fgets(str, STR_SIZE, fp);
 		if (feof(fp))
 			fatal((char *)"not enough lines in file");
-		//if ((sscanf(str, "%d%f", &index, &val) != 2) || (index != ((i-1)*(grid_cols-2)+j-1)))
 		if ((sscanf(str, "%f", &val) != 1))
 			fatal((char *)"invalid file format");
 		vect[i*grid_cols+j] = val;
-    // printf("%f %d %d\n", val,i,j);
 	}
 
 	fclose(fp);
@@ -118,69 +114,37 @@ public:
 	{
       int ty = w.window_dim_y/2;
       int tx = w.window_dim_x/2;
-      // int rty = w.start_y + ty;
-      // int rtx = w.start_x + tx;
-      int S = ty-1;
-      int N = ty+1;
+			int N = ty-1;
+			int S = ty+1;
       int W = tx-1;
       int E = tx+1;
-
-      // float my_power = (*MatrixPower)[rtx][rty];
       for (int i=0; i<iteration ; i++)
       {
           w[ty][tx] =  w[ty][tx] + stepDivCap * (p[tx][ty] + \
               (w[S][tx] + w[N][tx] - 2.0*(w[ty][tx])) * Ry_1 + \
               (w[ty][E] + w[ty][W] - 2.0*(w[ty][tx])) * Rx_1 + \
               (AMBIENT_TEMP - w[ty][tx]) * Rz_1);
-          if(w.start_y == 0)
-            w[S][tx] = w[ty][tx];
-          if(w.start_y == rows - w.window_dim_y)
-            w[N][tx] = w[ty][tx];
-          if(w.start_x == 0)
-            w[ty][W] = w[ty][tx];
-          if(w.start_x == cols - w.window_dim_x)
-            w[ty][E] = w[ty][tx];
-          // printf("%f\n",(float) w[ty][tx]);
        }
+			 // Boundary Condtions - causes warp divergence.
+			 if(w.start_y == 0)
+				 w[N][tx] = w[ty][tx];
+			 if(w.start_y == rows - w.window_dim_y)
+				 w[S][tx] = w[ty][tx];
+			 if(w.start_x == 0)
+				 w[ty][W] = w[ty][tx];
+			 if(w.start_x == cols - w.window_dim_x)
+				 w[ty][E] = w[ty][tx];
+			 if(w.start_y == 0 && w.start_x == 0)
+				 w[N][W] = w[ty][tx];
+			 if(w.start_y == rows - w.window_dim_y && w.start_x == cols - w.window_dim_x)
+				 w[S][E] = w[ty][tx];
+			 if(w.start_x == 0 && w.start_y == rows - w.window_dim_y)
+				 w[S][W] = w[ty][tx];
+			 if(w.start_x == cols - w.window_dim_x && w.start_y == 0)
+				 w[N][E] = w[ty][tx];
        return 0;
 	}
-};/*
-   compute N time steps
-*/
-int thrust_compute(thrust::Block_2D<float> &PowerBlock,thrust::Block_2D<float> &TemperatureBlock, int cols, int rows, \
-		int total_iterations, int num_iterations)
-{
-	float grid_height = chip_height / rows;
-	float grid_width = chip_width / cols;
-
-	float Cap = FACTOR_CHIP * SPEC_HEAT_SI * t_chip * grid_width * grid_height;
-	float Rx = grid_width / (2.0 * K_SI * t_chip * grid_height);
-	float Ry = grid_height / (2.0 * K_SI * t_chip * grid_width);
-	float Rz = t_chip / (K_SI * grid_height * grid_width);
-
-	float max_slope = MAX_PD / (FACTOR_CHIP * t_chip * SPEC_HEAT_SI);
-	float step = PRECISION / max_slope;
-	int t;
-  float step_div_Cap;
-  float Rx_1,Ry_1,Rz_1;
-  step_div_Cap=step/Cap;
-  Rx_1=1/Rx;
-  Ry_1=1/Ry;
-  Rz_1=1/Rz;
-  printf("step_div_Cap = %f\nrx,ry,rz = %f,%f,%f\n",step_div_Cap,Rx_1,Ry_1,Rz_1);
-	for (t = 0; t < total_iterations; t+=num_iterations)
-  {
-    int requiredIterations = MIN(num_iterations,total_iterations-t);
-    // PowerBlock.initalize_device_memory();
-    HotspotFunctor functor(requiredIterations,cols,rows,step_div_Cap,Rx_1,Ry_1,Rz_1);
-    thrust::window_vector<float> wv = thrust::window_vector<float>(&(TemperatureBlock),3,3,1,1);
-    thrust::window_vector<float> wp = thrust::window_vector<float>(&(PowerBlock),3,3,1,1);
-    thrust::device_vector<int> null_vector(rows*cols);
-    thrust::transform(wv.begin(),wv.end(),wp.begin(),null_vector.begin(),functor);
-	}
-  return 0;
-}
-
+};
 
 void usage(int argc, char **argv)
 {
@@ -227,23 +191,11 @@ void run(int argc, char** argv)
 
     size=grid_rows*grid_cols;
 
-    /* --------------- pyramid parameters --------------- */
-    // # define EXPAND_RATE 2// add one iteration will extend the pyramid base by 2 per each borderline
-    // int borderCols = (pyramid_height)*EXPAND_RATE/2;
-    // int borderRows = (pyramid_height)*EXPAND_RATE/2;
-    // int smallBlockCol = BLOCK_SIZE-(pyramid_height)*EXPAND_RATE;
-    // int smallBlockRow = BLOCK_SIZE-(pyramid_height)*EXPAND_RATE;
-    // int blockCols = grid_cols/smallBlockCol+((grid_cols%smallBlockCol==0)?0:1);
-    // int blockRows = grid_rows/smallBlockRow+((grid_rows%smallBlockRow==0)?0:1);
-
     FilesavingTemp = (float *) malloc(size*sizeof(float));
     FilesavingPower = (float *) malloc(size*sizeof(float));
 
     if( !FilesavingPower || !FilesavingTemp)
         fatal((char *)"unable to allocate memory");
-
-    // printf("pyramidHeight: %d\ngridSize: [%d, %d]\nborder:[%d, %d]\nblockGrid:[%d, %d]\ntargetBlock:[%d, %d]\n",\
-	  //  pyramid_height, grid_cols, grid_rows, borderCols, borderRows, blockCols, blockRows, smallBlockCol, smallBlockRow);
 
     readinput(FilesavingTemp, grid_rows, grid_cols, tfile);
     readinput(FilesavingPower, grid_rows, grid_cols, pfile);
@@ -252,8 +204,34 @@ void run(int argc, char** argv)
     TemperatureBlock.device_data.assign(FilesavingTemp,FilesavingTemp+size);
     PowerBlock.device_data.assign(FilesavingPower,FilesavingPower+size);
     printf("Start computing the transient temperature\n");
-    int ret = thrust_compute(PowerBlock,TemperatureBlock,grid_cols,grid_rows, \
-	  total_iterations,pyramid_height);
+		float grid_height = chip_height / grid_rows;
+		float grid_width = chip_width / grid_cols;
+
+		float Cap = FACTOR_CHIP * SPEC_HEAT_SI * t_chip * grid_width * grid_height;
+		float Rx = grid_width / (2.0 * K_SI * t_chip * grid_height);
+		float Ry = grid_height / (2.0 * K_SI * t_chip * grid_width);
+		float Rz = t_chip / (K_SI * grid_height * grid_width);
+
+		float max_slope = MAX_PD / (FACTOR_CHIP * t_chip * SPEC_HEAT_SI);
+		float step = PRECISION / max_slope;
+		int t;
+		float step_div_Cap;
+		float Rx_1,Ry_1,Rz_1;
+		step_div_Cap=step/Cap;
+		Rx_1=1/Rx;
+		Ry_1=1/Ry;
+		Rz_1=1/Rz;
+		printf("step_div_Cap = %f\nrx,ry,rz = %f,%f,%f\n",step_div_Cap,Rx_1,Ry_1,Rz_1);
+		for (t = 0; t < total_iterations; t+=pyramid_height)
+		{
+			int required_iterations = MIN(pyramid_height,total_iterations-t);
+			HotspotFunctor functor(required_iterations,grid_cols,grid_rows,step_div_Cap,Rx_1,Ry_1,Rz_1);
+			thrust::window_vector<float> wv = thrust::window_vector<float>(&(TemperatureBlock),3,3,1,1);
+			thrust::window_vector<float> wp = thrust::window_vector<float>(&(PowerBlock),3,3,1,1);
+			thrust::device_vector<int> null_vector(grid_rows*grid_cols);
+			thrust::transform(wv.begin(),wv.end(),wp.begin(),null_vector.begin(),functor);
+		}
 	  printf("Ending simulation\n");
-    writeoutput(TemperatureBlock.device_data,grid_rows, grid_cols, ofile);
+		cudaMemcpy(FilesavingTemp,thrust::raw_pointer_cast(TemperatureBlock.device_data.data()),size*sizeof(float),cudaMemcpyDeviceToHost);
+    writeoutput(FilesavingTemp,grid_rows, grid_cols, ofile);
 }

@@ -44,23 +44,14 @@ public:
 		this->rows = rows;
 		this->q0sqr = q0sqr;
 	}
-	// __device__ float operator() (float x, float y)
-	// {
-	// 	return x + y;
-	// }
 	__device__ float operator() (const thrust::window_2D<float> &w,const thrust::window_2D<float> &v) const
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
-		// int rty = w.start_y + ty;
-		// int rtx = w.start_x + tx;
-		int S = ty-1;
-		int N = ty+1;
+		int N = ty-1;
+		int S = ty+1;
 		int W = tx-1;
 		int E = tx+1;
-
-		// printf("functor %d %d \n",w.start_x,w.start_y);
-		// printf("%f\n", (float) w[ty][tx]);
 
 		float jc,n,s,we,e,g2,l,num,den,qsqr,c;
 		jc = (float) w[ty][tx];
@@ -94,13 +85,21 @@ public:
 		v[ty][tx] = c;
 
 		if(w.start_y == 0)
-			w[S][tx] = w[ty][tx];
-		if(w.start_y == rows - w.window_dim_y)
 			w[N][tx] = w[ty][tx];
+		if(w.start_y == rows - w.window_dim_y)
+			w[S][tx] = w[ty][tx];
 		if(w.start_x == 0)
 			w[ty][W] = w[ty][tx];
 		if(w.start_x == cols - w.window_dim_x)
 			w[ty][E] = w[ty][tx];
+		if(w.start_y == 0 && w.start_x == 0)
+			w[N][W] = w[ty][tx];
+		if(w.start_y == rows - w.window_dim_y && w.start_x == cols - w.window_dim_x)
+			w[S][E] = w[ty][tx];
+		if(w.start_x == 0 && w.start_y == rows - w.window_dim_y)
+			w[S][W] = w[ty][tx];
+		if(w.start_x == cols - w.window_dim_x && w.start_y == 0)
+			w[N][E] = w[ty][tx];
 
 		return 0.0;
 
@@ -134,13 +133,10 @@ public:
 
 	__device__ float operator() (const thrust::window_2D<float> &w, const thrust::window_2D<float> &c) const
 	{
-		// printf("functor2\n");
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
-		// int rty = w.start_y + ty;
-		// int rtx = w.start_x + tx;
-		int S = ty-1;
-		int N = ty+1;
+		int N = ty-1;
+		int S = ty+1;
 		int W = tx-1;
 		int E = tx+1;
 
@@ -167,13 +163,21 @@ public:
 		w[ty][tx] = (float) w[ty][tx] + 0.25 * lambda * d_D;
 
 		if(w.start_y == 0)
-			w[S][tx] = w[ty][tx];
-		if(w.start_y == rows - w.window_dim_y)
 			w[N][tx] = w[ty][tx];
+		if(w.start_y == rows - w.window_dim_y)
+			w[S][tx] = w[ty][tx];
 		if(w.start_x == 0)
 			w[ty][W] = w[ty][tx];
 		if(w.start_x == cols - w.window_dim_x)
 			w[ty][E] = w[ty][tx];
+		if(w.start_y == 0 && w.start_x == 0)
+			w[N][W] = w[ty][tx];
+		if(w.start_y == rows - w.window_dim_y && w.start_x == cols - w.window_dim_x)
+			w[S][E] = w[ty][tx];
+		if(w.start_x == 0 && w.start_y == rows - w.window_dim_y)
+			w[S][W] = w[ty][tx];
+		if(w.start_x == cols - w.window_dim_x && w.start_y == 0)
+			w[N][E] = w[ty][tx];
 
 		// printf("%f\n", (float) w[ty][tx]);
 		return 0.0f;
