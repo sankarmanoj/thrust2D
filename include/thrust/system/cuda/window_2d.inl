@@ -295,7 +295,7 @@ namespace thrust
   window_vector<T>::window_vector (Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
   {
     this->b = b;
-    this->b->initalize_device_memory();
+    // this->b->initalize_device_memory();
     this->window_dim_x = window_dim_x;
     this->window_dim_y = window_dim_y;
     this->stride_x = stride_x;

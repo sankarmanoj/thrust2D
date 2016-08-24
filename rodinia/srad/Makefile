@@ -17,3 +17,5 @@ rod_srad_1: srad.out
 	#display image.pgm &
 	./srad.out 502 458 0.5 100 image.pgm image_out.pgm
 	# $(display) image_out.pgm &
+rod_srad_cuda:
+	cd cuda; make srad

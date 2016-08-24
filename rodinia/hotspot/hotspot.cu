@@ -201,8 +201,8 @@ void run(int argc, char** argv)
     readinput(FilesavingPower, grid_rows, grid_cols, pfile);
     thrust::Block_2D<float> TemperatureBlock(grid_rows,grid_cols);
     thrust::Block_2D<float> PowerBlock(grid_rows,grid_cols);
-    TemperatureBlock.device_data.assign(FilesavingTemp,FilesavingTemp+size);
-    PowerBlock.device_data.assign(FilesavingPower,FilesavingPower+size);
+    TemperatureBlock.assign(FilesavingTemp,FilesavingTemp+size);
+    PowerBlock.assign(FilesavingPower,FilesavingPower+size);
     printf("Start computing the transient temperature\n");
 		float grid_height = chip_height / grid_rows;
 		float grid_width = chip_width / grid_cols;
@@ -232,6 +232,6 @@ void run(int argc, char** argv)
 			thrust::transform(wv.begin(),wv.end(),wp.begin(),null_vector.begin(),functor);
 		}
 	  printf("Ending simulation\n");
-		cudaMemcpy(FilesavingTemp,thrust::raw_pointer_cast(TemperatureBlock.device_data.data()),size*sizeof(float),cudaMemcpyDeviceToHost);
+		cudaMemcpy(FilesavingTemp,thrust::raw_pointer_cast(TemperatureBlock.data()),size*sizeof(float),cudaMemcpyDeviceToHost);
     writeoutput(FilesavingTemp,grid_rows, grid_cols, ofile);
 }
