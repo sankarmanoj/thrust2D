@@ -123,9 +123,12 @@ int runTest( int argc, char** argv)
 					thrust::window_vector<float> erodeOutputWindow = thrust::window_vector<float>(&(J_square),3,3,1,1);
 					for(int erodeTimes = 0; erodeTimes < nErode ; erodeTimes++)
 					{
-							// thrust::fill(J_square.begin(),J_square.end(),1);
-							// thrust::transform(erodeInputWindow.begin(),erodeInputWindow.end(),erodeOutputWindow.begin(),d_c.begin(),erodeFunctor());
-							// thrust::copy(J_square.begin(),J_square.end(),J_floatcuda.begin());
+						//Erode
+							thrust::fill(J_square.begin(),J_square.end(),1);
+							thrust::transform(erodeInputWindow.begin(),erodeInputWindow.end(),erodeOutputWindow.begin(),d_c.begin(),erodeFunctor());
+							thrust::copy(J_square.begin(),J_square.end(),J_floatcuda.begin());
+
+							//Dilate
 							thrust::fill(J_square.begin(),J_square.end(),2.5);
 							thrust::transform(erodeInputWindow.begin(),erodeInputWindow.end(),erodeOutputWindow.begin(),d_c.begin(),dilateFunctor());
 							thrust::copy(J_square.begin(),J_square.end(),J_floatcuda.begin());
