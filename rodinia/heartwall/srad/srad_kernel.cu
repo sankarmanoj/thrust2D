@@ -1,29 +1,84 @@
 class compressFunctor
 {
 public:
-	__device__ void operator() (int &x) const
+	__device__  int operator() (float &x) const
 	{
-		int y  = 255*log((double) x);
+		int y  = 255*log(x);
 		// printf("%f ,, %f \n",y,x);
-		x=y;
+		return y;
 	}
 };
 class extractFunctor
 {
 public:
-	__device__ void operator() (int &x) const
+	__device__ float operator() (int &x) const
 	{
 
-		x = exp((double)x/255);
-
+		float y  = exp((float)x/255);
+		return y;
 	}
 };
+class erodeFunctor
+{
+public:
+	__device__ float operator() (const thrust::window_2D<float> &w,const thrust::window_2D<float> &v)
+	{
+		for(int i = 0; i<w.window_dim_x;i++)
+		{
+			for(int j = 0; j<w.window_dim_y;j++)
+			{
+					v[i][j] = w[j][i];
+			}
+		}
+		float minvalue = 1000;
+		for(int i = 0; i<w.window_dim_x;i++)
+		{
+			for(int j = 0; j<w.window_dim_y;j++)
+			{
+				if(minvalue>w[j][i])
+				{
+					minvalue = w[j][i];
+				}
+			}
+		}
 
+		v[(v.window_dim_y-1)/2][(v.window_dim_x-1)/2]=minvalue;
+		return 0.0f;
+	}
+};
+class dilateFunctor
+{
+public:
+	__device__ float operator() (const thrust::window_2D<float> &w,const thrust::window_2D<float> &v)
+	{
+		for(int i = 0; i<w.window_dim_x;i++)
+		{
+			for(int j = 0; j<w.window_dim_y;j++)
+			{
+					v[i][j] = w[j][i];
+			}
+		}
+		float maxvalue = 0;
+		for(int i = 0; i<w.window_dim_x;i++)
+		{
+			for(int j = 0; j<w.window_dim_y;j++)
+			{
+				if(maxvalue<w[j][i])
+				{
+					maxvalue = w[j][i];
+				}
+			}
+		}
+
+		v[(v.window_dim_y-1)/2][(v.window_dim_x-1)/2]=maxvalue;
+		return 0.0f;
+	}
+};
 class square
 {
 
 public:
- __host__ __device__ void operator() (int &lhs) const
+ __host__ __device__ void operator() (float &lhs) const
   {
 		lhs = lhs*lhs;
 	}
@@ -41,7 +96,7 @@ public:
 		this->rows = rows;
 		this->q0sqr = q0sqr;
 	}
-	__device__ int operator() (const thrust::window_2D<int> &w,const thrust::window_2D<int> &v) const
+	__device__ int operator() (const thrust::window_2D<float> &w,const thrust::window_2D<float> &v) const
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
@@ -108,7 +163,7 @@ class printFunctor
 public:
 	__device__ void operator() (const int &x) const
 	{
-		printf(" %f \n",x);
+		printf(" %d \n",x);
 	}
 };
 
@@ -128,7 +183,7 @@ public:
 		this->q0sqr = q0sqr;
 	}
 
-	__device__ int operator() (const thrust::window_2D<int> &w, const thrust::window_2D<int> &c) const
+	__device__ int operator() (const thrust::window_2D<float> &w, const thrust::window_2D<float> &c) const
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
@@ -157,7 +212,7 @@ public:
 		float d_D = cn*n +cs*s + ce*e + cw*we;
 		// image update (equ 61)
 		// w[ty][tx];
-		w[ty][tx] = (int) w[ty][tx] + 0.25 * lambda * d_D;
+		w[ty][tx] =  w[ty][tx] + 0.25 * lambda * d_D;
 
 		if(w.start_y == 0)
 			w[N][tx] = w[ty][tx];

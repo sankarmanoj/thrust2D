@@ -68,11 +68,13 @@ static int open_output_file(const char *filename)
         if (dec_ctx->codec_type == AVMEDIA_TYPE_VIDEO
                 || dec_ctx->codec_type == AVMEDIA_TYPE_AUDIO) {
             /* in this example, we choose transcoding to same codec */
-            encoder = avcodec_find_encoder(dec_ctx->codec_id);
-            if (!encoder) {
-                av_log(NULL, AV_LOG_FATAL, "Necessary encoder not found\n");
-                return AVERROR_INVALIDDATA;
-            }
+
+              encoder = avcodec_find_encoder(dec_ctx->codec_id);
+              if (!encoder) {
+                  av_log(NULL, AV_LOG_FATAL, "Necessary audio encoder not found\n");
+                  return AVERROR_INVALIDDATA;
+              }
+
             /* In this example, we transcode to same properties (picture size,
              * sample rate etc.). These properties can be changed for output
              * streams easily using filters */
@@ -131,54 +133,4 @@ static int open_output_file(const char *filename)
         return ret;
     }
     return 0;
-}
-
-static int encode_write_frame(AVFrame *filt_frame, unsigned int stream_index, int *got_frame) {
-    int ret;
-    int got_frame_local;
-    AVPacket enc_pkt;
-    int (*enc_func)(AVCodecContext *, AVPacket *, const AVFrame *, int *) =
-        (ifmt_ctx->streams[stream_index]->codec->codec_type ==
-         AVMEDIA_TYPE_VIDEO) ? avcodec_encode_video2 : avcodec_encode_audio2;
-    if (!got_frame)
-        got_frame = &got_frame_local;
-    av_log(NULL, AV_LOG_INFO, "Encoding frame\n");
-    /* encode filtered frame */
-    enc_pkt.data = NULL;
-    enc_pkt.size = 0;
-    av_init_packet(&enc_pkt);
-    ret = enc_func(ofmt_ctx->streams[stream_index]->codec, &enc_pkt,
-            filt_frame, got_frame);
-    av_frame_free(&filt_frame);
-    if (ret < 0)
-        return ret;
-    if (!(*got_frame))
-        return 0;
-    /* prepare packet for muxing */
-    enc_pkt.stream_index = stream_index;
-    av_packet_rescale_ts(&enc_pkt,
-                         ofmt_ctx->streams[stream_index]->codec->time_base,
-                         ofmt_ctx->streams[stream_index]->time_base);
-    av_log(NULL, AV_LOG_DEBUG, "Muxing frame\n");
-    /* mux encoded frame */
-    ret = av_interleaved_write_frame(ofmt_ctx, &enc_pkt);
-    return ret;
-}
-
-static int flush_encoder(unsigned int stream_index)
-{
-    int ret;
-    int got_frame;
-    if (!(ofmt_ctx->streams[stream_index]->codec->codec->capabilities &
-                AV_CODEC_CAP_DELAY))
-        return 0;
-    while (1) {
-        av_log(NULL, AV_LOG_INFO, "Flushing stream #%u encoder\n", stream_index);
-        ret = encode_write_frame(NULL, stream_index, &got_frame);
-        if (ret < 0)
-            break;
-        if (!got_frame)
-            return 0;
-    }
-    return ret;
 }
