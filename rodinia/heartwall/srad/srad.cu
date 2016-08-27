@@ -1,20 +1,11 @@
 // includes, system
-#include <stdio.h>
-#include <thrust/device_vector.h>
-#include <thrust/transform.h>
-#include <thrust/sequence.h>
-#include <thrust/copy.h>
-#include <thrust/fill.h>
-#include <thrust/replace.h>
-#include <thrust/functional.h>
-#include <thrust/window_2d.h>
-#include <stdlib.h>
-// includes, kernels
-#include "srad_kernel.cu"
-
-extern "C" {
-#include "ffmpeg.c"
+extern "C"
+{
+#include "ffmpeg.h"
 }
+#include <stdio.h>
+#include <stdlib.h>
+#include "primary.h"
 
 int runTest( int argc, char** argv);
 void usage(int argc, char **argv)
@@ -40,8 +31,7 @@ main( int argc, char** argv)
 int runTest( int argc, char** argv)
 {
   unsigned int rows, cols, size_I, size_R, niter = 10, iter,nErode;
-  float lambda, q0sqr, sum, sum2,meanROI,varROI,threshold ;
-	unsigned int r1, r2, c1, c2;
+  float lambda, q0sqr, sum, sum2,meanROI,varROI,threshold;
 	int ret;
 	AVPacket packet;
 	AVFrame *frame = NULL;
@@ -82,12 +72,7 @@ int runTest( int argc, char** argv)
 			type = ifmt_ctx->streams[packet.stream_index]->codec->codec_type;
 			rows = ifmt_ctx->streams[packet.stream_index]->codec->height;
 			cols = ifmt_ctx->streams[packet.stream_index]->codec->width;
-			r1 = 0;
-			r2 = rows - 1;
-			c1 = 0;
-			c2 = cols - 1;
 
-			size_R = (r2-r1+1)*(c2-c1+1);
 
 			size_I = cols * rows;
 			av_log(NULL, AV_LOG_DEBUG, "Demuxer gave frame of stream_index %u\n",stream_index);
@@ -110,56 +95,21 @@ int runTest( int argc, char** argv)
 			if (got_frame) {
 					frame->pts = av_frame_get_best_effort_timestamp(frame);
 					printf("Key Frame = %d\n",frame->key_frame);
-					thrust::Block_2D<int> J_cuda (cols,rows);
-					thrust::Block_2D<float> J_square(cols,rows);
-					thrust::Block_2D<float> d_c(cols,rows);
-					thrust::Block_2D<float> J_floatcuda(cols,rows);
-					thrust::fill(d_c.begin(),d_c.end(),0.0f);
-					J_cuda.assign(&frame->data[0][0],&frame->data[0][size_I]);
-					thrust::transform(J_cuda.begin(),J_cuda.end(),J_floatcuda.begin(),extractFunctor());
 
 
-
-
-
-					printf("Start the SRAD main loop\n");
-						for (iter=0; iter< niter; iter++)
-					{
-						thrust::copy(J_floatcuda.begin(),J_floatcuda.end(),J_square.begin());
-						thrust::for_each(J_square.begin(),J_square.end(),square());
-						sum = thrust::reduce(J_floatcuda.begin(),J_floatcuda.end());
-						sum2 = thrust::reduce(J_square.begin(),J_square.end());
-					  meanROI = sum / size_R;
-					  varROI  = (sum2 / size_R) - meanROI*meanROI;
-					  q0sqr   = varROI / (meanROI*meanROI);
-						SRADFunctor1 functor1(cols,rows,q0sqr);
-						SRADFunctor2 functor2(cols,rows,lambda,q0sqr);
-						thrust::window_vector<float> wv = thrust::window_vector<float>(&(J_floatcuda),3,3,1,1);
-						thrust::window_vector<float> d_cwv = thrust::window_vector<float>(&(d_c),3,3,1,1);
-						thrust::transform(wv.begin(),wv.end(),d_cwv.begin(),J_square.begin(),functor1);
-						thrust::transform(wv.begin(),wv.end(),d_cwv.begin(),J_square.begin(),functor2);
-					}
-					printf("Binarize\n");
-					thrust::transform(J_floatcuda.begin(),J_floatcuda.end(),J_cuda.begin(),binarizeFunctor(threshold));
-					printf("Erode And Dilate\n");
-					thrust::window_vector<int> erodeInputWindow = thrust::window_vector<int>(&(J_cuda),3,3,1,1);
-					for(int erodeTimes = 0; erodeTimes < nErode ; erodeTimes++)
-					{
-						//Erode
-							thrust::for_each(erodeInputWindow.begin(),erodeInputWindow.end(),erodeFunctor());
-					}
-					for(int erodeTimes = 0; erodeTimes < nErode ; erodeTimes++)
-					{
-						//Dilate
-							thrust::for_each(erodeInputWindow.begin(),erodeInputWindow.end(),dilateFunctor());
-					}
-
-					printf("Computation Done\n");
-					thrust::for_each(J_cuda.begin(),J_cuda.end(),compressFunctor());
+					//MAIN CALCULATION
 					int *temp = (int *) malloc(size_I * sizeof(int));
-					cudaMemcpy(temp,thrust::raw_pointer_cast(J_cuda.data()),size_I*sizeof(int),cudaMemcpyDeviceToHost);
 					for (int i = 0; i<size_I; i++)
-						frame->data[0][i] = temp[i];
+						temp[i] = frame->data[0][i];
+
+					frame_calculate(temp,rows,cols,niter,nErode,threshold,lambda);
+
+
+					for (int i = 0; i<size_I; i++)
+						frame->data[0][i] = 255;
+
+
+
 					AVPacket enc_pkt;
 			    int (*enc_func)(AVCodecContext *, AVPacket *, const AVFrame *, int *) =
 			        (ifmt_ctx->streams[stream_index]->codec->codec_type ==

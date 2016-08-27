@@ -1,15 +1,7 @@
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libavfilter/avfiltergraph.h>
-#include <libavfilter/buffersink.h>
-#include <libavfilter/buffersrc.h>
-#include <libavutil/opt.h>
-#include <libavutil/pixdesc.h>
 
-static AVFormatContext *ifmt_ctx;
-static AVFormatContext *ofmt_ctx;
+#include "ffmpeg.h"
 
-static int open_input_file(const char *filename)
+extern  int open_input_file(const char *filename)
 {
     int ret;
     unsigned int i;
@@ -42,7 +34,7 @@ static int open_input_file(const char *filename)
     av_dump_format(ifmt_ctx, 0, filename, 0);
     return 0;
 }
-static int open_output_file(const char *filename)
+extern int open_output_file(const char *filename)
 {
     AVStream *out_stream;
     AVStream *in_stream;
