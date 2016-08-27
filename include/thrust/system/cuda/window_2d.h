@@ -41,6 +41,7 @@ namespace thrust
     int stride_y;
     __host__ window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y);
     __host__ window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y,int position);
+    
     __host__ __device__ window_2D<T> operator[] (long index);
     __host__ __device__ const window_2D<T> operator[] (long index) const;
     __host__ __device__ window_2D<T> operator* ();

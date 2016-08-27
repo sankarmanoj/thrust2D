@@ -6,7 +6,6 @@
 // includes, kernels
 #include "srad_kernel.cu"
 
-void random_matrix(float* I, int rows, int cols);
 void runTest( int argc, char** argv);
 void usage(int argc, char **argv)
 {
@@ -102,4 +101,5 @@ runTest( int argc, char** argv)
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),compressFunctor());
 	cudaMemcpy(J,thrust::raw_pointer_cast(J_cuda.data()),size_I*sizeof(float),cudaMemcpyDeviceToHost);
 	write_graphics(out,J,rows,cols,0,255);
+	free(J);
 }

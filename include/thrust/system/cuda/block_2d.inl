@@ -47,24 +47,24 @@ namespace thrust
   }
 
   // template <class T>
-  // block_iterator<T> Block_2D<T>::begin()
+  // detail::normal_iterator<device_ptr<T> > Block_2D<T>::begin()
   // {
-  //   block_iterator<T> it;
-  //   return it;
-  //   // return this->device_iterator;
+  //   // block_iterator<T> it;
+  //   // return it;
+  //   return this->device_pointer->device_iterator;
   // }
   //
   // template <class T>
-  // block_iterator<T> Block_2D<T>::end()
+  // detail::normal_iterator<device_ptr<T> > Block_2D<T>::end()
   // {
-  //   block_iterator<T> it;
-  //   // TODO: Need two more cases here where only one of the offsets is 0
-  //   if (this->offset_x == 0 && this->offset_y == 0)
-  //     it = it + (this->dim_x * this->dim_y);
-  //   else
-  //     it = it + ((this->dim_x + this->offset_x - 1)*(this->dim_y + this->offset_y - 1));
-  //   return it;
-  //   // return this->device_iterator + dim_x*dim_y;
+  //   // block_iterator<T> it;
+  //   // // TODO: Need two more cases here where only one of the offsets is 0
+  //   // if (this->offset_x == 0 && this->offset_y == 0)
+  //   //   it = it + (this->dim_x * this->dim_y);
+  //   // else
+  //   //   it = it + ((this->dim_x + this->offset_x - 1)*(this->dim_y + this->offset_y - 1));
+  //   // return it;
+  //   return this->device_pointer->device_iterator + dim_x*dim_y;
   // }
   //
   // template <class T>

@@ -79,8 +79,8 @@ namespace thrust
 
 		__host__ __device__ detail::normal_iterator<device_ptr<T> > operator[] (int index);
 
-		// block_iterator<T> begin();
-		// block_iterator<T> end();
+		// detail::normal_iterator<device_ptr<T> > begin();
+		// detail::normal_iterator<device_ptr<T> > end();
 
 	};
 }

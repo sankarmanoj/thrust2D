@@ -12,16 +12,16 @@ public:
 
 __device__  void operator() (const window_2D<int> &a) const
   {
-    a[0][0]=3;
-    int value = a[0][0];
-    printf("%d \n",value);
+    a[0][0] = 666;
+    // int value = a[0][0];
+    // printf("%d \n",value);
   }
 };
 class printFunctor
 {
 public:
 
-__device__  void operator() (const int  & a) const
+__device__  void operator() (const int  &a) const
   {
     printf("%d \n",a);
   }
@@ -29,6 +29,8 @@ __device__  void operator() (const int  & a) const
 
 int main()
 {
+  // int *temp;
+  // temp = (int *) malloc(25 * sizeof(int));
   Block_2D<int> a1(5,5);
   Block_2D<int> b = a1;
   device_vector<int> a(5*5);
@@ -43,6 +45,8 @@ int main()
   // printf("%d\n", num);
   thrust::for_each(wv.begin(),wv.end(),windowPrintFunctor());
   cudaDeviceSynchronize();
+  // cudaMemcpy(temp,thrust::raw_pointer_cast(b.data()),25*sizeof(int),cudaMemcpyDeviceToHost);
+  // b.assign(temp,temp+25);
   thrust::for_each(b.begin(),b.end(),printFunctor());
   return 0;
 }
