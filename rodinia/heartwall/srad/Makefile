@@ -1,6 +1,12 @@
 IDIR =-I../../../include
 CC=nvcc
-CFLAGS=$(IDIR) -lavformat -lavcodec -lavutil -lavfilter
+CFLAGS=  -D__STDC_CONSTANT_MACROS $(IDIR)  -lavdevice                        \
+                -lavformat                        \
+                -lavfilter                        \
+                -lavcodec                         \
+                -lswresample                      \
+                -lswscale                         \
+                -lavutil
 
 srad: srad.cu ffmpeg.c
 	#display image.pgm &
