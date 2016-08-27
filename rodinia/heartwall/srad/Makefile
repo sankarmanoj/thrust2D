@@ -1,5 +1,6 @@
 IDIR =-I../../../include
 CC=nvcc
+<<<<<<< HEAD
 CFLAGS=$(IDIR) -D__STDC_CONSTANT_MACROS 		-lavdevice                        \
 														                -lavformat                        \
 														                -lavfilter                        \
