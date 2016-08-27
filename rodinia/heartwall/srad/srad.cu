@@ -8,7 +8,7 @@
 #include <thrust/replace.h>
 #include <thrust/functional.h>
 #include <thrust/window_2d.h>
-
+#include <stdlib.h>
 // includes, kernels
 #include "srad_kernel.cu"
 
@@ -39,8 +39,8 @@ main( int argc, char** argv)
 
 int runTest( int argc, char** argv)
 {
-  unsigned int rows, cols, size_I, size_R, niter = 10, iter,frames_processed,nErode;
-  float lambda, q0sqr, sum, sum2,meanROI,varROI ;
+  unsigned int rows, cols, size_I, size_R, niter = 10, iter,nErode;
+  float lambda, q0sqr, sum, sum2,meanROI,varROI,threshold ;
 	unsigned int r1, r2, c1, c2;
 	int ret;
 	AVPacket packet;
@@ -55,7 +55,7 @@ int runTest( int argc, char** argv)
 
 	if (argc == 7)
 	{
-		frames_processed = atoi(argv[1]);
+		threshold = atof(argv[1]);
 		lambda = atof(argv[2]); //Lambda value
 		niter = atoi(argv[3]); //number of iterations
 		nErode = atoi(argv[4]);
@@ -67,6 +67,7 @@ int runTest( int argc, char** argv)
 		usage(argc, argv);
   }
 
+	printf(" %s Threshold = %f \n",argv[1],threshold);
 	av_register_all();
 	ret = open_input_file(in);
 	printf("Input File Opened\n");
@@ -118,21 +119,7 @@ int runTest( int argc, char** argv)
 					thrust::transform(J_cuda.begin(),J_cuda.end(),J_floatcuda.begin(),extractFunctor());
 
 
-					printf("Erode And Dilate\n");
-					thrust::window_vector<float> erodeInputWindow = thrust::window_vector<float>(&(J_floatcuda),3,3,1,1);
-					thrust::window_vector<float> erodeOutputWindow = thrust::window_vector<float>(&(J_square),3,3,1,1);
-					for(int erodeTimes = 0; erodeTimes < nErode ; erodeTimes++)
-					{
-						//Erode
-							thrust::fill(J_square.begin(),J_square.end(),1);
-							thrust::transform(erodeInputWindow.begin(),erodeInputWindow.end(),erodeOutputWindow.begin(),d_c.begin(),erodeFunctor());
-							thrust::copy(J_square.begin(),J_square.end(),J_floatcuda.begin());
 
-							//Dilate
-							thrust::fill(J_square.begin(),J_square.end(),2.5);
-							thrust::transform(erodeInputWindow.begin(),erodeInputWindow.end(),erodeOutputWindow.begin(),d_c.begin(),dilateFunctor());
-							thrust::copy(J_square.begin(),J_square.end(),J_floatcuda.begin());
-					}
 
 
 					printf("Start the SRAD main loop\n");
@@ -152,9 +139,23 @@ int runTest( int argc, char** argv)
 						thrust::transform(wv.begin(),wv.end(),d_cwv.begin(),J_square.begin(),functor1);
 						thrust::transform(wv.begin(),wv.end(),d_cwv.begin(),J_square.begin(),functor2);
 					}
+					printf("Binarize\n");
+					thrust::transform(J_floatcuda.begin(),J_floatcuda.end(),J_cuda.begin(),binarizeFunctor(threshold));
+					printf("Erode And Dilate\n");
+					thrust::window_vector<int> erodeInputWindow = thrust::window_vector<int>(&(J_cuda),3,3,1,1);
+					for(int erodeTimes = 0; erodeTimes < nErode ; erodeTimes++)
+					{
+						//Erode
+							thrust::for_each(erodeInputWindow.begin(),erodeInputWindow.end(),erodeFunctor());
+					}
+					for(int erodeTimes = 0; erodeTimes < nErode ; erodeTimes++)
+					{
+						//Dilate
+							thrust::for_each(erodeInputWindow.begin(),erodeInputWindow.end(),dilateFunctor());
+					}
 
 					printf("Computation Done\n");
-					thrust::transform(J_floatcuda.begin(),J_floatcuda.end(),J_cuda.begin(),compressFunctor());
+					thrust::for_each(J_cuda.begin(),J_cuda.end(),compressFunctor());
 					int *temp = (int *) malloc(size_I * sizeof(int));
 					cudaMemcpy(temp,thrust::raw_pointer_cast(J_cuda.data()),size_I*sizeof(int),cudaMemcpyDeviceToHost);
 					for (int i = 0; i<size_I; i++)

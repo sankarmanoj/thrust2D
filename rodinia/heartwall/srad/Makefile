@@ -1,6 +1,5 @@
 IDIR =-I../../../include
 CC=nvcc
-<<<<<<< HEAD
 CFLAGS=$(IDIR) -D__STDC_CONSTANT_MACROS 		-lavdevice                        \
 														                -lavformat                        \
 														                -lavfilter                        \
@@ -10,7 +9,7 @@ CFLAGS=$(IDIR) -D__STDC_CONSTANT_MACROS 		-lavdevice                        \
 														                -lavutil
 
 run:srad.out
-	./srad.out 20 0.5 30 1 test2.avi test_out.avi
+	./srad.out 1.7 0.5 10 1 test2.avi test_out.avi
 srad.out: srad.cu ffmpeg.c srad_kernel.cu
 	#display image.pgm &
 	$(CC) $(CFLAGS) $< -o srad.out

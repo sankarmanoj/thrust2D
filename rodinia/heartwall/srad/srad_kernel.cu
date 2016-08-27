@@ -1,11 +1,9 @@
 class compressFunctor
 {
 public:
-	__device__  int operator() (float &x) const
+	__device__  void operator() (int &x) const
 	{
-		int y  = 255*log(x);
-		// printf("%f ,, %f \n",y,x);
-		return y;
+		x =  x*255;
 	}
 };
 class extractFunctor
@@ -18,19 +16,33 @@ public:
 		return y;
 	}
 };
+
+class binarizeFunctor
+{
+	float threshold;
+	public:
+	binarizeFunctor(float t)
+	{
+		this->threshold = t;
+	}
+
+	__device__ int operator() (float &x) const
+	{
+		if(x>threshold)
+		{
+			return 1;
+		}
+		else{
+			return 0;
+		}
+	}
+};
 class erodeFunctor
 {
 public:
-	__device__ float operator() (const thrust::window_2D<float> &w,const thrust::window_2D<float> &v)
+	__device__ void operator() (const thrust::window_2D<int> &w) const
 	{
-		for(int i = 0; i<w.window_dim_x;i++)
-		{
-			for(int j = 0; j<w.window_dim_y;j++)
-			{
-					v[i][j] = w[j][i];
-			}
-		}
-		float minvalue = 1000;
+		int minvalue = INT_MAX;
 		for(int i = 0; i<w.window_dim_x;i++)
 		{
 			for(int j = 0; j<w.window_dim_y;j++)
@@ -42,23 +54,15 @@ public:
 			}
 		}
 
-		v[(v.window_dim_y-1)/2][(v.window_dim_x-1)/2]=minvalue;
-		return 0.0f;
+		w[(w.window_dim_y-1)/2][(w.window_dim_x-1)/2]=minvalue;
 	}
 };
 class dilateFunctor
 {
 public:
-	__device__ float operator() (const thrust::window_2D<float> &w,const thrust::window_2D<float> &v)
+	__device__ void operator() (const thrust::window_2D<int> &w) const
 	{
-		for(int i = 0; i<w.window_dim_x;i++)
-		{
-			for(int j = 0; j<w.window_dim_y;j++)
-			{
-					v[i][j] = w[j][i];
-			}
-		}
-		float maxvalue = 0;
+		int maxvalue = 0;
 		for(int i = 0; i<w.window_dim_x;i++)
 		{
 			for(int j = 0; j<w.window_dim_y;j++)
@@ -70,8 +74,7 @@ public:
 			}
 		}
 
-		v[(v.window_dim_y-1)/2][(v.window_dim_x-1)/2]=maxvalue;
-		return 0.0f;
+		w[(w.window_dim_y-1)/2][(w.window_dim_x-1)/2]=maxvalue;
 	}
 };
 class square
