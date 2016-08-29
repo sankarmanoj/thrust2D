@@ -91,11 +91,11 @@ class kernelNonInitialPart1
 
 class kernelNonInitialPart2
 {
-		float * d_in_mod_temp;
+		thrust::Block_2D<float> *d_in_mod_temp;
 		public:
-		__host__ __device__ kernelNonInitialPart2(float *dimt)
+		__host__ __device__ kernelNonInitialPart2(thrust::Block_2D<float> *x)
 		{
-			this->d_in_mod_temp = dimt;
+			this->d_in_mod_temp = x;
 		}
 		__device__ void operator() (int ei_new)
 		{
@@ -120,7 +120,7 @@ class kernelNonInitialPart2
 				// execution
 				rot_row = (d_common.in_rows-1) - row;
 				rot_col = (d_common.in_rows-1) - col;
-				d_in_mod_temp[ei_new] = d_in[rot_col*d_common.in_rows+rot_row];
+				(*d_in_mod_temp)[bx][ei_new] = d_in[rot_col*d_common.in_rows+rot_row];
 
 			}
 
@@ -257,6 +257,52 @@ public:
 					d_unique[bx].d_in2_pad_cumv[position] = d_unique[bx].d_in2_pad_cumv[position] + sum;
 					sum = d_unique[bx].d_in2_pad_cumv[position];
 					}
+		}
+	}
+};
+
+class kernelCumvSelRows
+{
+public:
+	__device__ void operator() (int ei_new)
+	{
+		int row, col,ori_row,ori_col;
+		for(int bx = 0; bx<ALL_POINTS;bx++)
+			{
+			// figure out row/col location in new matrix
+			row = (ei_new+1) % d_common.in2_pad_cumv_sel_rows - 1;												// (0-n) row
+			col = (ei_new+1) / d_common.in2_pad_cumv_sel_rows + 1 - 1;											// (0-n) column
+			if((ei_new+1) % d_common.in2_pad_cumv_sel_rows == 0){
+				row = d_common.in2_pad_cumv_sel_rows - 1;
+				col = col-1;
+			}
+
+			// figure out corresponding location in old matrix and copy values to new matrix
+			ori_row = row + d_common.in2_pad_cumv_sel_rowlow - 1;
+			ori_col = col + d_common.in2_pad_cumv_sel_collow - 1;
+			d_unique[bx].d_in2_pad_cumv_sel[ei_new] = d_unique[bx].d_in2_pad_cumv[ori_col*d_common.in2_pad_cumv_rows+ori_row];
+		}
+	}
+};
+class kernelSubCumhElem
+{
+public:
+	__device__ void operator() (int ei_new)
+	{
+		for(int bx = 0; bx<ALL_POINTS; bx++)
+			{
+				int row,col,ori_row,ori_col;
+			row = (ei_new+1) % d_common.in2_sub_cumh_rows - 1;												// (0-n) row
+			col = (ei_new+1) / d_common.in2_sub_cumh_rows + 1 - 1;											// (0-n) column
+			if((ei_new+1) % d_common.in2_sub_cumh_rows == 0){
+				row = d_common.in2_sub_cumh_rows - 1;
+				col = col-1;
+			}
+
+			// figure out corresponding location in old matrix and copy values to new matrix
+			ori_row = row + d_common.in2_pad_cumv_sel2_rowlow - 1;
+			ori_col = col + d_common.in2_pad_cumv_sel2_collow - 1;
+			d_unique[bx].d_in2_sub_cumh[ei_new] = d_unique[bx].d_in2_pad_cumv[ori_col*d_common.in2_pad_cumv_rows+ori_row];
 		}
 	}
 };
