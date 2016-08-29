@@ -131,13 +131,15 @@ class kernelNonInitialPart2
 class kernelConvul
 {
 
-	thrust::Block_2D<float> *d_in_mod_temp;
+	int width;
+	float *d_in_mod_temp;
 	public:
-	kernelConvul(thrust::Block_2D<float> *x)
+	kernelConvul(float *x, int width)
 	{
-		this->d_in_mod_temp = x->device_pointer;
+		this->width = width;
+		this->d_in_mod_temp = x;
 	}
-		__device__ void operator() (int ei_new)
+		__device__ void operator() (int t)
 		{	int ic;
 			int jc,j,i;
 			int jp1;
@@ -147,6 +149,8 @@ class kernelConvul
 			int ja, jb;
 			int ia, ib;
 			float s;
+			int ei_new = t%width;
+			int bx = t/width;
 			// figure out row/col location in array
 			ic = (ei_new+1) % d_common.conv_rows;												// (1-n)
 			jc = (ei_new+1) / d_common.conv_rows + 1;											// (1-n)
@@ -186,23 +190,20 @@ class kernelConvul
 			else{
 				ia2 = i;
 			}
-			for(int bx = 0;bx<ALL_POINTS;bx++)
-			{
+
 				s = 0;
 
 				for(ja=ja1; ja<=ja2; ja++){
 						jb = jp1 - ja;
 						for(ia=ia1; ia<=ia2; ia++){
 							ib = ip1 - ia;
-<<<<<<< HEAD
 							s = s + d_in_mod_temp[bx*2601 + d_common.in_rows*(ja-1)+ia-1] * d_unique[bx].d_in2[d_common.in2_rows*(jb-1)+ib-1];
-=======
-							s = s + (*d_in_mod_temp)[bx][d_common.in_rows*(ja-1)+ia-1] * d_unique[bx].d_in2[d_common.in2_rows*(jb-1)+ib-1];
->>>>>>> 9d5af10f106b92b866760039a92e1932c9d8f566
+							// s = s + (*d_in_mod_temp)[bx][d_common.in_rows*(ja-1)+ia-1] * d_unique[bx].d_in2[d_common.in2_rows*(jb-1)+ib-1];
+
 						}
 				}
 				d_unique[bx].d_conv[ei_new] = s;
-			}
+
 		}
 };
 
@@ -292,7 +293,13 @@ public:
 };
 class kernelSubCumhElem
 {
-public:
+	int width;
+	public:
+	kernelSubCumhElem(int w)
+	{
+		this->width = w;
+	}
+
 	__device__ void operator() (int ei_new)
 	{
 		for(int bx = 0; bx<ALL_POINTS; bx++)
@@ -309,9 +316,63 @@ public:
 			ori_row = row + d_common.in2_pad_cumv_sel2_rowlow - 1;
 			ori_col = col + d_common.in2_pad_cumv_sel2_collow - 1;
 			d_unique[bx].d_in2_sub_cumh[ei_new] = d_unique[bx].d_in2_pad_cumv[ori_col*d_common.in2_pad_cumv_rows+ori_row];
+			d_unique[bx].d_in2_sub_cumh[ei_new] = d_unique[bx].d_in2_pad_cumv_sel[ei_new] - d_unique[bx].d_in2_sub_cumh[ei_new];
+
 		}
 	}
 };
+class kernelHorCumSum
+{
+	int width;
+	public:
+	kernelHorCumSum(int w)
+	{
+		this->width = w;
+	}
+	__device__ void operator() (int t)
+	{
+		int ei_new = t%width;
+		int bx = t/width;
+		int position,sum;
+		int pos_ori = ei_new;
+		sum = 0;
+		for(position = pos_ori; position < pos_ori+d_common.in2_sub_cumh_elem; position = position + d_common.in2_sub_cumh_rows){
+				d_unique[bx].d_in2_sub_cumh[position] = d_unique[bx].d_in2_sub_cumh[position] + sum;
+				sum = d_unique[bx].d_in2_sub_cumh[position];
+		}
+
+	}
+};
+
+
+
+
+// class kernelIn2Sub2
+// {
+// 	int width;
+// 	kernelIn2Sub2(int w)
+// 	{
+// 		this->width = w;
+// 	}
+// public:
+// 	__device__ void operator() (int t)
+// 	{
+// 		int ei_new = t%width;
+// 		int bx = t/width;
+// 		row = (ei_new+1) % d_common.in2_sub2_rows - 1;												// (0-n) row
+// 		col = (ei_new+1) / d_common.in2_sub2_rows + 1 - 1;											// (0-n) column
+// 		if((ei_new+1) % d_common.in2_sub2_rows == 0){
+// 			row = d_common.in2_sub2_rows - 1;
+// 			col = col-1;
+// 		}
+//
+// 		// figure out corresponding location in old matrix and copy values to new matrix
+// 		ori_row = row + d_common.in2_sub_cumh_sel2_rowlow - 1;
+// 		ori_col = col + d_common.in2_sub_cumh_sel2_collow - 1;
+// 		d_unique[bx].d_in2_sub2[ei_new] = d_unique[bx].d_in2_sub_cumh[ori_col*d_common.in2_sub_cumh_rows+ori_row];
+//
+// 	}
+// };
 //===============================================================================================================================================================================================================
 //===============================================================================================================================================================================================================
 //	KERNEL FUNCTION

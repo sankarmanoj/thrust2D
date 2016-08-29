@@ -619,6 +619,7 @@ int main(int argc, char *argv []){
 
 	printf("IN_ELEM = %d, IN2_ELEM = %d, CONV_ELEM = %d\n",common.in_elem,common.in2_elem, common.conv_elem);
 	printf("IN_COLS = %d, IN2_COLS = %d, IN_ROWS = %d , IN2_ROWS = %d\n",common.in_cols,common.in2_cols,common.in_rows,common.in2_rows);
+	printf("in2_sub_cumh_elem = %d, in2_pad_cumv_elem = %d",common.in2_sub_cumh_elem,common.in2_pad_cumv_elem);
 	//======================================================================================================================================================
 	//	KERNEL
 	//======================================================================================================================================================
@@ -680,14 +681,16 @@ int main(int argc, char *argv []){
 			thrust::for_each(mCount,mCount + common.in2_elem,kernelNonInitialPart1());
 
 			thrust::for_each(mCount,mCount + common.in_elem,kernelNonInitialPart2(d_in_mod_temp));
-			thrust::for_each(mCount,mCount + common.conv_elem,kernelConvul(d_in_mod_temp));
-
-// 			thrust::for_each(mCount,mCount + common.in_elem,kernelNonInitialPart2(&d_in_mod_temp_block));
-// 			thrust::for_each(mCount,mCount + common.conv_elem,kernelConvul(&d_in_mod_temp_block));
+			thrust::for_each(mCount,mCount + common.conv_elem*ALL_POINTS,kernelConvul(d_in_mod_temp,common.conv_elem));
+//
+// // 			thrust::for_each(mCount,mCount + common.in_elem,kernelNonInitialPart2(&d_in_mod_temp_block));
+// // 			thrust::for_each(mCount,mCount + common.conv_elem,kernelConvul(&d_in_mod_temp_block));
 			thrust::for_each(mCount,mCount + common.in2_pad_cumv_elem,kernelInPadConv());
 			thrust::for_each(mCount,mCount + common.in2_pad_cumv_cols,kernelInPadConv2());
 			thrust::for_each(mCount,mCount + common.in2_pad_cumv_sel_elem,kernelCumvSelRows());
-			thrust::for_each(mCount,mCount + common.in2_sub_cumh_elem,kernelSubCumhElem());
+			thrust::for_each(mCount,mCount + common.in2_sub_cumh_elem,kernelSubCumhElem(common.in2_sub_cumh_elem));
+			thrust::for_each(mCount,mCount + common.in2_sub_cumh_rows*ALL_POINTS,kernelHorCumSum(common.in2_sub_cumh_rows));
+			// thrust::for_each(mCount,mCount + common.in2_sub_cumh_elem)
 		}
 		cudaEventRecord(tstop);
 		cudaEventSynchronize(tstop);
