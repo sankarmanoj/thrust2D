@@ -343,6 +343,32 @@ class kernelHorCumSum
 
 	}
 };
+class kernelSelectionSubCumElem
+{
+	int width;
+	public:
+	kernelSelectionSubCumElem(int w)
+	{
+		this->width = w;
+	}
+	__device__ void operator() (int t)
+	{
+		int ei_new = t%width;
+		int bx = t/width;
+		int row, col, ori_row,ori_col;
+		row = (ei_new+1) % d_common.in2_sub_cumh_sel_rows - 1;												// (0-n) row
+		col = (ei_new+1) / d_common.in2_sub_cumh_sel_rows + 1 - 1;											// (0-n) column
+		if((ei_new+1) % d_common.in2_sub_cumh_sel_rows == 0){
+			row = d_common.in2_sub_cumh_sel_rows - 1;
+			col = col - 1;
+		}
+
+		// figure out corresponding location in old matrix and copy values to new matrix
+		ori_row = row + d_common.in2_sub_cumh_sel_rowlow - 1;
+		ori_col = col + d_common.in2_sub_cumh_sel_collow - 1;
+		d_unique[bx].d_in2_sub_cumh_sel[ei_new] = d_unique[bx].d_in2_sub_cumh[ori_col*d_common.in2_sub_cumh_rows+ori_row];
+
+};
 
 
 
