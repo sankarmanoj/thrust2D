@@ -95,7 +95,7 @@ class kernelNonInitialPart2
 		public:
 		__host__ __device__ kernelNonInitialPart2(thrust::Block_2D<float> *x)
 		{
-			this->d_in_mod_temp = x;
+			this->d_in_mod_temp = x->device_pointer;
 		}
 		__device__ void operator() (int ei_new)
 		{
@@ -129,11 +129,11 @@ class kernelNonInitialPart2
 class kernelConvul
 {
 
-	float * d_in_mod_temp;
+	thrust::Block_2D<float> *d_in_mod_temp;
 	public:
-	kernelConvul(float *dimt)
+	kernelConvul(thrust::Block_2D<float> *x)
 	{
-		this->d_in_mod_temp = dimt;
+		this->d_in_mod_temp = x->device_pointer;
 	}
 		__device__ void operator() (int ei_new)
 		{	int ic;
@@ -192,7 +192,7 @@ class kernelConvul
 						jb = jp1 - ja;
 						for(ia=ia1; ia<=ia2; ia++){
 							ib = ip1 - ia;
-							s = s + d_in_mod_temp[d_common.in_rows*(ja-1)+ia-1] * d_unique[bx].d_in2[d_common.in2_rows*(jb-1)+ib-1];
+							s = s + (*d_in_mod_temp)[bx][d_common.in_rows*(ja-1)+ia-1] * d_unique[bx].d_in2[d_common.in2_rows*(jb-1)+ib-1];
 						}
 				}
 				d_unique[bx].d_conv[ei_new] = s;

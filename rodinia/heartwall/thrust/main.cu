@@ -679,8 +679,8 @@ int main(int argc, char *argv []){
 		else
 		{
 			thrust::for_each(mCount,mCount + common.in2_elem,kernelNonInitialPart1());
-			// thrust::for_each(mCount,mCount + common.in_elem,kernelNonInitialPart2(&d_in_mod_temp_block));
-			thrust::for_each(mCount,mCount + common.conv_elem,kernelConvul(d_in_mod_temp));
+			thrust::for_each(mCount,mCount + common.in_elem,kernelNonInitialPart2(&d_in_mod_temp_block));
+			thrust::for_each(mCount,mCount + common.conv_elem,kernelConvul(&d_in_mod_temp_block));
 			thrust::for_each(mCount,mCount + common.in2_pad_cumv_elem,kernelInPadConv());
 			thrust::for_each(mCount,mCount + common.in2_pad_cumv_cols,kernelInPadConv2());
 			thrust::for_each(mCount,mCount + common.in2_pad_cumv_sel_elem,kernelCumvSelRows());
