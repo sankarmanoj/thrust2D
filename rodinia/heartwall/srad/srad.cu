@@ -8,7 +8,7 @@
 #include <thrust/replace.h>
 #include <thrust/functional.h>
 #include <thrust/window_2d.h>
-
+#include <stdlib.h>
 // includes, kernels
 #include "srad_kernel.cu"
 
@@ -39,8 +39,8 @@ main( int argc, char** argv)
 
 int runTest( int argc, char** argv)
 {
-  unsigned int rows, cols, size_I, size_R, niter = 10, iter,frames_processed;
-  float lambda, q0sqr, sum, sum2,meanROI,varROI ;
+  unsigned int rows, cols, size_I, size_R, niter = 10, iter,nErode;
+  float lambda, q0sqr, sum, sum2,meanROI,varROI,threshold ;
 	unsigned int r1, r2, c1, c2;
 	int ret;
 	AVPacket packet;
@@ -53,24 +53,29 @@ int runTest( int argc, char** argv)
 
 	char *in,*out;
 
-	if (argc == 6)
+	if (argc == 7)
 	{
-		frames_processed = atoi(argv[1]);
+		threshold = atof(argv[1]);
 		lambda = atof(argv[2]); //Lambda value
 		niter = atoi(argv[3]); //number of iterations
-		in = argv[4];
-		out = argv[5];
+		nErode = atoi(argv[4]);
+		in = argv[5];
+		out = argv[6];
 	}
   else
 	{
 		usage(argc, argv);
   }
 
+	printf(" %s Threshold = %f \n",argv[1],threshold);
 	av_register_all();
 	ret = open_input_file(in);
+	printf("Input File Opened\n");
 	ret = open_output_file(out);
+	printf("Output File Opened - %d\n",ret);
 	/* read all packets */
 	while (1) {
+			printf("Beginning of Loop\n");
 			if ((ret = av_read_frame(ifmt_ctx, &packet)) < 0)
 					break;
 			stream_index = packet.stream_index;
@@ -93,42 +98,62 @@ int runTest( int argc, char** argv)
 			}
 			ifmt_ctx->streams[stream_index]->codec->refcounted_frames = 1;
 			av_packet_rescale_ts(&packet,ifmt_ctx->streams[stream_index]->time_base,ifmt_ctx->streams[stream_index]->codec->time_base);
-			dec_func = (type == AVMEDIA_TYPE_VIDEO) ? avcodec_decode_video2 : avcodec_decode_audio4;
+			dec_func = avcodec_decode_video2;
 			ret = dec_func(ifmt_ctx->streams[stream_index]->codec, frame,&got_frame, &packet);
+			printf(" Got Frame = %d\n",got_frame);
 			ret = av_frame_make_writable (frame);
 			if (ret < 0) {
 					// av_frame_free(&frame);
-					av_log(NULL, AV_LOG_ERROR, "Decoding failed\n");
+					av_log(NULL, AV_LOG_ERROR, "Decoding failed - Make Writable\n");
 					break;
 			}
 			if (got_frame) {
 					frame->pts = av_frame_get_best_effort_timestamp(frame);
-
-					// printf("%d\n",frame->data[0][655*744]);
-
+					printf("Key Frame = %d\n",frame->key_frame);
 					thrust::Block_2D<int> J_cuda (cols,rows);
-					thrust::Block_2D<int> J_square(cols,rows);
-					thrust::Block_2D<int> d_c(cols,rows);
-					thrust::fill(d_c.begin(),d_c.end(),0);
+					thrust::Block_2D<float> J_square(cols,rows);
+					thrust::Block_2D<float> d_c(cols,rows);
+					thrust::Block_2D<float> J_floatcuda(cols,rows);
+					thrust::fill(d_c.begin(),d_c.end(),0.0f);
 					J_cuda.assign(&frame->data[0][0],&frame->data[0][size_I]);
-					thrust::for_each(J_cuda.begin(),J_cuda.end(),extractFunctor());
+					thrust::transform(J_cuda.begin(),J_cuda.end(),J_floatcuda.begin(),extractFunctor());
+
+
+
+
+
 					printf("Start the SRAD main loop\n");
 						for (iter=0; iter< niter; iter++)
 					{
-						thrust::copy(J_cuda.begin(),J_cuda.end(),J_square.begin());
+						thrust::copy(J_floatcuda.begin(),J_floatcuda.end(),J_square.begin());
 						thrust::for_each(J_square.begin(),J_square.end(),square());
-						sum = thrust::reduce(J_cuda.begin(),J_cuda.end());
+						sum = thrust::reduce(J_floatcuda.begin(),J_floatcuda.end());
 						sum2 = thrust::reduce(J_square.begin(),J_square.end());
 					  meanROI = sum / size_R;
 					  varROI  = (sum2 / size_R) - meanROI*meanROI;
 					  q0sqr   = varROI / (meanROI*meanROI);
 						SRADFunctor1 functor1(cols,rows,q0sqr);
 						SRADFunctor2 functor2(cols,rows,lambda,q0sqr);
-						thrust::window_vector<int> wv = thrust::window_vector<int>(&(J_cuda),3,3,1,1);
-						thrust::window_vector<int> d_cwv = thrust::window_vector<int>(&(d_c),3,3,1,1);
+						thrust::window_vector<float> wv = thrust::window_vector<float>(&(J_floatcuda),3,3,1,1);
+						thrust::window_vector<float> d_cwv = thrust::window_vector<float>(&(d_c),3,3,1,1);
 						thrust::transform(wv.begin(),wv.end(),d_cwv.begin(),J_square.begin(),functor1);
 						thrust::transform(wv.begin(),wv.end(),d_cwv.begin(),J_square.begin(),functor2);
 					}
+					printf("Binarize\n");
+					thrust::transform(J_floatcuda.begin(),J_floatcuda.end(),J_cuda.begin(),binarizeFunctor(threshold));
+					printf("Erode And Dilate\n");
+					thrust::window_vector<int> erodeInputWindow = thrust::window_vector<int>(&(J_cuda),3,3,1,1);
+					for(int erodeTimes = 0; erodeTimes < nErode ; erodeTimes++)
+					{
+						//Erode
+							thrust::for_each(erodeInputWindow.begin(),erodeInputWindow.end(),erodeFunctor());
+					}
+					for(int erodeTimes = 0; erodeTimes < nErode ; erodeTimes++)
+					{
+						//Dilate
+							thrust::for_each(erodeInputWindow.begin(),erodeInputWindow.end(),dilateFunctor());
+					}
+
 					printf("Computation Done\n");
 					thrust::for_each(J_cuda.begin(),J_cuda.end(),compressFunctor());
 					int *temp = (int *) malloc(size_I * sizeof(int));
@@ -158,7 +183,7 @@ int runTest( int argc, char** argv)
 			                         ofmt_ctx->streams[stream_index]->time_base);
 			    // av_log(NULL, AV_LOG_DEBUG, "Muxing frame\n");
 			    /* mux encoded frame */
-					ret = av_interleaved_write_frame(ofmt_ctx, &enc_pkt);
+					ret = av_write_frame(ofmt_ctx, &enc_pkt);
 
 			}
 			av_frame_unref(frame);
