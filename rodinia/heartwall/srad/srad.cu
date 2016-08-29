@@ -40,7 +40,7 @@ main( int argc, char** argv)
 int runTest( int argc, char** argv)
 {
   unsigned int rows, cols, size_I, size_R, niter = 10, iter,nErode;
-  float lambda, q0sqr, sum, sum2,meanROI,varROI,threshold ;
+  float lambda, q0sqr, sum, sum2,meanROI,varROI,threshold,maxThreshold ;
 	unsigned int r1, r2, c1, c2;
 	int ret;
 	AVPacket packet;
@@ -53,14 +53,15 @@ int runTest( int argc, char** argv)
 
 	char *in,*out;
 
-	if (argc == 7)
+	if (argc == 8)
 	{
 		threshold = atof(argv[1]);
-		lambda = atof(argv[2]); //Lambda value
-		niter = atoi(argv[3]); //number of iterations
-		nErode = atoi(argv[4]);
-		in = argv[5];
-		out = argv[6];
+		maxThreshold = atof(argv[2]);
+		lambda = atof(argv[3]); //Lambda value
+		niter = atoi(argv[4]); //number of iterations
+		nErode = atoi(argv[5]);
+		in = argv[6];
+		out = argv[7];
 	}
   else
 	{
@@ -140,9 +141,15 @@ int runTest( int argc, char** argv)
 						thrust::transform(wv.begin(),wv.end(),d_cwv.begin(),J_square.begin(),functor2);
 					}
 					printf("Binarize\n");
-					thrust::transform(J_floatcuda.begin(),J_floatcuda.end(),J_cuda.begin(),binarizeFunctor(threshold));
+					thrust::transform(J_floatcuda.begin(),J_floatcuda.end(),J_cuda.begin(),binarizeFunctor(threshold,maxThreshold));
 					printf("Erode And Dilate\n");
 					thrust::window_vector<int> erodeInputWindow = thrust::window_vector<int>(&(J_cuda),3,3,1,1);
+					for(int erodeTimes = 0; erodeTimes < nErode ; erodeTimes++)
+					{
+						//Erode
+							thrust::for_each(erodeInputWindow.begin(),erodeInputWindow.end(),erodeFunctor());
+							thrust::for_each(erodeInputWindow.begin(),erodeInputWindow.end(),dilateFunctor());
+					}
 					for(int erodeTimes = 0; erodeTimes < nErode ; erodeTimes++)
 					{
 						//Erode

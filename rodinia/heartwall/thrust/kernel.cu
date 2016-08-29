@@ -1,15 +1,11 @@
 class kernelInitial
 {
 
-		params_common d_common;
-		params_common_change d_common_change;
-		params_unique *d_unique;
+
 		public:
-		kernelInitial(params_common pc, params_common_change pcc,params_unique *dun)
+		kernelInitial()
 		{
-			this->d_common = pc;
-			this->d_common_change = pcc;
-			this->d_unique = dun;
+
 		}
 		__device__ void operator() (int ei_new)
 		{
@@ -23,6 +19,8 @@ class kernelInitial
 				for(int bx = 0; bx<ALL_POINTS; bx++)
 				{
 				// update temporary row/col coordinates
+
+				d_in = &d_unique[bx].d_T[d_unique[bx].in_pointer];
 				pointer = d_unique[bx].point_no*d_common.no_frames+d_common_change.frame_no;
 				d_unique[bx].d_tRowLoc[pointer] = d_unique[bx].d_Row[d_unique[bx].point_no];
 				d_unique[bx].d_tColLoc[pointer] = d_unique[bx].d_Col[d_unique[bx].point_no];
@@ -56,24 +54,20 @@ class kernelInitial
 class kernelNonInitialPart1
 {
 
-		params_common d_common;
-		params_common_change d_common_change;
-		params_unique *d_unique;
+
 		public:
-		kernelNonInitialPart1(params_common pc, params_common_change pcc,params_unique *dun)
+		kernelNonInitialPart1()
 		{
-			this->d_common = pc;
-			this->d_common_change = pcc;
-			this->d_unique = dun;
+
 		}
 		__device__ void operator() (int ei_new)
 		{
-				int pointer;
 				int row;
 				int col;
 				int ori_row;
 				int ori_col;
 				int in2_rowlow, in2_collow;
+
 				for(int bx = 0; bx<ALL_POINTS; bx++)
 				{
 					in2_rowlow = d_unique[bx].d_Row[d_unique[bx].point_no] - d_common.sSize;													// (1 to n+1)
@@ -97,18 +91,11 @@ class kernelNonInitialPart1
 
 class kernelNonInitialPart2
 {
-
-		params_common d_common;
-		params_common_change d_common_change;
-		params_unique *d_unique;
 		float * d_in_mod_temp;
 		public:
-		kernelNonInitialPart2(params_common pc, params_common_change pcc,params_unique *dun,float *dimt)
+		__host__ __device__ kernelNonInitialPart2(float *dimt)
 		{
-			this->d_common = pc;
 			this->d_in_mod_temp = dimt;
-			this->d_common_change = pcc;
-			this->d_unique = dun;
 		}
 		__device__ void operator() (int ei_new)
 		{
@@ -139,7 +126,140 @@ class kernelNonInitialPart2
 
 		}
 };
+class kernelConvul
+{
 
+	float * d_in_mod_temp;
+	public:
+	kernelConvul(float *dimt)
+	{
+		this->d_in_mod_temp = dimt;
+	}
+		__device__ void operator() (int ei_new)
+		{	int ic;
+			int jc,j,i;
+			int jp1;
+			int ja1, ja2;
+			int ip1;
+			int ia1, ia2;
+			int ja, jb;
+			int ia, ib;
+			float s;
+			// figure out row/col location in array
+			ic = (ei_new+1) % d_common.conv_rows;												// (1-n)
+			jc = (ei_new+1) / d_common.conv_rows + 1;											// (1-n)
+			if((ei_new+1) % d_common.conv_rows == 0){
+				ic = d_common.conv_rows;
+				jc = jc-1;
+			}
+
+			//
+			j = jc + d_common.joffset;
+			jp1 = j + 1;
+			if(d_common.in2_cols < jp1){
+				ja1 = jp1 - d_common.in2_cols;
+			}
+			else{
+				ja1 = 1;
+			}
+			if(d_common.in_cols < j){
+				ja2 = d_common.in_cols;
+			}
+			else{
+				ja2 = j;
+			}
+
+			i = ic + d_common.ioffset;
+			ip1 = i + 1;
+
+			if(d_common.in2_rows < ip1){
+				ia1 = ip1 - d_common.in2_rows;
+			}
+			else{
+				ia1 = 1;
+			}
+			if(d_common.in_rows < i){
+				ia2 = d_common.in_rows;
+			}
+			else{
+				ia2 = i;
+			}
+			for(int bx = 0;bx<ALL_POINTS;bx++)
+			{
+				s = 0;
+
+				for(ja=ja1; ja<=ja2; ja++){
+						jb = jp1 - ja;
+						for(ia=ia1; ia<=ia2; ia++){
+							ib = ip1 - ia;
+							s = s + d_in_mod_temp[d_common.in_rows*(ja-1)+ia-1] * d_unique[bx].d_in2[d_common.in2_rows*(jb-1)+ib-1];
+						}
+				}
+				d_unique[bx].d_conv[ei_new] = s;
+			}
+		}
+};
+
+class kernelInPadConv
+{
+public:
+	kernelInPadConv()
+	{
+
+	}
+	__device__ void operator() (int ei_new)
+	{
+		int row;
+		int col;
+		int ori_row;
+		int ori_col;
+		// figure out row/col location in padded array
+		row = (ei_new+1) % d_common.in2_pad_cumv_rows - 1;												// (0-n) row
+		col = (ei_new+1) / d_common.in2_pad_cumv_rows + 1 - 1;											// (0-n) column
+		if((ei_new+1) % d_common.in2_pad_cumv_rows == 0){
+			row = d_common.in2_pad_cumv_rows - 1;
+			col = col-1;
+		}
+
+		// execution
+		for(int bx = 0; bx<ALL_POINTS; bx++)
+		{
+			if(	row > (d_common.in2_pad_add_rows-1) &&														// do if has numbers in original array
+				row < (d_common.in2_pad_add_rows+d_common.in2_rows) &&
+				col > (d_common.in2_pad_add_cols-1) &&
+				col < (d_common.in2_pad_add_cols+d_common.in2_cols)){
+				ori_row = row - d_common.in2_pad_add_rows;
+				ori_col = col - d_common.in2_pad_add_cols;
+				d_unique[bx].d_in2_pad_cumv[ei_new] = d_unique[bx].d_in2[ori_col*d_common.in2_rows+ori_row];
+			}
+			else{																			// do if otherwise
+				d_unique[bx].d_in2_pad_cumv[ei_new] = 0;
+			}
+		}
+	}
+};
+
+
+class kernelInPadConv2
+{
+public:
+	__device__ void operator() (int ei_new)
+	{
+		int sum,position,pos_ori;
+		pos_ori = ei_new*d_common.in2_pad_cumv_rows;
+
+		for(int bx = 0; bx<ALL_POINTS; bx++)
+		{
+			// variables
+			sum = 0;
+			// loop through all rows
+			for(position = pos_ori; position < pos_ori+d_common.in2_pad_cumv_rows; position = position + 1){
+					d_unique[bx].d_in2_pad_cumv[position] = d_unique[bx].d_in2_pad_cumv[position] + sum;
+					sum = d_unique[bx].d_in2_pad_cumv[position];
+					}
+		}
+	}
+};
 //===============================================================================================================================================================================================================
 //===============================================================================================================================================================================================================
 //	KERNEL FUNCTION
@@ -377,7 +497,7 @@ __global__ void kernel(){
 			}
 
 			//
-			j = jc + d_common.joffset;
+			j = jc + d_common.joffset; //J = JC
 			jp1 = j + 1;
 			if(d_common.in2_cols < jp1){
 				ja1 = jp1 - d_common.in2_cols;
@@ -699,6 +819,7 @@ __global__ void kernel(){
 		//==================================================
 
 		__syncthreads();
+		//TODO : Merge the surrounding Code!!
 
 		//==================================================
 		//	SUBTRACTION

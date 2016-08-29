@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include<thrust/window_2D.h>
+#include<thrust/window_2d.h>
 #include <avilib.h>
 #include <avimod.h>
 #include <cuda.h>
@@ -60,7 +60,6 @@ void write_data(	char* filename,
 
 	FILE* fid;
 	int i,j;
-	char c;
 
 	//================================================================================80
 	//	OPEN FILE FOR READING
@@ -411,6 +410,7 @@ int main(int argc, char *argv []){
 	common.conv_rows = common.in_rows + common.in2_rows - 1;												// number of rows in I
 	common.conv_cols = common.in_cols + common.in2_cols - 1;												// number of columns in I
 	common.conv_elem = common.conv_rows * common.conv_cols;												// number of elements
+	printf("Conv_Elem = %d\n",common.conv_elem);
 	common.conv_mem = sizeof(float) * common.conv_elem;
 	common.ioffset = 0;
 	common.joffset = 0;
@@ -609,13 +609,16 @@ int main(int argc, char *argv []){
 	if((common.mask_cols-1) % 2 > 0.5){
 		common.mask_conv_joffset = common.mask_conv_joffset + 1;
 	}
-	float *d_in_mod_temp;
-	cudaMalloc((void **) d_in_mod_temp,sizeof(float)*2601);
-	// pointers
+
+ 	float * d_in_mod_temp;
+	cudaMalloc((void **)&d_in_mod_temp,sizeof(float)*2601);
+
 	for(i=0; i<common.allPoints; i++){
 		cudaMalloc((void **)&unique[i].d_mask_conv, common.mask_conv_mem);
 	}
 
+	printf("IN_ELEM = %d, IN2_ELEM = %d, CONV_ELEM = %d\n",common.in_elem,common.in2_elem, common.conv_elem);
+	printf("IN_COLS = %d, IN2_COLS = %d, IN_ROWS = %d , IN2_ROWS = %d\n",common.in_cols,common.in2_cols,common.in_rows,common.in2_rows);
 	//======================================================================================================================================================
 	//	KERNEL
 	//======================================================================================================================================================
@@ -633,7 +636,11 @@ int main(int argc, char *argv []){
 	//====================================================================================================
 	//	COPY ARGUMENTS
 	//====================================================================================================
-
+	cudaEvent_t tstart, tstop,cstart,cstop;
+	cudaEventCreate(&tstart);
+	cudaEventCreate(&tstop);
+	cudaEventCreate(&cstart);
+	cudaEventCreate(&cstop);
 	cudaMemcpyToSymbol(d_common, &common, sizeof(params_common));
 	cudaMemcpyToSymbol(d_unique, &unique, sizeof(params_unique)*ALL_POINTS);
 
@@ -658,27 +665,45 @@ int main(int argc, char *argv []){
 										1);							// converted
 
 		// copy frame to GPU memory
-		thrust::counting_iterator<int> mCount;
-		if(common_change.frame_no==0)
-		{
-			thrust::for_each(mCount,mCount + d_common.in_elem,kernelInitial(d_common,d_common_change,d_unique));
-		}
-		else
-		{
-			thrust::for_each(mCount,mCount + d_common.in2_elem,kernelNonInitialPart1(d_common,d_common_change,d_unique));
-			thrust::for_each(mCount,mCount + d_common.in_elem,kernelNonInitialPart2(d_common,d_common_change,d_unique,d_in_mod_temp));
-		}
 		cudaMemcpy(common_change.d_frame, frame, common.frame_mem, cudaMemcpyHostToDevice);
 		cudaMemcpyToSymbol(d_common_change, &common_change, sizeof(params_common_change));
 
+
+		cudaEventRecord(tstart);
+		thrust::counting_iterator<int> mCount;
+		if(common_change.frame_no==0)
+		{
+			thrust::for_each(mCount,mCount + common.in_elem,kernelInitial());
+		}
+		else
+		{
+			thrust::for_each(mCount,mCount + common.in2_elem,kernelNonInitialPart1());
+			thrust::for_each(mCount,mCount + common.in_elem,kernelNonInitialPart2(d_in_mod_temp));
+			thrust::for_each(mCount,mCount + common.conv_elem,kernelConvul(d_in_mod_temp));
+			thrust::for_each(mCount,mCount + common.in2_pad_cumv_elem,kernelInPadConv());
+			thrust::for_each(mCount,mCount + common.in2_pad_cumv_cols,kernelInPadConv2());
+		}
+		cudaEventRecord(tstop);
+		cudaEventSynchronize(tstop);
+		float timeTaken;
+		cudaEventElapsedTime(&timeTaken,tstart,tstop);
+		printf("%d ", common_change.frame_no);
+		printf("Thrust Time = %f ",timeTaken);
+
+		cudaEventRecord(cstart);
 		// launch GPU kernel
 		kernel<<<blocks, threads>>>();
+
+		cudaEventRecord(cstop);
+		cudaEventSynchronize(cstop);
+		cudaEventElapsedTime(&timeTaken,cstart,cstop);
+		printf("CUDA Time = %f \n",timeTaken);
 
 		// free frame after each loop iteration, since AVI library allocates memory for every frame fetched
 		free(frame);
 
 		// print frame progress
-		printf("%d ", common_change.frame_no);
+
 		fflush(NULL);
 
 	}
@@ -705,7 +730,7 @@ int main(int argc, char *argv []){
 	//==================================================50
 	//	DUMP DATA TO FILE
 	//==================================================50
-	write_data(	"result.out",
+	write_data(	( char *)"result.out",
 			common.no_frames,
 			frames_processed,
 				common.endoPoints,

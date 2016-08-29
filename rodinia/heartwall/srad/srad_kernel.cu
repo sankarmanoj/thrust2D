@@ -20,15 +20,20 @@ public:
 class binarizeFunctor
 {
 	float threshold;
+	float maxValue = 3.0f;
 	public:
 	binarizeFunctor(float t)
 	{
 		this->threshold = t;
 	}
-
+	binarizeFunctor(float t, float max)
+	{
+			this->threshold = t;
+			this->maxValue = max;
+	}
 	__device__ int operator() (float &x) const
 	{
-		if(x>threshold)
+		if(x>threshold&&x<maxValue)
 		{
 			return 1;
 		}
@@ -37,23 +42,30 @@ class binarizeFunctor
 		}
 	}
 };
+class erodeTransformFunctor
+{
+public:
+	__device__ int operator() (const thrust::window_2D<int> &w,const thrust::window_2D<int> &v) const
+	{
+		int minvalue = 1;
+		for(int i = 0; i<w.window_dim_x;i++)
+		{
+			for(int j = 0; j<w.window_dim_y;j++)
+			{
+				minvalue *=w[i][j];
+			}
+		}
+
+		v[(v.window_dim_y-1)/2][(v.window_dim_x-1)/2]=minvalue;
+		return 4;
+	}
+};
 class erodeFunctor
 {
 public:
 	__device__ void operator() (const thrust::window_2D<int> &w) const
 	{
-		int minvalue = INT_MAX;
-		for(int i = 0; i<w.window_dim_x;i++)
-		{
-			for(int j = 0; j<w.window_dim_y;j++)
-			{
-				if(minvalue>w[j][i])
-				{
-					minvalue = w[j][i];
-				}
-			}
-		}
-
+		int minvalue =w[0][1]*w[2][1]*w[1][0]*w[1][2]*w[1][1];
 		w[(w.window_dim_y-1)/2][(w.window_dim_x-1)/2]=minvalue;
 	}
 };
@@ -62,18 +74,9 @@ class dilateFunctor
 public:
 	__device__ void operator() (const thrust::window_2D<int> &w) const
 	{
-		int maxvalue = 0;
-		for(int i = 0; i<w.window_dim_x;i++)
-		{
-			for(int j = 0; j<w.window_dim_y;j++)
-			{
-				if(maxvalue<w[j][i])
-				{
-					maxvalue = w[j][i];
-				}
-			}
-		}
-
+		int maxvalue = w[0][1]+w[2][1]+w[1][0]+w[1][2]+w[1][1];
+		if(maxvalue>1)
+		maxvalue =1;
 		w[(w.window_dim_y-1)/2][(w.window_dim_x-1)/2]=maxvalue;
 	}
 };
