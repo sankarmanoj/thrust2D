@@ -611,8 +611,7 @@ int main(int argc, char *argv []){
 	}
 
  	float * d_in_mod_temp;
-  thrust::Block_2D<float> d_in_mod_temp_block(2601,ALL_POINTS);
-	cudaMalloc((void **)&d_in_mod_temp,sizeof(float)*2601);
+	cudaMalloc((void **)&d_in_mod_temp,sizeof(float)*2601*ALL_POINTS);
 
 	for(i=0; i<common.allPoints; i++){
 		cudaMalloc((void **)&unique[i].d_mask_conv, common.mask_conv_mem);
@@ -679,7 +678,7 @@ int main(int argc, char *argv []){
 		else
 		{
 			thrust::for_each(mCount,mCount + common.in2_elem,kernelNonInitialPart1());
-			// thrust::for_each(mCount,mCount + common.in_elem,kernelNonInitialPart2(&d_in_mod_temp_block));
+			thrust::for_each(mCount,mCount + common.in_elem,kernelNonInitialPart2(d_in_mod_temp));
 			thrust::for_each(mCount,mCount + common.conv_elem,kernelConvul(d_in_mod_temp));
 			thrust::for_each(mCount,mCount + common.in2_pad_cumv_elem,kernelInPadConv());
 			thrust::for_each(mCount,mCount + common.in2_pad_cumv_cols,kernelInPadConv2());

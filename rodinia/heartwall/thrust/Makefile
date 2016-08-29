@@ -1,6 +1,6 @@
 # C compiler
 CC = nvcc
-CC_FLAGS =  -D_FORCE_INLINES -I../../../include
+CC_FLAGS = -lineinfo   -D_FORCE_INLINES -I../../../include
 
 # link objects(binaries) together
 heartwall: main.o ./AVI/avilib.o ./AVI/avimod.o
