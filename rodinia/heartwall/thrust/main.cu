@@ -619,7 +619,8 @@ int main(int argc, char *argv []){
 
 	printf("IN_ELEM = %d, IN2_ELEM = %d, CONV_ELEM = %d\n",common.in_elem,common.in2_elem, common.conv_elem);
 	printf("IN_COLS = %d, IN2_COLS = %d, IN_ROWS = %d , IN2_ROWS = %d\n",common.in_cols,common.in2_cols,common.in_rows,common.in2_rows);
-	printf("in2_sub_cumh_elem = %d, in2_pad_cumv_elem = %d",common.in2_sub_cumh_elem,common.in2_pad_cumv_elem);
+	printf("in2_sub_cumh_elem = %d, in2_pad_cumv_elem = %d,in2_pad_cumv_sel_elem = %d ,  in2_sub2_elem = %d in2_sqr_elem = %d \n",common.in2_sub_cumh_elem,common.in2_pad_cumv_elem, common.in2_pad_cumv_sel_elem,common.in2_sub2_elem, common.in2_sqr_elem);
+	printf(" common.in2_pad_cumv_cols  = %d , common.in2_sub_cumh_sel_elem = %d \n",common.in2_pad_cumv_cols,common.in2_sub_cumh_sel_elem);
 	//======================================================================================================================================================
 	//	KERNEL
 	//======================================================================================================================================================
@@ -655,7 +656,8 @@ int main(int argc, char *argv []){
 	//====================================================================================================
 	//	LAUNCH
 	//====================================================================================================
-
+	float sums[51];
+	float sqsums[51];
 	for(common_change.frame_no=0; common_change.frame_no<frames_processed; common_change.frame_no++){
 
 		// Extract a cropped version of the first frame from the video file
@@ -681,7 +683,7 @@ int main(int argc, char *argv []){
 			thrust::for_each(mCount,mCount + common.in2_elem,kernelNonInitialPart1());
 
 			thrust::for_each(mCount,mCount + common.in_elem,kernelNonInitialPart2(d_in_mod_temp));
-			thrust::for_each(mCount,mCount + common.conv_elem*ALL_POINTS,kernelConvul(d_in_mod_temp,common.conv_elem));
+			// thrust::for_each(mCount,mCount + common.conv_elem*ALL_POINTS,kernelConvul(d_in_mod_temp,common.conv_elem));
 //
 // // 			thrust::for_each(mCount,mCount + common.in_elem,kernelNonInitialPart2(&d_in_mod_temp_block));
 // // 			thrust::for_each(mCount,mCount + common.conv_elem,kernelConvul(&d_in_mod_temp_block));
@@ -690,7 +692,18 @@ int main(int argc, char *argv []){
 			thrust::for_each(mCount,mCount + common.in2_pad_cumv_sel_elem,kernelCumvSelRows());
 			thrust::for_each(mCount,mCount + common.in2_sub_cumh_elem,kernelSubCumhElem(common.in2_sub_cumh_elem));
 			thrust::for_each(mCount,mCount + common.in2_sub_cumh_rows*ALL_POINTS,kernelHorCumSum(common.in2_sub_cumh_rows));
-			// thrust::for_each(mCount,mCount + common.in2_sub_cumh_elem)
+			thrust::for_each(mCount,mCount + common.in2_sub_cumh_elem*ALL_POINTS,kernelSelectionSubCumElem(common.in2_sub_cumh_elem));
+			thrust::for_each(mCount,mCount + common.in2_sub2_elem*ALL_POINTS,kernelSel2Elem(common.in2_sub2_elem));
+			thrust::for_each(mCount,mCount + common.in2_pad_cumv_elem*ALL_POINTS,kernelPad2CumSum(common.in2_pad_cumv_elem));
+			for(int i = 0; i< ALL_POINTS ; i++)
+			{
+				thrust::device_vector<float> inVector(unique[i].d_T + unique[i].point_no*common.in_elem, unique[i].d_T + unique[i].point_no*common.in_elem + common.in_elem);
+				thrust::device_vector<float> inSqrVector(unique[i].d_in_sqr,unique[i].d_in_sqr + common.in_sqr_elem );
+				sqsums[i] = thrust::reduce(inSqrVector.begin(),inSqrVector.end());
+				sums[i]= thrust::reduce(inVector.begin(),inVector.end());
+				// printf("     SquareSum = %f , Sum = %f    ",sqsums[i],sums[i]);
+			}
+
 		}
 		cudaEventRecord(tstop);
 		cudaEventSynchronize(tstop);
