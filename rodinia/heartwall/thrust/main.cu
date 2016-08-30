@@ -695,14 +695,14 @@ int main(int argc, char *argv []){
 			thrust::for_each(mCount,mCount + common.in2_sub_cumh_elem*ALL_POINTS,kernelSelectionSubCumElem(common.in2_sub_cumh_elem));
 			thrust::for_each(mCount,mCount + common.in2_sub2_elem*ALL_POINTS,kernelSel2Elem(common.in2_sub2_elem));
 			thrust::for_each(mCount,mCount + common.in2_pad_cumv_elem*ALL_POINTS,kernelPad2CumSum(common.in2_pad_cumv_elem));
-			for(int i = 0; i< ALL_POINTS ; i++)
-			{
-				thrust::device_vector<float> inVector(unique[i].d_T + unique[i].point_no*common.in_elem, unique[i].d_T + unique[i].point_no*common.in_elem + common.in_elem);
-				thrust::device_vector<float> inSqrVector(unique[i].d_in_sqr,unique[i].d_in_sqr + common.in_sqr_elem );
-				sqsums[i] = thrust::reduce(inSqrVector.begin(),inSqrVector.end());
-				sums[i]= thrust::reduce(inVector.begin(),inVector.end());
-				// printf("     SquareSum = %f , Sum = %f    ",sqsums[i],sums[i]);
-			}
+			// for(int i = 0; i< ALL_POINTS ; i++)
+			// {
+			// 	thrust::device_vector<float> inVector(unique[i].d_T + unique[i].point_no*common.in_elem, unique[i].d_T + unique[i].point_no*common.in_elem + common.in_elem);
+			// 	thrust::device_vector<float> inSqrVector(unique[i].d_in_sqr,unique[i].d_in_sqr + common.in_sqr_elem );
+			// 	sqsums[i] = thrust::reduce(inSqrVector.begin(),inSqrVector.end());
+			// 	sums[i]= thrust::reduce(inVector.begin(),inVector.end());
+			// 	// printf("     SquareSum = %f , Sum = %f    ",sqsums[i],sums[i]);
+			// }
 
 		}
 		cudaEventRecord(tstop);

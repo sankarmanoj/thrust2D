@@ -419,6 +419,14 @@ class kernelPad2CumSum
 			int bx = t/width;
 			int row,col,ori_row,ori_col,pos_ori,position;
 			int sum;
+			// __shared__ float in_partial_sum[51];															// WATCH THIS !!! HARDCODED VALUE
+			// __shared__ float in_sqr_partial_sum[51];															// WATCH THIS !!! HARDCODED VALUE
+			// __shared__ float in_final_sum;
+			// __shared__ float in_sqr_final_sum;
+			float in_partial_sum[51*ALL_POINTS];
+			float in_sqr_partial_sum[51*ALL_POINTS];
+			float in_final_sum[ALL_POINTS];
+			float in_sqr_final_sum[ALL_POINTS];
 			row = (ei_new+1) % d_common.in2_pad_cumv_rows - 1;												// (0-n) row
 			col = (ei_new+1) / d_common.in2_pad_cumv_rows + 1 - 1;											// (0-n) column
 			if((ei_new+1) % d_common.in2_pad_cumv_rows == 0){
@@ -536,33 +544,51 @@ class kernelPad2CumSum
 					}
 					d_unique[bx].d_in2_sqr_sub2[ei_new] = sqrt(temp2);
 		}
+		float * d_in;
+		d_in = &d_unique[bx].d_T[d_unique[bx].in_pointer];
 		if(ei_new < d_common.in_sqr_elem)
-		{		float temp; float * d_in;
-			d_in = &d_unique[bx].d_T[d_unique[bx].in_pointer];
+		{		float temp;
+
 				temp = d_in[ei_new];
 				d_unique[bx].d_in_sqr[ei_new] = temp * temp;
 		}
+		int i;
+		if(ei_new < d_common.in_cols){
 
-		row = (ei_new+1) % d_common.in2_pad_cumv_rows - 1;												// (0-n) row
-		col = (ei_new+1) / d_common.in2_pad_cumv_rows + 1 - 1;											// (0-n) column
-		if((ei_new+1) % d_common.in2_pad_cumv_rows == 0){
-			row = d_common.in2_pad_cumv_rows - 1;
-			col = col-1;
-		}
+					sum = 0;
+					for(i = 0; i < d_common.in_rows; i++){
 
-		// execution
-		if(	row > (d_common.in2_pad_add_rows-1) &&													// do if has numbers in original array
-			row < (d_common.in2_pad_add_rows+d_common.in2_sqr_rows) &&
-			col > (d_common.in2_pad_add_cols-1) &&
-			col < (d_common.in2_pad_add_cols+d_common.in2_sqr_cols)){
-			ori_row = row - d_common.in2_pad_add_rows;
-			ori_col = col - d_common.in2_pad_add_cols;
-			d_unique[bx].d_in2_pad_cumv[ei_new] = d_unique[bx].d_in2_sqr[ori_col*d_common.in2_sqr_rows+ori_row];
-		}
-		else{																							// do if otherwise
-			d_unique[bx].d_in2_pad_cumv[ei_new] = 0;
-		}
+						sum = sum + d_in[ei_new*d_common.in_rows+i];
 
+					}
+					in_partial_sum[bx*51 + ei_new] = sum;
+			}
+
+			if(ei_new < d_common.in_sqr_rows){
+
+				sum = 0;
+				for(i = 0; i < d_common.in_sqr_cols; i++){
+
+					sum = sum + d_unique[bx].d_in_sqr[ei_new+d_common.in_sqr_rows*i];
+
+				}
+				in_sqr_partial_sum[bx*51 + ei_new] = sum;
+			}
+			if(ei_new == 0){
+
+				in_final_sum[bx] = 0;
+				for(i = 0; i<d_common.in_cols; i++){
+					in_final_sum[bx] = in_final_sum[bx] + in_partial_sum[bx*51 + i];
+				}
+
+			}else if(ei_new == 1){
+
+				in_sqr_final_sum[bx] = 0;
+				for(i = 0; i<d_common.in_sqr_cols; i++){
+					in_sqr_final_sum[bx] = in_sqr_final_sum[bx] + in_sqr_partial_sum[bx*51 + i];
+				}
+				
+			}
 
 	}
 };
