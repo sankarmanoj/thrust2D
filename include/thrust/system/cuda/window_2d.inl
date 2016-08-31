@@ -314,4 +314,36 @@ namespace thrust
     int windowsY = int((b->dim_y-window_dim_y)/stride_y)+1;
     return window_iterator<T>(b,window_dim_x,window_dim_y,stride_x,stride_y,windowsX*windowsY);
   }
+  template<typename T>
+  __global__ void convolveKernel (Block_2D<T> &block, Block_2D<T> &kernel)
+  {
+    
+    return;
+  }
+  template<typename T, class J>
+  void convolve(Block_2D<T> *input, Block_2D<J> *kernel)
+  {
+    int numberOfOperations = input->end() - input->begin();
+    printf("Number Of Operations = %d\n", numberOfOperations);
+    assert(kernel->dim_x==kernel->dim_y);
+    assert(kernel->dim_x%2);
+    int kernelDim = kernel->dim_x;
+    cudaDeviceProp properties;
+    cudaGetDeviceProperties(&properties,0);
+    printf("Device Number: %d\n", 0);
+    printf("  Device name: %s\n", properties.name);
+    printf("  Memory Clock Rate (KHz): %d\n",           properties.memoryClockRate);
+    printf("  Memory Bus Width (bits): %d\n",           properties.memoryBusWidth);
+    printf("  Shared Memory Available: %d\n",           properties.sharedMemPerBlock);
+    printf("  Threads Per Block Available: %d\n",       properties.maxThreadsPerBlock);
+    int sharedMemory = properties.sharedMemPerBlock;
+    int maxOperationsInShared = ((sharedMemory/(2*sizeof(J)))-(kernelDim*kernelDim))/kernelDim;
+    int maxOperationsByThread = properties.maxThreadsPerBlock/kernelDim;
+    printf("  Max Operations = %d\n", min(maxOperationsByThread,maxOperationsInShared));
+    int operations = min(maxOperationsByThread,maxOperationsInShared);
+    int blocks = ceil(((float)numberOfOperations)/operations);
+    convolveKernel<<<blocks,operations>>>(*(input->device_pointer),*(kernel->device_pointer));
+    printf(" Blocks = %d\n", blocks);
+
+  }
 }
