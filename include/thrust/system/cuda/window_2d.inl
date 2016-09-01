@@ -315,15 +315,46 @@ namespace thrust
     return window_iterator<T>(b,window_dim_x,window_dim_y,stride_x,stride_y,windowsX*windowsY);
   }
   template<typename T>
-  __global__ void convolveKernel (Block_2D<T> &block, Block_2D<T> &kernel)
-  {  extern __shared__ T *sharedMemory;
+  __global__ void convolveKernel (Block_2D<T> &block, Block_2D<T> &kernel, int operationsPerBlock,int totalOperations)
+  {  extern __shared__ T sharedMemory []  ;
+    T * sharedKernel = sharedMemory;
     int kernelSize = kernel.dim_x*kernel.dim_x;
+    T * sharedReduceSpace = (sharedMemory+kernelSize);
     int kernelWidth = kernel.dim_x;
+    int kernelHalfWidth = (kernel.dim_x-1)/2;
+    T element;
     int i = threadIdx.x;
+    int operationWithinBlock = threadIdx.x/kernelWidth;
     if(threadIdx.x<kernelSize)
     {
-      sharedMemory[i] = kernel[i/kernelWidth][i%kernelWidth];
+      sharedKernel[i] = kernel[kernel.convert2D(i)];
     }
+    int position =  blockIdx.x*operationsPerBlock + operationWithinBlock;
+    if(threadIdx.x*kernelWidth>operationsPerBlock)
+    {
+      return;
+    }
+    int2 blockCoordinates = block.convert2D(position);
+
+    int absoluteRowOffset = threadIdx.x % kernelWidth;
+    int rowOffset = absoluteRowOffset-kernelHalfWidth;
+    sharedReduceSpace[threadIdx.x]=0;
+    for(int i = 0; i< kernelWidth; i++)
+    {
+      element = block[make_int2(blockCoordinates.x-kernelHalfWidth + i,blockCoordinates.y+rowOffset)];
+      sharedReduceSpace[threadIdx.x]+=element*sharedKernel[absoluteRowOffset*kernelWidth + i];
+    }
+    __syncthreads();
+    //TODO:Optimze Reduction
+    if(threadIdx.x %kernelWidth==0)
+    {
+      for(int i = threadIdx.x+1; i<threadIdx.x + kernelWidth; i++)
+      {
+        sharedReduceSpace[threadIdx.x]+=sharedReduceSpace[i];
+      }
+      block[blockCoordinates.y][blockCoordinates.x]=sharedReduceSpace[threadIdx.x];
+    }
+
     return;
   }
   template<typename T>
@@ -345,12 +376,13 @@ namespace thrust
     int sharedMemory = properties.sharedMemPerBlock;
     int maxOperationsInShared = ((sharedMemory/(2*sizeof(T)))-(kernelDim*kernelDim))/kernelDim;
     int maxOperationsByThread = properties.maxThreadsPerBlock/kernelDim;
-    printf("  Max Operations = %d\n", min(maxOperationsByThread,maxOperationsInShared));
-    int operations = min(maxOperationsByThread,maxOperationsInShared);
-    int xblocks = ceil(((float)input->dim_x)/operations);
-    int yblocks = ceil(((float)input->dim_y)/operations);
-    printf("XBlocks = %d YBlocks = %d\n ",xblocks,yblocks);
-    convolveKernel<<<dim3(xblocks,yblocks),operations,kernel->dim_y*kernel->dim_x*sizeof(T)>>>(*(input->device_pointer),*(kernel->device_pointer));
+    int operations = maxOperationsByThread;
+    printf("  Max Operations = %d, Operations = %d\n", min(maxOperationsByThread,maxOperationsInShared),operations);
+    // int operations = min(maxOperationsByThread,maxOperationsInShared);
+
+    int blocks = ceil(((float)numberOfOperations)/operations);
+    printf(" Blocks = %d \n",blocks);
+    convolveKernel<<<blocks,operations*kernelDim,(kernel->dim_y*kernel->dim_x+ operations*kernelDim)*sizeof(T)>>>(*(input->device_pointer),*(kernel->device_pointer),operations,numberOfOperations);
 
   }
 }
