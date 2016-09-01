@@ -60,7 +60,7 @@ namespace thrust
 	  Block_2D(Block_2D<T> &other);
 
  	// 	void initalize_device_memory();
-
+		__host__ __device__ int2 convert2D(int index);
 	  Block_2D* sub_block (int ul_x, int ul_y, int br_x, int br_y);
 
 	  // template <class InputIterator>

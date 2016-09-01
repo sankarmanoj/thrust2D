@@ -45,7 +45,13 @@ namespace thrust
   {
     return this->device_iterator + ((index * (this->dim_x + this->offset_x)) + offset_y);
   }
-
+  template <class T>
+  __host__ __device__ int2 Block_2D<T>::convert2D(int position)
+  {
+    int i = position/dim_x;
+    int j = position%dim_x;
+    return make_int2(i,j);
+  }
   // template <class T>
   // detail::normal_iterator<device_ptr<T> > Block_2D<T>::begin()
   // {

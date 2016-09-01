@@ -316,12 +316,18 @@ namespace thrust
   }
   template<typename T>
   __global__ void convolveKernel (Block_2D<T> &block, Block_2D<T> &kernel)
-  {
-    
+  {  extern __shared__ T *sharedMemory;
+    int kernelSize = kernel.dim_x*kernel.dim_x;
+    int kernelWidth = kernel.dim_x;
+    int i = threadIdx.x;
+    if(threadIdx.x<kernelSize)
+    {
+      sharedMemory[i] = kernel[i/kernelWidth][i%kernelWidth];
+    }
     return;
   }
-  template<typename T, class J>
-  void convolve(Block_2D<T> *input, Block_2D<J> *kernel)
+  template<typename T>
+  void convolve(Block_2D<T> *input, Block_2D<T> *kernel)
   {
     int numberOfOperations = input->end() - input->begin();
     printf("Number Of Operations = %d\n", numberOfOperations);
@@ -337,13 +343,14 @@ namespace thrust
     printf("  Shared Memory Available: %d\n",           properties.sharedMemPerBlock);
     printf("  Threads Per Block Available: %d\n",       properties.maxThreadsPerBlock);
     int sharedMemory = properties.sharedMemPerBlock;
-    int maxOperationsInShared = ((sharedMemory/(2*sizeof(J)))-(kernelDim*kernelDim))/kernelDim;
+    int maxOperationsInShared = ((sharedMemory/(2*sizeof(T)))-(kernelDim*kernelDim))/kernelDim;
     int maxOperationsByThread = properties.maxThreadsPerBlock/kernelDim;
     printf("  Max Operations = %d\n", min(maxOperationsByThread,maxOperationsInShared));
     int operations = min(maxOperationsByThread,maxOperationsInShared);
-    int blocks = ceil(((float)numberOfOperations)/operations);
-    convolveKernel<<<blocks,operations>>>(*(input->device_pointer),*(kernel->device_pointer));
-    printf(" Blocks = %d\n", blocks);
+    int xblocks = ceil(((float)input->dim_x)/operations);
+    int yblocks = ceil(((float)input->dim_y)/operations);
+    printf("XBlocks = %d YBlocks = %d\n ",xblocks,yblocks);
+    convolveKernel<<<dim3(xblocks,yblocks),operations,kernel->dim_y*kernel->dim_x*sizeof(T)>>>(*(input->device_pointer),*(kernel->device_pointer));
 
   }
 }
