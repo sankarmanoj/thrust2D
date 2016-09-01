@@ -314,6 +314,13 @@ namespace thrust
     int windowsY = int((b->dim_y-window_dim_y)/stride_y)+1;
     return window_iterator<T>(b,window_dim_x,window_dim_y,stride_x,stride_y,windowsX*windowsY);
   }
+  #define cudaCheckError() {                                          \
+   cudaError_t e=cudaGetLastError();                                 \
+   if(e!=cudaSuccess) {                                              \
+     printf("Cuda failure %s:%d: '%s'\n",__FILE__,__LINE__,cudaGetErrorString(e));           \
+     exit(0); \
+   }                                                                 \
+  }
   template<typename T>
   __global__ void convolveKernel (Block_2D<T> &block, Block_2D<T> &kernel, int operationsPerBlock,int totalOperations)
   {  extern __shared__ T sharedMemory []  ;
@@ -329,7 +336,7 @@ namespace thrust
     {
       sharedKernel[i] = kernel[kernel.convert2D(i)];
     }
-    int position =  blockIdx.x*operationsPerBlock + operationWithinBlock;
+    int position =  (blockIdx.y*gridDim.x+ blockIdx.x)*operationsPerBlock + operationWithinBlock;
     if(threadIdx.x*kernelWidth>operationsPerBlock)
     {
       return;
@@ -361,28 +368,39 @@ namespace thrust
   void convolve(Block_2D<T> *input, Block_2D<T> *kernel)
   {
     int numberOfOperations = input->end() - input->begin();
-    printf("Number Of Operations = %d\n", numberOfOperations);
+    // printf("Number Of Operations = %d\n", numberOfOperations);
     assert(kernel->dim_x==kernel->dim_y);
     assert(kernel->dim_x%2);
     int kernelDim = kernel->dim_x;
     cudaDeviceProp properties;
     cudaGetDeviceProperties(&properties,0);
-    printf("Device Number: %d\n", 0);
-    printf("  Device name: %s\n", properties.name);
-    printf("  Memory Clock Rate (KHz): %d\n",           properties.memoryClockRate);
-    printf("  Memory Bus Width (bits): %d\n",           properties.memoryBusWidth);
-    printf("  Shared Memory Available: %d\n",           properties.sharedMemPerBlock);
-    printf("  Threads Per Block Available: %d\n",       properties.maxThreadsPerBlock);
+    // printf("Device Number: %d\n", 0);
+    // printf("  Device name: %s\n", properties.name);
+    // printf("  Memory Clock Rate (KHz): %d\n",           properties.memoryClockRate);
+    // printf("  Memory Bus Width (bits): %d\n",           properties.memoryBusWidth);
+    // printf("  Shared Memory Available: %d\n",           properties.sharedMemPerBlock);
+    // printf("  Threads Per Block Available: %d\n",       properties.maxThreadsPerBlock);
     int sharedMemory = properties.sharedMemPerBlock;
     int maxOperationsInShared = ((sharedMemory/(2*sizeof(T)))-(kernelDim*kernelDim))/kernelDim;
     int maxOperationsByThread = properties.maxThreadsPerBlock/kernelDim;
     int operations = maxOperationsByThread;
-    printf("  Max Operations = %d, Operations = %d\n", min(maxOperationsByThread,maxOperationsInShared),operations);
+    // printf("  Max Operations = %d, Operations = %d\n", min(maxOperationsByThread,maxOperationsInShared),operations);
     // int operations = min(maxOperationsByThread,maxOperationsInShared);
 
     int blocks = ceil(((float)numberOfOperations)/operations);
-    printf(" Blocks = %d \n",blocks);
-    convolveKernel<<<blocks,operations*kernelDim,(kernel->dim_y*kernel->dim_x+ operations*kernelDim)*sizeof(T)>>>(*(input->device_pointer),*(kernel->device_pointer),operations,numberOfOperations);
-
+    int xblocks = 1, yblocks =1 ;
+    if(blocks>65535)
+    {
+      xblocks = 65535;
+      yblocks = ceil(blocks/xblocks);
+    }
+    else
+    {
+      xblocks = yblocks;
+    }
+    // printf(" Blocks = %d,%d \n",xblocks,yblocks);
+    // printf("Shared Memory Allocated = %d \n",(kernel->dim_y*kernel->dim_x+ operations*kernelDim)*sizeof(T));
+    convolveKernel<<<dim3(xblocks,yblocks),operations*kernelDim,(kernel->dim_y*kernel->dim_x+ operations*kernelDim)*sizeof(T)>>>(*(input->device_pointer),*(kernel->device_pointer),operations,numberOfOperations);
+    cudaCheckError();
   }
 }

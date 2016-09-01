@@ -611,6 +611,11 @@ int main(int argc, char *argv []){
 	}
 
  	float * d_in_mod_temp;
+	thrust::Block_2D<float> *d_in_mod_temp_block[ALL_POINTS];
+	for(int i = 0; i<ALL_POINTS;i++)
+	{
+		d_in_mod_temp_block[i]=(new thrust::Block_2D<float>(51,51));
+	}
 	cudaMalloc((void **)&d_in_mod_temp,sizeof(float)*2601*ALL_POINTS);
 
 	for(i=0; i<common.allPoints; i++){
