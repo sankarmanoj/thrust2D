@@ -380,8 +380,8 @@ namespace thrust
     // printf("  Memory Bus Width (bits): %d\n",           properties.memoryBusWidth);
     // printf("  Shared Memory Available: %d\n",           properties.sharedMemPerBlock);
     // printf("  Threads Per Block Available: %d\n",       properties.maxThreadsPerBlock);
-    int sharedMemory = properties.sharedMemPerBlock;
-    int maxOperationsInShared = ((sharedMemory/(2*sizeof(T)))-(kernelDim*kernelDim))/kernelDim;
+    // int sharedMemory = properties.sharedMemPerBlock;
+    // int maxOperationsInShared = ((sharedMemory/(2*sizeof(T)))-(kernelDim*kernelDim))/kernelDim;
     int maxOperationsByThread = properties.maxThreadsPerBlock/kernelDim;
     int operations = maxOperationsByThread;
     // printf("  Max Operations = %d, Operations = %d\n", min(maxOperationsByThread,maxOperationsInShared),operations);
