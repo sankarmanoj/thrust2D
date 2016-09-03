@@ -1,7 +1,0 @@
-no use of windows in heartwall due to pre computation in MATLAB
-only a small part of kernel mgvf uses windows in leukocyte
-other unstructured grid programs -
-particle filter
-myocyte
-3d stencil
-hotspot3D

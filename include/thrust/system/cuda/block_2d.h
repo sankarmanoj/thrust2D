@@ -50,38 +50,40 @@ namespace thrust
 	{
 	public:
 
-		int dim_x,dim_y;
-	  int offset_x, offset_y;
-		// device_vector<T> device_data;
-		detail::normal_iterator<device_ptr<T> > device_iterator;
-		Block_2D * device_pointer;
-	  Block_2D(int dim_x,int dim_y);
+	int dim_x,dim_y;
+	int offset_x, offset_y;
+	// device_vector<T> device_data;
+	detail::normal_iterator<device_ptr<T> > device_iterator;
+	Block_2D * device_pointer;
+	Block_2D(int dim_x,int dim_y);
+	Block_2D(int dim_x,int dim_y,T value);
 
-	  Block_2D(Block_2D<T> &other);
+	Block_2D(Block_2D<T> &other);
 
- 	// 	void initalize_device_memory();
-		__host__ __device__ int2 convert2D(int index);
-	  Block_2D* sub_block (int ul_x, int ul_y, int br_x, int br_y);
+	// 	void initalize_device_memory();
+	__host__ __device__ int2 convert2D(int index);
+	Block_2D* sub_block (int ul_x, int ul_y, int br_x, int br_y);
 
-	  // template <class InputIterator>
-	  // void copy(InputIterator first, InputIterator last)
-		// {
-		// 	// NOTE: Implementation has to be inline because partial template specialisation of a single function in a class is not possible.
-		// 	int n_elements = last - first;
-	  //   if (n_elements != this->dim_x * this->dim_y)
-	  //   {
-	  //     // TODO: More graceful exit.
-	  //     printf("Fatal Error : Mismatch in number of elements\n");
-		// 		exit(1);
-	  //   }
-	  //   copy(first, last, this->begin());
-		// }
+	template <class InputIterator>
+	Block_2D(InputIterator first, InputIterator last) : device_vector<T>(first,last)
+	{
+		this->dim_x = last-first;
+		this->dim_y = 1;
+		this->offset_x = 0;
+		this->offset_y = 0;
+		// device_data = device_vector<T>(dim_x * dim_y);
+		device_iterator = this->data();
+		Block_2D<T> * temp;
+		cudaMalloc((void **)&temp,sizeof(Block_2D));
+		cudaMemcpy(temp,this,sizeof(Block_2D),cudaMemcpyHostToDevice);
+		this->device_pointer = temp;
+	}
 
-		__host__ __device__ detail::normal_iterator<device_ptr<T> > operator[] (int index);
-		__host__ __device__ T operator[] (int2 index);
+	__host__ __device__ detail::normal_iterator<device_ptr<T> > operator[] (int index);
+	__host__ __device__ T operator[] (int2 index);
 
-		// detail::normal_iterator<device_ptr<T> > begin();
-		// detail::normal_iterator<device_ptr<T> > end();
+	// detail::normal_iterator<device_ptr<T> > begin();
+	// detail::normal_iterator<device_ptr<T> > end();
 
 	};
 }

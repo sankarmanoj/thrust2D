@@ -9,13 +9,29 @@ namespace thrust
     this->dim_y = dim_y;
     this->offset_x = 0;
     this->offset_y = 0;
-		// device_data = device_vector<T>(dim_x * dim_y);
-		device_iterator = this->data();
+	// device_data = device_vector<T>(dim_x * dim_y);
+	device_iterator = this->data();
     Block_2D<T> * temp;
     cudaMalloc((void **)&temp,sizeof(Block_2D));
     cudaMemcpy(temp,this,sizeof(Block_2D),cudaMemcpyHostToDevice);
     this->device_pointer = temp;
   }
+
+  template <class T>
+  Block_2D<T>::Block_2D (int dim_x, int dim_y, T value) : device_vector<T>(dim_x*dim_y,value)
+  {
+    this->dim_x = dim_x;
+    this->dim_y = dim_y;
+    this->offset_x = 0;
+    this->offset_y = 0;
+    // device_data = device_vector<T>(dim_x * dim_y);
+    device_iterator = this->data();
+    Block_2D<T> * temp;
+    cudaMalloc((void **)&temp,sizeof(Block_2D));
+    cudaMemcpy(temp,this,sizeof(Block_2D),cudaMemcpyHostToDevice);
+    this->device_pointer = temp;
+  }
+
   template <class T>
   Block_2D<T>::Block_2D (Block_2D<T> &other) : device_vector<T>(other)
   {
@@ -23,8 +39,8 @@ namespace thrust
     this->dim_y = other.dim_y;
     this->offset_x = other.offset_x;
     this->offset_y = other.offset_y;
-		// device_data = device_vector<T>(other.device_data.begin(), other.device_data.end());
-		device_iterator = this->data();
+	// device_data = device_vector<T>(other.device_data.begin(), other.device_data.end());
+	device_iterator = this->data();
     this->device_pointer = other.device_pointer;
   }
 

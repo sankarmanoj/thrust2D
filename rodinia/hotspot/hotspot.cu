@@ -204,34 +204,34 @@ void run(int argc, char** argv)
     TemperatureBlock.assign(FilesavingTemp,FilesavingTemp+size);
     PowerBlock.assign(FilesavingPower,FilesavingPower+size);
     printf("Start computing the transient temperature\n");
-		float grid_height = chip_height / grid_rows;
-		float grid_width = chip_width / grid_cols;
+	float grid_height = chip_height / grid_rows;
+	float grid_width = chip_width / grid_cols;
 
-		float Cap = FACTOR_CHIP * SPEC_HEAT_SI * t_chip * grid_width * grid_height;
-		float Rx = grid_width / (2.0 * K_SI * t_chip * grid_height);
-		float Ry = grid_height / (2.0 * K_SI * t_chip * grid_width);
-		float Rz = t_chip / (K_SI * grid_height * grid_width);
+	float Cap = FACTOR_CHIP * SPEC_HEAT_SI * t_chip * grid_width * grid_height;
+	float Rx = grid_width / (2.0 * K_SI * t_chip * grid_height);
+	float Ry = grid_height / (2.0 * K_SI * t_chip * grid_width);
+	float Rz = t_chip / (K_SI * grid_height * grid_width);
 
-		float max_slope = MAX_PD / (FACTOR_CHIP * t_chip * SPEC_HEAT_SI);
-		float step = PRECISION / max_slope;
-		int t;
-		float step_div_Cap;
-		float Rx_1,Ry_1,Rz_1;
-		step_div_Cap=step/Cap;
-		Rx_1=1/Rx;
-		Ry_1=1/Ry;
-		Rz_1=1/Rz;
-		printf("step_div_Cap = %f\nrx,ry,rz = %f,%f,%f\n",step_div_Cap,Rx_1,Ry_1,Rz_1);
-		for (t = 0; t < total_iterations; t+=pyramid_height)
-		{
-			int required_iterations = MIN(pyramid_height,total_iterations-t);
-			HotspotFunctor functor(required_iterations,grid_cols,grid_rows,step_div_Cap,Rx_1,Ry_1,Rz_1);
-			thrust::window_vector<float> wv = thrust::window_vector<float>(&(TemperatureBlock),3,3,1,1);
-			thrust::window_vector<float> wp = thrust::window_vector<float>(&(PowerBlock),3,3,1,1);
-			thrust::device_vector<int> null_vector(grid_rows*grid_cols);
-			thrust::transform(wv.begin(),wv.end(),wp.begin(),null_vector.begin(),functor);
-		}
-	  printf("Ending simulation\n");
-		cudaMemcpy(FilesavingTemp,thrust::raw_pointer_cast(TemperatureBlock.data()),size*sizeof(float),cudaMemcpyDeviceToHost);
+	float max_slope = MAX_PD / (FACTOR_CHIP * t_chip * SPEC_HEAT_SI);
+	float step = PRECISION / max_slope;
+	int t;
+	float step_div_Cap;
+	float Rx_1,Ry_1,Rz_1;
+	step_div_Cap=step/Cap;
+	Rx_1=1/Rx;
+	Ry_1=1/Ry;
+	Rz_1=1/Rz;
+	printf("step_div_Cap = %f\nrx,ry,rz = %f,%f,%f\n",step_div_Cap,Rx_1,Ry_1,Rz_1);
+	for (t = 0; t < total_iterations; t+=pyramid_height)
+	{
+		int required_iterations = MIN(pyramid_height,total_iterations-t);
+		HotspotFunctor functor(required_iterations,grid_cols,grid_rows,step_div_Cap,Rx_1,Ry_1,Rz_1);
+		thrust::window_vector<float> wv = thrust::window_vector<float>(&(TemperatureBlock),3,3,1,1);
+		thrust::window_vector<float> wp = thrust::window_vector<float>(&(PowerBlock),3,3,1,1);
+		thrust::device_vector<int> null_vector(grid_rows*grid_cols);
+		thrust::transform(wv.begin(),wv.end(),wp.begin(),null_vector.begin(),functor);
+	}
+	printf("Ending simulation\n");
+	cudaMemcpy(FilesavingTemp,thrust::raw_pointer_cast(TemperatureBlock.data()),size*sizeof(float),cudaMemcpyDeviceToHost);
     writeoutput(FilesavingTemp,grid_rows, grid_cols, ofile);
 }
