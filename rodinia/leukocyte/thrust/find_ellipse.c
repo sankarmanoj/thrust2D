@@ -51,9 +51,9 @@ MAT * get_frame(avi_t *cell_file, int frame_num, int cropped, int scaled) {
 		// Just flip the image
 		image_chopped = chop_flip_image(image_buf, height, width, 0, height - 1, 0, width - 1, scaled);
 	}
-	
+
 	free(image_buf);
-	
+
 	return image_chopped;
 }
 
@@ -92,7 +92,7 @@ void compute_constants() {
 	// Compute memory sizes
 	int strel_m = 12 * 2 + 1;
 	int strel_n = 12 * 2 + 1;
-	
+
 	int n, k;
 	// Compute the sine and cosine of the angle to each point in each sample circle
 	//  (which are the same across all sample circles)
@@ -106,19 +106,19 @@ void compute_constants() {
 	// Compute the (x,y) pixel offsets of each sample point in each sample circle
 	int host_tX[NCIRCLES * NPOINTS], host_tY[NCIRCLES * NPOINTS];
 	for (k = 0; k < NCIRCLES; k++) {
-		double rad = (double) (MIN_RAD + (2 * k)); 
+		double rad = (double) (MIN_RAD + (2 * k));
 		for (n = 0; n < NPOINTS; n++) {
 			host_tX[(k * NPOINTS) + n] = (int)(cos(theta[n]) * rad);
 			host_tY[(k * NPOINTS) + n] = (int)(sin(theta[n]) * rad);
 		}
 	}
-	
+
 	// Compute the structuring element used in dilation
 	float *host_strel = structuring_element(12);
-	
+
 	// Transfer the computed matrices to the GPU
 	transfer_constants(host_sin_angle, host_cos_angle, host_tX, host_tY, strel_m, strel_n, host_strel);
-	
+
 	// Free the memory (only need to free strel since the rest are declared statically)
 	free(host_strel);
 }
@@ -130,7 +130,7 @@ MAT *GICOV(MAT *grad_x, MAT *grad_y) {
 	// Determine the dimensions of the frame
 	int grad_m = grad_x->m;
 	int grad_n = grad_y->n;
-	
+	printf("M = %d , N = %d\n",grad_m,grad_n );
 	// Allocate host memory for grad_x and grad_y
 	unsigned int grad_mem_size = sizeof(float) * grad_m * grad_n;
 	float *host_grad_x = (float*) malloc(grad_mem_size);
@@ -139,7 +139,7 @@ MAT *GICOV(MAT *grad_x, MAT *grad_y) {
 	int m, n;
 	for (m = 0; m < grad_m; m++) {
 		for (n = 0; n < grad_n; n++) {
-			host_grad_x[(n * grad_m) + m] = (float) m_get_val(grad_x, m, n);
+			host_grad_x[(n * grad_m) + m] = (float) m_get_val(grad_x, m, n);	//Column Major Format
 			host_grad_y[(n * grad_m) + m] = (float) m_get_val(grad_y, m, n);
 		}
 	}
@@ -167,7 +167,7 @@ float * structuring_element(int radius) {
 	int m = radius*2+1;
 	int n = radius*2+1;
 	float *result = (float *) malloc(sizeof(float) * m * n);
-	
+
 	int i, j;
 	for (i = 0; i < m; i++) {
 		for (j = 0; j < n; j++) {
@@ -229,7 +229,7 @@ MAT * TMatrix(unsigned int N, unsigned int M)
 
 	for(i = 0; i < N; i++)
 		bindex[i] = i;
-	
+
 	for(i = 0; i < N-1; i++)
 		cindex[i] = i+1;
 	cindex[N-1] = 0;
@@ -246,7 +246,7 @@ MAT * TMatrix(unsigned int N, unsigned int M)
 	for(i = 0; i < N; i++)
 	{
 		m_zero(LB);
-		
+
 		for(j = 0; j < M; j++)
 		{
 			double s = (double)j / (double)M;
@@ -272,7 +272,7 @@ MAT * TMatrix(unsigned int N, unsigned int M)
 	B_TEMP = mtrm_mlt(B, B, B_TEMP);
 	B_TEMP_INV = m_inverse(B_TEMP, B_TEMP_INV);
 	B_RET = mmtr_mlt(B_TEMP_INV, B, B_RET);
-	
+
 	m_free(B);
 	m_free(LB);
 	m_free(B_TEMP);
@@ -378,7 +378,7 @@ VEC * getsampling(MAT * m, int ns)
 
 	for(i = 0; i < N; i++)
 		bindex[i] = i;
-	
+
 	for(i = 0; i < N-1; i++)
 		cindex[i] = i+1;
 	cindex[N-1] = 0;
@@ -430,7 +430,7 @@ VEC * getfdriv(MAT * m, int ns)
 
 	for(i = 0; i < N; i++)
 		bindex[i] = i;
-	
+
 	for(i = 0; i < N-1; i++)
 		cindex[i] = i+1;
 	cindex[N-1] = 0;
@@ -515,7 +515,7 @@ void splineenergyform01(MAT * Cx, MAT * Cy, MAT * Ix, MAT * Iy, int ns, double d
 	Ny = v_get(Xs->dim);
 	for(i = 0; i < Ny->dim; i++)
 		v_set_val(Ny, i, -1.0 * v_get_val(Xs, i) / sqrt(v_get_val(Xs, i)*v_get_val(Xs, i) + v_get_val(Ys, i)*v_get_val(Ys, i)));
-	
+
 	X1 = v_get(Nx->dim);
 	for(i = 0; i < X1->dim; i++)
 		v_set_val(X1, i, v_get_val(X, i) + delta*v_get_val(Nx, i));
@@ -563,7 +563,7 @@ void splineenergyform01(MAT * Cx, MAT * Cy, MAT * Ix, MAT * Iy, int ns, double d
 
 	for(i = 0; i < N; i++)
 		bindex[i] = i;
-	
+
 	for(i = 0; i < N-1; i++)
 		cindex[i] = i+1;
 	cindex[N-1] = 0;
@@ -610,9 +610,9 @@ void splineenergyform01(MAT * Cx, MAT * Cy, MAT * Ix, MAT * Iy, int ns, double d
 			k = i*ns+j;
 			D = sqrt(v_get_val(Xs, k)*v_get_val(Xs, k) + v_get_val(Ys, k)*v_get_val(Ys, k));
 			D_3 = D*D*D;
-			
+
 			//1st control point
-			
+
 			Tx1 = A1 - delta * v_get_val(XY, k) * B1 / D_3;
 			Tx2 = -1.0 * delta*(B1/D - v_get_val(XX, k)*B1/D_3);
 			Tx3 = A1 + delta * v_get_val(XY, k) * B1 / D_3;
@@ -625,7 +625,7 @@ void splineenergyform01(MAT * Cx, MAT * Cy, MAT * Ix, MAT * Iy, int ns, double d
 
 			v_set_val(dCx, aindex[i], v_get_val(dCx, aindex[i]) + Tx1*v_get_val(Ix1, k) + Tx2*v_get_val(Iy1,k) - Tx3*v_get_val(Ix2, k) - Tx4*v_get_val(Iy2, k));
 			v_set_val(dCy, aindex[i], v_get_val(dCy, aindex[i]) + Ty1*v_get_val(Ix1, k) + Ty2*v_get_val(Iy1,k) - Ty3*v_get_val(Ix2, k) - Ty4*v_get_val(Iy2, k));
-		
+
 			//2nd control point
 
 			Tx1 = A2 - delta * v_get_val(XY, k) * B2 / D_3;
@@ -655,7 +655,7 @@ void splineenergyform01(MAT * Cx, MAT * Cy, MAT * Ix, MAT * Iy, int ns, double d
 
 			v_set_val(dCx, cindex[i], v_get_val(dCx, cindex[i]) + Tx1*v_get_val(Ix1, k) + Tx2*v_get_val(Iy1,k) - Tx3*v_get_val(Ix2, k) - Tx4*v_get_val(Iy2, k));
 			v_set_val(dCy, cindex[i], v_get_val(dCy, cindex[i]) + Ty1*v_get_val(Ix1, k) + Ty2*v_get_val(Iy1,k) - Ty3*v_get_val(Ix2, k) - Ty4*v_get_val(Iy2, k));
-	
+
 			//4nd control point
 
 			Tx1 = A4 - delta * v_get_val(XY, k) * B4 / D_3;
@@ -669,7 +669,7 @@ void splineenergyform01(MAT * Cx, MAT * Cy, MAT * Ix, MAT * Iy, int ns, double d
 			Ty4 = A4 - delta * v_get_val(XY, k) * B4 / D_3;
 
 			v_set_val(dCx, dindex[i], v_get_val(dCx, dindex[i]) + Tx1*v_get_val(Ix1, k) + Tx2*v_get_val(Iy1,k) - Tx3*v_get_val(Ix2, k) - Tx4*v_get_val(Iy2, k));
-			v_set_val(dCy, dindex[i], v_get_val(dCy, dindex[i]) + Ty1*v_get_val(Ix1, k) + Ty2*v_get_val(Iy1,k) - Ty3*v_get_val(Ix2, k) - Ty4*v_get_val(Iy2, k));		
+			v_set_val(dCy, dindex[i], v_get_val(dCy, dindex[i]) + Ty1*v_get_val(Ix1, k) + Ty2*v_get_val(Iy1,k) - Ty3*v_get_val(Ix2, k) - Ty4*v_get_val(Iy2, k));
 		}
 	}
 
@@ -692,11 +692,11 @@ void splineenergyform01(MAT * Cx, MAT * Cy, MAT * Ix, MAT * Iy, int ns, double d
 
 	v_free(dCy); v_free(dCx); v_free(YY); v_free(XX); v_free(XY);
 
-	free(dindex); free(cindex); free(bindex); free(aindex); 
+	free(dindex); free(cindex); free(bindex); free(aindex);
 
-	v_free(Iy2); v_free(Ix2); v_free(Iy1); v_free(Ix1); 
+	v_free(Iy2); v_free(Ix2); v_free(Iy1); v_free(Ix1);
 
-	m_free(Iy2_mat); m_free(Ix2_mat); m_free(Iy1_mat); m_free(Ix1_mat); 
+	m_free(Iy2_mat); m_free(Ix2_mat); m_free(Iy1_mat); m_free(Ix1_mat);
 
-	v_free(Y2); v_free(X2); v_free(Y1); v_free(X1); v_free(Ny); v_free(Nx); v_free(Ys); v_free(Xs); v_free(Y); v_free(X); 
+	v_free(Y2); v_free(X2); v_free(Y1); v_free(X1); v_free(Ny); v_free(Nx); v_free(Ys); v_free(Xs); v_free(Y); v_free(X);
 }

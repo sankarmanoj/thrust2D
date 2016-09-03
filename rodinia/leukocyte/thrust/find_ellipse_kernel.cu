@@ -19,6 +19,7 @@
 float *device_gicov;
 
 
+
 // Constant device arrays holding the stencil parameters used by the GICOV kernel
 __constant__ float c_sin_angle[NPOINTS];
 __constant__ float c_cos_angle[NPOINTS];
@@ -32,10 +33,12 @@ texture<float, 1, cudaReadModeElementType> t_grad_y;
 class GICOVFunctor
 {
 	int grad_m;
+	float * thrust_device_gicov;
 public:
-	GICOVFunctor(int grad_m)
+	GICOVFunctor(int grad_m,float * thrust_device_gicov)
 	{
 		this->grad_m = grad_m;
+		this->thrust_device_gicov = thrust_device_gicov;
 	}
 
 	__device__ void operator() (const thrust::window_2D<float> &w) const
@@ -61,6 +64,8 @@ public:
 
 				// Compute the combined gradient value at the current sample point
 				int addr = x * grad_m + y;
+				// if(k==1&&n==0)
+					// printf("X = %d, Y = %d\n",x,y);
 				float p = tex1Dfetch(t_grad_x,addr) * c_cos_angle[n] +
 						  tex1Dfetch(t_grad_y,addr) * c_sin_angle[n];
 
@@ -84,7 +89,12 @@ public:
 		}
 
 		// Store the maximal GICOV value
-		w[i][j] = max_GICOV;
+		// if(i>616)
+		// printf("[%d,%d,%f]\n",i,j,max_GICOV);
+		//
+		thrust_device_gicov[(i * grad_m) + j] = max_GICOV;
+		// w[(w.window_dim_y - 1)/2][(w.window_dim_x - 1)/2] =max_GICOV;
+		// printf("%f \n",max_GICOV);
 	}
 };
 
@@ -96,7 +106,6 @@ __global__ void GICOV_kernel(int grad_m, float *gicov) {
 	// Determine this thread's pixel
 	i = blockIdx.x + MAX_RAD + 2;
 	j = threadIdx.x + MAX_RAD + 2;
-
 	// Initialize the maximal GICOV score to 0
 	float max_GICOV = 0.f;
 
@@ -111,7 +120,8 @@ __global__ void GICOV_kernel(int grad_m, float *gicov) {
 			// Determine the x- and y-coordinates of the current sample point
 			y = j + c_tY[(k * NPOINTS) + n];
 			x = i + c_tX[(k * NPOINTS) + n];
-
+			// if(k==1&&n==0)
+			// 	printf("X = %d, Y = %d\n",x,y);
 			// Compute the combined gradient value at the current sample point
 			int addr = x * grad_m + y;
 			float p = tex1Dfetch(t_grad_x,addr) * c_cos_angle[n] +
@@ -137,7 +147,10 @@ __global__ void GICOV_kernel(int grad_m, float *gicov) {
 	}
 
 	// Store the maximal GICOV value
+			// if(i>616)
+			// printf("[%d,%d,%f]\n",i,j,max_GICOV);
 	gicov[(i * grad_m) + j] = max_GICOV;
+	// printf("%f \n",max_GICOV);
 }
 
 
@@ -145,7 +158,7 @@ __global__ void GICOV_kernel(int grad_m, float *gicov) {
 float *GICOV_CUDA(int grad_m, int grad_n, float *host_grad_x, float *host_grad_y) {
 
 	int MaxR = MAX_RAD + 2;
-
+	printf("Size = %d x %d - %d",grad_m,grad_n,MaxR);
 	// Allocate device memory
 	unsigned int grad_mem_size = sizeof(float) * grad_m * grad_n;
 	float *device_grad_x, *device_grad_y;
@@ -164,31 +177,46 @@ float *GICOV_CUDA(int grad_m, int grad_n, float *host_grad_x, float *host_grad_y
 	// (some elements are not assigned values in the kernel)
 	cudaMalloc((void**) &device_gicov, grad_mem_size);
 	cudaMemset(device_gicov, 0, grad_mem_size);
-
+	float * thrust_device_gicov;
+	cudaMalloc((void**)&thrust_device_gicov,grad_mem_size);
+	cudaMemset(thrust_device_gicov,0,grad_mem_size);
 	// Setup execution parameters
 	int num_blocks = grad_n - (2 * MaxR);
 	int threads_per_block = grad_m - (2 * MaxR);
 
 	// Copy the result to the host
 	float *host_gicov = (float *) malloc(grad_mem_size);
-	thrust::Block_2D<float> gicov_block(grad_m,grad_n);
+	float *thrust_host_gicov = (float *)malloc(grad_mem_size);
+	thrust::Block_2D<float> gicov_block(grad_n,grad_m);
 
 	cudaEvent_t start, stop;
 	cudaEventCreate(&start);
 	cudaEventCreate(&stop);
 	cudaEventRecord(start);
 	// Thrust version of GICOV
-	GICOVFunctor functor(grad_m);
-	thrust::window_vector<float> wv = thrust::window_vector<float>(&(gicov_block),2*MaxR-1,2*MaxR-1,1,1);
-	thrust::for_each(wv.begin(),wv.end(),functor);
-	cudaMemcpy(host_gicov,thrust::raw_pointer_cast(gicov_block.data()),grad_mem_size,cudaMemcpyDeviceToHost);
+	GICOVFunctor functor(grad_m,thrust_device_gicov);
 
+	thrust::window_vector<float> wv = thrust::window_vector<float>(&(gicov_block),2*MaxR+1,2*MaxR+1,1,1);
+	thrust::for_each(wv.begin(),wv.end(),functor);
+
+	cudaMemcpy(thrust_host_gicov,thrust_device_gicov,grad_mem_size,cudaMemcpyDeviceToHost);
+	int count = 0;
+	for(int i = 0; i<grad_m*grad_n; i++)
+	{
+		float temp = thrust_host_gicov[i];
+		if(temp>13)
+		{
+			count++;
+			printf(" Value = %f, Position = %d \n",temp,i);
+		}
+	}
+	printf("Thrust Count = %d\n",count);
 	cudaEventRecord(stop);
 	cudaEventSynchronize(stop);
 	float milliseconds = 0;
 	cudaEventElapsedTime(&milliseconds, start, stop);
 	printf("Time Taken Thrust = %f\t",milliseconds);
-
+	// return host_gicov;
 	cudaEvent_t start1, stop1;
 	cudaEventCreate(&start1);
 	cudaEventCreate(&stop1);
@@ -201,8 +229,18 @@ float *GICOV_CUDA(int grad_m, int grad_n, float *host_grad_x, float *host_grad_y
 	float milliseconds1 = 0;
 	cudaEventElapsedTime(&milliseconds1, start1, stop1);
 	printf("Time Taken Cuda = %f\n",milliseconds1);
-	cudaMemcpy(host_gicov, device_gicov, grad_mem_size, cudaMemcpyDeviceToHost);
-
+	// cudaMemcpy(host_gicov, device_gicov, grad_mem_size, cudaMemcpyDeviceToHost);
+	// count = 0;
+	// for(int i = 0; i<grad_m*grad_n; i++)
+	// {
+	// 	float temp = host_gicov[i];
+	// 	if(temp>13)
+	// 	{
+	// 		count++;
+	// 		// printf(" Value = %f, Position = %d \n",temp,i);
+	// 	}
+	// }
+	// 	printf("CUDA Count = %d\n",count);
 	// Check for kernel errors
 	cudaThreadSynchronize();
 	cudaError_t error = cudaGetLastError();
@@ -219,7 +257,7 @@ float *GICOV_CUDA(int grad_m, int grad_n, float *host_grad_x, float *host_grad_y
 	cudaFree(device_grad_x);
 	cudaFree(device_grad_y);
 
-	return host_gicov;
+	return thrust_host_gicov;
 }
 
 
@@ -279,7 +317,7 @@ public:
 		}
 
 		// Store the maximum value found
-		w[i][j] = max;
+		w[ (w.window_dim_x - 1)/2][ (w.window_dim_y - 1)/2] = max;
 	}
 };
 
@@ -345,7 +383,7 @@ float *dilate_CUDA(int max_gicov_m, int max_gicov_n, int strel_m, int strel_n) {
 
 	// Copy the result to the host
 	float *host_img_dilated = (float*) malloc(max_gicov_mem_size);
-	thrust::Block_2D<float> gicov_block(max_gicov_m,max_gicov_n);
+	thrust::Block_2D<float> gicov_block(max_gicov_n,max_gicov_m);
 
 	cudaEvent_t start, stop;
 	cudaEventCreate(&start);
@@ -355,7 +393,7 @@ float *dilate_CUDA(int max_gicov_m, int max_gicov_n, int strel_m, int strel_n) {
 	DilateFunctor functor(max_gicov_m, max_gicov_n, strel_m, strel_n);
 	thrust::window_vector<float> wv = thrust::window_vector<float>(&(gicov_block),1,1,1,1);
 	thrust::for_each(wv.begin(),wv.end(),functor);
-	cudaMemcpy(host_img_dilated,thrust::raw_pointer_cast(gicov_block.data()),max_gicov_mem_size,cudaMemcpyDeviceToHost);
+	// cudaMemcpy(host_img_dilated,thrust::raw_pointer_cast(gicov_block.data()),max_gicov_mem_size,cudaMemcpyDeviceToHost);
 
 	cudaEventRecord(stop);
 	cudaEventSynchronize(stop);

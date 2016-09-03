@@ -68,6 +68,8 @@ OTHERS = dmacheps.c extras.c fmacheps.c maxint.c  makefile.in \
 
 # Different configurations
 all:  part1 part2 part3 zpart1 zpart2 
+	cp meschach.a ../../rodinia/leukocyte/thrust/;
+	cp meschach.a ../../rodinia/leukocyte/cuda/;
 basic: part1 part2
 sparse: part1 part2 part3 
 complex: part1 part2 zpart1 zpart2

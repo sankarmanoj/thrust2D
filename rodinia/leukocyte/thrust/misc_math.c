@@ -15,7 +15,6 @@ MAT * gradient_x(MAT * input)
 {
 	int i, j;
 	MAT * result = m_get(input->m, input->n);
-
 	for(i = 0; i < result->m; i++)
 	{
 		for(j = 0; j < result->n; j++)
@@ -37,7 +36,7 @@ MAT * gradient_y(MAT * input)
 {
 	int i, j;
 	MAT * result = m_get(input->m, input->n);
-	
+
 	for(i = 0; i < result->n; i++)
 	{
 		for(j = 0; j < result->m; j++)

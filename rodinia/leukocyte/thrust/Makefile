@@ -7,7 +7,7 @@ CC_FLAGS = -I../../../include/meschach_lib -I../../../include -D_FORCE_INLINES
 ifeq ($(dbg),1)
 	CC_FLAGS += -g -O0
 else
-	CC_FLAGS += -O3
+	CC_FLAGS += -O0
 endif
 
 # 'make emu=1' compiles the CUDA kernels for emulation
@@ -15,7 +15,7 @@ ifeq ($(emu),1)
 	CC_FLAGS += -deviceemu
 endif
 
-
-leukocyte:
+run: leukocyte.out
+	./leukocyte.out ../testfile.avi 100
+leukocyte.out: detect_main.c find_ellipse_kernel.cu find_ellipse.c misc_math.c track_ellipse_kernel.cu track_ellipse.c
 	$(CC) $(CC_FLAGS) meschach.a avilib.c detect_main.c find_ellipse_kernel.cu find_ellipse.c misc_math.c track_ellipse_kernel.cu track_ellipse.c -o leukocyte.out
-	./leukocyte.out ../../../../data/leukocyte/testfile.avi 100
