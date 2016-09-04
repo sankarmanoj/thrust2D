@@ -16,7 +16,7 @@ namespace thrust
 		typedef T value_type;
 		typedef long difference_type;
 		typedef detail::iterator_category_with_system_and_traversal<random_access_device_iterator_tag, system::cuda::detail::tag, random_access_traversal_tag> iterator_category;
-		typedef T reference;
+		typedef thrust::device_reference<T> reference;
 		typedef T* pointer;
 		__host__ __device__ reference	operator* () const;
     __host__ __device__ reference operator[] (long index);

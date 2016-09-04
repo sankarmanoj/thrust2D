@@ -21,10 +21,10 @@ class printFunctor
 {
 public:
 
-__device__  int  operator() ( int  &a)
+__device__  void  operator() ( int  &a)
   {
     printf("%d \n",a);
-    return 10;
+    // return 10;
   }
 };
 class printFunctor2
@@ -45,11 +45,11 @@ int main()
   device_vector<int> a(5*5);
   device_vector<int> c(5*5);
 
-  sequence(a.begin(),a.end());
+  sequence(b.begin(),b.end());
   thrust::detail::normal_iterator<thrust::device_ptr<int> > adf = a.begin();
   std::cout<<typeid(thrust::detail::normal_iterator<thrust::device_ptr<int> >::reference).name()<<"\n";
 
-  copy(a.begin(),a.end(),b.begin());
+  // copy(a.begin(),a.end(),b.begin());
   // for(int i = 0; i<25; i++)
   // {
   //   printf("%f\n",a[i/5][i%5]);
@@ -65,6 +65,6 @@ int main()
   // cudaDeviceSynchronize();
   // // cudaMemcpy(temp,thrust::raw_pointer_cast(b.data()),25*sizeof(int),cudaMemcpyDeviceToHost);
   // // b.assign(temp,temp+25);
-  // thrust::for_each(b.begin(),b.end(),printFunctor());
+  thrust::for_each(b.begin(),b.end(),printFunctor());
   return 0;
 }
