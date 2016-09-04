@@ -2,7 +2,6 @@
 #include "track_ellipse_kernel.h"
 #include "misc_math.h"
 
-
 // #include <cutil.h>
 
 // Constants used in the MGVF computation

@@ -63,7 +63,6 @@ namespace thrust
   template <class T>
   __host__ window_iterator<T>::window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
   {
-
       this->b = b->device_pointer;
       this->block_dim_x = b->dim_x;
       this->block_dim_y = b->dim_y;
@@ -81,7 +80,6 @@ namespace thrust
   template <class T>
   __host__ window_iterator<T>::window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y,int position)
   {
-
       this->b = b->device_pointer;
       this->block_dim_x = b->dim_x;
       this->block_dim_y = b->dim_y;
