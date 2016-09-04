@@ -5,45 +5,45 @@
 
 namespace thrust
 {
-	// template <class T> class Block_2D;
-	// template<class T>
-	// class block_iterator : public detail::normal_iterator<device_ptr<T> >
-	// {
-	// public:
-	// 	// Block_2D<T> *b;
-	// 	int current_x,current_y;
-	// 	// int dim_x,dim_y;
-	// 	int start_x,start_y;
-	// 	int stride_x,stride_y;
-	// 	// detail::normal_iterator<device_ptr<T> > device_iterator;
-	//
-	// 	block_iterator ();
-	//
-	// 	// __host__ __device__ detail::normal_iterator<device_ptr<T> > operator[] (unsigned int index);
-	// 	// __host__ __device__ const detail::normal_iterator<device_ptr<T> > operator[] (unsigned int index) const;
-	// 	// __host__ __device__ detail::normal_iterator<device_ptr<T> > operator* ();
-  //   // __host__ __device__ const detail::normal_iterator<device_ptr<T> > operator* () const;
-	// 	//
-	// 	// __host__ __device__ block_iterator<T> operator+ (long value);
-	// 	//
-	// 	// __host__ __device__ int operator- (const block_iterator& it);
-	// 	//
-	// 	// __host__ __device__ block_iterator<T> operator++ ();
-	// 	//
-	// 	// __host__ __device__ block_iterator<T> operator- (long N);
-	// 	//
-	// 	// __host__ __device__ block_iterator<T> (const block_iterator<T>& other);
-	// 	//
-	// 	// __host__ __device__ block_iterator<T>& operator= (block_iterator<T> it);
-	// 	//
-	// 	// __host__ __device__ __forceinline__ block_iterator<T> operator+= (long N);
-	// 	// __host__ __device__ __forceinline__ const block_iterator<T> operator+= (long N) const;
-	//
-	// 	// void move_forward();
-	// 	// void move_backward();
-	// 	// void move_upward();
-	// 	// void move_downward();
-	// };
+	template <class T> class Block_2D;
+	template<class T>
+	class block_iterator : private detail::normal_iterator<device_ptr<T>  >
+	{
+	public:
+		Block_2D<T> *parentBlock;
+		int position;
+		int dim_x,dim_y;
+		typedef T value_type;
+		typedef long difference_type;
+		typedef detail::iterator_category_with_system_and_traversal<random_access_device_iterator_tag, system::cuda::detail::tag, random_access_traversal_tag> iterator_category;
+		typedef T reference;
+		typedef T* pointer;
+		__host__ __device__ reference	operator* () const;
+    __host__ __device__ reference operator[] (long index);
+
+		 __host__ __device__ block_iterator (const block_iterator<T> &pb) ;
+		 __host__ __device__ block_iterator (Block_2D<T> *pB, int position);
+
+		__host__ __device__ block_iterator<T> operator+ (long value);
+		__host__ __device__ difference_type operator- (const block_iterator& it);
+		__host__ __device__ difference_type operator- ( block_iterator& it);
+		__host__ __device__ block_iterator<T> operator- (long N);
+		// __host__ __device__ block_iterator<T> operator- ( const long N);
+		// __host__ __device__ block_iterator<T> operator- (long N);
+		// __host__ __device__ block_iterator<T> operator- (long N);
+
+
+
+		__host__ __device__ block_iterator<T>& operator+= (long N);
+		__host__ __device__ block_iterator<T>& operator++ ();
+		__host__ __device__ bool operator!= (const block_iterator<T>& it) const;
+		__host__ __device__ bool operator== (const block_iterator<T>& it) const;
+		__host__ __device__ bool operator>= (const block_iterator<T>& it) const;
+		__host__ __device__ bool operator<= (const block_iterator<T>& it) const;
+		__host__ __device__ bool operator> (const block_iterator<T>& it) const;
+		__host__ __device__ bool operator< (const block_iterator<T>& it) const;
+
+	};
 
 	template <class T>
 	class Block_2D : public device_vector<T>
@@ -82,9 +82,10 @@ namespace thrust
 	__host__ __device__ detail::normal_iterator<device_ptr<T> > operator[] (int index);
 	__host__ __device__ T operator[] (int2 index);
 
-	// detail::normal_iterator<device_ptr<T> > begin();
-	// detail::normal_iterator<device_ptr<T> > end();
+	block_iterator<T> begin();
+	block_iterator<T> end();
 
 	};
+
 }
 #include <thrust/system/cuda/block_2d.inl>
