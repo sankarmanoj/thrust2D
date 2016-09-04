@@ -7,7 +7,7 @@ namespace thrust
 {
 	template <class T> class Block_2D;
 	template<class T>
-	class block_iterator : private detail::normal_iterator<device_ptr<T>  >
+	class block_iterator : public detail::normal_iterator<device_ptr<T>  >
 	{
 	public:
 		Block_2D<T> *parentBlock;
@@ -26,14 +26,10 @@ namespace thrust
 
 		__host__ __device__ block_iterator<T> operator+ (long value);
 		__host__ __device__ difference_type operator- (const block_iterator& it);
-		__host__ __device__ difference_type operator- ( block_iterator& it);
-		__host__ __device__ block_iterator<T> operator- (long N);
-		// __host__ __device__ block_iterator<T> operator- ( const long N);
-		// __host__ __device__ block_iterator<T> operator- (long N);
-		// __host__ __device__ block_iterator<T> operator- (long N);
-
-
-
+		__host__ __device__ difference_type operator- (const block_iterator& it) const;
+		__host__ __device__ block_iterator<T> operator- (const long N);
+		__host__ __device__ block_iterator<T> operator- (const long N) const;
+		__host__ __device__ block_iterator<T> operator-- ();
 		__host__ __device__ block_iterator<T>& operator+= (long N);
 		__host__ __device__ block_iterator<T>& operator++ ();
 		__host__ __device__ bool operator!= (const block_iterator<T>& it) const;

@@ -37,9 +37,9 @@ main( int argc, char** argv)
 void
 runTest( int argc, char** argv)
 {
-  unsigned int rows, cols, size_I, size_R, niter = 10, iter;
+  int rows, cols, size_I, size_R, niter = 10, iter;
   float *J,lambda, q0sqr, sum, sum2,meanROI,varROI ;
-	unsigned int r1, r2, c1, c2;
+	int r1, r2, c1, c2;
 	char *in,*out;
 	if (argc == 7)
 	{
@@ -66,6 +66,7 @@ runTest( int argc, char** argv)
 	int image_ori_cols = cols;
 	// long image_ori_elem = image_ori_rows * image_ori_cols;
 
+	printf("%d %d\n",cols,rows);
 	size_I = cols * rows;
 
 	J = (float*) malloc(sizeof(float) * size_I);
@@ -75,9 +76,11 @@ runTest( int argc, char** argv)
 	// resize(	image_ori,image_ori_rows,image_ori_cols,J,rows,cols,0);
 
 	thrust::Block_2D<float> J_cuda (cols,rows);
+	printf("%d %d\n", cols,rows);
+	printf("%d %d\n", J_cuda.dim_x,J_cuda.dim_y);
 	thrust::Block_2D<float> J_square(cols,rows);
-	thrust::Block_2D<float> d_c(cols,rows);
-	thrust::fill(d_c.begin(),d_c.end(),0);
+	thrust::Block_2D<float> d_c(cols,rows,0.0);
+	// thrust::fill(d_c.begin(),d_c.end(),0);
 	J_cuda.assign(J,J+size_I);
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),extractFunctor());
 	printf("Start the SRAD main loop\n");
@@ -85,6 +88,7 @@ runTest( int argc, char** argv)
 	{
 		thrust::copy(J_cuda.begin(),J_cuda.end(),J_square.begin());
 		thrust::for_each(J_square.begin(),J_square.end(),square());
+		// printf("%d %d\n",J_cuda.end().position ,J_cuda.begin().position );
 		sum = thrust::reduce(J_cuda.begin(),J_cuda.end());
 		sum2 = thrust::reduce(J_square.begin(),J_square.end());
 	  meanROI = sum / size_R;

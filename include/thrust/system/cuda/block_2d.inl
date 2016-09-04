@@ -9,8 +9,8 @@ namespace thrust
     this->dim_y = dim_y;
     this->offset_x = 0;
     this->offset_y = 0;
-	// device_data = device_vector<T>(dim_x * dim_y);
-	device_iterator = this->data();
+  	// device_data = device_vector<T>(dim_x * dim_y);
+  	device_iterator = this->data();
     Block_2D<T> * temp;
     cudaMalloc((void **)&temp,sizeof(Block_2D));
     cudaMemcpy(temp,this,sizeof(Block_2D),cudaMemcpyHostToDevice);
@@ -39,8 +39,8 @@ namespace thrust
     this->dim_y = other.dim_y;
     this->offset_x = other.offset_x;
     this->offset_y = other.offset_y;
-	// device_data = device_vector<T>(other.device_data.begin(), other.device_data.end());
-	device_iterator = this->data();
+  	// device_data = device_vector<T>(other.device_data.begin(), other.device_data.end());
+  	device_iterator = this->data();
     this->device_pointer = other.device_pointer;
   }
 
@@ -88,7 +88,7 @@ namespace thrust
   template <class T>
   __host__  block_iterator<T> Block_2D<T>::end()
   {
-    return block_iterator<T>(this,this->dim_y*this->dim_x);
+    return block_iterator<T>(this,(this->dim_y)*(this->dim_x));
   }
 
   template<class T>
@@ -147,15 +147,29 @@ __host__ __device__ block_iterator<T>::block_iterator(const block_iterator<T> &i
   }
 
   template<class T>
-  __host__ __device__ block_iterator<T>::difference_type block_iterator<T>::operator- ( block_iterator& it)
+  __host__ __device__ block_iterator<T>::difference_type block_iterator<T>::operator- (const block_iterator& it) const
   {
     return position - it.position;
   }
   template<class T>
-  __host__ __device__ block_iterator<T> block_iterator<T>::operator- (long value)
+  __host__ __device__ block_iterator<T> block_iterator<T>::operator- (const long N)
   {
     block_iterator<T> temp = *this;
-    temp.position-=value;
+    temp.position-=N;
+    return temp;
+  }
+  template<class T>
+  __host__ __device__ block_iterator<T> block_iterator<T>::operator- (const long N) const
+  {
+    block_iterator<T> temp = *this;
+    temp.position-=N;
+    return temp;
+  }
+  template<class T>
+  __host__ __device__ block_iterator<T> block_iterator<T>::operator-- ()
+  {
+    block_iterator<T> temp = *this;
+    temp.position-=1;
     return temp;
   }
 
@@ -168,5 +182,25 @@ __host__ __device__ block_iterator<T>::block_iterator(const block_iterator<T> &i
   __host__ __device__ bool block_iterator<T>::operator== (const block_iterator<T>& it) const
   {
     return (this->position==it.position&&this->dim_x==it.dim_x&&this->dim_y==it.dim_y);
+  }
+  template<class T>
+  __host__ __device__ bool block_iterator<T>::operator<= (const block_iterator<T>& it) const
+  {
+    return (this->position<=it.position&&this->dim_x==it.dim_x&&this->dim_y==it.dim_y);
+  }
+  template<class T>
+  __host__ __device__ bool block_iterator<T>::operator>= (const block_iterator<T>& it) const
+  {
+    return (this->position>=it.position&&this->dim_x==it.dim_x&&this->dim_y==it.dim_y);
+  }
+  template<class T>
+  __host__ __device__ bool block_iterator<T>::operator> (const block_iterator<T>& it) const
+  {
+    return (this->position>it.position&&this->dim_x==it.dim_x&&this->dim_y==it.dim_y);
+  }
+  template<class T>
+  __host__ __device__ bool block_iterator<T>::operator< (const block_iterator<T>& it) const
+  {
+    return (this->position<it.position&&this->dim_x==it.dim_x&&this->dim_y==it.dim_y);
   }
 }
