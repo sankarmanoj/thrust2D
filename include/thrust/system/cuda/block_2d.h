@@ -35,6 +35,8 @@ namespace thrust
 
 
 		__host__ __device__ block_iterator<T>& operator+= (long N);
+
+		// __host__ __device__ block_iterator<T>& operator+= (const long N)const ;
 		__host__ __device__ block_iterator<T>& operator++ ();
 		__host__ __device__ bool operator!= (const block_iterator<T>& it) const;
 		__host__ __device__ bool operator== (const block_iterator<T>& it) const;

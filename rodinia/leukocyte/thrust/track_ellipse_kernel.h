@@ -2,7 +2,6 @@
 #define _TRACK_ELLIPSE_KERNEL_H_
 
 #include "matrix.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

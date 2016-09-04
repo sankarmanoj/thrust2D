@@ -1,5 +1,6 @@
+#include "main.h"
 #include "find_ellipse_kernel.h"
-#include <thrust/window_2d.h>
+
 // #include <cutil.h>
 #include <stdio.h>
 

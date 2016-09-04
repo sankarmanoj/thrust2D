@@ -1,6 +1,6 @@
 # C compiler
 CC = nvcc
-CC_FLAGS = -I../../../include/meschach_lib -I../../../include -D_FORCE_INLINES
+CC_FLAGS = -I../../../include/meschach_lib -I../../../include 
 
 
 # 'make dbg=1' enables NVCC debugging

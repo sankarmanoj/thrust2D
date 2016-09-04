@@ -1,5 +1,8 @@
+#include "main.h"
 #include "track_ellipse_kernel.h"
 #include "misc_math.h"
+
+
 // #include <cutil.h>
 
 // Constants used in the MGVF computation
@@ -37,6 +40,187 @@ __device__ float heaviside(float x) {
 	if (x >  0.0001) out = 1.0;
 	return out; */
 }
+
+class thrustIMGVF_kernel
+{
+	float **IMGVF_array;
+	float **I_array;
+	int *m_array;
+	int *n_array;
+	float vx, vy, e;
+	int max_iterations;
+	float cutoff;
+	thrust::Block_2D<float> *IMGVF,*buffer;
+
+	int * cell_converged;
+public:
+	thrustIMGVF_kernel(float **IMGVF_array, float **I_array, int *m_array, int *n_array,float vx, float vy, float e, int max_iterations, \
+		float cutoff,thrust::Block_2D<float> *IMGVF,thrust::Block_2D<float> *buffer, int * cell_converged)
+		{
+			this->IMGVF_array = IMGVF_array;
+			this->I_array = I_array;
+			this->buffer = buffer;
+			this->m_array = m_array;
+			this->n_array = n_array;
+			this->vx = vx;
+			this->cell_converged = cell_converged;
+			this->vy = vy;
+			this->e = e;
+			this->max_iterations = max_iterations;
+			this->cutoff = cutoff;
+			this->IMGVF = IMGVF;
+		}
+	__device__ void operator() (int count)
+	{
+		int cell_num = count/threads_per_block;
+		// Get pointers to current cell's input image and inital matrix
+		float *IMGVF_global = IMGVF_array[cell_num];
+		float *I = I_array[cell_num];
+
+		// Get current cell's matrix dimensions
+		int m = m_array[cell_num];
+		int n = n_array[cell_num];
+
+		int max = (m * n + threads_per_block - 1) / threads_per_block;
+		int thread_block, i, j;
+		int thread_id = count%threads_per_block;
+		for (thread_block = 0; thread_block < max; thread_block++) {
+			int offset = thread_block * threads_per_block;
+			i = (thread_id + offset) / n;
+			j = (thread_id + offset) % n;
+			if (i < m) (*IMGVF)[cell_num][(i * n) + j] = IMGVF_global[(i * n) + j];
+		}
+		const float one_nth = 1.f / (float) n;
+		const int tid_mod = thread_id % n;
+		const int tbsize_mod = threads_per_block % n;
+
+		// Constant used in the computation of Heaviside values
+		float one_over_e = 1.0 / e;
+
+		// Iteratively compute the IMGVF matrix until the computation has
+		//  converged or we have reached the maximum number of iterations
+		int iterations = 0;
+		while ((! cell_converged[cell_num]) && (iterations < max_iterations)) {
+
+			// The total change to this thread's matrix elements in the current iteration
+			float total_diff = 0.0f;
+
+			int old_i = 0, old_j = 0;
+			j = tid_mod - tbsize_mod;
+
+			// Iterate over virtual thread blocks
+			for (thread_block = 0; thread_block < max; thread_block++) {
+				// Store the index of this thread's previous matrix element
+				//  (used in the buffering scheme below)
+				old_i = i;
+				old_j = j;
+
+				// Determine the index of this thread's current matrix element
+				int offset = thread_block * threads_per_block;
+				i = (thread_id + offset) * one_nth;
+				j += tbsize_mod;
+				if (j >= n) j -= n;
+
+				float new_val = 0.0, old_val = 0.0;
+
+				// Make sure the thread has not gone off the end of the matrix
+				if (i < m) {
+					// Compute neighboring matrix element indices
+					int rowU = (i == 0) ? 0 : i - 1;
+					int rowD = (i == m - 1) ? m - 1 : i + 1;
+					int colL = (j == 0) ? 0 : j - 1;
+					int colR = (j == n - 1) ? n - 1 : j + 1;
+
+					// Compute the difference between the matrix element and its eight neighbors
+					old_val = (*IMGVF)[cell_num][(i * n) + j];
+					float U  = (*IMGVF)[cell_num][(rowU * n) + j   ] - old_val;
+					float D  = (*IMGVF)[cell_num][(rowD * n) + j   ] - old_val;
+					float L  = (*IMGVF)[cell_num][(i    * n) + colL] - old_val;
+					float R  = (*IMGVF)[cell_num][(i    * n) + colR] - old_val;
+					float UR = (*IMGVF)[cell_num][(rowU * n) + colR] - old_val;
+					float DR = (*IMGVF)[cell_num][(rowD * n) + colR] - old_val;
+					float UL = (*IMGVF)[cell_num][(rowU * n) + colL] - old_val;
+					float DL = (*IMGVF)[cell_num][(rowD * n) + colL] - old_val;
+
+					// Compute the regularized heaviside value for these differences
+					float UHe  = heaviside((U  *       -vy)  * one_over_e);
+					float DHe  = heaviside((D  *        vy)  * one_over_e);
+					float LHe  = heaviside((L  *  -vx     )  * one_over_e);
+					float RHe  = heaviside((R  *   vx     )  * one_over_e);
+					float URHe = heaviside((UR * ( vx - vy)) * one_over_e);
+					float DRHe = heaviside((DR * ( vx + vy)) * one_over_e);
+					float ULHe = heaviside((UL * (-vx - vy)) * one_over_e);
+					float DLHe = heaviside((DL * (-vx + vy)) * one_over_e);
+
+					// Update the IMGVF value in two steps:
+					// 1) Compute IMGVF += (mu / lambda)(UHe .*U  + DHe .*D  + LHe .*L  + RHe .*R +
+					//                                   URHe.*UR + DRHe.*DR + ULHe.*UL + DLHe.*DL);
+					new_val = old_val + (MU / LAMBDA) * (UHe  * U  + DHe  * D  + LHe  * L  + RHe  * R +
+														 URHe * UR + DRHe * DR + ULHe * UL + DLHe * DL);
+					// 2) Compute IMGVF -= (1 / lambda)(I .* (IMGVF - I))
+					float vI = I[(i * n) + j];
+					new_val -= ((1.0 / LAMBDA) * vI * (new_val - vI));
+				}
+
+				// Save the previous virtual thread block's value (if it exists)
+				if (thread_block > 0) {
+					offset = (thread_block - 1) * threads_per_block;
+					if (old_i < m) (*IMGVF)[cell_num][(old_i * n) + old_j] = (*buffer)[cell_num][thread_id];
+				}
+				if (thread_block < max - 1) {
+					// Write the new value to the buffer
+					(*buffer)[cell_num][thread_id] = new_val;
+				} else {
+					// We've reached the final virtual thread block,
+					//  so write directly to the matrix
+					if (i < m) (*IMGVF)[cell_num][(i * n) + j] = new_val;
+				}
+
+				// Keep track of the total change of this thread's matrix elements
+				total_diff += fabs(new_val - old_val);
+
+				// We need to synchronize between virtual thread blocks to prevent
+				//  threads from writing the values from the buffer to the actual
+				//  IMGVF matrix too early
+				__syncthreads();
+			}
+			(*buffer)[cell_num][thread_id] = total_diff;
+			__syncthreads();
+
+			// Account for thread block sizes that are not a power of 2
+			if (thread_id >= next_lowest_power_of_two) {
+				(*buffer)[cell_num][thread_id - next_lowest_power_of_two] = (*buffer)[cell_num][thread_id - next_lowest_power_of_two]+ (float)(*buffer)[cell_num][thread_id];
+			}
+			__syncthreads();
+
+			// Perform the tree reduction
+			int th;
+			for (th = next_lowest_power_of_two / 2; th > 0; th /= 2) {
+				if (thread_id < th) {
+					(*buffer)[cell_num][thread_id] =(*buffer)[cell_num][thread_id] + (float) (*buffer)[cell_num][thread_id + th];
+				}
+				__syncthreads();
+			}
+
+			// Figure out if we have converged
+			if(thread_id == 0) {
+				float mean = (*buffer)[cell_num][thread_id] / (float) (m * n);
+				if (mean < cutoff) {
+					// We have converged, so set the appropriate flag
+					cell_converged[cell_num] = 1;
+				}
+			}
+
+			// We need to synchronize to ensure that all threads
+			//  read the correct value of the convergence flag
+			__syncthreads();
+
+			// Keep track of the number of iterations we have performed
+			iterations++;
+		}
+
+	}
+};
 
 
 // Kernel to compute the Motion Gradient Vector Field (MGVF) matrix for multiple cells
@@ -232,6 +416,13 @@ void IMGVF_cuda(MAT **I, MAT **IMGVF, double vx, double vy, double e, int max_it
 	IMGVF_cuda_init(I, num_cells);
 
 	// Compute the MGVF on the GPU
+	thrust::counting_iterator<int> mCount(0);
+	int * cc;
+	cudaMalloc((void **)&cc,sizeof(int)*num_cells);
+	thrust::Block_2D<float> mblock1(num_cells,41*81) ;
+	thrust::Block_2D<float> mblock2(num_cells,threads_per_block);
+	// thrust::for_each(mCount,mCount + num_cells*threads_per_block,thrustIMGVF_kernel(device_IMGVF_array, device_I_array, device_m_array, device_n_array,
+		// (float) vx, (float) vy, (float) e, max_iterations, (float) cutoff,mblock1.device_pointer,mblock2.device_pointer,cc ));
 	IMGVF_kernel <<< num_cells, threads_per_block >>>
 				( device_IMGVF_array, device_I_array, device_m_array, device_n_array,
 				  (float) vx, (float) vy, (float) e, max_iterations, (float) cutoff );
