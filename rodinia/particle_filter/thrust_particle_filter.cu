@@ -401,7 +401,7 @@ public:
     double a, b;
     int *seed;
 
-    randn_transform(double a, double b, thrust::device_vector<int>::iterator seed) {
+    randn_transform(double a, double b, thrust::block_iterator<int> seed) {
 
         this->a = a;
         this->b = b;
@@ -424,10 +424,10 @@ public:
     int *ind;
     int countOnes, max_size, IszY, Nfr, k;
 
-    ind_calc(thrust::device_vector<double>::iterator arrayX,
-             thrust::device_vector<double>::iterator arrayY,
-             thrust::device_vector<int>::iterator objxy,
-             thrust::device_vector<int>::iterator ind,
+    ind_calc(thrust::block_iterator<double> arrayX,
+             thrust::block_iterator<double> arrayY,
+             thrust::block_iterator<int> objxy,
+             thrust::block_iterator<int> ind,
              int countOnes, int max_size, int IszY, int Nfr, int k) {
 
         this->arrayX = (double *) raw_pointer_cast(&(*arrayX));
@@ -468,7 +468,7 @@ public:
     unsigned char *I;
     int numOnes;
 
-    calc_likelihood_sum(thrust::device_vector<unsigned char>::iterator I, thrust::device_vector<int>::iterator ind, int numOnes){
+    calc_likelihood_sum(thrust::block_iterator<unsigned char> I, thrust::block_iterator<int> ind, int numOnes){
 
         this->I = (unsigned char *) raw_pointer_cast(&(*I));
         this->ind = (int *) raw_pointer_cast(&(*ind));
@@ -537,9 +537,9 @@ public:
 
 //     int Nparticles;
 
-//     find_index(thrust::device_vector<double>::iterator arrayX,
-//                thrust::device_vector<double>::iterator arrayY,
-//                thrust::device_vector<double>::iterator CDF,
+//     find_index(thrust::block_iterator<double> arrayX,
+//                thrust::block_iterator<double> arrayY,
+//                thrust::block_iterator<double> CDF,
 //                int Nparticles) {
 
 //         this->arrayX = (double *) thrust::raw_pointer_cast(&(*arrayX));
@@ -574,7 +574,7 @@ public:
     double *CDF;
     int Nparticles;
 
-    get_index(thrust::device_vector<double>::iterator CDF, int Nparticles) {
+    get_index(thrust::block_iterator<double> CDF, int Nparticles) {
 
         this->CDF = (double *) thrust::raw_pointer_cast(&(*CDF));
         this->Nparticles = Nparticles;
@@ -601,7 +601,7 @@ class update_coords {
 public:
     double *array;
 
-    update_coords(thrust::device_vector<double>::iterator array) {
+    update_coords(thrust::block_iterator<double> array) {
         this->array = thrust::raw_pointer_cast(&(*array));
     }
 
@@ -668,6 +668,7 @@ void particleFilter(unsigned char *I, int IszX, int IszY, int Nfr, int *seed, in
     int k;
     double sumWeights;  //to hold the result of the reduce operation
 
+    // TODO: Do the whole __CUDA_ARCH__ thing in Block_2D::convert2D
     for(k = 1; k < Nfr; k++)
     {
 
