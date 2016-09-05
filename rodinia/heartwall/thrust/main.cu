@@ -610,13 +610,17 @@ int main(int argc, char *argv []){
 		common.mask_conv_joffset = common.mask_conv_joffset + 1;
 	}
 
- 	float * d_in_mod_temp;
-	thrust::Block_2D<float> *d_in_mod_temp_block[ALL_POINTS];
-	for(int i = 0; i<ALL_POINTS;i++)
-	{
-		d_in_mod_temp_block[i]=(new thrust::Block_2D<float>(51,51));
-	}
+ 	float * d_in_mod_temp,*denomT;
+	float * ips, *isps,  * ifs,  * isfs,*par_max_val;
+	int * par_max_coo;
+	cudaMalloc((void**)&isps,sizeof(float)*ALL_POINTS*51);
+	cudaMalloc((void**)&ips,sizeof(float)*ALL_POINTS*51);
+	cudaMalloc((void**)&ifs,sizeof(float)*ALL_POINTS);
+	cudaMalloc((void**)&isfs,sizeof(float)*ALL_POINTS);
+	cudaMalloc((void**)&par_max_val,sizeof(float)*131*ALL_POINTS);
+	cudaMalloc((void**)&par_max_coo,sizeof(int)*131*ALL_POINTS);
 	cudaMalloc((void **)&d_in_mod_temp,sizeof(float)*2601*ALL_POINTS);
+	cudaMalloc((void **)&denomT,sizeof(float)*ALL_POINTS);
 
 	for(i=0; i<common.allPoints; i++){
 		cudaMalloc((void **)&unique[i].d_mask_conv, common.mask_conv_mem);
@@ -688,7 +692,7 @@ int main(int argc, char *argv []){
 			thrust::for_each(mCount,mCount + common.in2_elem,kernelNonInitialPart1());
 
 			thrust::for_each(mCount,mCount + common.in_elem,kernelNonInitialPart2(d_in_mod_temp));
-			// thrust::for_each(mCount,mCount + common.conv_elem*ALL_POINTS,kernelConvul(d_in_mod_temp,common.conv_elem));
+			thrust::for_each(mCount,mCount + common.conv_elem*ALL_POINTS,kernelConvul(d_in_mod_temp,common.conv_elem));
 //
 // // 			thrust::for_each(mCount,mCount + common.in_elem,kernelNonInitialPart2(&d_in_mod_temp_block));
 // // 			thrust::for_each(mCount,mCount + common.conv_elem,kernelConvul(&d_in_mod_temp_block));
@@ -699,7 +703,9 @@ int main(int argc, char *argv []){
 			thrust::for_each(mCount,mCount + common.in2_sub_cumh_rows*ALL_POINTS,kernelHorCumSum(common.in2_sub_cumh_rows));
 			thrust::for_each(mCount,mCount + common.in2_sub_cumh_elem*ALL_POINTS,kernelSelectionSubCumElem(common.in2_sub_cumh_elem));
 			thrust::for_each(mCount,mCount + common.in2_sub2_elem*ALL_POINTS,kernelSel2Elem(common.in2_sub2_elem));
-			thrust::for_each(mCount,mCount + common.in2_pad_cumv_elem*ALL_POINTS,kernelPad2CumSum(common.in2_pad_cumv_elem));
+			thrust::for_each(mCount,mCount + common.in2_pad_cumv_elem*ALL_POINTS,kernelPad2CumSum(common.in2_pad_cumv_elem,denomT,ips,isps,ifs,isfs));
+			thrust::for_each(mCount,mCount + common.mask_conv_elem*ALL_POINTS,kernelMaskConvol(common.mask_conv_elem,ifs,par_max_val,par_max_coo));
+
 			// for(int i = 0; i< ALL_POINTS ; i++)
 			// {
 			// 	thrust::device_vector<float> inVector(unique[i].d_T + unique[i].point_no*common.in_elem, unique[i].d_T + unique[i].point_no*common.in_elem + common.in_elem);
@@ -710,6 +716,9 @@ int main(int argc, char *argv []){
 			// }
 
 		}
+		if(common_change.frame_no != 0 && (common_change.frame_no)%10 == 0)
+		thrust::for_each(mCount,mCount +common.in_elem*ALL_POINTS,kernelLast(common.in_elem));
+
 		cudaEventRecord(tstop);
 		cudaEventSynchronize(tstop);
 		float timeTaken;
@@ -719,7 +728,7 @@ int main(int argc, char *argv []){
 
 		cudaEventRecord(cstart);
 		// launch GPU kernel
-		kernel<<<blocks, threads>>>();
+		// kernel<<<blocks, threads>>>();
 
 		cudaEventRecord(cstop);
 		cudaEventSynchronize(cstop);

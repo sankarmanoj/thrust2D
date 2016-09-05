@@ -408,10 +408,21 @@ class kernelSel2Elem
 class kernelPad2CumSum
 {
 	int width;
+	float * denomT;
+	float *in_partial_sum;
+	float *in_sqr_partial_sum;
+	float *in_final_sum;
+	float *in_sqr_final_sum;
 	public:
-	kernelPad2CumSum(int w)
+	kernelPad2CumSum(int w,float * denomT,float * ips,float *isps, float * ifs, float * isfs)
 	{
 		this->width = w;
+		this->denomT = denomT;
+		in_partial_sum = ips;
+		in_sqr_partial_sum = isps;
+		in_final_sum = ifs;
+		in_sqr_final_sum = isfs;
+
 	}
 	__device__ void operator() (int t)
 	  {
@@ -423,10 +434,7 @@ class kernelPad2CumSum
 			// __shared__ float in_sqr_partial_sum[51];															// WATCH THIS !!! HARDCODED VALUE
 			// __shared__ float in_final_sum;
 			// __shared__ float in_sqr_final_sum;
-			float in_partial_sum[51*ALL_POINTS];
-			float in_sqr_partial_sum[51*ALL_POINTS];
-			float in_final_sum[ALL_POINTS];
-			float in_sqr_final_sum[ALL_POINTS];
+
 			row = (ei_new+1) % d_common.in2_pad_cumv_rows - 1;												// (0-n) row
 			col = (ei_new+1) / d_common.in2_pad_cumv_rows + 1 - 1;											// (0-n) column
 			if((ei_new+1) % d_common.in2_pad_cumv_rows == 0){
@@ -587,41 +595,215 @@ class kernelPad2CumSum
 				for(i = 0; i<d_common.in_sqr_cols; i++){
 					in_sqr_final_sum[bx] = in_sqr_final_sum[bx] + in_sqr_partial_sum[bx*51 + i];
 				}
-				
+
+			}
+			__syncthreads();
+			float mean,mean_sqr,variance,deviation;
+			if(ei_new==0)
+			{
+				mean = in_final_sum[bx] / d_common.in_elem;													// gets mean (average) value of element in ROI
+				mean_sqr = mean * mean;
+				variance  = (in_sqr_final_sum[bx] / d_common.in_elem) - mean_sqr;							// gets variance of ROI
+				deviation = sqrt(variance);																// gets standard deviation of ROI
+				denomT[bx] = sqrt(float(d_common.in_elem-1))*deviation;
+
+			}
+			if(ei_new < d_common.in2_sub2_elem)
+			{
+					d_unique[bx].d_in2_sqr_sub2[ei_new] = d_unique[bx].d_in2_sqr_sub2[ei_new] * denomT[bx];
+					d_unique[bx].d_conv[ei_new] = d_unique[bx].d_conv[ei_new] - d_unique[bx].d_in2_sub2[ei_new] * in_final_sum[bx] / d_common.in_elem;
+					d_unique[bx].d_in2_sqr_sub2[ei_new] = d_unique[bx].d_conv[ei_new] / d_unique[bx].d_in2_sqr_sub2[ei_new];
+
+			}
+			int pointer,	cent = d_common.sSize + d_common.tSize + 1;
+			int tMask_row,tMask_col;
+			pointer = d_common_change.frame_no-1+d_unique[bx].point_no*d_common.no_frames;
+			tMask_row = cent + d_unique[bx].d_tRowLoc[pointer] - d_unique[bx].d_Row[d_unique[bx].point_no] - 1;
+			tMask_col = cent + d_unique[bx].d_tColLoc[pointer] - d_unique[bx].d_Col[d_unique[bx].point_no] - 1;
+
+			int location;
+			if(ei_new < d_common.tMask_elem){
+
+				location = tMask_col*d_common.tMask_rows + tMask_row;
+
+				if(ei_new==location){
+					d_unique[bx].d_tMask[ei_new] = 1;
+				}
+				else{
+					d_unique[bx].d_tMask[ei_new] = 0;
+				}
 			}
 
 	}
 };
 
+class kernelMaskConvol
+{
+	int width;
+	float * in_final_sum;
+	float * par_max_val;
+	int * par_max_coo;
 
-//:TODO Reduce d_in_sqr
+public:
+	kernelMaskConvol(int width,float * ifs,float*pmv,int * pmc)
+	{
+		this->width = width;
+		in_final_sum = ifs;
+		par_max_coo = pmc;
+		par_max_val = pmv;
+	}
+	__device__ void operator() (int t)
+	{
+		int ei_new = t%width;
+		int bx = t/width;
+		int position,sum;
+		int pos_ori = ei_new;
+		int ic;
+			int jc,j,i;
+			int jp1;
+			int ja1, ja2;
+			int ip1;
+			int ia1, ia2;
+			int ja, jb;
+			int ia, ib;
+			float s;
+			float largest_value_current = 0;
+			float largest_value = 0;
+			int largest_coordinate_current = 0;
+			int largest_coordinate = 0;
+			float fin_max_val = 0;
+			int fin_max_coo = 0;
+			int largest_row, largest_col;
 
-// class kernelIn2Sub2
-// {
-// 	int width;
-// 	kernelIn2Sub2(int w)
-// 	{
-// 		this->width = w;
-// 	}
-// public:
-// 	__device__ void operator() (int t)
-// 	{
-// 		int ei_new = t%width;
-// 		int bx = t/width;
-// 		row = (ei_new+1) % d_common.in2_sub2_rows - 1;												// (0-n) row
-// 		col = (ei_new+1) / d_common.in2_sub2_rows + 1 - 1;											// (0-n) column
-// 		if((ei_new+1) % d_common.in2_sub2_rows == 0){
-// 			row = d_common.in2_sub2_rows - 1;
-// 			col = col-1;
-// 		}
-//
-// 		// figure out corresponding location in old matrix and copy values to new matrix
-// 		ori_row = row + d_common.in2_sub_cumh_sel2_rowlow - 1;
-// 		ori_col = col + d_common.in2_sub_cumh_sel2_collow - 1;
-// 		d_unique[bx].d_in2_sub2[ei_new] = d_unique[bx].d_in2_sub_cumh[ori_col*d_common.in2_sub_cumh_rows+ori_row];
-//
-// 	}
-// };
+		// figure out row/col location in array
+		ic = (ei_new+1) % d_common.mask_conv_rows;												// (1-n)
+		jc = (ei_new+1) / d_common.mask_conv_rows + 1;											// (1-n)
+		if((ei_new+1) % d_common.mask_conv_rows == 0){
+			ic = d_common.mask_conv_rows;
+			jc = jc-1;
+		}
+
+		//
+		j = jc + d_common.mask_conv_joffset;
+		jp1 = j + 1;
+		if(d_common.mask_cols < jp1){
+			ja1 = jp1 - d_common.mask_cols;
+		}
+		else{
+			ja1 = 1;
+		}
+		if(d_common.tMask_cols < j){
+			ja2 = d_common.tMask_cols;
+		}
+		else{
+			ja2 = j;
+		}
+
+		i = ic + d_common.mask_conv_ioffset;
+		ip1 = i + 1;
+
+		if(d_common.mask_rows < ip1){
+			ia1 = ip1 - d_common.mask_rows;
+		}
+		else{
+			ia1 = 1;
+		}
+		if(d_common.tMask_rows < i){
+			ia2 = d_common.tMask_rows;
+		}
+		else{
+			ia2 = i;
+		}
+
+		s = 0;
+
+		for(ja=ja1; ja<=ja2; ja++){
+			jb = jp1 - ja;
+			for(ia=ia1; ia<=ia2; ia++){
+				ib = ip1 - ia;
+				s = s + d_unique[bx].d_tMask[d_common.tMask_rows*(ja-1)+ia-1] * 1;
+			}
+		}
+		d_unique[bx].d_mask_conv[ei_new] = d_unique[bx].d_in2_sqr_sub2[ei_new] * s;
+		if(ei_new < d_common.mask_conv_rows){
+
+			for(i=0; i<d_common.mask_conv_cols; i++){
+				largest_coordinate_current = ei_new*d_common.mask_conv_rows+i;
+				largest_value_current = abs(d_unique[bx].d_mask_conv[largest_coordinate_current]);
+				if(largest_value_current > largest_value){
+					largest_coordinate = largest_coordinate_current;
+					largest_value = largest_value_current;
+				}
+			}
+			par_max_coo[bx*131 +ei_new] = largest_coordinate;
+			par_max_val[bx*131 +ei_new] = largest_value;
+		}
+
+		if(ei_new == 0){
+
+			for(i = 0; i < d_common.mask_conv_rows; i++){
+				if(par_max_val[bx*131 + i] > fin_max_val){
+					fin_max_val = par_max_val[bx*131 + i];
+					fin_max_coo = par_max_coo[bx*131 + i];
+				}
+			}
+			largest_row = (fin_max_coo+1) % d_common.mask_conv_rows - 1;											// (0-n) row
+			largest_col = (fin_max_coo+1) / d_common.mask_conv_rows;												// (0-n) column
+			if((fin_max_coo+1) % d_common.mask_conv_rows == 0){
+				largest_row = d_common.mask_conv_rows - 1;
+				largest_col = largest_col - 1;
+			}
+
+			// calculate offset
+			largest_row = largest_row + 1;																	// compensate to match MATLAB format (1-n)
+			largest_col = largest_col + 1;																	// compensate to match MATLAB format (1-n)
+			int offset_row = largest_row - d_common.in_rows - (d_common.sSize - d_common.tSize);
+			int offset_col = largest_col - d_common.in_cols - (d_common.sSize - d_common.tSize);
+			int pointer = d_common_change.frame_no+d_unique[bx].point_no*d_common.no_frames;
+			d_unique[bx].d_tRowLoc[pointer] = d_unique[bx].d_Row[d_unique[bx].point_no] + offset_row;
+			d_unique[bx].d_tColLoc[pointer] = d_unique[bx].d_Col[d_unique[bx].point_no] + offset_col;
+
+	}
+}
+
+};
+
+class kernelLast
+{
+	int width;
+public:
+	kernelLast(int width)
+	{
+		this->width = width;
+	}
+	__device__ void operator() (int t)
+	{
+		int ei_new = t%width;
+		int bx = t/width;
+		float * 		d_in = &d_unique[bx].d_T[d_unique[bx].in_pointer];
+
+		// update coordinate
+		int loc_pointer = d_unique[bx].point_no*d_common.no_frames+d_common_change.frame_no;
+		d_unique[bx].d_Row[d_unique[bx].point_no] = d_unique[bx].d_tRowLoc[loc_pointer];
+		d_unique[bx].d_Col[d_unique[bx].point_no] = d_unique[bx].d_tColLoc[loc_pointer];
+			// figure out row/col location in new matrix
+			int row = (ei_new+1) % d_common.in_rows - 1;												// (0-n) row
+			int col = (ei_new+1) / d_common.in_rows + 1 - 1;											// (0-n) column
+			if((ei_new+1) % d_common.in_rows == 0){
+				row = d_common.in_rows - 1;
+				col = col-1;
+			}
+
+			// figure out row/col location in corresponding new template area in image and give to every thread (get top left corner and progress down and right)
+			int ori_row = d_unique[bx].d_Row[d_unique[bx].point_no] - 25 + row - 1;
+			int ori_col = d_unique[bx].d_Col[d_unique[bx].point_no] - 25 + col - 1;
+			int ori_pointer = ori_col*d_common.frame_rows+ori_row;
+
+			// update template
+			d_in[ei_new] = d_common.alpha*d_in[ei_new] + (1.00-d_common.alpha)*d_common_change.d_frame[ori_pointer];
+
+	}
+};
 //===============================================================================================================================================================================================================
 //===============================================================================================================================================================================================================
 //	KERNEL FUNCTION
