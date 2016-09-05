@@ -1,4 +1,4 @@
-#include<thrust/window_transform.h>
+#include<thrust/window_2d.h>
 #include <thrust/generate.h>
 #include <thrust/sequence.h>
 #include <thrust/execution_policy.h>

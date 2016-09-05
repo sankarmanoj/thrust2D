@@ -95,6 +95,7 @@ namespace thrust
 	__host__ __device__ block_iterator<T>::block_iterator (Block_2D<T> *pB, int position)
   {
     parentBlock = pB->device_pointer;
+    parentBlockHost = pB;
     this->position = position;
     this->dim_y = pB->dim_y;
     this->dim_x = pB->dim_x;
@@ -104,6 +105,7 @@ namespace thrust
 __host__ __device__ block_iterator<T>::block_iterator(const block_iterator<T> &it)
   {
     this->parentBlock = it.parentBlock;
+    this->parentBlockHost = it.parentBlockHost;
     this->position = it.position;
     this->dim_x = it.dim_x;
     this->dim_y = it.dim_y;
