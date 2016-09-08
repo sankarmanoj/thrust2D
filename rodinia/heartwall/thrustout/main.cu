@@ -792,7 +792,7 @@ int main(int argc, char *argv []){
 
 		cudaEventRecord(cstart);
 		// launch GPU kernel
-		kernel<<<blocks, threads>>>();
+		// kernel<<<blocks, threads>>>();
 
 		cudaEventRecord(cstop);
 		cudaEventSynchronize(cstop);
@@ -835,15 +835,25 @@ int main(int argc, char *argv []){
 
 		for (int i = 0; i<common.endoPoints; i++)
 		{
-			frame[common.tEndoRowLoc[j+i*common.no_frames]* common.frame_cols + common.tEndoColLoc[j+i*common.no_frames]] = 255;
-			frame[(common.tEndoRowLoc[j+i*common.no_frames]+1) * common.frame_cols + common.tEndoColLoc[j+i*common.no_frames]] = 255;
-			frame[(common.tEndoRowLoc[j+i*common.no_frames]+1) * common.frame_cols + (common.tEndoColLoc[j+i*common.no_frames]+1)] = 255;
-			frame[(common.tEndoRowLoc[j+i*common.no_frames]-1) * common.frame_cols + common.tEndoColLoc[j+i*common.no_frames]] = 255;
-			frame[(common.tEndoRowLoc[j+i*common.no_frames]-1) * common.frame_cols + (common.tEndoColLoc[j+i*common.no_frames]-1)] = 255;
-			frame[common.tEndoRowLoc[j+i*common.no_frames] * common.frame_cols + (common.tEndoColLoc[j+i*common.no_frames]+1)] = 255;
-			frame[common.tEndoRowLoc[j+i*common.no_frames] * common.frame_cols + (common.tEndoColLoc[j+i*common.no_frames]-1)] = 255;
-			frame[(common.tEndoRowLoc[j+i*common.no_frames]+1) * common.frame_cols + (common.tEndoColLoc[j+i*common.no_frames]-1)] = 255;
-			frame[(common.tEndoRowLoc[j+i*common.no_frames]-1) * common.frame_cols + (common.tEndoColLoc[j+i*common.no_frames]+1)] = 255;
+			frame[common.tEndoRowLoc[j+i*common.no_frames]+ common.frame_rows * common.tEndoColLoc[j+i*common.no_frames]] = 255;
+			frame[(common.tEndoRowLoc[j+i*common.no_frames]+1) + common.frame_rows * common.tEndoColLoc[j+i*common.no_frames]] = 255;
+			frame[(common.tEndoRowLoc[j+i*common.no_frames]+1) + common.frame_rows * (common.tEndoColLoc[j+i*common.no_frames]+1)] = 255;
+			frame[(common.tEndoRowLoc[j+i*common.no_frames]-1) + common.frame_rows * common.tEndoColLoc[j+i*common.no_frames]] = 255;
+			frame[(common.tEndoRowLoc[j+i*common.no_frames]-1) + common.frame_rows * (common.tEndoColLoc[j+i*common.no_frames]-1)] = 255;
+			frame[common.tEndoRowLoc[j+i*common.no_frames] + common.frame_rows * (common.tEndoColLoc[j+i*common.no_frames]+1)] = 255;
+			frame[common.tEndoRowLoc[j+i*common.no_frames] + common.frame_rows * (common.tEndoColLoc[j+i*common.no_frames]-1)] = 255;
+			frame[(common.tEndoRowLoc[j+i*common.no_frames]+1) + common.frame_rows * (common.tEndoColLoc[j+i*common.no_frames]-1)] = 255;
+			frame[(common.tEndoRowLoc[j+i*common.no_frames]-1) + common.frame_rows * (common.tEndoColLoc[j+i*common.no_frames]+1)] = 255;
+
+			frame[common.tEpiRowLoc[j+i*common.no_frames]+ common.frame_rows * common.tEpiColLoc[j+i*common.no_frames]] = 255;
+			frame[(common.tEpiRowLoc[j+i*common.no_frames]+1) + common.frame_rows * common.tEpiColLoc[j+i*common.no_frames]] = 255;
+			frame[(common.tEpiRowLoc[j+i*common.no_frames]+1) + common.frame_rows * (common.tEpiColLoc[j+i*common.no_frames]+1)] = 255;
+			frame[(common.tEpiRowLoc[j+i*common.no_frames]-1) + common.frame_rows * common.tEpiColLoc[j+i*common.no_frames]] = 255;
+			frame[(common.tEpiRowLoc[j+i*common.no_frames]-1) + common.frame_rows * (common.tEpiColLoc[j+i*common.no_frames]-1)] = 255;
+			frame[common.tEpiRowLoc[j+i*common.no_frames] + common.frame_rows * (common.tEpiColLoc[j+i*common.no_frames]+1)] = 255;
+			frame[common.tEpiRowLoc[j+i*common.no_frames] + common.frame_rows * (common.tEpiColLoc[j+i*common.no_frames]-1)] = 255;
+			frame[(common.tEpiRowLoc[j+i*common.no_frames]+1) + common.frame_rows * (common.tEpiColLoc[j+i*common.no_frames]-1)] = 255;
+			frame[(common.tEpiRowLoc[j+i*common.no_frames]-1) + common.frame_rows * (common.tEpiColLoc[j+i*common.no_frames]+1)] = 255;
 		}
 		char out[50];
 		sprintf(out, "%03d.pgm", j);

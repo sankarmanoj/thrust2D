@@ -5,7 +5,7 @@ CC_FLAGS = -D_FORCE_INLINES
 # link objects(binaries) together
 heartwall: main.o ./AVI/avilib.o ./AVI/avimod.o
 	$(CC) $(CC_FLAGS) main.o ./AVI/avilib.o ./AVI/avimod.o -o heartwall.out
-	./heartwall.out test.avi 20
+	./heartwall.out ../test.avi 20
 
 # compile main function file into object (binary)
 main.o: main.cu kernel.cu define.c
