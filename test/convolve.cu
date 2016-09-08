@@ -3,25 +3,27 @@
 #include <thrust/sequence.h>
 #include <thrust/execution_policy.h>
 #include <iostream>
-#define X 30
-#define Y 30
+#define X 300
+#define Y 300
 int main()
 {
   srand(13);
+  int * b;
+  cudaMalloc((void **)&b, sizeof(int)*2);
   thrust::Block_2D<float> inBlock(X,Y);
-  thrust::Block_2D<float> kernel(3,3);
+  thrust::Block_2D<float> kernel(71,71);
   thrust::device_vector<float> a((long long int)X*Y);
   thrust::sequence(a.begin(),a.end());
   thrust::copy(a.begin(),a.end(),inBlock.begin());
   thrust::fill(kernel.begin(),kernel.end(),1.0);
-  for (int i=0; i<Y;i++)
-  {
-    for (int j=0;j<X  ;j++)
-    {
-        std::cout<<inBlock[make_int2(j,i)]<<" ";
-    }
-    std::cout<<"\n";
-  }
+  // for (int i=0; i<Y;i++)
+  // {
+  //   for (int j=0;j<X  ;j++)
+  //   {
+  //       std::cout<<inBlock[make_int2(j,i)]<<" ";
+  //   }
+  //   std::cout<<"\n";
+  // }
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
@@ -33,13 +35,13 @@ int main()
   float milliseconds = 0;
   cudaEventElapsedTime(&milliseconds, start, stop);
   printf("Time Taken = %f\n",milliseconds);
-  //
-  for (int i=0; i<Y;i++)
-  {
-    for (int j=0;j<X;j++)
-    {
-          std::cout<<inBlock[make_int2(j,i)]<<" ";
-    }
-    std::cout<<"\n";
-  }
+  // //
+  // for (int i=0; i<Y;i++)
+  // {
+  //   for (int j=0;j<X;j++)
+  //   {
+  //         std::cout<<inBlock[make_int2(j,i)]<<" ";
+  //   }
+  //   std::cout<<"\n";
+  // }
 }

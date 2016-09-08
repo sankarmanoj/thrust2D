@@ -5,6 +5,14 @@
 #include <thrust/window_transform.h>
 #define X 100
 #define Y 100
+class printFunctor
+{
+public:
+  __device__ void operator() (thrust::window_2D<float> &w)
+  {
+  printf("%f",w[0][0]);
+}
+};
 int main()
 {
   srand(13);
@@ -27,7 +35,7 @@ int main()
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
   cudaEventRecord(start);
-  thrust::window_for_each(myVector.begin(),myVector.end(),2);
+  thrust::window_for_each(myVector.begin(),myVector.end(),printFunctor());
   cudaEventRecord(stop);
   cudaEventSynchronize(stop);
   float milliseconds = 0;
