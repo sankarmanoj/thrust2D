@@ -55,7 +55,7 @@ namespace thrust
     typedef typename Iterator::value_type T;
     Block_2D<T> *input  = begin1.parentBlockHost;
     Block_2D<T> *kernel = begin2.parentBlockHost;
-    int numberOfOperations = begin1.dim_x * begin1*dim_y;
+    int numberOfOperations = begin1.dim_x * begin1.dim_y;
     // printf("Number Of Operations = %d\n", numberOfOperations);
     assert(kernel->dim_x==kernel->dim_y);
     assert(kernel->dim_x%2);
@@ -84,7 +84,7 @@ namespace thrust
     }
     else
     {
-      xblocks = yblocks;
+      xblocks = blocks;
     }
     // printf(" Blocks = %d,%d \n",xblocks,yblocks);
     // printf("Shared Memory Allocated = %d \n",(kernel->dim_y*kernel->dim_x+ operations*kernelDim)*sizeof(T));
@@ -93,21 +93,42 @@ namespace thrust
   }
 
   template<typename T, class Func>
-  __global__ void forEachKernel (Block_2D<T> &input, int operationsPerBlock,int totalOperations,Func f)
+  __global__ void forEachKernel (window_iterator<T> &input, int operationsPerBlock,int totalOperations,Func f)
   {
+    extern __shared__ T sharedMemory [];
+    int absolutePosition = (blockIdx.y*gridDim.x + blockIdx.x)*operationsPerBlock + threadIdx.x;
+    if(absolutePosition>=totalOperations)
+      return;
+    window_2D<T> currentWindow = input[absolutePosition];
+    printf("%f",currentWindow[0][0]);
+
 
   }
   template <class Iterator, class Func>
   void window_for_each(Iterator begin1, Iterator end1, Func f)
   {
-    typedef typename Iterator::value_type T;
-    Block_2D<T> *input  = begin1.parentBlockHost;
-    int numberOfOperations = begin1.dim_x * begin1*dim_y;
+    typedef typename Iterator::base_value_type T;
+    int numberOfOperations = begin1.block_dim_x * begin1.block_dim_y;
+    int numberOfWindows = end1 - begin1;
     cudaDeviceProp properties;
     cudaGetDeviceProperties(&properties,0);
-    int maxOperationsByThread = properties.maxThreadsPerBlock;
-    int operations = maxOperationsByThread;
-    int blocks = ceil(((float)numberOfOperations)/operations);
+    int sharedMemorySize = properties.sharedMemPerBlock;
+    int sizeofSingleRow;
+    if(begin1.stride_x<=begin1.window_dim_x)
+    {
+      sizeofSingleRow = sizeof(T)*begin1.block_dim_x*begin1.window_dim_y;
+    }
+    else
+    {
+      sizeofSingleRow = sizeof(T)*begin1.block_dim_y* begin1.windows_along_x*begin1.window_dim_x;
+    }
+
+    assert((sizeofSingleRow*begin1.window_dim_y)<sharedMemorySize);
+    int rowsPerBlock = sharedMemorySize/sizeofSingleRow;
+    assert(rowsPerBlock>=begin1.window_dim_y);
+    int operationsPerBlockByMemory = (rowsPerBlock-begin1.window_dim_y+1) * begin1.windows_along_x;
+    int operationsPerBlock = min(operationsPerBlockByMemory,properties.maxThreadsPerBlock);
+    int blocks = ceil(numberOfOperations/operationsPerBlock);
     int xblocks = 1, yblocks =1 ;
     if(blocks>65535)
     {
@@ -116,9 +137,16 @@ namespace thrust
     }
     else
     {
-      xblocks = yblocks;
+      xblocks = blocks;
     }
-    forEachKernel<<<dim3(xblocks,yblocks),operations>>>(*(input->device_pointer),operations,numberOfOperations,f);
+    #ifdef DEBUG
+    printf("Number Of Total Windows Created\n",numberOfWindows );
+    printf("Size of A Single Row of Windows = %d\n",sizeofSingleRow*begin1.window_dim_y);
+    printf("Xblocks = %d , Yblocks = %d \n",xblocks,yblocks);
+    printf("Operations Per Block = %d, OPB By Memory = %d\n",operationsPerBlock,operationsPerBlockByMemory);
+    #endif
+
+    forEachKernel<<<dim3(xblocks,yblocks),operationsPerBlock,sharedMemorySize>>>(begin1,operationsPerBlock,numberOfOperations,f);
     cudaCheckError();
   }
   template<typename T, class Func>
@@ -132,7 +160,7 @@ namespace thrust
     typedef typename Iterator::value_type T;
     Block_2D<T> *input  = begin1.parentBlockHost;
     Block_2D<T> *output  = begin2.parentBlockHost;
-    int numberOfOperations = begin1.dim_x * begin1*dim_y;
+    int numberOfOperations = begin1.block_dim_x * begin1.block_dim_y;
     cudaDeviceProp properties;
     cudaGetDeviceProperties(&properties,0);
     int maxOperationsByThread = properties.maxThreadsPerBlock;
@@ -163,7 +191,7 @@ namespace thrust
     Block_2D<T> *input1  = begin1.parentBlockHost;
     Block_2D<T> *input2  = begin1.parentBlockHost;
     Block_2D<T> *output  = begin2.parentBlockHost;
-    int numberOfOperations = begin1.dim_x * begin1*dim_y;
+        int numberOfOperations = begin1.block_dim_x * begin1.block_dim_y;
     cudaDeviceProp properties;
     cudaGetDeviceProperties(&properties,0);
     int maxOperationsByThread = properties.maxThreadsPerBlock;
@@ -177,7 +205,7 @@ namespace thrust
     }
     else
     {
-      xblocks = yblocks;
+      xblocks = blocks;
     }
     transformKernel<<<dim3(xblocks,yblocks),operations>>>(*(input1->device_pointer),*(input2->device_pointer),*(output->device_pointer),operations,numberOfOperations,f);
     cudaCheckError();

@@ -80,6 +80,7 @@ int runTest( int argc, char** argv)
 			if ((ret = av_read_frame(ifmt_ctx, &packet)) < 0)
 					break;
 			stream_index = packet.stream_index;
+			printf("Stream Index =%d",stream_index);
 			type = ifmt_ctx->streams[packet.stream_index]->codec->codec_type;
 			rows = ifmt_ctx->streams[packet.stream_index]->codec->height;
 			cols = ifmt_ctx->streams[packet.stream_index]->codec->width;
@@ -110,7 +111,9 @@ int runTest( int argc, char** argv)
 			}
 			if (got_frame) {
 					frame->pts = av_frame_get_best_effort_timestamp(frame);
-					printf("Key Frame = %d\n",frame->key_frame);
+					AVPixelFormat tempFormat = (AVPixelFormat)frame->format;
+					const AVPixFmtDescriptor *x =  av_pix_fmt_desc_get(tempFormat);
+					printf("Pixel Format = %s\n",av_pix_fmt_desc_get(tempFormat)->name);
 					thrust::Block_2D<int> J_cuda (cols,rows);
 					thrust::Block_2D<float> J_square(cols,rows);
 					thrust::Block_2D<float> d_c(cols,rows);
@@ -179,6 +182,7 @@ int runTest( int argc, char** argv)
 			    ret = enc_func(ofmt_ctx->streams[stream_index]->codec, &enc_pkt,
 			            frame, &got_frame);
 			    av_frame_free(&frame);
+
 			    if (ret < 0)
 			        return ret;
 			    if (!(got_frame))

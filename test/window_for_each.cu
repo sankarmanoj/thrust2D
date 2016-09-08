@@ -1,10 +1,10 @@
-#include<thrust/window_2d.h>
-#include <thrust/generate.h>
+#include <thrust/block_2d.h>
+#include <thrust/window_2d.h>
 #include <thrust/sequence.h>
-#include <thrust/execution_policy.h>
 #include <iostream>
-#define X 10000
-#define Y 10000
+#include <thrust/window_transform.h>
+#define X 100
+#define Y 100
 int main()
 {
   srand(13);
@@ -14,6 +14,7 @@ int main()
   thrust::sequence(a.begin(),a.end());
   thrust::copy(a.begin(),a.end(),inBlock.begin());
   thrust::fill(kernel.begin(),kernel.end(),1.0);
+  thrust::window_vector<float> myVector = thrust::window_vector<float>(&inBlock,2,3 ,2,3);
   // for (int i=0; i<Y;i++)
   // {
   //   for (int j=0;j<X  ;j++)
@@ -25,9 +26,8 @@ int main()
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
-
   cudaEventRecord(start);
-  thrust::convolve(inBlock.begin(), inBlock.end(), kernel.begin());
+  thrust::window_for_each(myVector.begin(),myVector.end(),2);
   cudaEventRecord(stop);
   cudaEventSynchronize(stop);
   float milliseconds = 0;

@@ -24,7 +24,7 @@ int main()
   Block_2D<int> b = a1;
   device_vector<int> a(X*Y);
   sequence(a.begin(),a.end());
-  b.copy(a.begin(),a.end());
+  copy(a.begin(),a.end(),b.begin());
   window_vector<int> myVector = window_vector<int>(&b,2,3 ,2,3);
   std::cout<<"Size ="<<myVector.end()-myVector.begin()<<std::endl;
   window_iterator<int> myIter = myVector.begin();

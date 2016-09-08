@@ -24,11 +24,12 @@ namespace thrust
   template <class T>
   class window_iterator : private detail::normal_iterator<device_ptr<window_2D<T> > >
   {
-    int windows_along_x, windows_along_y;
+
     int position;
   public:
     Block_2D<T> *b;
     typedef long difference_type;
+    typedef T base_value_type;
     typedef window_2D<T > value_type;
     typedef detail::iterator_category_with_system_and_traversal<random_access_device_iterator_tag, system::cuda::detail::tag, random_access_traversal_tag> iterator_category;
     typedef window_2D<T> reference;
@@ -39,6 +40,7 @@ namespace thrust
     int block_dim_y;
     int stride_x;
     int stride_y;
+    int windows_along_x, windows_along_y;
     __host__ window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y);
     __host__ window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y,int position);
 

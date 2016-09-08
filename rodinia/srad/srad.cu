@@ -2,7 +2,7 @@
 #include "srad.h"
 #include "graphics.c"
 #include "resize.c"
-
+#include <thrust/execution_policy.h>
 // includes, kernels
 #include "srad_kernel.cu"
 
@@ -98,8 +98,8 @@ runTest( int argc, char** argv)
 		SRADFunctor2 functor2(cols,rows,lambda,q0sqr);
 		thrust::window_vector<float> wv = thrust::window_vector<float>(&(J_cuda),3,3,1,1);
 		thrust::window_vector<float> d_cwv = thrust::window_vector<float>(&(d_c),3,3,1,1);
-		thrust::transform(wv.begin(),wv.end(),d_cwv.begin(),J_square.begin(),functor1);
-		thrust::transform(wv.begin(),wv.end(),d_cwv.begin(),J_square.begin(),functor2);
+		thrust::transform(thrust::host,wv.begin(),wv.end(),d_cwv.begin(),J_square.begin(),functor1);
+		thrust::transform(thrust::host,wv.begin(),wv.end(),d_cwv.begin(),J_square.begin(),functor2);
 	}
 	printf("Computation Done\n");
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),compressFunctor());
