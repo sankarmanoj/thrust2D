@@ -64,7 +64,7 @@ namespace thrust
     cudaGetDeviceProperties(&properties,0);
     int blockSize, minGridSize;
     cudaOccupancyMaxPotentialBlockSize( &minGridSize, &blockSize,convolveKernel<T>, 0, 0);
-    printf("Occupancy blockSize = %d, minGridSize = %d ",blockSize,minGridSize);
+    // printf("Occupancy blockSize = %d, minGridSize = %d ",blockSize,minGridSize);
     // printf("Device Number: %d\n", 0);
     // printf("  Device name: %s\n", properties.name);
     // printf("  Memory Clock Rate (KHz): %d\n",           properties.memoryClockRate);
@@ -91,7 +91,7 @@ namespace thrust
     }
     // printf(" Blocks = %d,%d \n",xblocks,yblocks);
     // printf("Shared Memory Allocated = %d \n",(kernel->dim_y*kernel->dim_x+ operations*kernelDim)*sizeof(T));
-    printf("Actual Block Size = %d, Grid Size = %d ",operations*kernelDim,xblocks*yblocks);
+    // printf("Actual Block Size = %d, Grid Size = %d ",operations*kernelDim,xblocks*yblocks);
     convolveKernel<<<dim3(xblocks,yblocks),operations*kernelDim,(kernel->dim_y*kernel->dim_x+ operations*kernelDim)*sizeof(T)>>>(*(input->device_pointer),*(kernel->device_pointer),operations,numberOfOperations);
     cudaCheckError();
   }
