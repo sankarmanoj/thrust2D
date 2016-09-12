@@ -21,6 +21,34 @@ namespace thrust
     // __host__ __device__ operator device_reference<window_2D<T> >() const;
   };
 
+template<class T>
+class shared_window_2D_iterator
+{
+  int position;
+  T * data;
+public:
+  __host__ __device__ shared_window_2D_iterator(T * data, long position);
+  __host__ __device__ T& operator[] (long index) ;
+
+};
+
+  template<class T>
+  class shared_window_2D : private window_2D<T>
+  {
+  public:
+  using window_2D<T>::reference;
+  using window_2D<T>::start_x;
+  using window_2D<T>::start_y;
+  using window_2D<T>::block_dim_x;
+  using window_2D<T>::block_dim_y;
+  using window_2D<T>::window_dim_x;
+  using window_2D<T>::window_dim_y;
+    T * data;
+    __host__ __device__ shared_window_2D (T *data , int start_x, int start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y);
+    __host__ __device__ shared_window_2D_iterator<T> operator[] (long index);
+
+  };
+
   template <class T>
   class window_iterator : private detail::normal_iterator<device_ptr<window_2D<T> > >
   {

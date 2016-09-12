@@ -39,6 +39,29 @@ namespace thrust
   }
 
   template <class T>
+  __host__ __device__ shared_window_2D<T>::shared_window_2D(T *data,int start_x, int start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y)
+  {
+    // TODO: Better Boundary checks.
+    this->start_x = start_x;
+    this->window_dim_x = window_dim_x;
+    //printf("start x = %d , window_dim_x = %d , parent_dim = %d\n", start_x,window_dim_x,b->dim_x);
+    // NOTE: Strictly less or less than equal to? Should a window comprising of entire block be allowed?
+		// assert(start_x + window_dim_x <= b->dim_x);
+		this->start_y = start_y;
+    this->window_dim_y = window_dim_y;
+		// assert(start_y + window_dim_y <= b->dim_y);
+		this->data = data;
+    this->block_dim_x = block_dim_x;
+    this->block_dim_y = block_dim_y;
+  }
+
+  template <class T>
+  __host__ __device__ shared_window_2D_iterator<T>::shared_window_2D_iterator(T * data, long position)
+  {
+    this->data = data;
+    this->position = position;
+  }
+  template <class T>
   __host__ __device__ detail::normal_iterator<device_ptr<T> > window_2D<T>::operator[] (long index)
   {
     // TODO: Check Indexing of Window of a SubBlock.
@@ -54,12 +77,20 @@ namespace thrust
     return (*b)[start_y + index] + start_x;
   }
 
-  // template <class T>
-  //   __host__ __device__ window_2D<T>::operator device_reference<window_2D<T> >() const
-  //   {
-  //     return *this;
-  //   }
 
+
+  template<class T>
+  __host__ __device__ T& shared_window_2D_iterator<T>::operator[] (long index)
+  {
+      return data[position + index];
+  }
+
+  template<class T>
+  __host__ __device__ shared_window_2D_iterator<T> shared_window_2D<T>::operator[] (long index)
+  {
+    long position = start_y*index + start_x;
+    return shared_window_2D_iterator<T>(data,position);
+  }
   template <class T>
   __host__ window_iterator<T>::window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
   {
