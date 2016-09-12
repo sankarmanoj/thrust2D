@@ -149,7 +149,9 @@ namespace thrust
     printf("Xblocks = %d , Yblocks = %d \n",xblocks,yblocks);
     printf("Operations Per Block = %d, OPB By Memory = %d\n",operationsPerBlock,operationsPerBlockByMemory);
     #endif
-
+    Iterator * deviceBegin1;
+    cudaMalloc((void **)&deviceBegin1, sizeof(Iterator));
+    cudaMemcpy(deviceBegin1,&begin1,sizeof(Iterator),cudaMemcpyHostToDevice);
     forEachKernel<<<dim3(xblocks,yblocks),operationsPerBlock,sharedMemorySize>>>(begin1,operationsPerBlock,numberOfOperations,f);
     cudaCheckError();
   }
