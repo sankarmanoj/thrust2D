@@ -97,15 +97,30 @@ namespace thrust
   }
 
   template<typename T, class Func>
-  __global__ void forEachKernel (window_iterator<T> *input, int operationsPerBlock,int totalOperations,Func f)
+  __global__ void forEachKernel (window_iterator<T> *input, int operationsPerBlock,int rowsPerBlock,int totalOperations,Func f)
   {
     extern __shared__ T sharedMemory [];
     int absolutePosition = (blockIdx.y*gridDim.x + blockIdx.x)*operationsPerBlock + threadIdx.x;
+    int windowSize = input->window_dim_x*(input->window_dim_y);
     if(absolutePosition>=totalOperations||threadIdx.x >=operationsPerBlock)
       return;
     window_2D<T> currentWindow = (*input)[absolutePosition];
-
-
+    for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
+    {
+      for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
+      {
+        sharedMemory[threadIdx.x*windowSize + j*(currentWindow.window_dim_x) + i]=0;
+        // printf("Val = %f i = %d j = %d x = %d y = %d \n",currentWindow[j][i],i,j,currentWindow.start_x,currentWindow.start_y);
+      }
+    }
+    for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
+    {
+      for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
+      {
+        currentWindow[j][i]=sharedMemory[threadIdx.x*windowSize + j*(currentWindow.window_dim_x) + i];
+        // printf("Val = %f i = %d j = %d x = %d y = %d \n",currentWindow[j][i],i,j,currentWindow.start_x,currentWindow.start_y);
+      }
+    }
   }
 
   template <class Iterator, class Func>
@@ -132,13 +147,13 @@ namespace thrust
     int operationsPerBlock;
 
     assert((sizeofSingleRow*begin1.window_dim_y)<sharedMemorySize);
-    if(begin1.stride_y<=begin1.window_dim_y)
-    {
+    // if(begin1.stride_y<=begin1.window_dim_y)
+    // {
       rowsPerBlockByMemory = sharedMemorySize/sizeofSingleRow;
       operationsPerBlockByMemory = (rowsPerBlockByMemory-begin1.window_dim_y+1) * begin1.windows_along_x;
       rowsPerBlock = min((rowsPerBlockByMemory-begin1.window_dim_y+1),(properties.maxThreadsPerBlock/begin1.windows_along_x));
       operationsPerBlock = min(operationsPerBlockByMemory,properties.maxThreadsPerBlock);
-    }
+    // }
 
     int blocks = ceil(((float)numberOfOperations)/operationsPerBlock);
     int xblocks = 1, yblocks =1 ;
@@ -157,11 +172,12 @@ namespace thrust
     printf("Windows Along X,Y = %d,%d \n",begin1.windows_along_x,begin1.windows_along_y);
     printf("Blocks = %d , Xblocks = %d , Yblocks = %d  Rows Per Block = %d \n",blocks,xblocks,yblocks,rowsPerBlock);
     printf("Total Operations = %d,Operations Per Block = %d, OPB By Memory = %d\n",numberOfOperations,operationsPerBlock,operationsPerBlockByMemory);
+    printf("\n Config = (%d,%d)x%d SharedMem=%d",xblocks,yblocks,operationsPerBlock,sharedMemorySize);
     #endif
     Iterator * deviceBegin1;
     cudaMalloc((void **)&deviceBegin1, sizeof(Iterator));
     cudaMemcpy(deviceBegin1,&begin1,sizeof(Iterator),cudaMemcpyHostToDevice);
-    forEachKernel<<<dim3(xblocks,yblocks),operationsPerBlock,sharedMemorySize>>>(deviceBegin1,operationsPerBlock,numberOfOperations,f);
+    forEachKernel<<<dim3(xblocks,yblocks),operationsPerBlock,sharedMemorySize>>>(deviceBegin1,operationsPerBlock,rowsPerBlock,numberOfOperations,f);
 
     cudaCheckError();
   }

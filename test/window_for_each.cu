@@ -3,8 +3,8 @@
 #include <thrust/sequence.h>
 #include <iostream>
 #include <thrust/window_transform.h>
-#define X 120
-#define Y 100
+#define X 30
+#define Y 30
 class printFunctor
 {
 public:
@@ -22,16 +22,16 @@ int main()
   thrust::sequence(a.begin(),a.end());
   thrust::copy(a.begin(),a.end(),inBlock.begin());
   thrust::fill(kernel.begin(),kernel.end(),1.0);
-  thrust::window_vector<float> myVector = thrust::window_vector<float>(&inBlock,3,3 ,3,3);
-  printf("Windows Along X,Y = %d,%d \n",myVector.begin().windows_along_x,myVector.begin().windows_along_y);
-  // for (int i=0; i<Y;i++)
-  // {
-  //   for (int j=0;j<X  ;j++)
-  //   {
-  //       printf("%5.0f ",inBlock[make_int2(j,i)]);
-  //   }
-  //   std::cout<<"\n";
-  // }
+  thrust::window_vector<float> myVector = thrust::window_vector<float>(&inBlock,3,3 ,4,4);
+
+  for (int i=0; i<Y;i++)
+  {
+    for (int j=0;j<X  ;j++)
+    {
+        printf("%5.0f ",inBlock[make_int2(j,i)]);
+    }
+    std::cout<<"\n";
+  }
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
@@ -42,13 +42,13 @@ int main()
   float milliseconds = 0;
   cudaEventElapsedTime(&milliseconds, start, stop);
   printf("Time Taken = %f\n",milliseconds);
-  //
-  // for (int i=0; i<Y;i++)
-  // {
-  //   for (int j=0;j<X;j++)
-  //   {
-  //         printf("%5.0f ",inBlock[make_int2(j,i)]);
-  //   }
-  //   std::cout<<"\n";
-  // }
+
+  for (int i=0; i<Y;i++)
+  {
+    for (int j=0;j<X;j++)
+    {
+          printf("%5.0f ",inBlock[make_int2(j,i)]);
+    }
+    std::cout<<"\n";
+  }
 }
