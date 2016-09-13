@@ -33,7 +33,7 @@ public:
 };
 
   template<class T>
-  class shared_window_2D : private window_2D<T>
+  class shared_window_2D : public window_2D<T>
   {
   public:
   using window_2D<T>::reference;

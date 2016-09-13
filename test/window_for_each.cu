@@ -13,10 +13,11 @@
 class printFunctor
 {
 public:
-  __device__ void operator() (thrust::window_2D<float> &w)
+  __device__ void operator() (thrust::shared_window_2D<float> &w)
   {
+     w[1][1]=666;
 
-}
+  }
 };
 int main()
 {

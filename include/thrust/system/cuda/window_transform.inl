@@ -111,18 +111,20 @@ namespace thrust
       return;
     window_2D<T> currentWindow = (*input)[absolutePosition];
     int independantWindowSize = min(input->stride_y,input->window_dim_y)*min(input->stride_x,input->window_dim_x);
-    int start_x = (threadIdx.x%input->windows_along_x);
-    int start_y = (threadIdx.x/input->windows_along_x);
+    int start_x = (threadIdx.x%input->windows_along_x)*input->window_dim_x;
+    int start_y = (threadIdx.x/input->windows_along_x)*input->window_dim_y;
 
     shared_window_2D<T> mWindow(sharedMemory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
     for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
     {
       for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
       {
-        mWindow[j][i]=(i+1)*(j+1);//currentWindow[j][i];
+        mWindow[j][i]=currentWindow[j][i];
         // printf("Val = %f i = %d j = %d x = %d y = %d \n",currentWindow[j][i],i,j,currentWindow.start_x,currentWindow.start_y);
       }
     }
+    
+    f(mWindow);
 
     for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
     {

@@ -49,6 +49,7 @@ namespace thrust
 		// assert(start_x + window_dim_x <= b->dim_x);
 		this->start_y = start_y;
     this->window_dim_y = window_dim_y;
+
 		// assert(start_y + window_dim_y <= b->dim_y);
 		this->data = data;
     this->block_dim_x = block_dim_x;
@@ -88,7 +89,8 @@ namespace thrust
   template<class T>
   __host__ __device__ shared_window_2D_iterator<T> shared_window_2D<T>::operator[] (long index)
   {
-    long position = start_y*index + start_x;
+    long position = (start_y+index)*this->block_dim_x + start_x;
+    // printf("StartX = %d, StartY = %d Index = %d Positon = %ld\n",this->start_x,this->start_y,index,position);
     return shared_window_2D_iterator<T>(data,position);
   }
   template <class T>
