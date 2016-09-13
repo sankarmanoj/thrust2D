@@ -22,7 +22,6 @@ int main()
   thrust::sequence(a.begin(),a.end());
   thrust::copy(a.begin(),a.end(),inBlock.begin());
   thrust::fill(kernel.begin(),kernel.end(),1.0);
-<<<<<<< HEAD
   thrust::window_vector<float> myVector = thrust::window_vector<float>(&inBlock,3,3 ,4,4);
 
   for (int i=0; i<Y;i++)
