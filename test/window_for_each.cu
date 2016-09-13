@@ -24,6 +24,9 @@ int main()
   thrust::fill(kernel.begin(),kernel.end(),1.0);
   thrust::window_vector<float> myVector = thrust::window_vector<float>(&inBlock,3,3 ,3,3);
   printf("Windows Along X,Y = %d,%d \n",myVector.begin().windows_along_x,myVector.begin().windows_along_y);
+
+  // Execution Policy
+  thrust::shared shared_policy;
   // for (int i=0; i<Y;i++)
   // {
   //   for (int j=0;j<X  ;j++)
@@ -36,7 +39,7 @@ int main()
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
   cudaEventRecord(start);
-  thrust::window_for_each(myVector.begin(),myVector.end(),printFunctor());
+  thrust::for_each(shared_policy,myVector.begin(),myVector.end(),printFunctor());
   cudaEventRecord(stop);
   cudaEventSynchronize(stop);
   float milliseconds = 0;

@@ -1,7 +1,5 @@
 #pragma once
 #include <thrust/system/cuda/window_2d.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 namespace thrust
 {
@@ -109,7 +107,7 @@ namespace thrust
   }
 
   template <class Iterator, class Func>
-  void window_for_each(Iterator begin1, Iterator end1, Func f)
+  void for_each(shared,Iterator begin1, Iterator end1, Func f)
   {
     typedef typename Iterator::base_value_type T;
     int numberOfOperations = end1-begin1;
@@ -171,7 +169,7 @@ namespace thrust
 
   }
   template <class Iterator, class Func>
-  void window_transform(Iterator begin1, Iterator end1, Iterator begin2, Func f)
+  void transform(shared,Iterator begin1, Iterator end1, Iterator begin2, Func f)
   {
     typedef typename Iterator::value_type T;
     Block_2D<T> *input  = begin1.parentBlockHost;
@@ -201,7 +199,7 @@ namespace thrust
 
   }
   template <class Iterator, class Func>
-  void window_transform(Iterator begin1, Iterator end1, Iterator begin2, Iterator begin3, Func f)
+  void transform(shared,Iterator begin1, Iterator end1, Iterator begin2, Iterator begin3, Func f)
   {
     typedef typename Iterator::value_type T;
     Block_2D<T> *input1  = begin1.parentBlockHost;
