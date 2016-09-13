@@ -22,6 +22,7 @@ int main()
   thrust::sequence(a.begin(),a.end());
   thrust::copy(a.begin(),a.end(),inBlock.begin());
   thrust::fill(kernel.begin(),kernel.end(),1.0);
+<<<<<<< HEAD
   thrust::window_vector<float> myVector = thrust::window_vector<float>(&inBlock,3,3 ,4,4);
 
   for (int i=0; i<Y;i++)
@@ -36,7 +37,7 @@ int main()
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
   cudaEventRecord(start);
-  thrust::window_for_each(myVector.begin(),myVector.end(),printFunctor());
+  thrust::for_each(shared_policy,myVector.begin(),myVector.end(),printFunctor());
   cudaEventRecord(stop);
   cudaEventSynchronize(stop);
   float milliseconds = 0;
