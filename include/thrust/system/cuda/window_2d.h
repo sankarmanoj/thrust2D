@@ -34,8 +34,8 @@ namespace thrust
     public:
         __host__ __device__ window_2D_iterator(T * data, long position);
         __host__ __device__ window_2D_iterator(Block_2D<T> *b, long position);
-        __host__ __device__ T& operator[] (long index);
-        __host__ __device__ T& operator[] (long index) const;
+        __host__ __device__ device_reference<T> operator[] (long index);
+        __host__ __device__ device_reference<T> operator[] (long index) const;
 
     };
 

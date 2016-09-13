@@ -114,34 +114,32 @@ namespace thrust
       }
   }
   template<class T>
-  __host__ __device__ T& window_2D_iterator<T>::operator[] (long index)
+  __host__ __device__ device_reference<T> window_2D_iterator<T>::operator[] (long index)
   {
     if(this->is_shared)
     {
-        return data[this->position + index];
+        return *device_ptr<T>(&data[this->position + index]);
     }
     else
     {
         // printf("%s\n","yo" );
         int2 bindex = b->convert2D(this->position + index);
-        T temp = (*b)[bindex.y][bindex.x];
-        return temp;
+        return  (*b)[bindex.y][bindex.x];
     }
   }
 
   template<class T>
-  __host__ __device__ T& window_2D_iterator<T>::operator[] (long index) const
+  __host__ __device__ device_reference<T> window_2D_iterator<T>::operator[] (long index) const
   {
     if(this->is_shared)
     {
-        return data[this->position + index];
+        return *device_ptr<T>(&data[this->position + index]);
     }
     else
     {
         // printf("%s\n","yo" );
         int2 bindex = b->convert2D(this->position + index);
-        T temp = (*b)[bindex.y][bindex.x];
-        return temp;
+        return  (*b)[bindex.y][bindex.x];
     }
   }
 
