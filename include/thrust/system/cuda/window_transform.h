@@ -6,6 +6,7 @@
 namespace thrust
 {
     struct shared : device_execution_policy<shared> {};
+    shared shared_policy;
     template <class Iterator>
     void convolve(shared,Iterator begin1, Iterator end1, Iterator begin2);
     template <class Iterator, class Func>

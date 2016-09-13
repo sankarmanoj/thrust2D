@@ -106,7 +106,7 @@ namespace thrust
   {
     extern __shared__ T sharedMemory [];
     int absolutePosition = (blockIdx.y*gridDim.x + blockIdx.x)*operationsPerBlock + threadIdx.x;
-    int windowSize = input->window_dim_x*(input->window_dim_y);
+    // int windowSize = input->window_dim_x*(input->window_dim_y);
     if(absolutePosition>=totalOperations||threadIdx.x >=operationsPerBlock)
       return;
     window_2D<T> currentWindow = (*input)[absolutePosition];
@@ -114,7 +114,7 @@ namespace thrust
     int start_x = (threadIdx.x%input->windows_along_x)*input->window_dim_x;
     int start_y = (threadIdx.x/input->windows_along_x)*input->window_dim_y;
 
-    shared_window_2D<T> mWindow(sharedMemory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
+    window_2D<T> mWindow(sharedMemory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
     for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
     {
       for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
@@ -123,7 +123,7 @@ namespace thrust
         // printf("Val = %f i = %d j = %d x = %d y = %d \n",currentWindow[j][i],i,j,currentWindow.start_x,currentWindow.start_y);
       }
     }
-    
+
     f(mWindow);
 
     for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
