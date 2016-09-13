@@ -29,16 +29,16 @@ main( int argc, char** argv)
 	time_t t;
 	srand((unsigned) time(&t));
 
-  runTest( argc, argv);
-  return EXIT_SUCCESS;
+	runTest( argc, argv);
+	return EXIT_SUCCESS;
 }
 
 
 void
 runTest( int argc, char** argv)
 {
-  int rows, cols, size_I, size_R, niter = 10, iter;
-  float *J,lambda, q0sqr, sum, sum2,meanROI,varROI ;
+	int rows, cols, size_I, size_R, niter = 10, iter;
+	float *J,lambda, q0sqr, sum, sum2,meanROI,varROI ;
 	int r1, r2, c1, c2;
 	char *in,*out;
 	if (argc == 7)
@@ -50,10 +50,10 @@ runTest( int argc, char** argv)
 		in = argv[5];
 		out = argv[6];
 	}
-  else
+	else
 	{
 		usage(argc, argv);
-  }
+	}
 
 	r1 = 0;
 	r2 = rows - 1;
@@ -84,16 +84,16 @@ runTest( int argc, char** argv)
 	J_cuda.assign(J,J+size_I);
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),extractFunctor());
 	printf("Start the SRAD main loop\n");
- 	for (iter=0; iter< niter; iter++)
+	for (iter=0; iter< niter; iter++)
 	{
 		thrust::copy(J_cuda.begin(),J_cuda.end(),J_square.begin());
 		thrust::for_each(J_square.begin(),J_square.end(),square());
 		// printf("%d %d\n",J_cuda.end().position ,J_cuda.begin().position );
 		sum = thrust::reduce(J_cuda.begin(),J_cuda.end());
 		sum2 = thrust::reduce(J_square.begin(),J_square.end());
-	  meanROI = sum / size_R;
-	  varROI  = (sum2 / size_R) - meanROI*meanROI;
-	  q0sqr   = varROI / (meanROI*meanROI);
+		meanROI = sum / size_R;
+		varROI  = (sum2 / size_R) - meanROI*meanROI;
+		q0sqr   = varROI / (meanROI*meanROI);
 		SRADFunctor1 functor1(cols,rows,q0sqr);
 		SRADFunctor2 functor2(cols,rows,lambda,q0sqr);
 		thrust::window_vector<float> wv = thrust::window_vector<float>(&(J_cuda),3,3,1,1);
