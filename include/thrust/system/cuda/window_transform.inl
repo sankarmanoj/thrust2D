@@ -137,14 +137,14 @@ namespace thrust
     }
     else
     {
-      sizeofSingleRow = sizeof(T)*begin1.block_dim_y* begin1.windows_along_x*begin1.window_dim_x;
+      sizeofSingleRow = sizeof(T)*begin1.windows_along_x*begin1.window_dim_x;
     }
     int rowsPerBlockByMemory;
     int operationsPerBlockByMemory;
     int rowsPerBlock ;
     int operationsPerBlock;
 
-    assert((sizeofSingleRow*begin1.window_dim_y)<sharedMemorySize);
+    // assert((sizeofSingleRow*begin1.window_dim_y)<sharedMemorySize);
     // if(begin1.stride_y<=begin1.window_dim_y)
     // {
       rowsPerBlockByMemory = sharedMemorySize/sizeofSingleRow;
@@ -168,7 +168,7 @@ namespace thrust
     printf("Number Of Total Windows Created = %d \n",numberOfWindows );
     printf("Size of A Single Row of Windows = %d\n",sizeofSingleRow*begin1.window_dim_y);
     printf("Windows Along X,Y = %d,%d \n",begin1.windows_along_x,begin1.windows_along_y);
-    printf("Blocks = %d , Xblocks = %d , Yblocks = %d  Rows Per Block = %d \n",blocks,xblocks,yblocks,rowsPerBlock);
+    printf("Blocks = %d , Xblocks = %d , Yblocks = %d  Rows Per Block =%d RPB By Memory= %d \n",blocks,xblocks,yblocks,rowsPerBlock,rowsPerBlockByMemory);
     printf("Total Operations = %d,Operations Per Block = %d, OPB By Memory = %d\n",numberOfOperations,operationsPerBlock,operationsPerBlockByMemory);
     printf("\n Config = (%d,%d)x%d SharedMem=%d",xblocks,yblocks,operationsPerBlock,sharedMemorySize);
     #endif
