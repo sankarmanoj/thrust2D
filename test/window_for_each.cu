@@ -3,8 +3,13 @@
 #include <thrust/sequence.h>
 #include <iostream>
 #include <thrust/window_transform.h>
-#define X 5000
-#define Y 300000
+#define X 10
+#define Y 10
+#define XSTART 0
+#define XRANGE 10
+#define YSTART 0
+#define YRANGE 10
+
 class printFunctor
 {
 public:
@@ -22,13 +27,13 @@ int main()
   thrust::sequence(a.begin(),a.end());
   thrust::copy(a.begin(),a.end(),inBlock.begin());
   thrust::fill(kernel.begin(),kernel.end(),1.0);
-  thrust::window_vector<float> myVector = thrust::window_vector<float>(&inBlock,3,3 ,4,4);
-
-  for (int i=1500; i<1530;i++)
+  thrust::window_vector<float> myVector = thrust::window_vector<float>(&inBlock,3,3 ,3,3);
+  for (int j=YSTART;j<YSTART + YRANGE;j++)
   {
-    for (int j=1400;j<1430  ;j++)
+    for (int i=XSTART; i<XSTART + XRANGE;i++)
     {
-        printf("%5.0f ",inBlock[make_int2(j,i)]);
+        int2 pos = make_int2(i,j);
+        printf("%5.0f ",inBlock[pos]);
     }
     std::cout<<"\n";
   }
@@ -43,11 +48,12 @@ int main()
   cudaEventElapsedTime(&milliseconds, start, stop);
   printf("\nTime Taken = %f\n",milliseconds);
 
-  for (int i=1500; i<1530;i++)
+  for (int j=YSTART;j<YSTART + YRANGE;j++)
   {
-    for (int j=1400;j<1430  ;j++)
+    for (int i=XSTART; i<XSTART + XRANGE;i++)
     {
-          printf("%5.0f ",inBlock[make_int2(j,i)]);
+        int2 pos = make_int2(i,j);
+        printf("%5.0f  ",inBlock[pos]);
     }
     std::cout<<"\n";
   }

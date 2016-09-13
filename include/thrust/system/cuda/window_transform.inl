@@ -1,6 +1,13 @@
 #pragma once
 #include <thrust/system/cuda/window_2d.h>
-
+void mAssert(int x, const char * message)
+{
+  if(!x)
+  {
+    perror(message);
+    exit(-1);
+  }
+}
 namespace thrust
 {
   template<typename T>
@@ -95,7 +102,7 @@ namespace thrust
   }
 
   template<typename T, class Func>
-  __global__ void forEachKernel (window_iterator<T> *input, int operationsPerBlock,int rowsPerBlock,int totalOperations,Func f)
+  __global__ void forEachKernel (window_iterator<T> *input, int operationsPerBlock,int totalOperations, int shared_block_dim_x , int shared_block_dim_y ,Func f)
   {
     extern __shared__ T sharedMemory [];
     int absolutePosition = (blockIdx.y*gridDim.x + blockIdx.x)*operationsPerBlock + threadIdx.x;
@@ -103,19 +110,25 @@ namespace thrust
     if(absolutePosition>=totalOperations||threadIdx.x >=operationsPerBlock)
       return;
     window_2D<T> currentWindow = (*input)[absolutePosition];
+    int independantWindowSize = min(input->stride_y,input->window_dim_y)*min(input->stride_x,input->window_dim_x);
+    int start_x = (threadIdx.x%input->windows_along_x);
+    int start_y = (threadIdx.x/input->windows_along_x);
+
+    shared_window_2D<T> mWindow(sharedMemory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
     for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
     {
       for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
       {
-        sharedMemory[threadIdx.x*windowSize + j*(currentWindow.window_dim_x) + i]=0;
+        mWindow[j][i]=(i+1)*(j+1);//currentWindow[j][i];
         // printf("Val = %f i = %d j = %d x = %d y = %d \n",currentWindow[j][i],i,j,currentWindow.start_x,currentWindow.start_y);
       }
     }
+
     for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
     {
       for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
       {
-        currentWindow[j][i]=sharedMemory[threadIdx.x*windowSize + j*(currentWindow.window_dim_x) + i];
+        currentWindow[j][i]=mWindow[j][i];
         // printf("Val = %f i = %d j = %d x = %d y = %d \n",currentWindow[j][i],i,j,currentWindow.start_x,currentWindow.start_y);
       }
     }
@@ -130,28 +143,35 @@ namespace thrust
     cudaDeviceProp properties;
     cudaGetDeviceProperties(&properties,0);
     int sharedMemorySize = properties.sharedMemPerBlock;
-    int sizeofSingleRow;
+    int sizeofSingleWindowRow;
     if(begin1.stride_x<=begin1.window_dim_x)
     {
-      sizeofSingleRow = sizeof(T)*begin1.block_dim_x*begin1.window_dim_y;
+      sizeofSingleWindowRow = sizeof(T)*begin1.block_dim_x*begin1.window_dim_y;
     }
     else
     {
-      sizeofSingleRow = sizeof(T)*begin1.windows_along_x*begin1.window_dim_x;
+      sizeofSingleWindowRow = sizeof(T)*begin1.windows_along_x*begin1.window_dim_x*begin1.window_dim_y;
     }
     int rowsPerBlockByMemory;
     int operationsPerBlockByMemory;
-    int rowsPerBlock ;
+    int rowsPerBlock,dataRowsPerBlock ;
     int operationsPerBlock;
+    rowsPerBlockByMemory = sharedMemorySize/sizeofSingleWindowRow;
 
-    // assert((sizeofSingleRow*begin1.window_dim_y)<sharedMemorySize);
-    // if(begin1.stride_y<=begin1.window_dim_y)
-    // {
-      rowsPerBlockByMemory = sharedMemorySize/sizeofSingleRow;
-      operationsPerBlockByMemory = (rowsPerBlockByMemory-begin1.window_dim_y+1) * begin1.windows_along_x;
-      rowsPerBlock = min((rowsPerBlockByMemory-begin1.window_dim_y+1),(properties.maxThreadsPerBlock/begin1.windows_along_x));
+    if(begin1.stride_y<=begin1.window_dim_y)
+    {
+      operationsPerBlockByMemory = (rowsPerBlockByMemory) * begin1.windows_along_x;
+      rowsPerBlock = min(rowsPerBlockByMemory,(properties.maxThreadsPerBlock/begin1.windows_along_x));
+      dataRowsPerBlock = (rowsPerBlock-begin1.window_dim_y+1);
       operationsPerBlock = min(operationsPerBlockByMemory,properties.maxThreadsPerBlock);
-    // }
+    }
+    else
+    {
+        operationsPerBlockByMemory = rowsPerBlockByMemory*begin1.windows_along_x;
+        rowsPerBlock = min(rowsPerBlockByMemory,(properties.maxThreadsPerBlock/begin1.windows_along_x));
+        dataRowsPerBlock = (rowsPerBlock-1)*begin1.stride_y + begin1.window_dim_y;
+        operationsPerBlock = min(operationsPerBlockByMemory,properties.maxThreadsPerBlock);
+    }
 
     int blocks = ceil(((float)numberOfOperations)/operationsPerBlock);
     int xblocks = 1, yblocks =1 ;
@@ -166,16 +186,18 @@ namespace thrust
     }
     #ifdef DEBUG
     printf("Number Of Total Windows Created = %d \n",numberOfWindows );
-    printf("Size of A Single Row of Windows = %d\n",sizeofSingleRow*begin1.window_dim_y);
+    printf("Size of T = %d, Size of A Single Row of Windows = %d\n",sizeof(T),sizeofSingleWindowRow);
     printf("Windows Along X,Y = %d,%d \n",begin1.windows_along_x,begin1.windows_along_y);
     printf("Blocks = %d , Xblocks = %d , Yblocks = %d  Rows Per Block =%d RPB By Memory= %d \n",blocks,xblocks,yblocks,rowsPerBlock,rowsPerBlockByMemory);
     printf("Total Operations = %d,Operations Per Block = %d, OPB By Memory = %d\n",numberOfOperations,operationsPerBlock,operationsPerBlockByMemory);
     printf("\n Config = (%d,%d)x%d SharedMem=%d",xblocks,yblocks,operationsPerBlock,sharedMemorySize);
     #endif
+    assert((sizeofSingleWindowRow)<sharedMemorySize);
+    assert(rowsPerBlockByMemory);
     Iterator * deviceBegin1;
     cudaMalloc((void **)&deviceBegin1, sizeof(Iterator));
     cudaMemcpy(deviceBegin1,&begin1,sizeof(Iterator),cudaMemcpyHostToDevice);
-    forEachKernel<<<dim3(xblocks,yblocks),operationsPerBlock,sharedMemorySize>>>(deviceBegin1,operationsPerBlock,rowsPerBlock,numberOfOperations,f);
+    forEachKernel<<<dim3(xblocks,yblocks),operationsPerBlock,sharedMemorySize>>>(deviceBegin1,operationsPerBlock,numberOfOperations,begin1.block_dim_x,dataRowsPerBlock,f);
 
     cudaCheckError();
   }
