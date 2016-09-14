@@ -41,7 +41,7 @@ int main()
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
   cudaEventRecord(start);
-  thrust::for_each(thrust::shared_policy,myVector.begin(),myVector.end(),printFunctor());
+  thrust::for_each(thrust::cuda::shared,myVector.begin(),myVector.end(),printFunctor());
   cudaEventRecord(stop);
   cudaEventSynchronize(stop);
   float milliseconds = 0;

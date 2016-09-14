@@ -137,7 +137,7 @@ namespace thrust
   }
 
   template <class Iterator, class Func>
-  void for_each(shared,Iterator begin1, Iterator end1, Func f)
+  void for_each(cuda::shared_policy,Iterator begin1, Iterator end1, Func f)
   {
     typedef typename Iterator::base_value_type T;
     int numberOfOperations = end1-begin1;
@@ -209,7 +209,7 @@ namespace thrust
 
   }
   template <class Iterator, class Func>
-  void transform(shared,Iterator begin1, Iterator end1, Iterator begin2, Func f)
+  void transform(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2, Func f)
   {
     typedef typename Iterator::value_type T;
     Block_2D<T> *input  = begin1.parentBlockHost;
@@ -239,7 +239,7 @@ namespace thrust
 
   }
   template <class Iterator, class Func>
-  void transform(shared,Iterator begin1, Iterator end1, Iterator begin2, Iterator begin3, Func f)
+  void transform(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2, Iterator begin3, Func f)
   {
     typedef typename Iterator::value_type T;
     Block_2D<T> *input1  = begin1.parentBlockHost;

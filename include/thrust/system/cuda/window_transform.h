@@ -5,15 +5,18 @@
 
 namespace thrust
 {
-    struct shared : device_execution_policy<shared> {};
-    shared shared_policy;
+    namespace cuda
+    {
+        struct shared_policy : device_execution_policy<shared_policy> {};
+        shared_policy shared;
+    }
     template <class Iterator>
-    void convolve(shared,Iterator begin1, Iterator end1, Iterator begin2);
+    void convolve(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2);
     template <class Iterator, class Func>
-    void for_each(shared,Iterator begin1, Iterator end1, Func f);
+    void for_each(cuda::shared_policy,Iterator begin1, Iterator end1, Func f);
     template <class Iterator, class Func>
-    void transform(Iterator begin1, Iterator end1, Iterator begin2, Func f);
+    void transform(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2, Func f);
     template <class Iterator, class Func>
-    void transform(shared,Iterator begin1, Iterator end1, Iterator begin2, Iterator begin3, Func f);
+    void transform(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2, Iterator begin3, Func f);
 }
 #include <thrust/system/cuda/window_transform.inl>
