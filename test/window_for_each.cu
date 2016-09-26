@@ -55,7 +55,7 @@ int main()
     for (int i=XSTART; i<XSTART + XRANGE;i++)
     {
         int2 pos = make_int2(i,j);
-        printf("%5.0f  ",inBlock[pos]);
+        printf("%5.0f  ",outBlock[pos]);
     }
     std::cout<<"\n";
   }

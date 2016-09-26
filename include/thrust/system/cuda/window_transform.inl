@@ -215,8 +215,8 @@ namespace thrust
     int start_x = (threadIdx.x%input->windows_along_x)*input->window_dim_x;
     int start_y = (threadIdx.x/input->windows_along_x)*input->window_dim_y;
 
-    window_2D<T> mInputWindow(sharedMemory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
-    window_2D<T> mOutputWindow(sharedMemory,start_x+shared_block_dim_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
+    window_2D<T> mInputWindow(sharedMemory,start_x,start_y,input->window_dim_x,input->window_dim_y,2*shared_block_dim_x,shared_block_dim_y);
+    window_2D<T> mOutputWindow(sharedMemory,start_x+shared_block_dim_x,start_y,input->window_dim_x,input->window_dim_y,2*shared_block_dim_x,shared_block_dim_y);
     for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
     {
       for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
@@ -243,17 +243,20 @@ namespace thrust
   void transform(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2, Func f)
   {
     typedef typename Iterator::value_type T;
+
     assert(begin1.block_dim_x == begin2.block_dim_x);
     assert(begin1.block_dim_y == begin2.block_dim_y);
     assert(begin1.window_dim_x == begin2.window_dim_x);
     assert(begin1.window_dim_y == begin2.window_dim_y);
     assert(begin1.stride_x == begin2.stride_x);
     assert(begin1.stride_y == begin2.stride_y);
-    int numberOfOperations = begin1.block_dim_x * begin1.block_dim_y;
     cudaDeviceProp properties;
     cudaGetDeviceProperties(&properties,0);
     int sharedMemorySize = properties.sharedMemPerBlock;
     int sizeofSingleWindowRow;
+    int numberOfOperations = end1-begin1;
+    int numberOfWindows = end1 - begin1;
+
     if(begin1.stride_x<=begin1.window_dim_x)
     {
       sizeofSingleWindowRow = 2*sizeof(T)*begin1.block_dim_x*begin1.window_dim_y;
