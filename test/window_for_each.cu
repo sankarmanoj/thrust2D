@@ -13,21 +13,23 @@
 class printFunctor
 {
 public:
-  __device__ void operator() (const thrust::window_2D<float> &w) const
+  __device__ void operator() (const thrust::window_2D<float> &inputWindow,const thrust::window_2D<float> & outputWindow) const
   {
-     w[1][1]=666;
+     outputWindow[0][0]=inputWindow[0][0];
   }
 };
 int main()
 {
   srand(13);
   thrust::Block_2D<float> inBlock(X,Y);
+  thrust::Block_2D<float> outBlock(X,Y);
   thrust::Block_2D<float> kernel(3,3);
   thrust::device_vector<float> a((long long int)X*Y);
   thrust::sequence(a.begin(),a.end());
   thrust::copy(a.begin(),a.end(),inBlock.begin());
   thrust::fill(kernel.begin(),kernel.end(),1.0);
   thrust::window_vector<float> myVector = thrust::window_vector<float>(&inBlock,3,3 ,3,3);
+  thrust::window_vector<float> mySecondVector = thrust::window_vector<float>(&outBlock,3,3,3,3);
   for (int j=YSTART;j<YSTART + YRANGE;j++)
   {
     for (int i=XSTART; i<XSTART + XRANGE;i++)
@@ -41,7 +43,7 @@ int main()
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
   cudaEventRecord(start);
-  thrust::for_each(thrust::cuda::shared,myVector.begin(),myVector.end(),printFunctor());
+  thrust::transform(thrust::cuda::shared,myVector.begin(),myVector.end(),mySecondVector.begin(),printFunctor());
   cudaEventRecord(stop);
   cudaEventSynchronize(stop);
   float milliseconds = 0;

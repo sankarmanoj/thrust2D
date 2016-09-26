@@ -204,9 +204,40 @@ namespace thrust
     cudaCheckError();
   }
   template<typename T, class Func>
-  __global__ void transformKernel (Block_2D<T> &input, Block_2D<T> &output, int operationsPerBlock,int totalOperations,Func f)
+  __global__ void transformKernel (window_iterator<T> *input, window_iterator<T> * output, int operationsPerBlock,int totalOperations, int shared_block_dim_x , int shared_block_dim_y ,Func f)
   {
+    extern __shared__ T sharedMemory [];
+    int absolutePosition = (blockIdx.y*gridDim.x + blockIdx.x)*operationsPerBlock + threadIdx.x;
+    if(absolutePosition>=totalOperations||threadIdx.x >=operationsPerBlock)
+      return;
+    window_2D<T> inputWindow = (*input)[absolutePosition];
+    window_2D<T> outputWindow =(*output) [absolutePosition];
+    int start_x = (threadIdx.x%input->windows_along_x)*input->window_dim_x;
+    int start_y = (threadIdx.x/input->windows_along_x)*input->window_dim_y;
 
+    window_2D<T> mInputWindow(sharedMemory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
+    window_2D<T> mOutputWindow(sharedMemory,start_x+shared_block_dim_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
+    for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
+    {
+      for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
+      {
+        mInputWindow[j][i]=inputWindow[j][i];
+        mOutputWindow[j][i]=outputWindow[j][i];
+        // printf("Val = %f i = %d j = %d x = %d y = %d \n",currentWindow[j][i],i,j,currentWindow.start_x,currentWindow.start_y);
+      }
+    }
+
+    f(mInputWindow,mOutputWindow);
+
+    for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
+    {
+      for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
+      {
+        inputWindow[j][i]=mInputWindow[j][i];
+        outputWindow[j][i]=mOutputWindow[j][i];
+        // printf("Val = %f i = %d j = %d x = %d y = %d \n",currentWindow[j][i],i,j,currentWindow.start_x,currentWindow.start_y);
+      }
+    }
   }
   template <class Iterator, class Func>
   void transform(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2, Func f)
@@ -218,8 +249,6 @@ namespace thrust
     assert(begin1.window_dim_y == begin2.window_dim_y);
     assert(begin1.stride_x == begin2.stride_x);
     assert(begin1.stride_y == begin2.stride_y);
-    Block_2D<T> *input  = begin1.parentBlockHost;
-    Block_2D<T> *output  = begin2.parentBlockHost;
     int numberOfOperations = begin1.block_dim_x * begin1.block_dim_y;
     cudaDeviceProp properties;
     cudaGetDeviceProperties(&properties,0);
@@ -275,10 +304,12 @@ namespace thrust
     #endif
     assert((sizeofSingleWindowRow)<sharedMemorySize);
     assert(rowsPerBlockByMemory);
-    Iterator * deviceBegin1;
+    Iterator * deviceBegin1 , *deviceBegin2;
+    cudaMalloc((void **)&deviceBegin2,sizeof(Iterator));
     cudaMalloc((void **)&deviceBegin1, sizeof(Iterator));
+    cudaMemcpy(deviceBegin2,&begin2,sizeof(Iterator),cudaMemcpyHostToDevice);
     cudaMemcpy(deviceBegin1,&begin1,sizeof(Iterator),cudaMemcpyHostToDevice);
-    forEachKernel<<<dim3(xblocks,yblocks),operationsPerBlock,sharedMemorySize>>>(deviceBegin1,operationsPerBlock,numberOfOperations,begin1.block_dim_x,dataRowsPerBlock,f);
+    transformKernel<<<dim3(xblocks,yblocks),operationsPerBlock,sharedMemorySize>>>(deviceBegin1,deviceBegin2,operationsPerBlock,numberOfOperations,begin1.block_dim_x,dataRowsPerBlock,f);
 
     cudaCheckError();
   }

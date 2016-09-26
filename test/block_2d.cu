@@ -1,22 +1,12 @@
-#include <thrust/block_2d.h>
-#include <thrust/window_2d.h>
+
 #include <thrust/sequence.h>
+#include <thrust/execution_policy.h>
 #include <iostream>
-#include <typeinfo>
+#include <thrust/host_vector.h>
+#include <thrust/device_vector.h>
 using namespace thrust;
 
-// testing basic block functions
-class windowPrintFunctor
-{
-public:
 
-__device__  void operator() (const window_2D<int> &a) const
-  {
-    a[0][0] = 666;
-    // int value = a[0][0];
-    // printf("%d \n",value);
-  }
-};
 class printFunctor
 {
 public:
@@ -31,7 +21,7 @@ class printFunctor2
 {
 public:
 
-__device__  void operator() (const int  &a) const
+__device__  __host__ void operator() (const int  &a) const
   {
     printf("%d \n",a);
   }
@@ -39,15 +29,13 @@ __device__  void operator() (const int  &a) const
 int main()
 {
   // int *temp;
+  printf("Helo World\n");
   // temp = (int *) malloc(25 * sizeof(int));
-  Block_2D<int> a1(5,5);
-  Block_2D<int> b = a1;
-  device_vector<int> a(5*5);
-  device_vector<int> c(5*5);
 
-  sequence(b.begin(),b.end());
-  thrust::detail::normal_iterator<thrust::device_ptr<int> > adf = a.begin();
-  std::cout<<typeid(thrust::detail::normal_iterator<thrust::device_ptr<int> >::reference).name()<<"\n";
+  device_vector<int> a(5*5);
+  sequence(a.begin(),a.end());
+  for_each(thrust::host,a.begin(),a.end(),printFunctor2());
+
 
   // copy(a.begin(),a.end(),b.begin());
   // for(int i = 0; i<25; i++)
@@ -65,6 +53,6 @@ int main()
   // cudaDeviceSynchronize();
   // // cudaMemcpy(temp,thrust::raw_pointer_cast(b.data()),25*sizeof(int),cudaMemcpyDeviceToHost);
   // // b.assign(temp,temp+25);
-  thrust::for_each(b.begin(),b.end(),printFunctor());
+  // thrust::for_each(b.begin(),b.end(),printFunctor());
   return 0;
 }
