@@ -18,13 +18,14 @@ namespace thrust
     this->window_dim_x = window_dim_x;
     //printf("start x = %d , window_dim_x = %d , parent_dim = %d\n", start_x,window_dim_x,b->dim_x);
     // NOTE: Strictly less or less than equal to? Should a window comprising of entire block be allowed?
-		// assert(start_x + window_dim_x <= b->dim_x);
-		this->start_y = start_y;
+	// assert(start_x + window_dim_x <= b->dim_x);
+	this->start_y = start_y;
     this->window_dim_y = window_dim_y;
-		// assert(start_y + window_dim_y <= b->dim_y);
-		this->b = b;
+	// assert(start_y + window_dim_y <= b->dim_y);
+	this->b = b;
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
+    this->is_shared = false;
   }
   template <class T>
   __host__ __device__ window_2D<T>::window_2D (const window_2D<T> &obj)
@@ -36,61 +37,112 @@ namespace thrust
     this->b = obj.b;
     this->block_dim_y = obj.block_dim_y;
     this->block_dim_x = obj.block_dim_x;
+    this->is_shared = obj.is_shared;
   }
 
   template <class T>
-  __host__ __device__ shared_window_2D<T>::shared_window_2D(T *data,int start_x, int start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y)
+  __host__ __device__ window_2D<T>::window_2D(T *data,int start_x, int start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y)
   {
     // TODO: Better Boundary checks.
     this->start_x = start_x;
     this->window_dim_x = window_dim_x;
     //printf("start x = %d , window_dim_x = %d , parent_dim = %d\n", start_x,window_dim_x,b->dim_x);
     // NOTE: Strictly less or less than equal to? Should a window comprising of entire block be allowed?
-		// assert(start_x + window_dim_x <= b->dim_x);
-		this->start_y = start_y;
+	// assert(start_x + window_dim_x <= b->dim_x);
+	this->start_y = start_y;
     this->window_dim_y = window_dim_y;
-		// assert(start_y + window_dim_y <= b->dim_y);
-		this->data = data;
+
+	// assert(start_y + window_dim_y <= b->dim_y);
+	this->data = data;
     this->block_dim_x = block_dim_x;
     this->block_dim_y = block_dim_y;
+    this->is_shared = true;
   }
 
   template <class T>
-  __host__ __device__ shared_window_2D_iterator<T>::shared_window_2D_iterator(T * data, long position)
+  __host__ __device__ window_2D_iterator<T>::window_2D_iterator<T>(T * data, long position)
   {
     this->data = data;
     this->position = position;
-  }
-  template <class T>
-  __host__ __device__ detail::normal_iterator<device_ptr<T> > window_2D<T>::operator[] (long index)
-  {
-    // TODO: Check Indexing of Window of a SubBlock.
-    // printf("%d\n",b->dim_x);
-    return (*b)[start_y + index] + start_x;
+    this->is_shared =true;
   }
 
   template <class T>
-  __host__ __device__ const detail::normal_iterator<device_ptr<T> > window_2D<T>::operator[] (long index) const
+  __host__ __device__ window_2D_iterator<T>::window_2D_iterator<T>(Block_2D<T> *b, long position)
+  {
+    this->b = b;
+    this->position = position;
+    this->is_shared = false;
+  }
+  template <class T>
+  __host__ __device__ window_2D_iterator<T> window_2D<T>::operator[] (long index)
   {
     // TODO: Check Indexing of Window of a SubBlock.
     // printf("%d\n",b->dim_x);
-    return (*b)[start_y + index] + start_x;
+    long position = (start_y+index)*this->block_dim_x + start_x;
+    if(this->is_shared)
+    {
+        // printf("StartX = %d, StartY = %d Index = %d Positon = %ld\n",this->start_x,this->start_y,index,position);
+        // printf("%s\n","yo" );
+        return window_2D_iterator<T>(data,position);
+    }
+    else
+    {
+        // return (*b)[start_y + index] + start_x;
+        // printf("%s\n","yo" );
+        return window_2D_iterator<T>(this->b,position);
+    }
+}
+
+  template <class T>
+  __host__ __device__ const window_2D_iterator<T> window_2D<T>::operator[] (long index) const
+  {
+      // TODO: Check Indexing of Window of a SubBlock.
+      // printf("%d\n",b->dim_x);
+      long position = (start_y+index)*this->block_dim_x + start_x;
+      if(this->is_shared)
+      {
+          // printf("StartX = %d, StartY = %d Index = %d Positon = %ld\n",this->start_x,this->start_y,index,position);
+        //   printf("%s\n","yo" );
+          return window_2D_iterator<T>(data,position);
+      }
+      else
+      {
+          // return (*b)[start_y + index] + start_x;
+          // printf("%s\n","yo" );
+          return window_2D_iterator<T>(this->b,position);
+      }
   }
-
-
+  template<class T>
+  __host__ __device__ device_reference<T> window_2D_iterator<T>::operator[] (long index)
+  {
+    if(this->is_shared)
+    {
+        return *device_ptr<T>(&data[this->position + index]);
+    }
+    else
+    {
+        // printf("%s\n","yo" );
+        int2 bindex = b->convert2D(this->position + index);
+        return  (*b)[bindex.y][bindex.x];
+    }
+  }
 
   template<class T>
-  __host__ __device__ T& shared_window_2D_iterator<T>::operator[] (long index)
+  __host__ __device__ device_reference<T> window_2D_iterator<T>::operator[] (long index) const
   {
-      return data[position + index];
+    if(this->is_shared)
+    {
+        return *device_ptr<T>(&data[this->position + index]);
+    }
+    else
+    {
+        // printf("%s\n","yo" );
+        int2 bindex = b->convert2D(this->position + index);
+        return  (*b)[bindex.y][bindex.x];
+    }
   }
 
-  template<class T>
-  __host__ __device__ shared_window_2D_iterator<T> shared_window_2D<T>::operator[] (long index)
-  {
-    long position = start_y*index + start_x;
-    return shared_window_2D_iterator<T>(data,position);
-  }
   template <class T>
   __host__ window_iterator<T>::window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
   {

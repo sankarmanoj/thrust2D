@@ -29,16 +29,16 @@ main( int argc, char** argv)
 	time_t t;
 	srand((unsigned) time(&t));
 
-  runTest( argc, argv);
-  return EXIT_SUCCESS;
+	runTest( argc, argv);
+	return EXIT_SUCCESS;
 }
 
 
 void
 runTest( int argc, char** argv)
 {
-  int rows, cols, size_I, size_R, niter = 10, iter;
-  float *J,lambda, q0sqr, sum, sum2,meanROI,varROI ;
+	int rows, cols, size_I, size_R, niter = 10, iter;
+	float *J,lambda, q0sqr, sum, sum2,meanROI,varROI ;
 	int r1, r2, c1, c2;
 	char *in,*out;
 	if (argc == 7)
@@ -50,10 +50,10 @@ runTest( int argc, char** argv)
 		in = argv[5];
 		out = argv[6];
 	}
-  else
+	else
 	{
 		usage(argc, argv);
-  }
+	}
 
 	r1 = 0;
 	r2 = rows - 1;
@@ -76,30 +76,32 @@ runTest( int argc, char** argv)
 	// resize(	image_ori,image_ori_rows,image_ori_cols,J,rows,cols,0);
 
 	thrust::Block_2D<float> J_cuda (cols,rows);
-	printf("%d %d\n", cols,rows);
-	printf("%d %d\n", J_cuda.dim_x,J_cuda.dim_y);
+	// printf("%d %d\n", cols,rows);
+	// printf("%d %d\n", J_cuda.dim_x,J_cuda.dim_y);
 	thrust::Block_2D<float> J_square(cols,rows);
 	thrust::Block_2D<float> d_c(cols,rows,0.0);
 	// thrust::fill(d_c.begin(),d_c.end(),0);
 	J_cuda.assign(J,J+size_I);
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),extractFunctor());
 	printf("Start the SRAD main loop\n");
- 	for (iter=0; iter< niter; iter++)
+	for (iter=0; iter< niter; iter++)
 	{
 		thrust::copy(J_cuda.begin(),J_cuda.end(),J_square.begin());
 		thrust::for_each(J_square.begin(),J_square.end(),square());
 		// printf("%d %d\n",J_cuda.end().position ,J_cuda.begin().position );
 		sum = thrust::reduce(J_cuda.begin(),J_cuda.end());
 		sum2 = thrust::reduce(J_square.begin(),J_square.end());
-	  meanROI = sum / size_R;
-	  varROI  = (sum2 / size_R) - meanROI*meanROI;
-	  q0sqr   = varROI / (meanROI*meanROI);
+		meanROI = sum / size_R;
+		varROI  = (sum2 / size_R) - meanROI*meanROI;
+		q0sqr   = varROI / (meanROI*meanROI);
 		SRADFunctor1 functor1(cols,rows,q0sqr);
 		SRADFunctor2 functor2(cols,rows,lambda,q0sqr);
 		thrust::window_vector<float> wv = thrust::window_vector<float>(&(J_cuda),3,3,1,1);
 		thrust::window_vector<float> d_cwv = thrust::window_vector<float>(&(d_c),3,3,1,1);
-		thrust::transform(thrust::host,wv.begin(),wv.end(),d_cwv.begin(),J_square.begin(),functor1);
-		thrust::transform(thrust::host,wv.begin(),wv.end(),d_cwv.begin(),J_square.begin(),functor2);
+		thrust::transform(wv.begin(),wv.end(),d_cwv.begin(),J_square.begin(),functor1);
+		// thrust::for_each(J_cuda.begin(),J_cuda.end(),printFunctor());
+		// thrust::for_each(d_c.begin(),d_c.end(),printFunctor());
+		thrust::transform(wv.begin(),wv.end(),d_cwv.begin(),J_square.begin(),functor2);
 	}
 	printf("Computation Done\n");
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),compressFunctor());

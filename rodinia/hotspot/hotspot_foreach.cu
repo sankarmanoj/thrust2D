@@ -12,6 +12,7 @@
 #include <thrust/replace.h>
 #include <thrust/functional.h>
 #include <thrust/window_2d.h>
+#include <thrust/window_transform.h>
 
 #define STR_SIZE 256
 /* maximum power density possible (say 300W for a 10mm x 10mm chip)	*/
@@ -97,10 +98,12 @@ class HotspotFunctor
 	float Rx_1;
 	float Ry_1;
 	float Rz_1;
+	thrust::Block_2D<float> *MatrixPower;
 public:
 
-	HotspotFunctor (int iteration,int cols,int rows,float stepDivCap,float Rx_1,float Ry_1,float Rz_1)
+	HotspotFunctor (thrust::Block_2D<float> *PowerBlock,int iteration,int cols,int rows,float stepDivCap,float Rx_1,float Ry_1,float Rz_1)
 	{
+		this->MatrixPower = PowerBlock;
 		this->iteration = iteration;
 		this->cols = cols;
 		this->rows = rows;
@@ -110,17 +113,20 @@ public:
 		this->Rz_1 = Rz_1;
 	}
 
-	__device__ int operator() (const thrust::window_2D<float> &w,const thrust::window_2D<float> &p ) const
+	__device__ void operator() (const thrust::window_2D<float> &w) const
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
+		int rty = w.start_y + ty;
+		int rtx = w.start_x +tx;
 		int N = ty-1;
 		int S = ty+1;
 		int W = tx-1;
 		int E = tx+1;
+		float myPower = (*MatrixPower)[rty][rtx];
 		for (int i=0; i<iteration ; i++)
 		{
-			w[ty][tx] =  w[ty][tx] + stepDivCap * (p[tx][ty] + \
+			w[ty][tx] =  w[ty][tx] + stepDivCap * (myPower + \
 				(w[S][tx] + w[N][tx] - 2.0*(w[ty][tx])) * Ry_1 + \
 				(w[ty][E] + w[ty][W] - 2.0*(w[ty][tx])) * Rx_1 + \
 				(AMBIENT_TEMP - w[ty][tx]) * Rz_1);
@@ -142,7 +148,6 @@ public:
 			w[S][W] = w[ty][tx];
 			if(w.start_x == cols - w.window_dim_x && w.start_y == 0)
 			w[N][E] = w[ty][tx];
-			return 0;
 		}
 	};
 
@@ -179,7 +184,10 @@ public:
 
 		if (argc != 7)
 		usage(argc, argv);
-		if((grid_rows = atoi(argv[1]))<=0||(grid_cols = atoi(argv[1]))<=0||(pyramid_height = atoi(argv[2]))<=0||(total_iterations = atoi(argv[3]))<=0)
+		if((grid_rows = atoi(argv[1]))<=0||
+		(grid_cols = atoi(argv[1]))<=0||
+		(pyramid_height = atoi(argv[2]))<=0||
+		(total_iterations = atoi(argv[3]))<=0)
 		usage(argc, argv);
 
 		tfile=argv[4];
@@ -226,11 +234,12 @@ public:
 		for (t = 0; t < total_iterations; t+=pyramid_height)
 		{
 			int required_iterations = MIN(pyramid_height,total_iterations-t);
-			HotspotFunctor functor(required_iterations,grid_cols,grid_rows,step_div_Cap,Rx_1,Ry_1,Rz_1);
+			HotspotFunctor functor(PowerBlock.device_pointer,required_iterations,grid_cols,grid_rows,step_div_Cap,Rx_1,Ry_1,Rz_1);
 			thrust::window_vector<float> wv = thrust::window_vector<float>(&(TemperatureBlock),3,3,1,1);
-			thrust::window_vector<float> wp = thrust::window_vector<float>(&(PowerBlock),3,3,1,1);
-			thrust::device_vector<int> null_vector(grid_rows*grid_cols);
-			thrust::transform(wv.begin(),wv.end(),wp.begin(),null_vector.begin(),functor);
+			// thrust::window_vector<float> wp = thrust::window_vector<float>(&(PowerBlock),3,3,1,1);
+			// thrust::device_vector<int> null_vector(grid_rows*grid_cols);
+			// thrust::transform(wv.begin(),wv.end(),wp.begin(),null_vector.begin(),functor);
+			thrust::for_each(wv.begin(),wv.end(),functor);
 		}
 		printf("Ending simulation\n");
 		cudaEventRecord(tstop);

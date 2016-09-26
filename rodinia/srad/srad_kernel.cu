@@ -26,8 +26,8 @@ class square
 {
 
 public:
- __host__ __device__ void operator() (float &lhs) const
-  {
+	__host__ __device__ void operator() (float &lhs) const
+	{
 		lhs = lhs*lhs;
 	}
 };
@@ -44,7 +44,7 @@ public:
 		this->rows = rows;
 		this->q0sqr = q0sqr;
 	}
-	__device__ float operator() (const thrust::window_2D<float> &w,const thrust::window_2D<float> &v) const
+	__device__ float operator() (const thrust::window_2D<float> &w, const thrust::window_2D<float> &v) const
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
@@ -56,24 +56,23 @@ public:
 		float jc,n,s,we,e,g2,l,num,den,qsqr,c;
 		jc = (float) w[ty][tx];
 		n  = (float) w[N][tx] - jc;
-    s  = (float) w[S][tx] - jc;
-    we = (float) w[ty][W]  - jc;
-    e  = (float) w[ty][E] - jc;
+		s  = (float) w[S][tx] - jc;
+		we = (float) w[ty][W]  - jc;
+		e  = (float) w[ty][E] - jc;
 
 
-    g2 = ( n * n + s * s + we * we + e * e ) / (jc * jc);
-
-    l = ( n + s + we + e ) / jc;
-
+		g2 = ( n * n + s * s + we * we + e * e ) / (jc * jc);
+		l = ( n + s + we + e ) / jc;
 		num  = (0.5*g2) - ((1.0/16.0)*(l*l)) ;
 		den  = 1 + (.25*l);
 		qsqr = num/(den*den);
+		// printf("%f\n",qsqr);
 		// diffusion coefficent (equ 33)
 		den = (qsqr-q0sqr) / (q0sqr * (1+q0sqr)) ;
 		c = 1.0 / (1.0+den) ;
 
 
-	  // saturate diffusion coefficent
+		// saturate diffusion coefficent
 		if(c<0)
 		{
 			c=0;
@@ -145,9 +144,9 @@ public:
 		cc = (float) c[ty][tx];
 
 		cn  = cc;
-    cs  = (float) c[S][tx];
-    cw  = cc;
-    ce  = (float) c[ty][E];
+		cs  = (float) c[S][tx];
+		cw  = cc;
+		ce  = (float) c[ty][E];
 
 		float jc,n,s,we,e;
 		jc = (float) w[ty][tx];
