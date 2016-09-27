@@ -328,7 +328,7 @@ namespace thrust
     Block_2D<T> *input1  = begin1.parentBlockHost;
     Block_2D<T> *input2  = begin1.parentBlockHost;
     Block_2D<T> *output  = begin2.parentBlockHost;
-        int numberOfOperations = begin1.block_dim_x * begin1.block_dim_y;
+    int numberOfOperations = begin1.block_dim_x * begin1.block_dim_y;
     cudaDeviceProp properties;
     cudaGetDeviceProperties(&properties,0);
     int maxOperationsByThread = properties.maxThreadsPerBlock;
@@ -346,5 +346,50 @@ namespace thrust
     }
     transformKernel<<<dim3(xblocks,yblocks),operations>>>(*(input1->device_pointer),*(input2->device_pointer),*(output->device_pointer),operations,numberOfOperations,f);
     cudaCheckError();
+  }
+
+  template <class T>
+  __global__ void MatrixMul(Block_2D<T> *a, Block_2D<T> *b, Block_2D<T> *c)
+  {
+    unsigned int col = MATRIX_TILE_WIDTH*blockIdx.x + threadIdx.x;
+    unsigned int row = MATRIX_TILE_WIDTH*blockIdx.y + threadIdx.y;
+    (*c)[row][col] = 0;
+    for (int k = 0 ; k<a->dim_x ; k++ )
+    {
+      (*c)[row][col] = (*c)[row][col] + (*a)[row][k] * (*b)[k][col];
+    }
+  }
+
+  template <class T>
+  Block_2D<T> matrix_multiply(Block_2D<T> *a, Block_2D<T> *b)
+  {
+      assert(a->dim_x == b->dim_y);
+      Block_2D<T> c(b->dim_x,a->dim_y);
+      T *temp = (T*) std::malloc(sizeof(T)*a->dim_y*b->dim_x);
+      dim3 dimGrid (a->dim_y/MATRIX_TILE_WIDTH, b->dim_x/MATRIX_TILE_WIDTH, 1);
+      dim3 dimBlock(MATRIX_TILE_WIDTH, MATRIX_TILE_WIDTH, 1);
+      MatrixMul<<<dimGrid,dimBlock>>>(a->device_pointer,b->device_pointer,c.device_pointer);
+      cudaMemcpy(temp,thrust::raw_pointer_cast(c.data()),sizeof(T)*a->dim_y*b->dim_x,cudaMemcpyDeviceToHost);
+      c.assign(temp, temp + (a->dim_y*b->dim_x));
+      return c;
+  }
+
+  template <class T>
+  __global__ void MatrixTranspose(Block_2D<T> *a, Block_2D<T> *temp)
+  {
+    unsigned int col = MATRIX_TILE_WIDTH*blockIdx.x + threadIdx.x;
+    unsigned int row = MATRIX_TILE_WIDTH*blockIdx.y + threadIdx.y;
+    (*temp)[row][col] = (*a)[col][row];
+  }
+  template <class T>
+  void transpose(Block_2D<T> *a)
+  {
+    Block_2D<T> temp(a->dim_y,a->dim_x);
+    T *temp1 = (T*) malloc(sizeof(T)*a->dim_y*a->dim_x);
+    dim3 dimGrid (a->dim_y/MATRIX_TILE_WIDTH, a->dim_x/MATRIX_TILE_WIDTH, 1);
+    dim3 dimBlock(MATRIX_TILE_WIDTH, MATRIX_TILE_WIDTH, 1);
+    MatrixTranspose<<<dimGrid,dimBlock>>>(a->device_pointer,temp.device_pointer);
+    cudaMemcpy(temp1,thrust::raw_pointer_cast(temp.data()),sizeof(T)*a->dim_y*a->dim_x,cudaMemcpyDeviceToHost);
+    a->assign(temp1, temp1 + (a->dim_y*a->dim_x));
   }
 }
