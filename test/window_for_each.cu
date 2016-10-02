@@ -9,20 +9,20 @@
 #define YSTART 0
 #define YRANGE 10
 
-class printFunctor
+class printFunctor : public thrust::shared_binary_window_transform_functor<float>
 {
 public:
-  __device__ void operator() (const thrust::window_2d<float> &inputWindow,const thrust::window_2d<float> &inputWindow1, const thrust::window_2d<float> & outputWindow) const
+  __device__ void operator() (const thrust::window_2d<float> &inputWindow,const thrust::window_2d<float> &inputWindow1, const thrust::window_2d<float> &outputWindow) const
   {
      outputWindow[0][0]=inputWindow[0][0] + inputWindow1[0][0];
      printf("%f=%f+%f\n",(float)outputWindow[0][0],(float) inputWindow[0][0],(float)inputWindow1[0][0]);
   }
 };
 
-class printFunctor1
+class printFunctor1 : public thrust::shared_unary_window_transform_functor<float>
 {
 public:
-  __device__ void operator() (const thrust::window_2d<float> &inputWindow, const thrust::window_2d<float> & outputWindow) const
+  __device__ void operator() (const thrust::window_2d<float> &inputWindow, const thrust::window_2d<float> &outputWindow) const
   {
      outputWindow[0][0]=inputWindow[0][0];
     //  printf("%d %d %d\n",outputWindow[0][0], inputWindow[0][0],inputWindow1[0][0]);
