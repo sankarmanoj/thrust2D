@@ -123,7 +123,7 @@ namespace thrust
     else
     {
         // printf("%s\n","yo" );
-        int2 bindex = b->convert2D(this->position + index);
+        int2 bindex = b->index_to_int2(this->position + index);
         return  (*b)[bindex.y][bindex.x];
     }
   }
@@ -138,7 +138,7 @@ namespace thrust
     else
     {
         // printf("%s\n","yo" );
-        int2 bindex = b->convert2D(this->position + index);
+        int2 bindex = b->index_to_int2(this->position + index);
         return  (*b)[bindex.y][bindex.x];
     }
   }

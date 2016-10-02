@@ -73,7 +73,7 @@ namespace thrust
   }
 
   template <class T>
-  __host__ __device__ __forceinline__ int2 block_2d<T>::convert2D(int position)
+  __host__ __device__ __forceinline__ int2 block_2d<T>::index_to_int2(int position)
   {
     int i = position/dim_x;
     int j = position%dim_x;
@@ -94,8 +94,8 @@ namespace thrust
   template<class T>
 	__host__ __device__ block_iterator<T>::block_iterator (block_2d<T> *pB, int position)
   {
-    parentBlock = pB->device_pointer;
-    parentBlockHost = pB;
+    parent_block = pB->device_pointer;
+    parent_block_host = pB;
     this->position = position;
     this->dim_y = pB->dim_y;
     this->dim_x = pB->dim_x;
@@ -104,8 +104,8 @@ namespace thrust
   template<class T>
 __host__ __device__ block_iterator<T>::block_iterator(const block_iterator<T> &it)
   {
-    this->parentBlock = it.parentBlock;
-    this->parentBlockHost = it.parentBlockHost;
+    this->parent_block = it.parent_block;
+    this->parent_block_host = it.parent_block_host;
     this->position = it.position;
     this->dim_x = it.dim_x;
     this->dim_y = it.dim_y;
@@ -114,14 +114,14 @@ __host__ __device__ block_iterator<T>::block_iterator(const block_iterator<T> &i
   template<class T>
   __host__ __device__ block_iterator<T>::reference	block_iterator<T>::operator* () const
   {
-    int2 temp = parentBlock->convert2D(position);
-    return (*parentBlock)[temp.y][temp.x];
+    int2 temp = parent_block->index_to_int2(position);
+    return (*parent_block)[temp.y][temp.x];
   }
   template<class T>
   __host__ __device__ block_iterator<T>::reference	block_iterator<T>::operator[] (long index)
   {
-    int2 temp = parentBlock->convert2D(index);
-    return (*parentBlock)[temp.y][temp.x];
+    int2 temp = parent_block->index_to_int2(index);
+    return (*parent_block)[temp.y][temp.x];
   }
   template<class T>
   __host__ __device__ block_iterator<T> block_iterator<T>::operator+ (long value)

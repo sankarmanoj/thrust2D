@@ -10,8 +10,8 @@ namespace thrust
 	class block_iterator : private detail::normal_iterator<device_ptr<T>  >
 	{
 	public:
-		block_2d<T> *parentBlock;
-		block_2d<T> *parentBlockHost;
+		block_2d<T> *parent_block;
+		block_2d<T> *parent_block_host;
 		int position;
 		int dim_x,dim_y;
 		typedef T value_type;
@@ -60,7 +60,7 @@ namespace thrust
 	block_2d(block_2d<T> &other);
 
 	// 	void initalize_device_memory();
-	__host__ __device__ int2 convert2D(int index);
+	__host__ __device__ int2 index_to_int2(int index);
 	block_2d* sub_block (int ul_x, int ul_y, int br_x, int br_y);
 
 	template <class InputIterator>

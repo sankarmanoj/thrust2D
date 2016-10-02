@@ -668,7 +668,7 @@ void particleFilter(unsigned char *I, int IszX, int IszY, int Nfr, int *seed, in
     int k;
     double sumWeights;  //to hold the result of the reduce operation
 
-    // TODO: Do the whole __CUDA_ARCH__ thing in block_2d::convert2D
+    // TODO: Do the whole __CUDA_ARCH__ thing in block_2d::index_to_int2
     for(k = 1; k < Nfr; k++)
     {
 
