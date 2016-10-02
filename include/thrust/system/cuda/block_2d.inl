@@ -3,7 +3,7 @@
 namespace thrust
 {
   template <class T>
-  Block_2D<T>::Block_2D (int dim_x, int dim_y) : device_vector<T>(dim_x*dim_y)
+  block_2d<T>::block_2d (int dim_x, int dim_y) : device_vector<T>(dim_x*dim_y)
   {
     this->dim_x = dim_x;
     this->dim_y = dim_y;
@@ -11,14 +11,14 @@ namespace thrust
     this->offset_y = 0;
   	// device_data = device_vector<T>(dim_x * dim_y);
   	device_iterator = this->data();
-    Block_2D<T> * temp;
-    cudaMalloc((void **)&temp,sizeof(Block_2D));
-    cudaMemcpy(temp,this,sizeof(Block_2D),cudaMemcpyHostToDevice);
+    block_2d<T> * temp;
+    cudaMalloc((void **)&temp,sizeof(block_2d));
+    cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
     this->device_pointer = temp;
   }
 
   template <class T>
-  Block_2D<T>::Block_2D (int dim_x, int dim_y, T value) : device_vector<T>(dim_x*dim_y,value)
+  block_2d<T>::block_2d (int dim_x, int dim_y, T value) : device_vector<T>(dim_x*dim_y,value)
   {
     this->dim_x = dim_x;
     this->dim_y = dim_y;
@@ -26,14 +26,14 @@ namespace thrust
     this->offset_y = 0;
     // device_data = device_vector<T>(dim_x * dim_y);
     device_iterator = this->data();
-    Block_2D<T> * temp;
-    cudaMalloc((void **)&temp,sizeof(Block_2D));
-    cudaMemcpy(temp,this,sizeof(Block_2D),cudaMemcpyHostToDevice);
+    block_2d<T> * temp;
+    cudaMalloc((void **)&temp,sizeof(block_2d));
+    cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
     this->device_pointer = temp;
   }
 
   template <class T>
-  Block_2D<T>::Block_2D (Block_2D<T> &other) : device_vector<T>(other)
+  block_2d<T>::block_2d (block_2d<T> &other) : device_vector<T>(other)
   {
     this->dim_x = other.dim_x;
     this->dim_y = other.dim_y;
@@ -45,7 +45,7 @@ namespace thrust
   }
 
   template <class T>
-  Block_2D<T>* Block_2D<T>::sub_block (int ul_x, int ul_y, int br_x, int br_y)
+  block_2d<T>* block_2d<T>::sub_block (int ul_x, int ul_y, int br_x, int br_y)
   {
     // TODO: Is this the best and most valid way to create sub_block?
     // NOTE: Alternative method due to problems with data copying. Make copy and create sub block.
@@ -57,13 +57,13 @@ namespace thrust
   }
 
   template <class T>
-  __host__ __device__ detail::normal_iterator<device_ptr<T> > Block_2D<T>::operator[] (int index)
+  __host__ __device__ detail::normal_iterator<device_ptr<T> > block_2d<T>::operator[] (int index)
   {
     return this->device_iterator + ((index * (this->dim_x + this->offset_x)) + offset_y);
   }
 
   template<class T>
-	__host__ __device__ T Block_2D<T>::operator[] (int2 index)
+	__host__ __device__ T block_2d<T>::operator[] (int2 index)
   {
     if(index.y<0||index.x<0||index.y>=dim_y||index.x>=dim_x)
     {
@@ -73,7 +73,7 @@ namespace thrust
   }
 
   template <class T>
-  __host__ __device__ __forceinline__ int2 Block_2D<T>::convert2D(int position)
+  __host__ __device__ __forceinline__ int2 block_2d<T>::convert2D(int position)
   {
     int i = position/dim_x;
     int j = position%dim_x;
@@ -81,18 +81,18 @@ namespace thrust
   }
 
   template <class T>
-  __host__ block_iterator<T> Block_2D<T>::begin()
+  __host__ block_iterator<T> block_2d<T>::begin()
   {
     return block_iterator<T>(this,0);
   }
   template <class T>
-  __host__  block_iterator<T> Block_2D<T>::end()
+  __host__  block_iterator<T> block_2d<T>::end()
   {
     return block_iterator<T>(this,(this->dim_y)*(this->dim_x));
   }
 
   template<class T>
-	__host__ __device__ block_iterator<T>::block_iterator (Block_2D<T> *pB, int position)
+	__host__ __device__ block_iterator<T>::block_iterator (block_2d<T> *pB, int position)
   {
     parentBlock = pB->device_pointer;
     parentBlockHost = pB;

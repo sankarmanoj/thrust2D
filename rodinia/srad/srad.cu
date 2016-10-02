@@ -75,11 +75,11 @@ runTest( int argc, char** argv)
 
 	// resize(	image_ori,image_ori_rows,image_ori_cols,J,rows,cols,0);
 
-	thrust::Block_2D<float> J_cuda (cols,rows);
+	thrust::block_2d<float> J_cuda (cols,rows);
 	// printf("%d %d\n", cols,rows);
 	// printf("%d %d\n", J_cuda.dim_x,J_cuda.dim_y);
-	thrust::Block_2D<float> J_square(cols,rows);
-	thrust::Block_2D<float> d_c(cols,rows,0.0);
+	thrust::block_2d<float> J_square(cols,rows);
+	thrust::block_2d<float> d_c(cols,rows,0.0);
 	// thrust::fill(d_c.begin(),d_c.end(),0);
 	J_cuda.assign(J,J+size_I);
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),extractFunctor());

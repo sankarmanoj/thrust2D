@@ -49,12 +49,12 @@ class thrustIMGVF_kernel
 	float vx, vy, e;
 	int max_iterations;
 	float cutoff;
-	thrust::Block_2D<float> *IMGVF,*buffer;
+	thrust::block_2d<float> *IMGVF,*buffer;
 
 	int * cell_converged;
 public:
 	thrustIMGVF_kernel(float **IMGVF_array, float **I_array, int *m_array, int *n_array,float vx, float vy, float e, int max_iterations, \
-		float cutoff,thrust::Block_2D<float> *IMGVF,thrust::Block_2D<float> *buffer, int * cell_converged)
+		float cutoff,thrust::block_2d<float> *IMGVF,thrust::block_2d<float> *buffer, int * cell_converged)
 		{
 			this->IMGVF_array = IMGVF_array;
 			this->I_array = I_array;
@@ -418,8 +418,8 @@ void IMGVF_cuda(MAT **I, MAT **IMGVF, double vx, double vy, double e, int max_it
 	thrust::counting_iterator<int> mCount(0);
 	int * cc;
 	cudaMalloc((void **)&cc,sizeof(int)*num_cells);
-	thrust::Block_2D<float> mblock1(num_cells,41*81) ;
-	thrust::Block_2D<float> mblock2(num_cells,threads_per_block);
+	thrust::block_2d<float> mblock1(num_cells,41*81) ;
+	thrust::block_2d<float> mblock2(num_cells,threads_per_block);
 	// thrust::for_each(mCount,mCount + num_cells*threads_per_block,thrustIMGVF_kernel(device_IMGVF_array, device_I_array, device_m_array, device_n_array,
 		// (float) vx, (float) vy, (float) e, max_iterations, (float) cutoff,mblock1.device_pointer,mblock2.device_pointer,cc ));
 	IMGVF_kernel <<< num_cells, threads_per_block >>>

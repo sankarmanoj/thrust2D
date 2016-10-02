@@ -20,8 +20,8 @@ namespace thrust
     void transform(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2, Iterator begin3, Func f);
     #define MATRIX_TILE_WIDTH 2
     template <class T>
-    Block_2D<T> matrix_multiply(Block_2D<T> *a, Block_2D<T> *b);
+    block_2d<T> matrix_multiply(block_2d<T> *a, block_2d<T> *b);
     template <class T>
-    void transpose(Block_2D<T> *a);
+    void transpose(block_2d<T> *a);
 }
 #include <thrust/system/cuda/window_transform.inl>

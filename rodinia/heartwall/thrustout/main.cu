@@ -223,7 +223,7 @@ int main(int argc, char *argv []){
 	common.frame_cols = AVI_video_width(frames);
 	common.frame_elem = common.frame_rows * common.frame_cols;
 	common.frame_mem = sizeof(fp) * common.frame_elem;
-	thrust::Block_2D<float> frameBlock(common.frame_cols,common.frame_rows);
+	thrust::block_2d<float> frameBlock(common.frame_cols,common.frame_rows);
 
 	// pointers
 	cudaMalloc((void **)&common_change.d_frame, common.frame_mem);

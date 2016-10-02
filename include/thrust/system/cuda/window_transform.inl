@@ -11,7 +11,7 @@ void mAssert(int x, const char * message)
 namespace thrust
 {
   template<typename T>
-  __global__ void convolveKernel (Block_2D<T> &block, Block_2D<T> &kernel, int operationsPerBlock,int totalOperations)
+  __global__ void convolveKernel (block_2d<T> &block, block_2d<T> &kernel, int operationsPerBlock,int totalOperations)
   {
     extern __shared__ T sharedMemory []  ;
     T * sharedKernel = sharedMemory;
@@ -58,8 +58,8 @@ namespace thrust
   void convolve(Iterator begin1, Iterator end1, Iterator begin2)
   {
     typedef typename Iterator::value_type T;
-    Block_2D<T> *input  = begin1.parentBlockHost;
-    Block_2D<T> *kernel = begin2.parentBlockHost;
+    block_2d<T> *input  = begin1.parentBlockHost;
+    block_2d<T> *kernel = begin2.parentBlockHost;
     int numberOfOperations = begin1.dim_x * begin1.dim_y;
     // printf("Number Of Operations = %d\n", numberOfOperations);
     assert(kernel->dim_x==kernel->dim_y);
@@ -109,12 +109,12 @@ namespace thrust
     // int windowSize = input->window_dim_x*(input->window_dim_y);
     if(absolutePosition>=totalOperations||threadIdx.x >=operationsPerBlock)
       return;
-    window_2D<T> currentWindow = (*input)[absolutePosition];
+    window_2d<T> currentWindow = (*input)[absolutePosition];
     int independantWindowSize = min(input->stride_y,input->window_dim_y)*min(input->stride_x,input->window_dim_x);
     int start_x = (threadIdx.x%input->windows_along_x)*input->window_dim_x;
     int start_y = (threadIdx.x/input->windows_along_x)*input->window_dim_y;
 
-    window_2D<T> mWindow(sharedMemory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
+    window_2d<T> mWindow(sharedMemory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
     for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
     {
       for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
@@ -210,13 +210,13 @@ namespace thrust
     int absolutePosition = (blockIdx.y*gridDim.x + blockIdx.x)*operationsPerBlock + threadIdx.x;
     if(absolutePosition>=totalOperations||threadIdx.x >=operationsPerBlock)
       return;
-    window_2D<T> inputWindow = (*input)[absolutePosition];
-    window_2D<T> outputWindow =(*output) [absolutePosition];
+    window_2d<T> inputWindow = (*input)[absolutePosition];
+    window_2d<T> outputWindow =(*output) [absolutePosition];
     int start_x = (threadIdx.x%input->windows_along_x)*input->window_dim_x;
     int start_y = (threadIdx.x/input->windows_along_x)*input->window_dim_y;
 
-    window_2D<T> mInputWindow(sharedMemory,start_x,start_y,input->window_dim_x,input->window_dim_y,2*shared_block_dim_x,shared_block_dim_y);
-    window_2D<T> mOutputWindow(sharedMemory,start_x+shared_block_dim_x,start_y,input->window_dim_x,input->window_dim_y,2*shared_block_dim_x,shared_block_dim_y);
+    window_2d<T> mInputWindow(sharedMemory,start_x,start_y,input->window_dim_x,input->window_dim_y,2*shared_block_dim_x,shared_block_dim_y);
+    window_2d<T> mOutputWindow(sharedMemory,start_x+shared_block_dim_x,start_y,input->window_dim_x,input->window_dim_y,2*shared_block_dim_x,shared_block_dim_y);
     for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
     {
       for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
@@ -323,15 +323,15 @@ namespace thrust
     int absolutePosition = (blockIdx.y*gridDim.x + blockIdx.x)*operationsPerBlock + threadIdx.x;
     if(absolutePosition>=totalOperations||threadIdx.x >=operationsPerBlock)
       return;
-    window_2D<T> inputWindow = (*input)[absolutePosition];
-    window_2D<T> inputWindow1 = (*input1)[absolutePosition];
-    window_2D<T> outputWindow =(*output) [absolutePosition];
+    window_2d<T> inputWindow = (*input)[absolutePosition];
+    window_2d<T> inputWindow1 = (*input1)[absolutePosition];
+    window_2d<T> outputWindow =(*output) [absolutePosition];
     int start_x = (threadIdx.x%input->windows_along_x)*input->window_dim_x;
     int start_y = (threadIdx.x/input->windows_along_x)*input->window_dim_y;
 
-    window_2D<T> mInputWindow(sharedMemory,start_x,start_y,input->window_dim_x,input->window_dim_y,3*shared_block_dim_x,shared_block_dim_y);
-    window_2D<T> mInputWindow1(sharedMemory,start_x+shared_block_dim_x,start_y,input->window_dim_x,input->window_dim_y,3*shared_block_dim_x,shared_block_dim_y);
-    window_2D<T> mOutputWindow(sharedMemory,start_x+2*shared_block_dim_x,start_y,input->window_dim_x,input->window_dim_y,3*shared_block_dim_x,shared_block_dim_y);
+    window_2d<T> mInputWindow(sharedMemory,start_x,start_y,input->window_dim_x,input->window_dim_y,3*shared_block_dim_x,shared_block_dim_y);
+    window_2d<T> mInputWindow1(sharedMemory,start_x+shared_block_dim_x,start_y,input->window_dim_x,input->window_dim_y,3*shared_block_dim_x,shared_block_dim_y);
+    window_2d<T> mOutputWindow(sharedMemory,start_x+2*shared_block_dim_x,start_y,input->window_dim_x,input->window_dim_y,3*shared_block_dim_x,shared_block_dim_y);
     for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
     {
       for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
@@ -436,7 +436,7 @@ namespace thrust
   }
 
   template <class T>
-  __global__ void MatrixMul(Block_2D<T> *a, Block_2D<T> *b, Block_2D<T> *c)
+  __global__ void MatrixMul(block_2d<T> *a, block_2d<T> *b, block_2d<T> *c)
   {
     unsigned int col = MATRIX_TILE_WIDTH*blockIdx.x + threadIdx.x;
     unsigned int row = MATRIX_TILE_WIDTH*blockIdx.y + threadIdx.y;
@@ -448,10 +448,10 @@ namespace thrust
   }
 
   template <class T>
-  Block_2D<T> matrix_multiply(Block_2D<T> *a, Block_2D<T> *b)
+  block_2d<T> matrix_multiply(block_2d<T> *a, block_2d<T> *b)
   {
       assert(a->dim_x == b->dim_y);
-      Block_2D<T> c(b->dim_x,a->dim_y);
+      block_2d<T> c(b->dim_x,a->dim_y);
       T *temp = (T*) std::malloc(sizeof(T)*a->dim_y*b->dim_x);
       dim3 dimGrid (a->dim_y/MATRIX_TILE_WIDTH, b->dim_x/MATRIX_TILE_WIDTH, 1);
       dim3 dimBlock(MATRIX_TILE_WIDTH, MATRIX_TILE_WIDTH, 1);
@@ -462,16 +462,16 @@ namespace thrust
   }
 
   template <class T>
-  __global__ void MatrixTranspose(Block_2D<T> *a, Block_2D<T> *temp)
+  __global__ void MatrixTranspose(block_2d<T> *a, block_2d<T> *temp)
   {
     unsigned int col = MATRIX_TILE_WIDTH*blockIdx.x + threadIdx.x;
     unsigned int row = MATRIX_TILE_WIDTH*blockIdx.y + threadIdx.y;
     (*temp)[row][col] = (*a)[col][row];
   }
   template <class T>
-  void transpose(Block_2D<T> *a)
+  void transpose(block_2d<T> *a)
   {
-    Block_2D<T> temp(a->dim_y,a->dim_x);
+    block_2d<T> temp(a->dim_y,a->dim_x);
     T *temp1 = (T*) std::malloc(sizeof(T)*a->dim_y*a->dim_x);
     dim3 dimGrid (a->dim_y/MATRIX_TILE_WIDTH, a->dim_x/MATRIX_TILE_WIDTH, 1);
     dim3 dimBlock(MATRIX_TILE_WIDTH, MATRIX_TILE_WIDTH, 1);

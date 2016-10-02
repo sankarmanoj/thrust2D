@@ -5,13 +5,13 @@
 namespace thrust
 {
   template <class T>
-  __host__ __device__ window_2D<T>::window_2D()
+  __host__ __device__ window_2d<T>::window_2d()
   {
 
   }
 
   template <class T>
-  __host__ __device__ window_2D<T>::window_2D(Block_2D<T> *b,int start_x, int start_y, int window_dim_x, int window_dim_y)
+  __host__ __device__ window_2d<T>::window_2d(block_2d<T> *b,int start_x, int start_y, int window_dim_x, int window_dim_y)
   {
     // TODO: Better Boundary checks.
     this->start_x = start_x;
@@ -28,7 +28,7 @@ namespace thrust
     this->is_shared = false;
   }
   template <class T>
-  __host__ __device__ window_2D<T>::window_2D (const window_2D<T> &obj)
+  __host__ __device__ window_2d<T>::window_2d (const window_2d<T> &obj)
   {
     this->start_x = obj.start_x;
     this->start_y = obj.start_y;
@@ -41,7 +41,7 @@ namespace thrust
   }
 
   template <class T>
-  __host__ __device__ window_2D<T>::window_2D(T *data,int start_x, int start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y)
+  __host__ __device__ window_2d<T>::window_2d(T *data,int start_x, int start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y)
   {
     // TODO: Better Boundary checks.
     this->start_x = start_x;
@@ -60,7 +60,7 @@ namespace thrust
   }
 
   template <class T>
-  __host__ __device__ window_2D_iterator<T>::window_2D_iterator<T>(T * data, long position)
+  __host__ __device__ window_2d_iterator<T>::window_2d_iterator<T>(T * data, long position)
   {
     this->data = data;
     this->position = position;
@@ -68,14 +68,14 @@ namespace thrust
   }
 
   template <class T>
-  __host__ __device__ window_2D_iterator<T>::window_2D_iterator<T>(Block_2D<T> *b, long position)
+  __host__ __device__ window_2d_iterator<T>::window_2d_iterator<T>(block_2d<T> *b, long position)
   {
     this->b = b;
     this->position = position;
     this->is_shared = false;
   }
   template <class T>
-  __host__ __device__ window_2D_iterator<T> window_2D<T>::operator[] (long index)
+  __host__ __device__ window_2d_iterator<T> window_2d<T>::operator[] (long index)
   {
     // TODO: Check Indexing of Window of a SubBlock.
     // printf("%d\n",b->dim_x);
@@ -84,18 +84,18 @@ namespace thrust
     {
         // printf("StartX = %d, StartY = %d Index = %d Positon = %ld\n",this->start_x,this->start_y,index,position);
         // printf("%s\n","yo" );
-        return window_2D_iterator<T>(data,position);
+        return window_2d_iterator<T>(data,position);
     }
     else
     {
         // return (*b)[start_y + index] + start_x;
         // printf("%s\n","yo" );
-        return window_2D_iterator<T>(this->b,position);
+        return window_2d_iterator<T>(this->b,position);
     }
 }
 
   template <class T>
-  __host__ __device__ const window_2D_iterator<T> window_2D<T>::operator[] (long index) const
+  __host__ __device__ const window_2d_iterator<T> window_2d<T>::operator[] (long index) const
   {
       // TODO: Check Indexing of Window of a SubBlock.
       // printf("%d\n",b->dim_x);
@@ -104,17 +104,17 @@ namespace thrust
       {
           // printf("StartX = %d, StartY = %d Index = %d Positon = %ld\n",this->start_x,this->start_y,index,position);
         //   printf("%s\n","yo" );
-          return window_2D_iterator<T>(data,position);
+          return window_2d_iterator<T>(data,position);
       }
       else
       {
           // return (*b)[start_y + index] + start_x;
           // printf("%s\n","yo" );
-          return window_2D_iterator<T>(this->b,position);
+          return window_2d_iterator<T>(this->b,position);
       }
   }
   template<class T>
-  __host__ __device__ device_reference<T> window_2D_iterator<T>::operator[] (long index)
+  __host__ __device__ device_reference<T> window_2d_iterator<T>::operator[] (long index)
   {
     if(this->is_shared)
     {
@@ -129,7 +129,7 @@ namespace thrust
   }
 
   template<class T>
-  __host__ __device__ device_reference<T> window_2D_iterator<T>::operator[] (long index) const
+  __host__ __device__ device_reference<T> window_2d_iterator<T>::operator[] (long index) const
   {
     if(this->is_shared)
     {
@@ -144,7 +144,7 @@ namespace thrust
   }
 
   template <class T>
-  __host__ window_iterator<T>::window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
+  __host__ window_iterator<T>::window_iterator(block_2d<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
   {
       this->b = b->device_pointer;
       this->block_dim_x = b->dim_x;
@@ -161,7 +161,7 @@ namespace thrust
   }
 
   template <class T>
-  __host__ window_iterator<T>::window_iterator(Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y,int position)
+  __host__ window_iterator<T>::window_iterator(block_2d<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y,int position)
   {
       this->b = b->device_pointer;
       this->block_dim_x = b->dim_x;
@@ -177,20 +177,20 @@ namespace thrust
 
   }
   template <class T>
-  __host__ __device__ window_2D<T> window_iterator<T>::operator[] (long index)
+  __host__ __device__ window_2d<T> window_iterator<T>::operator[] (long index)
   {
     // printf("Reached Here 1");
     int i = index/windows_along_y;
     int j = index%windows_along_y;
     int start_x = stride_x*i;
     int start_y = stride_y*j;
-    window_2D<T> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
+    window_2d<T> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
 
     return temp;
   }
 
   template <class T>
-  __host__ __device__ const window_2D<T> window_iterator<T>::operator[] (long index) const
+  __host__ __device__ const window_2d<T> window_iterator<T>::operator[] (long index) const
   {
     // printf("Reached Here 2");
     int i = index/windows_along_y;
@@ -198,13 +198,13 @@ namespace thrust
     int start_x = stride_x*i;
     int start_y = stride_y*j;
         // printf("Reached Here 3");
-    window_2D<T> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
+    window_2d<T> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
 
     return temp;
   }
 
   template <class T>
-  __host__ __device__ window_2D<T> window_iterator<T>::operator* ()
+  __host__ __device__ window_2d<T> window_iterator<T>::operator* ()
   {
     // printf("Reached Here 3");
     int i = position/windows_along_y;
@@ -212,19 +212,19 @@ namespace thrust
     int start_x = stride_x*i;
     int start_y = stride_y*j;
 
-    window_2D<T> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
+    window_2d<T> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
     return temp;
   }
 
   template <class T>
-  __host__ __device__ const window_2D<T> window_iterator<T>::operator* () const
+  __host__ __device__ const window_2d<T> window_iterator<T>::operator* () const
   {
     // printf("Reached Here 4");
     int i = position/windows_along_y;
     int j = position%windows_along_y;
     int start_x = stride_x*i;
     int start_y = stride_y*j;
-    window_2D<T> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
+    window_2d<T> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
     return temp;
   }
 
@@ -373,7 +373,7 @@ namespace thrust
   }
 
   template <class T>
-  window_vector<T>::window_vector (Block_2D<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
+  window_vector<T>::window_vector (block_2d<T> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
   {
     this->b = b;
     // this->b->initalize_device_memory();

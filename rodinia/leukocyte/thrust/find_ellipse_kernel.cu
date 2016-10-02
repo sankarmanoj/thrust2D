@@ -42,7 +42,7 @@ public:
 		this->thrust_device_gicov = thrust_device_gicov;
 	}
 
-	__device__ void operator() (const thrust::window_2D<float> &w) const
+	__device__ void operator() (const thrust::window_2d<float> &w) const
 	{
 		int i,j,k,n,x,y;
 		i = w.start_x + (w.window_dim_x - 1)/2;
@@ -188,7 +188,7 @@ float *GICOV_CUDA(int grad_m, int grad_n, float *host_grad_x, float *host_grad_y
 	// Copy the result to the host
 	float *host_gicov = (float *) malloc(grad_mem_size);
 	float *thrust_host_gicov = (float *)malloc(grad_mem_size);
-	thrust::Block_2D<float> gicov_block(grad_n,grad_m);
+	thrust::block_2d<float> gicov_block(grad_n,grad_m);
 
 	cudaEvent_t start, stop;
 	cudaEventCreate(&start);
@@ -261,7 +261,7 @@ public:
 		this->thrust_device_img_dilated = thrust_device_img_dilated;
 	}
 
-	__device__ void operator() (const thrust::window_2D<float> &w) const
+	__device__ void operator() (const thrust::window_2d<float> &w) const
 	{
 		// Find the center of the structuring element
 		int el_center_i = strel_m / 2;
@@ -368,7 +368,7 @@ float *dilate_CUDA(int max_gicov_m, int max_gicov_n, int strel_m, int strel_n) {
 	// Copy the result to the host
 	float *host_img_dilated = (float*) malloc(max_gicov_mem_size);
 	float *thrust_host_img_dilated = (float*) malloc(max_gicov_mem_size);
-	thrust::Block_2D<float> gicov_block(max_gicov_n,max_gicov_m);
+	thrust::block_2d<float> gicov_block(max_gicov_n,max_gicov_m);
 
 	cudaEvent_t start, stop;
 	cudaEventCreate(&start);

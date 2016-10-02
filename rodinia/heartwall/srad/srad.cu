@@ -114,10 +114,10 @@ int runTest( int argc, char** argv)
 					AVPixelFormat tempFormat = (AVPixelFormat)frame->format;
 					const AVPixFmtDescriptor *x =  av_pix_fmt_desc_get(tempFormat);
 					printf("Pixel Format = %s\n",av_pix_fmt_desc_get(tempFormat)->name);
-					thrust::Block_2D<int> J_cuda (cols,rows);
-					thrust::Block_2D<float> J_square(cols,rows);
-					thrust::Block_2D<float> d_c(cols,rows);
-					thrust::Block_2D<float> J_floatcuda(cols,rows);
+					thrust::block_2d<int> J_cuda (cols,rows);
+					thrust::block_2d<float> J_square(cols,rows);
+					thrust::block_2d<float> d_c(cols,rows);
+					thrust::block_2d<float> J_floatcuda(cols,rows);
 					thrust::fill(d_c.begin(),d_c.end(),0.0f);
 					J_cuda.assign(&frame->data[0][0],&frame->data[0][size_I]);
 					thrust::transform(J_cuda.begin(),J_cuda.end(),J_floatcuda.begin(),extractFunctor());

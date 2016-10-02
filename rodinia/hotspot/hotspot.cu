@@ -110,7 +110,7 @@ public:
 		this->Rz_1 = Rz_1;
 	}
 
-	__device__ int operator() (const thrust::window_2D<float> &w,const thrust::window_2D<float> &p ) const
+	__device__ int operator() (const thrust::window_2d<float> &w,const thrust::window_2d<float> &p ) const
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
@@ -196,8 +196,8 @@ public:
 
 		readinput(FilesavingTemp, grid_rows, grid_cols, tfile);
 		readinput(FilesavingPower, grid_rows, grid_cols, pfile);
-		thrust::Block_2D<float> TemperatureBlock(grid_rows,grid_cols);
-		thrust::Block_2D<float> PowerBlock(grid_rows,grid_cols);
+		thrust::block_2d<float> TemperatureBlock(grid_rows,grid_cols);
+		thrust::block_2d<float> PowerBlock(grid_rows,grid_cols);
 		TemperatureBlock.assign(FilesavingTemp,FilesavingTemp+size);
 		PowerBlock.assign(FilesavingPower,FilesavingPower+size);
 		printf("Start computing the transient temperature\n");

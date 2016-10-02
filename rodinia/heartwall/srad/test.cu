@@ -55,8 +55,8 @@ int main()
        1, 1, 1};
 
   thrust::device_vector<int> inV(X*Y);
- thrust::Block_2D<int> inB(X,Y);
- thrust::Block_2D<int> outB(X,Y);
+ thrust::block_2d<int> inB(X,Y);
+ thrust::block_2d<int> outB(X,Y);
 
  for(int i = 0 ; i< Y; i++)
  {

@@ -44,7 +44,7 @@ public:
 		this->rows = rows;
 		this->q0sqr = q0sqr;
 	}
-	__device__ float operator() (const thrust::window_2D<float> &w, const thrust::window_2D<float> &v) const
+	__device__ float operator() (const thrust::window_2d<float> &w, const thrust::window_2d<float> &v) const
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
@@ -130,7 +130,7 @@ public:
 		this->q0sqr = q0sqr;
 	}
 
-	__device__ float operator() (const thrust::window_2D<float> &w, const thrust::window_2D<float> &c) const
+	__device__ float operator() (const thrust::window_2d<float> &w, const thrust::window_2d<float> &c) const
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;

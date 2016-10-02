@@ -633,31 +633,31 @@ void particleFilter(unsigned char *I, int IszX, int IszY, int Nfr, int *seed, in
     thrust::host_vector<int> objxy(countOnes * 2);
     getneighbors(disk, countOnes, thrust::raw_pointer_cast(&(*objxy.begin())), radius);
 
-    thrust::Block_2D<double> arrayX_GPU(Nparticles,1);
-    thrust::Block_2D<double> arrayY_GPU(Nparticles,1);
-    thrust::Block_2D<double> CDF_GPU(Nparticles,1);
-    thrust::Block_2D<double> u_GPU(Nparticles,1);
-    thrust::Block_2D<double> likelihood_GPU(Nparticles, 1, 0.0);
+    thrust::block_2d<double> arrayX_GPU(Nparticles,1);
+    thrust::block_2d<double> arrayY_GPU(Nparticles,1);
+    thrust::block_2d<double> CDF_GPU(Nparticles,1);
+    thrust::block_2d<double> u_GPU(Nparticles,1);
+    thrust::block_2d<double> likelihood_GPU(Nparticles, 1, 0.0);
 
-    thrust::Block_2D<double> weights_GPU(Nparticles,1);
+    thrust::block_2d<double> weights_GPU(Nparticles,1);
     // thrust::hybrid::shared_vector<double> weights_GPU(Nparticles);
 
-    thrust::Block_2D<int> ind_GPU(countOnes * Nparticles,1);
+    thrust::block_2d<int> ind_GPU(countOnes * Nparticles,1);
 
-    thrust::Block_2D<int> indices(Nparticles,1);     // to hold intermediate indices in find_index kernel
+    thrust::block_2d<int> indices(Nparticles,1);     // to hold intermediate indices in find_index kernel
 
     long long send_start = get_time();
 
-    thrust::Block_2D<unsigned char> I_GPU(I, I + (IszX * IszY * Nfr));
-    thrust::Block_2D<int> objxy_GPU(objxy.begin(),objxy.end());
+    thrust::block_2d<unsigned char> I_GPU(I, I + (IszX * IszY * Nfr));
+    thrust::block_2d<int> objxy_GPU(objxy.begin(),objxy.end());
     // getneighbors(disk, countOnes, thrust::raw_pointer_cast(objxy_GPU.device_pointer->data()), radius);
-    thrust::Block_2D<double> xj_GPU(Nparticles,1);
-    thrust::Block_2D<double> yj_GPU(Nparticles,1);
+    thrust::block_2d<double> xj_GPU(Nparticles,1);
+    thrust::block_2d<double> yj_GPU(Nparticles,1);
 
     thrust::fill(xj_GPU.begin(), xj_GPU.end(), xe);
     thrust::fill(yj_GPU.begin(), yj_GPU.end(), ye);
 
-    thrust::Block_2D<int> seed_GPU(seed, seed + Nparticles);
+    thrust::block_2d<int> seed_GPU(seed, seed + Nparticles);
 
     thrust::counting_iterator<int> it_begin(0);		// used when thread ID is required
     thrust::counting_iterator<int> it_end = it_begin + Nparticles;
@@ -668,7 +668,7 @@ void particleFilter(unsigned char *I, int IszX, int IszY, int Nfr, int *seed, in
     int k;
     double sumWeights;  //to hold the result of the reduce operation
 
-    // TODO: Do the whole __CUDA_ARCH__ thing in Block_2D::convert2D
+    // TODO: Do the whole __CUDA_ARCH__ thing in block_2d::convert2D
     for(k = 1; k < Nfr; k++)
     {
 

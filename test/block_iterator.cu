@@ -6,8 +6,8 @@ using namespace thrust;
 // testing block_iterator
 int main()
 {
-  Block_2D<int> a1(4,5);
-  Block_2D<int> b = a1;
+  block_2d<int> a1(4,5);
+  block_2d<int> b = a1;
   sequence(b.begin(),b.end());
   // block_iterator<int> c = b.begin();
   // std::cout<<"Indexing Test \n";

@@ -45,7 +45,7 @@ class binarizeFunctor
 class erodeTransformFunctor
 {
 public:
-	__device__ int operator() (const thrust::window_2D<int> &w,const thrust::window_2D<int> &v) const
+	__device__ int operator() (const thrust::window_2d<int> &w,const thrust::window_2d<int> &v) const
 	{
 		int minvalue = 1;
 		for(int i = 0; i<w.window_dim_x;i++)
@@ -63,7 +63,7 @@ public:
 class erodeFunctor
 {
 public:
-	__device__ void operator() (const thrust::window_2D<int> &w) const
+	__device__ void operator() (const thrust::window_2d<int> &w) const
 	{
 		int minvalue =w[0][1]*w[2][1]*w[1][0]*w[1][2]*w[1][1];
 		w[(w.window_dim_y-1)/2][(w.window_dim_x-1)/2]=minvalue;
@@ -72,7 +72,7 @@ public:
 class dilateFunctor
 {
 public:
-	__device__ void operator() (const thrust::window_2D<int> &w) const
+	__device__ void operator() (const thrust::window_2d<int> &w) const
 	{
 		int maxvalue = w[0][1]+w[2][1]+w[1][0]+w[1][2]+w[1][1];
 		if(maxvalue>1)
@@ -102,7 +102,7 @@ public:
 		this->rows = rows;
 		this->q0sqr = q0sqr;
 	}
-	__device__ int operator() (const thrust::window_2D<float> &w,const thrust::window_2D<float> &v) const
+	__device__ int operator() (const thrust::window_2d<float> &w,const thrust::window_2d<float> &v) const
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
@@ -189,7 +189,7 @@ public:
 		this->q0sqr = q0sqr;
 	}
 
-	__device__ int operator() (const thrust::window_2D<float> &w, const thrust::window_2D<float> &c) const
+	__device__ int operator() (const thrust::window_2d<float> &w, const thrust::window_2d<float> &c) const
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;

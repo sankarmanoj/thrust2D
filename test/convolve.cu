@@ -9,8 +9,8 @@ int main(int argc, char** argv)
     x = atoi(argv[1]);
     y = atoi(argv[2]);
     srand(13);
-    thrust::Block_2D<float> inBlock(x,x);
-    thrust::Block_2D<float> kernel(y,y);
+    thrust::block_2d<float> inBlock(x,x);
+    thrust::block_2d<float> kernel(y,y);
     thrust::device_vector<float> a((long long int)x*x);
     thrust::sequence(a.begin(),a.end());
     thrust::copy(a.begin(),a.end(),inBlock.begin());

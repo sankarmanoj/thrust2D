@@ -1,7 +1,7 @@
 #include <thrust/window_transform.h>
 int main()
 {
-  thrust::Block_2D<int> a(3,5,1),b(3,5,1),c(5,5,0);
+  thrust::block_2d<int> a(3,5,1),b(3,5,1),c(5,5,0);
   thrust::transpose(&b);
   c = thrust::matrix_multiply(&a,&b);
   // for (int i=0; i<5; i++)

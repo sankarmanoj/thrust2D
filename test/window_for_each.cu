@@ -12,7 +12,7 @@
 class printFunctor
 {
 public:
-  __device__ void operator() (const thrust::window_2D<float> &inputWindow,const thrust::window_2D<float> &inputWindow1, const thrust::window_2D<float> & outputWindow) const
+  __device__ void operator() (const thrust::window_2d<float> &inputWindow,const thrust::window_2d<float> &inputWindow1, const thrust::window_2d<float> & outputWindow) const
   {
      outputWindow[0][0]=inputWindow[0][0] + inputWindow1[0][0];
      printf("%f=%f+%f\n",(float)outputWindow[0][0],(float) inputWindow[0][0],(float)inputWindow1[0][0]);
@@ -22,7 +22,7 @@ public:
 class printFunctor1
 {
 public:
-  __device__ void operator() (const thrust::window_2D<float> &inputWindow, const thrust::window_2D<float> & outputWindow) const
+  __device__ void operator() (const thrust::window_2d<float> &inputWindow, const thrust::window_2d<float> & outputWindow) const
   {
      outputWindow[0][0]=inputWindow[0][0];
     //  printf("%d %d %d\n",outputWindow[0][0], inputWindow[0][0],inputWindow1[0][0]);
@@ -32,10 +32,10 @@ public:
 int main()
 {
   srand(13);
-  thrust::Block_2D<float> inBlock(X,Y);
-  thrust::Block_2D<float> inBlock1(X,Y);
-  thrust::Block_2D<float> outBlock(X,Y);
-  thrust::Block_2D<float> kernel(3,3);
+  thrust::block_2d<float> inBlock(X,Y);
+  thrust::block_2d<float> inBlock1(X,Y);
+  thrust::block_2d<float> outBlock(X,Y);
+  thrust::block_2d<float> kernel(3,3);
   thrust::device_vector<float> a((long long int)X*Y);
   thrust::sequence(a.begin(),a.end());
   thrust::copy(a.begin(),a.end(),inBlock.begin());

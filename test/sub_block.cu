@@ -6,12 +6,12 @@ using namespace thrust;
 // testing sub block
 int main()
 {
-  Block_2D<int> a1(4,5);
-  Block_2D<int> b = a1;
+  block_2d<int> a1(4,5);
+  block_2d<int> b = a1;
   device_vector<int> a(20);
   sequence(a.begin(),a.end());
   b.copy(a.begin(),a.end());
-  Block_2D<int> d(3,3);
+  block_2d<int> d(3,3);
   d = *(b.sub_block(1,2,3,4));
   // NOTE: b has also now changed into a sub block.
   std::cout<<"Indexing Test \n";

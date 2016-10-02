@@ -11,7 +11,7 @@ using namespace thrust;
 class printFunctor
 {
 public:
-  __device__ void operator() (window_2D<int> myWindow)
+  __device__ void operator() (window_2d<int> myWindow)
   {
     int value = myWindow[0][0];
 
@@ -23,7 +23,7 @@ public:
 class transformFunctor
 {
 public:
-  __device__ int operator() (const window_2D<int> &myWindow, const int &a) const
+  __device__ int operator() (const window_2d<int> &myWindow, const int &a) const
   {
     int value = myWindow[0][0];
 
@@ -37,8 +37,8 @@ public:
 int main()
 {
 
-  Block_2D<int> a1(X,Y);
-  Block_2D<int> b = a1;
+  block_2d<int> a1(X,Y);
+  block_2d<int> b = a1;
   device_vector<int> a(X*Y);
   sequence(a.begin(),a.end());
   b.copy(a.begin(),a.end());
