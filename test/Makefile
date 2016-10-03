@@ -15,7 +15,7 @@ else
 endif
 
 image:image.cu
-	$(CC) $(OPENCVFLAGS) image.cu -o image.out
+	$(CC) $(CFLAGS) $(OPENCVFLAGS) image.cu -o image.out
 
 test_%: %.out
 	./$<

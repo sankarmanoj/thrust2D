@@ -135,6 +135,40 @@ namespace thrust
       }
     }
   }
+  template<typename T, class Func>
+  __global__ void for_each_kernel (window_iterator<T> *input, int operations_per_block,int total_operations, int shared_block_dim_x , int shared_block_dim_y , int blocks_per_row , Func f)
+  {
+    extern __shared__ T shared_memory [];
+    int abs_position = (blockIdx.y*gridDim.x + blockIdx.x)*operations_per_block + threadIdx.x;
+    // int windowSize = input->window_dim_x*(input->window_dim_y);
+    if(abs_position>=total_operations||threadIdx.x >=operations_per_block)
+    return;
+    window_2d<T> current_window = (*input)[abs_position];
+    int ind_window_size = min(input->stride_y,input->window_dim_y)*min(input->stride_x,input->window_dim_x);
+    int start_x = (threadIdx.x%input->windows_along_x)*input->window_dim_x;
+    int start_y = (threadIdx.x/input->windows_along_x)*input->window_dim_y;
+
+    window_2d<T> shared_window(shared_memory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
+    for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
+    {
+      for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
+      {
+        shared_window[j][i]=current_window[j][i];
+        // printf("Val = %f i = %d j = %d x = %d y = %d \n",current_window[j][i],i,j,current_window.start_x,current_window.start_y);
+      }
+    }
+
+    f(shared_window);
+
+    for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
+    {
+      for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
+      {
+        current_window[j][i]=shared_window[j][i];
+        // printf("Val = %f i = %d j = %d x = %d y = %d \n",current_window[j][i],i,j,current_window.start_x,current_window.start_y);
+      }
+    }
+  }
 
   template <class Iterator, class Func>
   void for_each(cuda::shared_policy,Iterator begin1, Iterator end1, Func f)
@@ -146,12 +180,15 @@ namespace thrust
     cudaGetDeviceProperties(&properties,0);
     int shared_memory_size = properties.sharedMemPerBlock;
     int size_single_win_row;
+    int shared_block_dim_x =0;
     if(begin1.stride_x<=begin1.window_dim_x)
     {
       size_single_win_row = sizeof(T)*begin1.block_dim_x*begin1.window_dim_y;
+      shared_block_dim_x = begin1.block_dim_x;
     }
     else
     {
+      shared_block_dim_x = begin1.windows_along_x*begin1.window_dim_x;
       size_single_win_row = sizeof(T)*begin1.windows_along_x*begin1.window_dim_x*begin1.window_dim_y;
     }
     int rows_per_block_by_memory;
@@ -159,22 +196,23 @@ namespace thrust
     int rows_per_block,data_rows_per_block;
     int operations_per_block;
     rows_per_block_by_memory = shared_memory_size/size_single_win_row;
-
-    if(begin1.stride_y<=begin1.window_dim_y)
+    operations_per_block_by_memory = (rows_per_block_by_memory) * begin1.windows_along_x;
+    rows_per_block = min(rows_per_block_by_memory,(properties.maxThreadsPerBlock/begin1.windows_along_x));
+    Iterator * device_begin_1;
+    cudaMalloc((void **)&device_begin_1, sizeof(Iterator));
+    cudaMemcpy(device_begin_1,&begin1,sizeof(Iterator),cudaMemcpyHostToDevice);
+    if(rows_per_block)
     {
-      operations_per_block_by_memory = (rows_per_block_by_memory) * begin1.windows_along_x;
-      rows_per_block = min(rows_per_block_by_memory,(properties.maxThreadsPerBlock/begin1.windows_along_x));
-      data_rows_per_block = (rows_per_block-begin1.window_dim_y+1);
-      operations_per_block = min(operations_per_block_by_memory,properties.maxThreadsPerBlock);
-    }
-    else
-    {
-      operations_per_block_by_memory = rows_per_block_by_memory*begin1.windows_along_x;
-      rows_per_block = min(rows_per_block_by_memory,(properties.maxThreadsPerBlock/begin1.windows_along_x));
-      data_rows_per_block = (rows_per_block-1)*begin1.stride_y + begin1.window_dim_y;
-      operations_per_block = min(operations_per_block_by_memory,properties.maxThreadsPerBlock);
-    }
-
+      if(begin1.stride_y<=begin1.window_dim_y)
+      {
+        data_rows_per_block = (rows_per_block-begin1.window_dim_y+1);
+        operations_per_block = min(operations_per_block_by_memory,properties.maxThreadsPerBlock);
+      }
+      else
+      {
+        data_rows_per_block = (rows_per_block-1)*begin1.stride_y + begin1.window_dim_y;
+        operations_per_block = min(operations_per_block_by_memory,properties.maxThreadsPerBlock);
+      }
     int blocks = ceil(((float)num_of_operations)/operations_per_block);
     int xblocks = 1, yblocks =1 ;
     if(blocks>65535)
@@ -190,17 +228,40 @@ namespace thrust
     printf("Number Of Total Windows Created = %d \n",num_windows );
     printf("Size of T = %d, Size of A Single Row of Windows = %d\n",sizeof(T),size_single_win_row);
     printf("Windows Along X,Y = %d,%d \n",begin1.windows_along_x,begin1.windows_along_y);
-    printf("Blocks = %d , Xblocks = %d , Yblocks = %d  Rows Per Block =%d RPB By Memory= %d \n",blocks,xblocks,yblocks,rows_per_block,rows_per_block_by_memory);
     printf("Total Operations = %d,Operations Per Block = %d, OPB By Memory = %d\n",num_of_operations,operations_per_block,operations_per_block_by_memory);
     printf("\n Config = (%d,%d)x%d SharedMem=%d",xblocks,yblocks,operations_per_block,shared_memory_size);
     #endif
     assert((size_single_win_row)<shared_memory_size);
     assert(rows_per_block_by_memory);
-    Iterator * device_begin_1;
-    cudaMalloc((void **)&device_begin_1, sizeof(Iterator));
-    cudaMemcpy(device_begin_1,&begin1,sizeof(Iterator),cudaMemcpyHostToDevice);
-    for_each_kernel<<<dim3(xblocks,yblocks),operations_per_block,shared_memory_size>>>(device_begin_1,operations_per_block,num_of_operations,begin1.block_dim_x,data_rows_per_block,f);
 
+    for_each_kernel<<<dim3(xblocks,yblocks),operations_per_block,shared_memory_size>>>(device_begin_1,operations_per_block,num_of_operations,shared_block_dim_x,data_rows_per_block,f);
+    }
+    else{
+      int blocks_per_row = max(ceil((float)size_single_win_row/shared_memory_size),ceil(((float)begin1.windows_along_x)/properties.maxThreadsPerBlock));
+      operations_per_block = ceil(((float)begin1.windows_along_x)/blocks_per_row);
+      int blocks = ceil(((float)num_of_operations)/operations_per_block);
+      int xblocks = 1, yblocks =1 ;
+      if(blocks>65535)
+      {
+        xblocks = 65535;
+        yblocks = ceil(blocks/xblocks);
+      }
+      else
+      {
+        xblocks = blocks;
+      }
+      #ifdef DEBUG
+      printf("Number Of Total Windows Created = %d \n",num_windows );
+      printf("Size of T = %d, Size of A Single Row of Windows = %d\n",sizeof(T),size_single_win_row);
+      printf("Windows Along X,Y = %d,%d \n",begin1.windows_along_x,begin1.windows_along_y);
+      printf("Blocks = %d , Xblocks = %d , Yblocks = %d  Blocks Per Row =%d\n",blocks,xblocks,yblocks,blocks_per_row);
+      printf("Total Operations = %d,Operations Per Block = %d, OPB By Memory = %d\n",num_of_operations,operations_per_block,operations_per_block_by_memory);
+      printf("\n Config = (%d,%d)x%d SharedMem=%d",xblocks,yblocks,operations_per_block,shared_memory_size);
+      #endif
+      for_each_kernel<<<dim3(xblocks,yblocks),operations_per_block,shared_memory_size>>>(device_begin_1,operations_per_block,num_of_operations,shared_block_dim_x,begin1.window_dim_y,blocks_per_row,f);
+
+
+    }
     cudaCheckError();
   }
   template<typename T, class Func>
