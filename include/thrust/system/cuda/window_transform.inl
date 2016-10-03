@@ -135,43 +135,6 @@ namespace thrust
       }
     }
   }
-  template<typename T, class Func>
-  __global__ void for_each_kernel (window_iterator<T> *input, int operations_per_block,int total_operations, int shared_block_dim_x , int shared_block_dim_y , int blocks_per_row , Func f)
-  {
-    extern __shared__ T shared_memory [];
-    int abs_position = (blockIdx.y*gridDim.x + blockIdx.x)*operations_per_block + threadIdx.x;
-    // int windowSize = input->window_dim_x*(input->window_dim_y);
-    if(abs_position>=total_operations||threadIdx.x >=operations_per_block)
-    return;
-    window_2d<T> current_window = (*input)[abs_position];
-    int ind_window_size = min(input->stride_y,input->window_dim_y)*min(input->stride_x,input->window_dim_x);
-    int start_x = (threadIdx.x%input->windows_along_x)*input->window_dim_x;
-    int start_y = (threadIdx.x/input->windows_along_x)*input->window_dim_y;
-    int stride_x = input->stride_x;
-    int window_dim_x = input->window_dim_x;
-    int i_range = min(stride_x,window_dim_x);
-    window_2d<T> shared_window(shared_memory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
-    for(int j = 0; j<i_range;j++)
-    {
-      for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
-      {
-        T temp=current_window[j][i];
-        shared_window[j][i]=temp;
-        // printf("Val = %f i = %d j = %d x = %d y = %d \n",current_window[j][i],i,j,current_window.start_x,current_window.start_y);
-      }
-    }
-
-    f(shared_window);
-
-    for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
-    {
-      for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
-      {
-        current_window[j][i]=shared_window[j][i];
-        // printf("Val = %f i = %d j = %d x = %d y = %d \n",current_window[j][i],i,j,current_window.start_x,current_window.start_y);
-      }
-    }
-  }
 
   template <class Iterator, class Func>
   void for_each(cuda::shared_policy,Iterator begin1, Iterator end1, Func f)
@@ -264,7 +227,7 @@ namespace thrust
       printf("Total Operations = %d,Operations Per Block = %d, OPB By Memory = %d\n",num_of_operations,operations_per_block,operations_per_block_by_memory);
       printf("\n Config = (%d,%d)x%d SharedMem=%d",xblocks,yblocks,operations_per_block,shared_memory_size);
       #endif
-      for_each_kernel<<<dim3(xblocks,yblocks),operations_per_block,shared_memory_size>>>(device_begin_1,operations_per_block,num_of_operations,shared_block_dim_x,begin1.window_dim_y,blocks_per_row,f);
+      for_each_kernel<<<dim3(xblocks,yblocks),operations_per_block,shared_memory_size>>>(device_begin_1,operations_per_block,num_of_operations,shared_block_dim_x,begin1.window_dim_y,f);
 
 
     }
