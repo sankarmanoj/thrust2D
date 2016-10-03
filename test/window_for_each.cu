@@ -14,8 +14,8 @@ class printFunctor : public thrust::shared_binary_window_transform_functor<float
 public:
   __device__ void operator() (const thrust::window_2d<float> &inputWindow,const thrust::window_2d<float> &inputWindow1, const thrust::window_2d<float> &outputWindow) const
   {
+  printf("%f=%f+%f\n",(float)outputWindow[0][0],(float) inputWindow[0][0],(float)inputWindow1[0][0]);
      outputWindow[0][0]=inputWindow[0][0] + inputWindow1[0][0];
-     printf("%f=%f+%f\n",(float)outputWindow[0][0],(float) inputWindow[0][0],(float)inputWindow1[0][0]);
   }
 };
 
@@ -39,8 +39,9 @@ int main()
   thrust::device_vector<float> a((long long int)X*Y);
   thrust::sequence(a.begin(),a.end());
   thrust::copy(a.begin(),a.end(),inBlock.begin());
-  thrust::copy(a.begin(),a.end(),inBlock1.begin());
+  thrust::fill(inBlock1.begin(),inBlock1.end(),456.0f);
   thrust::fill(kernel.begin(),kernel.end(),1.0);
+  thrust::fill(outBlock.begin(),outBlock.end(),777.0f);
   thrust::window_vector<float> myVector = thrust::window_vector<float>(&inBlock,3,3,3,3);
   thrust::window_vector<float> myVector1 = thrust::window_vector<float>(&inBlock1,3,3,3,3);
   thrust::window_vector<float> mySecondVector = thrust::window_vector<float>(&outBlock,3,3,3,3);

@@ -428,7 +428,7 @@ namespace thrust
     cudaMalloc((void **)&device_begin_3,sizeof(Iterator));
     cudaMalloc((void **)&device_begin_2,sizeof(Iterator));
     cudaMalloc((void **)&device_begin_1, sizeof(Iterator));
-    cudaMemcpy(device_begin_3,&begin2,sizeof(Iterator),cudaMemcpyHostToDevice);
+    cudaMemcpy(device_begin_3,&begin3,sizeof(Iterator),cudaMemcpyHostToDevice);  //cudaMemcpy(device_begin_3,&begin2,sizeof(Iterator),cudaMemcpyHostToDevice);
     cudaMemcpy(device_begin_2,&begin2,sizeof(Iterator),cudaMemcpyHostToDevice);
     cudaMemcpy(device_begin_1,&begin1,sizeof(Iterator),cudaMemcpyHostToDevice);
     transform_kernel<<<dim3(xblocks,yblocks),operations_per_block,shared_memory_size>>>(device_begin_1,device_begin_2,device_begin_3,operations_per_block,num_of_operations,begin1.block_dim_x,data_rows_per_block,f);
