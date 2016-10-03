@@ -2,8 +2,8 @@
 #include <thrust/window_2d.h>
 #include <thrust/sequence.h>
 #include <thrust/window_transform.h>
-#define X 10000
-#define Y 100
+#define X 60000
+#define Y 1000
 #define XSTART 9990
 #define XRANGE 10
 #define YSTART 0
