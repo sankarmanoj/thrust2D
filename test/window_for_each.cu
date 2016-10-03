@@ -6,7 +6,7 @@
 #define Y 1000
 #define XSTART 9990
 #define XRANGE 10
-#define YSTART 0
+#define YSTART 990
 #define YRANGE 10
 
 class printFunctor : public thrust::shared_binary_window_transform_functor<float>
@@ -54,7 +54,7 @@ int main()
   thrust::fill(outBlock.begin(),outBlock.end(),777.0f);
   // thrust::window_vector<float> myVector = thrust::window_vector<float>(&inBlock,3,3,4,4);
   // thrust::window_vector<float> myVector1 = thrust::window_vector<float>(&inBlock1,3,3,4,4);
-  thrust::window_vector<float> mySecondVector = thrust::window_vector<float>(&outBlock,4,4,4,4);
+  thrust::window_vector<float> mySecondVector = thrust::window_vector<float>(&outBlock,4,4,2,2);
   // for (int j=YSTART;j<YSTART + YRANGE;j++)
   // {
   //   for (int i=XSTART; i<XSTART + XRANGE;i++)
