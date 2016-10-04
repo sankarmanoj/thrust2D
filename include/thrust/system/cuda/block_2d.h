@@ -2,6 +2,7 @@
 
 #include <thrust/device_vector.h>
 #include <thrust/device_ptr.h>
+#include <thrust/host_vector.h>
 
 namespace thrust
 {
@@ -58,8 +59,6 @@ namespace thrust
 		block_2d(int dim_x,int dim_y,T value);
 
 		block_2d(block_2d<T> &other);
-
-		// 	void initalize_device_memory();
 		__host__ __device__ int2 index_to_int2(int index);
 		block_2d* sub_block (int ul_x, int ul_y, int br_x, int br_y);
 
@@ -86,5 +85,40 @@ namespace thrust
 
 	};
 
+	template <class T>
+	class host_block_2d : public host_vector<T>
+	{
+	public:
+		typedef typename detail::vector_base<T,std::allocator<T> >::iterator iterator;
+		int dim_x,dim_y;
+		int offset_x, offset_y;
+		// device_vector<T> device_data;
+		iterator host_iterator;
+		// block_2d * device_pointer;
+		host_block_2d(int dim_x,int dim_y);
+		host_block_2d(int dim_x,int dim_y,T value);
+
+		host_block_2d(host_block_2d<T> &other);
+		__host__ int2 index_to_int2(int index);
+		host_block_2d* sub_block (int ul_x, int ul_y, int br_x, int br_y);
+
+		template <class InputIterator>
+		host_block_2d(InputIterator first, InputIterator last) : host_vector<T>(first,last)
+		{
+			this->dim_x = last-first;
+			this->dim_y = 1;
+			this->offset_x = 0;
+			this->offset_y = 0;
+			// device_data = device_vector<T>(dim_x * dim_y);
+			host_iterator = this->data();
+		}
+
+		__host__ iterator operator[] (int index);
+		__host__ T operator[] (int2 index);
+
+		iterator begin();
+		iterator end();
+
+	};
 }
 #include <thrust/system/cuda/block_2d.inl>

@@ -28,7 +28,7 @@ __device__  __host__ void operator() (const int  &a) const
 };
 int main()
 {
-  block_2d<int> a(5,5);
+  host_block_2d<int> a(5,5);
   sequence(a.begin(),a.end());
   for_each(thrust::host,a.begin(),a.end(),printFunctor2());
 

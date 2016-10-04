@@ -91,6 +91,83 @@ namespace thrust
     return block_iterator<T>(this,(this->dim_y)*(this->dim_x));
   }
 
+  template <class T>
+  host_block_2d<T>::host_block_2d (int dim_x, int dim_y) : host_vector<T>(dim_x*dim_y)
+  {
+    this->dim_x = dim_x;
+    this->dim_y = dim_y;
+    this->offset_x = 0;
+    this->offset_y = 0;
+  	host_iterator = this->data();
+  }
+
+  template <class T>
+  host_block_2d<T>::host_block_2d (int dim_x, int dim_y, T value) : host_vector<T>(dim_x*dim_y,value)
+  {
+    this->dim_x = dim_x;
+    this->dim_y = dim_y;
+    this->offset_x = 0;
+    this->offset_y = 0;
+    host_iterator = this->data();
+  }
+
+  template <class T>
+  host_block_2d<T>::host_block_2d (host_block_2d<T> &other) : host_vector<T>(other)
+  {
+    this->dim_x = other.dim_x;
+    this->dim_y = other.dim_y;
+    this->offset_x = other.offset_x;
+    this->offset_y = other.offset_y;
+  	host_iterator = this->data();
+  }
+
+  template <class T>
+  host_block_2d<T>* host_block_2d<T>::sub_block (int ul_x, int ul_y, int br_x, int br_y)
+  {
+    // TODO: Is this the best and most valid way to create sub_block?
+    // NOTE: Alternative method due to problems with data copying. Make copy and create sub block.
+    this->offset_x = ul_x;
+    this->offset_y = ul_y;
+    this->dim_x = br_x - ul_x + 1;
+    this->dim_y = br_y - ul_y + 1;
+    return this;
+  }
+
+  template <class T>
+  __host__ host_block_2d<T>::iterator host_block_2d<T>::operator[] (int index)
+  {
+    return this->host_iterator + ((index * (this->dim_x + this->offset_x)) + offset_y);
+  }
+
+  template<class T>
+	__host__ T host_block_2d<T>::operator[] (int2 index)
+  {
+    if(index.y<0||index.x<0||index.y>=dim_y||index.x>=dim_x)
+    {
+      return 0;
+    }
+    return this->host_iterator[index.y * (this->dim_x + this->offset_x) + offset_y + index.x];
+  }
+
+  template <class T>
+  __host__ __forceinline__ int2 host_block_2d<T>::index_to_int2(int position)
+  {
+    int i = position/dim_x;
+    int j = position%dim_x;
+    return make_int2(j,i);
+  }
+
+  template <class T>
+  __host__ host_block_2d<T>::iterator host_block_2d<T>::begin()
+  {
+    return this->host_iterator;
+  }
+  template <class T>
+  __host__  host_block_2d<T>::iterator host_block_2d<T>::end()
+  {
+    return this->host_iterator + (this->dim_x * this->dim_y);
+  }
+
   template<class T>
 	__host__ __device__ block_iterator<T>::block_iterator (block_2d<T> *pB, int position)
   {
