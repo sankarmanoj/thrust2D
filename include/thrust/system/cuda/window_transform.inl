@@ -48,7 +48,15 @@ namespace thrust
       {
         shared_reduce_space[threadIdx.x]+=shared_reduce_space[i];
       }
-      block[block_coordinates.y][block_coordinates.x]=0;
+      block[block_coordinates.y][block_coordinates.x]=shared_reduce_space[threadIdx.x];
+      if(block[block_coordinates.y][block_coordinates.x]>255)
+      {
+        block[block_coordinates.y][block_coordinates.x] =255;
+      }
+      else if(block[block_coordinates.y][block_coordinates.x]<0)
+      {
+        block[block_coordinates.y][block_coordinates.x]=0;
+      }
     }
 
     return;

@@ -13,7 +13,7 @@ inline float gauss(int x, int y, int mid, float sigma )
 {
   float temp = (pow(x-mid,2)+pow(y-mid,2))/sigma;
   temp= exp(-temp);
-  return 100;
+  return temp;
 }
 void getGaussianKernelBlock(int dim, float sigma,thrust::block_2d<float> &GaussianKernel )
 {
@@ -70,11 +70,12 @@ class forEachFunctor : public thrust::shared_window_for_each_functor<float>
 int main(int argc, char const *argv[]) {
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
-  int dim = 3;
-  resize(small,image,Size(100,100));
+  int dim = 13;
+  image = small;
+  // resize(small,image,Size(50,50));
   thrust::block_2d<float> kernel(dim,dim);
-  getGaussianKernelBlock(dim,1,kernel);
-  thrust::fill(kernel.begin(),kernel.end(),1.0f);
+  getGaussianKernelBlock(dim,5,kernel);
+  // thrust::fill(kernel.begin(),kernel.end(),0.0f);
   //
   // for(int i = 0; i<dim;i++)
   // {
@@ -99,7 +100,7 @@ int main(int argc, char const *argv[]) {
   // image_block.assign(image.ptr(),image.ptr()+image.cols*image.rows);
   Mat cvGB;
   GaussianBlur(image,cvGB,Size(3,3),3);
-  thrust::window_vector<float> myVector = thrust::window_vector<float>(&float_image_block,3,3,3,3);
+  // thrust::window_vector<float> myVector = thrust::window_vector<float>(&float_image_block,3,3,3,3);
   // thrust::for_each(thrust::cuda::shared,myVector.begin(),myVector.end(),forEachFunctor(kernel.device_pointer));
   thrust::convolve(float_image_block.begin(),float_image_block.end(),kernel.begin());
   // unsigned char * outputImageData = (unsigned char *)malloc(sizeof(unsigned char)*(image_block.end()-image_block.begin()));
@@ -115,7 +116,7 @@ int main(int argc, char const *argv[]) {
   // std::cout<<output;
   cudaCheckError();
   // std::cout<<output.type()<<"  "<<Size(image.cols,image.rows)<<"="<<image_block.end()-image_block.begin()<<"\n";
-  imshow("input",cvGB);
+  imshow("input",image);
   imshow("output",output);
   imwrite("output.png",output);
 
