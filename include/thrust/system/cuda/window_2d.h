@@ -32,6 +32,7 @@ namespace thrust
     bool is_shared;
   public:
     typedef typename block_2d<T,Alloc>::reference reference;
+    typedef typename detail::vector_base<window_2d<T>,Alloc>::pointer pointer;
     __host__ __device__ window_2d_iterator(T * data, long position);
     __host__ __device__ window_2d_iterator(block_2d<T,Alloc> *b, long position);
     __host__ __device__ reference operator[] (long index);
@@ -48,7 +49,8 @@ namespace thrust
     typedef long difference_type;
     typedef T base_value_type;
     typedef window_2d<T,Alloc> value_type;
-    typedef detail::iterator_category_with_system_and_traversal<random_access_device_iterator_tag, system::cuda::detail::tag, random_access_traversal_tag> iterator_category;
+    typedef typename detail::normal_iterator<typename detail::vector_base<window_2d<T>,Alloc>::pointer> iterator;
+    typedef typename iterator::iterator_category iterator_category;
     typedef window_2d<T,Alloc> reference;
     typedef window_2d<T,Alloc>* pointer;
     int window_dim_x;
@@ -66,10 +68,10 @@ namespace thrust
     __host__ __device__ reference operator* ();
     __host__ __device__ const reference operator* () const;
 
-    __host__ __device__ long operator- (window_iterator<T,Alloc>& it);
-    __host__ __device__ long operator- (const window_iterator<T,Alloc>& it);
-    __host__ __device__ long operator- (const window_iterator<T,Alloc>& it) const;
-    __host__ __device__ long operator- (window_iterator<T,Alloc>& it) const;
+    __host__ __device__ difference_type operator- (window_iterator<T,Alloc>& it);
+    __host__ __device__ difference_type operator- (const window_iterator<T,Alloc>& it);
+    __host__ __device__ difference_type operator- (const window_iterator<T,Alloc>& it) const;
+    __host__ __device__ difference_type operator- (window_iterator<T,Alloc>& it) const;
 
 
     __host__ __device__ window_iterator<T,Alloc> operator+ (long N);

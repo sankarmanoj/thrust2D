@@ -112,7 +112,7 @@ namespace thrust
   {
     if(this->is_shared)
     {
-      return *device_ptr<T>(&data[this->position + index]);
+      return *pointer(&data[this->position + index]);
     }
     else
     {
@@ -126,7 +126,7 @@ namespace thrust
   {
     if(this->is_shared)
     {
-      return *device_ptr<T>(&data[this->position + index]);
+      return *pointer(&data[this->position + index]);
     }
     else
     {
@@ -167,7 +167,7 @@ namespace thrust
 
   }
   template <class T,class Alloc>
-  __host__ __device__ window_2d<T,Alloc> window_iterator<T,Alloc>::operator[] (long index)
+  __host__ __device__ window_iterator<T,Alloc>::reference window_iterator<T,Alloc>::operator[] (long index)
   {
     int i = index/windows_along_y;
     int j = index%windows_along_y;
@@ -178,7 +178,7 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ const window_2d<T,Alloc> window_iterator<T,Alloc>::operator[] (long index) const
+  __host__ __device__ const window_iterator<T,Alloc>::reference window_iterator<T,Alloc>::operator[] (long index) const
   {
     int i = index/windows_along_y;
     int j = index%windows_along_y;
@@ -189,7 +189,7 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ window_2d<T,Alloc> window_iterator<T,Alloc>::operator* ()
+  __host__ __device__ window_iterator<T,Alloc>::reference window_iterator<T,Alloc>::operator* ()
   {
     int i = position/windows_along_y;
     int j = position%windows_along_y;
@@ -201,7 +201,7 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ const window_2d<T,Alloc> window_iterator<T,Alloc>::operator* () const
+  __host__ __device__ const window_iterator<T,Alloc>::reference window_iterator<T,Alloc>::operator* () const
   {
     int i = position/windows_along_y;
     int j = position%windows_along_y;
@@ -212,25 +212,25 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ long window_iterator<T,Alloc>::operator- (window_iterator& it)
+  __host__ __device__ window_iterator<T,Alloc>::difference_type window_iterator<T,Alloc>::operator- (window_iterator<T,Alloc> &it)
   {
     return this->position - it.position;
   }
 
   template <class T,class Alloc>
-  __host__ __device__ long window_iterator<T,Alloc>::operator- (const window_iterator& it)
+  __host__ __device__ window_iterator<T,Alloc>::difference_type window_iterator<T,Alloc>::operator- (const window_iterator<T,Alloc> &it)
   {
     return this->position - it.position;
   }
 
   template <class T,class Alloc>
-  __host__ __device__ long window_iterator<T,Alloc>::operator- (const window_iterator& it) const
+  __host__ __device__ window_iterator<T,Alloc>::difference_type window_iterator<T,Alloc>::operator- (const window_iterator<T,Alloc> &it) const
   {
     return this->position - it.position;
   }
 
   template <class T,class Alloc>
-  __host__ __device__ long window_iterator<T,Alloc>::operator- ( window_iterator& it) const
+  __host__ __device__ window_iterator<T,Alloc>::difference_type window_iterator<T,Alloc>::operator- ( window_iterator<T,Alloc> &it) const
   {
     return this->position - it.position;
   }
@@ -238,8 +238,8 @@ namespace thrust
   __host__ __device__ window_iterator<T,Alloc> window_iterator<T,Alloc>::operator+ (long N)
   {
     this->position = this->position+N;
-    if(this->position>=(this->windows_along_x*this->windows_along_y-1))
-    this->position=(this->windows_along_x*this->windows_along_y-1);
+    if(this->position>=(this->windows_along_x*this->windows_along_y))
+    this->position=(this->windows_along_x*this->windows_along_y);
     return *this;
   }
 
@@ -247,8 +247,8 @@ namespace thrust
   __host__ __device__ window_iterator<T,Alloc> window_iterator<T,Alloc>::operator++ ()
   {
     this->position++;
-    if(this->position>=(this->windows_along_x*this->windows_along_y-1))
-    this->position=(this->windows_along_x*this->windows_along_y-1);
+    if(this->position>=(this->windows_along_x*this->windows_along_y))
+    this->position=(this->windows_along_x*this->windows_along_y);
     return *this;
   }
 
@@ -297,8 +297,8 @@ namespace thrust
   __host__ __device__ __forceinline__ window_iterator<T,Alloc> window_iterator<T,Alloc>::operator+= (long N)
   {
     this->position+=N;
-    if(this->position>=(this->windows_along_x*this->windows_along_y-1))
-    this->position=(this->windows_along_x*this->windows_along_y-1);
+    if(this->position>=(this->windows_along_x*this->windows_along_y))
+    this->position=(this->windows_along_x*this->windows_along_y);
     return *this;
   }
 
@@ -306,42 +306,42 @@ namespace thrust
   __host__ __device__ __forceinline__ const window_iterator<T,Alloc> window_iterator<T,Alloc>::operator+= (long N) const
   {
     this->position+=N;
-    if(this->position>=(this->windows_along_x*this->windows_along_y-1))
-    this->position=(this->windows_along_x*this->windows_along_y-1);
+    if(this->position>=(this->windows_along_x*this->windows_along_y))
+    this->position=(this->windows_along_x*this->windows_along_y);
     return *this;
   }
 
   template <class T,class Alloc>
-  __host__ __device__ bool window_iterator<T,Alloc>::operator!= (const window_iterator<T,Alloc>& it) const
+  __host__ __device__ bool window_iterator<T,Alloc>::operator!= (const window_iterator<T,Alloc> &it) const
   {
     return this->position!=it.position;
   }
 
   template <class T,class Alloc>
-  __host__ __device__ bool window_iterator<T,Alloc>::operator== (const window_iterator<T,Alloc>& it) const
+  __host__ __device__ bool window_iterator<T,Alloc>::operator== (const window_iterator<T,Alloc> &it) const
   {
     return this->position==it.position;
   }
 
   template <class T,class Alloc>
-  __host__ __device__ bool window_iterator<T,Alloc>::operator> (const window_iterator<T,Alloc>& it) const
+  __host__ __device__ bool window_iterator<T,Alloc>::operator> (const window_iterator<T,Alloc> &it) const
   {
     return this->position>it.position;
   }
 
   template <class T,class Alloc>
-  __host__ __device__ bool window_iterator<T,Alloc>::operator>= (const window_iterator<T,Alloc>& it) const
+  __host__ __device__ bool window_iterator<T,Alloc>::operator>= (const window_iterator<T,Alloc> &it) const
   {
     return this->position>=it.position;
   }
 
   template <class T,class Alloc>
-  __host__ __device__ bool window_iterator<T,Alloc>::operator< (const window_iterator<T,Alloc>& it) const
+  __host__ __device__ bool window_iterator<T,Alloc>::operator< (const window_iterator<T,Alloc> &it) const
   {
     return this->position<it.position;
   }
   template <class T,class Alloc>
-  __host__ __device__ bool window_iterator<T,Alloc>::operator<= (const window_iterator<T,Alloc>& it) const
+  __host__ __device__ bool window_iterator<T,Alloc>::operator<= (const window_iterator<T,Alloc> &it) const
   {
     return this->position<=it.position;
   }
@@ -367,5 +367,13 @@ namespace thrust
     int windowsX = int((b->dim_x-window_dim_x)/stride_x) +1;
     int windowsY = int((b->dim_y-window_dim_y)/stride_y)+1;
     return window_iterator<T,Alloc>(b,window_dim_x,window_dim_y,stride_x,stride_y,windowsX*windowsY);
+  }
+
+  #define cudaCheckError() {                                          \
+   cudaError_t e=cudaGetLastError();                                 \
+   if(e!=cudaSuccess) {                                              \
+     printf("Cuda failure %s:%d: '%s'\n",__FILE__,__LINE__,cudaGetErrorString(e));           \
+     exit(0); \
+   }                                                                 \
   }
 }
