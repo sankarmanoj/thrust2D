@@ -180,8 +180,8 @@ namespace thrust
   __host__ __device__ window_2d<T> window_iterator<T>::operator[] (long index)
   {
     // printf("Reached Here 1");
-    int i = index/windows_along_y;
-    int j = index%windows_along_y;
+    int i = index%windows_along_x;
+    int j = index/windows_along_x;
     int start_x = stride_x*i;
     int start_y = stride_y*j;
     window_2d<T> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
@@ -193,8 +193,8 @@ namespace thrust
   __host__ __device__ const window_2d<T> window_iterator<T>::operator[] (long index) const
   {
     // printf("Reached Here 2");
-    int i = index/windows_along_y;
-    int j = index%windows_along_y;
+    int i = index%windows_along_x;
+    int j = index/windows_along_x;
     int start_x = stride_x*i;
     int start_y = stride_y*j;
         // printf("Reached Here 3");
@@ -207,8 +207,8 @@ namespace thrust
   __host__ __device__ window_2d<T> window_iterator<T>::operator* ()
   {
     // printf("Reached Here 3");
-    int i = position/windows_along_y;
-    int j = position%windows_along_y;
+    int i = position%windows_along_x;
+    int j = position/windows_along_x;
     int start_x = stride_x*i;
     int start_y = stride_y*j;
 
@@ -220,8 +220,8 @@ namespace thrust
   __host__ __device__ const window_2d<T> window_iterator<T>::operator* () const
   {
     // printf("Reached Here 4");
-    int i = position/windows_along_y;
-    int j = position%windows_along_y;
+    int i = position%windows_along_x;
+    int j = position/windows_along_x;
     int start_x = stride_x*i;
     int start_y = stride_y*j;
     window_2d<T> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);

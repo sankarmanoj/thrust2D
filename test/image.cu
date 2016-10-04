@@ -44,7 +44,7 @@ void getGaussianKernelBlock(int dim, float sigma,thrust::block_2d<float> &Gaussi
   }
   printf("Total = %f,newTotal=%f\n",total,newTotal);
 }
-class transFormFunctor //: public thrust::shared_binary_window_transform_functor<float>
+class transFormFunctor //: public thrust::shared_unary_window_transform_functor<float>
 {
   public:
 
@@ -118,6 +118,7 @@ int main(int argc, char const *argv[]) {
   GaussianBlur(image,cvGB,Size(3,3),3);
   thrust::window_vector<float> myVector = thrust::window_vector<float>(&float_image_block,9,9,1,1);
   thrust::window_vector<float> outputVector = thrust::window_vector<float>(&outBlock,9,9,1,1);
+  // thrust::transform(thrust::cuda::shared,myVector.begin(),myVector.end(),outputVector.begin(),transFormFunctor());
   thrust::transform(myVector.begin(),myVector.end(),outputVector.begin(),image_block.begin(),transFormFunctor());
   // thrust::for_each(myVector.begin(),myVector.end(),forEachFunctor());
   // thrust::convolve(float_image_block.begin(),float_image_block.end(),kernel.begin());
