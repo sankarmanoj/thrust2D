@@ -28,10 +28,13 @@ __device__  __host__ void operator() (const int  &a) const
 };
 int main()
 {
-  host_block_2d<int> a(5,5);
+  block_2d<int> a(5,5);
   sequence(a.begin(),a.end());
-  for_each(thrust::host,a.begin(),a.end(),printFunctor2());
+  for_each(a.begin(),a.end(),printFunctor2());
 
+  block_2d<int,std::allocator<int> > b(5,5);
+  sequence(b.begin(),b.end());
+  for_each(thrust::host,b.begin(),b.end(),printFunctor2());
 
   // copy(a.begin(),a.end(),b.begin());
   // for(int i = 0; i<25; i++)

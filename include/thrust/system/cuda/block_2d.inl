@@ -2,8 +2,8 @@
 #include <thrust/system/cuda/block_2d.h>
 namespace thrust
 {
-  template <class T>
-  block_2d<T>::block_2d (int dim_x, int dim_y) : device_vector<T>(dim_x*dim_y)
+  template <class T,class Alloc>
+  block_2d<T,Alloc>::block_2d (int dim_x, int dim_y) : detail::vector_base<T,Alloc>(dim_x*dim_y)
   {
     this->dim_x = dim_x;
     this->dim_y = dim_y;
@@ -11,14 +11,19 @@ namespace thrust
     this->offset_y = 0;
   	// device_data = device_vector<T>(dim_x * dim_y);
   	device_iterator = this->data();
-    block_2d<T> * temp;
-    cudaMalloc((void **)&temp,sizeof(block_2d));
-    cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
-    this->device_pointer = temp;
+    if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
+    {
+      block_2d<T,Alloc> * temp;
+      cudaMalloc((void **)&temp,sizeof(block_2d));
+      cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
+      this->device_pointer = temp;
+    }
+    else
+      this->device_pointer = this;
   }
 
-  template <class T>
-  block_2d<T>::block_2d (int dim_x, int dim_y, T value) : device_vector<T>(dim_x*dim_y,value)
+  template <class T,class Alloc>
+  block_2d<T,Alloc>::block_2d (int dim_x, int dim_y, T value) : detail::vector_base<T,Alloc>(dim_x*dim_y,value)
   {
     this->dim_x = dim_x;
     this->dim_y = dim_y;
@@ -26,14 +31,19 @@ namespace thrust
     this->offset_y = 0;
     // device_data = device_vector<T>(dim_x * dim_y);
     device_iterator = this->data();
-    block_2d<T> * temp;
-    cudaMalloc((void **)&temp,sizeof(block_2d));
-    cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
-    this->device_pointer = temp;
+    if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
+    {
+      block_2d<T,Alloc> * temp;
+      cudaMalloc((void **)&temp,sizeof(block_2d));
+      cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
+      this->device_pointer = temp;
+    }
+    else
+      this->device_pointer = this;
   }
 
-  template <class T>
-  block_2d<T>::block_2d (block_2d<T> &other) : device_vector<T>(other)
+  template <class T,class Alloc>
+  block_2d<T,Alloc>::block_2d (block_2d<T> &other) : detail::vector_base<T,Alloc>(other)
   {
     this->dim_x = other.dim_x;
     this->dim_y = other.dim_y;
@@ -44,8 +54,8 @@ namespace thrust
     this->device_pointer = other.device_pointer;
   }
 
-  template <class T>
-  block_2d<T>* block_2d<T>::sub_block (int ul_x, int ul_y, int br_x, int br_y)
+  template <class T,class Alloc>
+  block_2d<T,Alloc>* block_2d<T,Alloc>::sub_block (int ul_x, int ul_y, int br_x, int br_y)
   {
     // TODO: Is this the best and most valid way to create sub_block?
     // NOTE: Alternative method due to problems with data copying. Make copy and create sub block.
@@ -56,14 +66,14 @@ namespace thrust
     return this;
   }
 
-  template <class T>
-  __host__ __device__ detail::normal_iterator<device_ptr<T> > block_2d<T>::operator[] (int index)
+  template <class T,class Alloc>
+  __host__ __device__ block_2d<T,Alloc>::iterator_base block_2d<T,Alloc>::operator[] (int index)
   {
     return this->device_iterator + ((index * (this->dim_x + this->offset_x)) + offset_y);
   }
 
-  template<class T>
-	__host__ __device__ T block_2d<T>::operator[] (int2 index)
+  template <class T,class Alloc>
+	__host__ __device__ block_2d<T,Alloc>::reference block_2d<T,Alloc>::operator[] (int2 index)
   {
     if(index.y<0||index.x<0||index.y>=dim_y||index.x>=dim_x)
     {
@@ -72,104 +82,27 @@ namespace thrust
     return this->device_iterator[index.y * (this->dim_x + this->offset_x) + offset_y + index.x];
   }
 
-  template <class T>
-  __host__ __device__ __forceinline__ int2 block_2d<T>::index_to_int2(int position)
+  template <class T,class Alloc>
+  __host__ __device__ __forceinline__ int2 block_2d<T,Alloc>::index_to_int2(int position)
   {
     int i = position/dim_x;
     int j = position%dim_x;
     return make_int2(j,i);
   }
 
-  template <class T>
-  __host__ block_iterator<T> block_2d<T>::begin()
+  template <class T,class Alloc>
+  __host__ block_2d<T,Alloc>::iterator block_2d<T,Alloc>::begin()
   {
-    return block_iterator<T>(this,0);
+    return block_iterator<T,Alloc>(this,0);
   }
-  template <class T>
-  __host__  block_iterator<T> block_2d<T>::end()
+  template <class T,class Alloc>
+  __host__  block_2d<T,Alloc>::iterator block_2d<T,Alloc>::end()
   {
-    return block_iterator<T>(this,(this->dim_y)*(this->dim_x));
-  }
-
-  template <class T>
-  host_block_2d<T>::host_block_2d (int dim_x, int dim_y) : host_vector<T>(dim_x*dim_y)
-  {
-    this->dim_x = dim_x;
-    this->dim_y = dim_y;
-    this->offset_x = 0;
-    this->offset_y = 0;
-  	host_iterator = this->data();
+    return block_iterator<T,Alloc>(this,(this->dim_y)*(this->dim_x));
   }
 
-  template <class T>
-  host_block_2d<T>::host_block_2d (int dim_x, int dim_y, T value) : host_vector<T>(dim_x*dim_y,value)
-  {
-    this->dim_x = dim_x;
-    this->dim_y = dim_y;
-    this->offset_x = 0;
-    this->offset_y = 0;
-    host_iterator = this->data();
-  }
-
-  template <class T>
-  host_block_2d<T>::host_block_2d (host_block_2d<T> &other) : host_vector<T>(other)
-  {
-    this->dim_x = other.dim_x;
-    this->dim_y = other.dim_y;
-    this->offset_x = other.offset_x;
-    this->offset_y = other.offset_y;
-  	host_iterator = this->data();
-  }
-
-  template <class T>
-  host_block_2d<T>* host_block_2d<T>::sub_block (int ul_x, int ul_y, int br_x, int br_y)
-  {
-    // TODO: Is this the best and most valid way to create sub_block?
-    // NOTE: Alternative method due to problems with data copying. Make copy and create sub block.
-    this->offset_x = ul_x;
-    this->offset_y = ul_y;
-    this->dim_x = br_x - ul_x + 1;
-    this->dim_y = br_y - ul_y + 1;
-    return this;
-  }
-
-  template <class T>
-  __host__ host_block_2d<T>::iterator host_block_2d<T>::operator[] (int index)
-  {
-    return this->host_iterator + ((index * (this->dim_x + this->offset_x)) + offset_y);
-  }
-
-  template<class T>
-	__host__ T host_block_2d<T>::operator[] (int2 index)
-  {
-    if(index.y<0||index.x<0||index.y>=dim_y||index.x>=dim_x)
-    {
-      return 0;
-    }
-    return this->host_iterator[index.y * (this->dim_x + this->offset_x) + offset_y + index.x];
-  }
-
-  template <class T>
-  __host__ __forceinline__ int2 host_block_2d<T>::index_to_int2(int position)
-  {
-    int i = position/dim_x;
-    int j = position%dim_x;
-    return make_int2(j,i);
-  }
-
-  template <class T>
-  __host__ host_block_2d<T>::iterator host_block_2d<T>::begin()
-  {
-    return this->host_iterator;
-  }
-  template <class T>
-  __host__  host_block_2d<T>::iterator host_block_2d<T>::end()
-  {
-    return this->host_iterator + (this->dim_x * this->dim_y);
-  }
-
-  template<class T>
-	__host__ __device__ block_iterator<T>::block_iterator (block_2d<T> *pB, int position)
+  template<class T,class Alloc>
+	__host__ __device__ block_iterator<T,Alloc>::block_iterator (block_2d<T,Alloc> *pB, int position)
   {
     parent_block = pB->device_pointer;
     parent_block_host = pB;
@@ -178,8 +111,8 @@ namespace thrust
     this->dim_x = pB->dim_x;
   }
 
-  template<class T>
-__host__ __device__ block_iterator<T>::block_iterator(const block_iterator<T> &it)
+  template<class T,class Alloc>
+__host__ __device__ block_iterator<T,Alloc>::block_iterator(const block_iterator<T,Alloc> &it)
   {
     this->parent_block = it.parent_block;
     this->parent_block_host = it.parent_block_host;
@@ -188,97 +121,97 @@ __host__ __device__ block_iterator<T>::block_iterator(const block_iterator<T> &i
     this->dim_y = it.dim_y;
   }
 
-  template<class T>
-  __host__ __device__ block_iterator<T>::reference	block_iterator<T>::operator* () const
+  template<class T,class Alloc>
+  __host__ __device__ block_iterator<T,Alloc>::reference	block_iterator<T,Alloc>::operator* () const
   {
     int2 temp = parent_block->index_to_int2(position);
     return (*parent_block)[temp.y][temp.x];
   }
-  template<class T>
-  __host__ __device__ block_iterator<T>::reference	block_iterator<T>::operator[] (long index)
+  template<class T,class Alloc>
+  __host__ __device__ block_iterator<T,Alloc>::reference	block_iterator<T,Alloc>::operator[] (long index)
   {
     int2 temp = parent_block->index_to_int2(index);
     return (*parent_block)[temp.y][temp.x];
   }
-  template<class T>
-  __host__ __device__ block_iterator<T> block_iterator<T>::operator+ (long value)
+  template<class T,class Alloc>
+  __host__ __device__ block_iterator<T,Alloc> block_iterator<T,Alloc>::operator+ (long value)
   {
     block_iterator<T> temp = *this;
     temp.position+=value;
     return temp;
   }
-  template<class T>
-  __host__ __device__ block_iterator<T>& block_iterator<T>::operator+= (long value)
+  template<class T,class Alloc>
+  __host__ __device__ block_iterator<T,Alloc>& block_iterator<T,Alloc>::operator+= (long value)
   {
     this->position+=value;
     return *this;
   }
-  template<class T>
-  __host__ __device__ block_iterator<T>& block_iterator<T>::operator++ ()
+  template<class T,class Alloc>
+  __host__ __device__ block_iterator<T,Alloc>& block_iterator<T,Alloc>::operator++ ()
   {
     this->position++;
     return *this;
   }
-  template<class T>
-  __host__ __device__ block_iterator<T>::difference_type block_iterator<T>::operator- (const block_iterator& it)
+  template<class T,class Alloc>
+  __host__ __device__ block_iterator<T,Alloc>::difference_type block_iterator<T,Alloc>::operator- (const block_iterator<T,Alloc>& it)
   {
     return position - it.position;
   }
 
-  template<class T>
-  __host__ __device__ block_iterator<T>::difference_type block_iterator<T>::operator- (const block_iterator& it) const
+  template<class T,class Alloc>
+  __host__ __device__ block_iterator<T,Alloc>::difference_type block_iterator<T,Alloc>::operator- (const block_iterator<T,Alloc>& it) const
   {
     return position - it.position;
   }
-  template<class T>
-  __host__ __device__ block_iterator<T> block_iterator<T>::operator- (const long N)
+  template<class T,class Alloc>
+  __host__ __device__ block_iterator<T,Alloc> block_iterator<T,Alloc>::operator- (const long N)
   {
-    block_iterator<T> temp = *this;
+    block_iterator<T,Alloc> temp = *this;
     temp.position-=N;
     return temp;
   }
-  template<class T>
-  __host__ __device__ block_iterator<T> block_iterator<T>::operator- (const long N) const
+  template<class T,class Alloc>
+  __host__ __device__ block_iterator<T,Alloc> block_iterator<T,Alloc>::operator- (const long N) const
   {
-    block_iterator<T> temp = *this;
+    block_iterator<T,Alloc> temp = *this;
     temp.position-=N;
     return temp;
   }
-  template<class T>
-  __host__ __device__ block_iterator<T> block_iterator<T>::operator-- ()
+  template<class T,class Alloc>
+  __host__ __device__ block_iterator<T,Alloc> block_iterator<T,Alloc>::operator-- ()
   {
-    block_iterator<T> temp = *this;
+    block_iterator<T,Alloc> temp = *this;
     temp.position-=1;
     return temp;
   }
 
-  template<class T>
-  __host__ __device__ bool block_iterator<T>::operator!= (const block_iterator<T>& it) const
+  template<class T,class Alloc>
+  __host__ __device__ bool block_iterator<T,Alloc>::operator!= (const block_iterator<T,Alloc>& it) const
   {
     return !((*this)==it);
   }
-  template<class T>
-  __host__ __device__ bool block_iterator<T>::operator== (const block_iterator<T>& it) const
+  template<class T,class Alloc>
+  __host__ __device__ bool block_iterator<T,Alloc>::operator== (const block_iterator<T,Alloc>& it) const
   {
     return (this->position==it.position&&this->dim_x==it.dim_x&&this->dim_y==it.dim_y);
   }
-  template<class T>
-  __host__ __device__ bool block_iterator<T>::operator<= (const block_iterator<T>& it) const
+  template<class T,class Alloc>
+  __host__ __device__ bool block_iterator<T,Alloc>::operator<= (const block_iterator<T,Alloc>& it) const
   {
     return (this->position<=it.position&&this->dim_x==it.dim_x&&this->dim_y==it.dim_y);
   }
-  template<class T>
-  __host__ __device__ bool block_iterator<T>::operator>= (const block_iterator<T>& it) const
+  template<class T,class Alloc>
+  __host__ __device__ bool block_iterator<T,Alloc>::operator>= (const block_iterator<T,Alloc>& it) const
   {
     return (this->position>=it.position&&this->dim_x==it.dim_x&&this->dim_y==it.dim_y);
   }
-  template<class T>
-  __host__ __device__ bool block_iterator<T>::operator> (const block_iterator<T>& it) const
+  template<class T,class Alloc>
+  __host__ __device__ bool block_iterator<T,Alloc>::operator> (const block_iterator<T,Alloc>& it) const
   {
     return (this->position>it.position&&this->dim_x==it.dim_x&&this->dim_y==it.dim_y);
   }
-  template<class T>
-  __host__ __device__ bool block_iterator<T>::operator< (const block_iterator<T>& it) const
+  template<class T,class Alloc>
+  __host__ __device__ bool block_iterator<T,Alloc>::operator< (const block_iterator<T,Alloc>& it) const
   {
     return (this->position<it.position&&this->dim_x==it.dim_x&&this->dim_y==it.dim_y);
   }

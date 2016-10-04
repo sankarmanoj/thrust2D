@@ -1,6 +1,6 @@
-#include <thrust/block_2d.h>
 #include <thrust/window_2d.h>
 #include <thrust/sequence.h>
+#include <thrust/execution_policy.h>
 #include <iostream>
 #define X 7
 #define Y 6
@@ -9,7 +9,7 @@ using namespace thrust;
 class printFunctor
 {
 public:
-  __device__ void operator() (window_2d<int> myWindow)
+  __host__ __device__ void operator() (window_2d<int,std::allocator<int> > myWindow)
   {
     int value = myWindow[0][0];
 
@@ -20,64 +20,19 @@ public:
 };
 int main()
 {
-  block_2d<int> a1(X,Y);
-  block_2d<int> b = a1;
-  device_vector<int> a(X*Y);
+  block_2d<int,std::allocator<int> > a(X,Y,0);
   sequence(a.begin(),a.end());
-  copy(a.begin(),a.end(),b.begin());
-  window_vector<int> myVector = window_vector<int>(&b,2,3 ,2,3);
+  window_vector<int,std::allocator<int> > myVector(&a,3,3,3,3);
   std::cout<<"Size ="<<myVector.end()-myVector.begin()<<std::endl;
-  window_iterator<int> myIter = myVector.begin();
-  // myIter[0];
-  for_each(myVector.begin(),myVector.end(),printFunctor());
-  // std::cout<<hello.start_x;
-  // std::cout<<"Indexing Test \n";
-
+  for_each(host,myVector.begin(),myVector.end(),printFunctor());
+  cudaDeviceSynchronize();
   for (int i=0; i<Y;i++)
   {
     for (int j=0;j<X;j++)
     {
-      std::cout<<b[i][j]<< " ";
+      std::cout<<a[i][j]<< " ";
     }
     std::cout<<"\n";
   }
-  //
-  // for (int i=0; i<3;i++)
-  // {
-  //   for (int j=0;j<3;j++)
-  //   {
-  //     std::cout<<c[i][j]<< " ";
-  //   }
-  //   std::cout<<"\n";
-  // }
-  //
-  // for (int i=0; i<3;i++)
-  // {
-  //   for (int j=0;j<3;j++)
-  //   {
-  //     c[i][j]++;
-  //   }
-  // }
-  //
-  // for (int i=0; i<3;i++)
-  // {
-  //   for (int j=0;j<3;j++)
-  //   {
-  //     std::cout<<c[i][j]<< " ";
-  //   }
-  //   std::cout<<"\n";
-  // }
-  //
-  // for (int i=0; i<4;i++)
-  // {
-  //   for (int j=0;j<5;j++)
-  //   {
-  //     std::cout<<b[i][j]<< " ";
-  //   }
-  //   std::cout<<"\n";
-  // }
-
-
-
   return 0;
 }
