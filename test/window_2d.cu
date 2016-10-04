@@ -1,6 +1,8 @@
-#include <thrust/block_2d.h>
 #include <thrust/window_2d.h>
+#include <thrust/window_transform.h>
 #include <thrust/sequence.h>
+#include <thrust/execution_policy.h>
+#include <thrust/device_vector.h>
 #include <iostream>
 #define X 7
 #define Y 6
@@ -9,7 +11,30 @@ using namespace thrust;
 class printFunctor
 {
 public:
-  __device__ void operator() (window_2d<int> myWindow)
+  __host__ __device__ void operator() (const window_2d<int,std::allocator<int> > &myWindow) const
+  {
+    int value = myWindow[0][0];
+    myWindow[0][0]=666;
+    printf(" %d , %d , %d\n",myWindow.start_x, myWindow.start_y,value);
+  }
+};
+
+class printFunctor2
+{
+public:
+  __host__ __device__ int operator() (const window_2d<int,std::allocator<int> > &myWindow) const
+  {
+    int value = myWindow[0][0];
+    myWindow[0][0]=666;
+    printf(" %d , %d , %d\n",myWindow.start_x, myWindow.start_y,value);
+    return value;
+  }
+};
+
+class printFunctor1 : shared_window_for_each_functor<int>
+{
+public:
+  __device__ void operator() (const window_2d<int> &myWindow) const
   {
     int value = myWindow[0][0];
 
@@ -20,64 +45,23 @@ public:
 };
 int main()
 {
-  block_2d<int> a1(X,Y);
-  block_2d<int> b = a1;
-  device_vector<int> a(X*Y);
+  block_2d<int> a(X,Y,0);
   sequence(a.begin(),a.end());
-  copy(a.begin(),a.end(),b.begin());
-  window_vector<int> myVector = window_vector<int>(&b,2,3 ,2,3);
+  window_vector<int> myVector(&a,3,3,3,3);
   std::cout<<"Size ="<<myVector.end()-myVector.begin()<<std::endl;
-  window_iterator<int> myIter = myVector.begin();
-  // myIter[0];
-  for_each(myVector.begin(),myVector.end(),printFunctor());
-  // std::cout<<hello.start_x;
-  // std::cout<<"Indexing Test \n";
-
+  device_vector<int> b(myVector.end()-myVector.begin(),0);
+  transform(myVector.begin(),myVector.end(),b.begin(),printFunctor2());
+  cudaDeviceSynchronize();
   for (int i=0; i<Y;i++)
   {
     for (int j=0;j<X;j++)
     {
-      std::cout<<b[i][j]<< " ";
+      std::cout<<a[i][j]<< " ";
     }
     std::cout<<"\n";
   }
-  //
-  // for (int i=0; i<3;i++)
-  // {
-  //   for (int j=0;j<3;j++)
-  //   {
-  //     std::cout<<c[i][j]<< " ";
-  //   }
-  //   std::cout<<"\n";
-  // }
-  //
-  // for (int i=0; i<3;i++)
-  // {
-  //   for (int j=0;j<3;j++)
-  //   {
-  //     c[i][j]++;
-  //   }
-  // }
-  //
-  // for (int i=0; i<3;i++)
-  // {
-  //   for (int j=0;j<3;j++)
-  //   {
-  //     std::cout<<c[i][j]<< " ";
-  //   }
-  //   std::cout<<"\n";
-  // }
-  //
-  // for (int i=0; i<4;i++)
-  // {
-  //   for (int j=0;j<5;j++)
-  //   {
-  //     std::cout<<b[i][j]<< " ";
-  //   }
-  //   std::cout<<"\n";
-  // }
-
-
-
+  for(int i=0; i<myVector.end()-myVector.begin(); i++)
+    std::cout<<b[i]<< " ";
+  std::cout<<"\n";
   return 0;
 }
