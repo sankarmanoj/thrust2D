@@ -15,14 +15,14 @@ int main(int argc, char** argv)
     thrust::sequence(a.begin(),a.end());
     thrust::copy(a.begin(),a.end(),inBlock.begin());
     thrust::fill(kernel.begin(),kernel.end(),1.0);
-    // for (int i=0; i<Y;i++)
-    // {
-    //   for (int j=0;j<X  ;j++)
-    //   {
-    //       std::cout<<inBlock[make_int2(j,i)]<<" ";
-    //   }
-    //   std::cout<<"\n";
-    // }
+    for (int i=0; i<x;i++)
+    {
+      for (int j=0;j<x  ;j++)
+      {
+          std::cout<<inBlock[make_int2(j,i)]<<" ";
+      }
+      std::cout<<"\n";
+    }
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
@@ -34,13 +34,13 @@ int main(int argc, char** argv)
     float milliseconds = 0;
     cudaEventElapsedTime(&milliseconds, start, stop);
     printf("%f\n",milliseconds);
-    // //
-    // for (int i=0; i<Y;i++)
-    // {
-    //   for (int j=0;j<X;j++)
-    //   {
-    //         std::cout<<inBlock[make_int2(j,i)]<<" ";
-    //   }
-    //   std::cout<<"\n";
-    // }
+    //
+    for (int i=0; i<x;i++)
+    {
+      for (int j=0;j<x;j++)
+      {
+            std::cout<<inBlock[make_int2(j,i)]<<" ";
+      }
+      std::cout<<"\n";
+    }
 }
