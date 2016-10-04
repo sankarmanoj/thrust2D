@@ -79,7 +79,7 @@ class forEachFunctor : public thrust::shared_window_for_each_functor<float>
         temp = min(temp,inputWindow[i][j]);
       }
     }
-    inputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=temp;
+    inputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=threadIdx.x%255;
 
   }
 };
@@ -88,7 +88,7 @@ int main(int argc, char const *argv[]) {
   Mat image;
   int dim = 13;
   image = small;
-  // resize(small,image,Size(1000,1000));
+  resize(small,image,Size(2000,2000));
   thrust::block_2d<float> kernel(dim,dim);
   getGaussianKernelBlock(dim,5,kernel);
   // thrust::fill(kernel.begin(),kernel.end(),0.0f);
@@ -119,14 +119,14 @@ int main(int argc, char const *argv[]) {
   thrust::window_vector<float> myVector = thrust::window_vector<float>(&float_image_block,9,9,1,1);
   thrust::window_vector<float> outputVector = thrust::window_vector<float>(&outBlock,9,9,1,1);
   // thrust::transform(thrust::cuda::shared,myVector.begin(),myVector.end(),outputVector.begin(),transFormFunctor());
-  thrust::transform(myVector.begin(),myVector.end(),outputVector.begin(),image_block.begin(),transFormFunctor());
-  // thrust::for_each(myVector.begin(),myVector.end(),forEachFunctor());
+  // thrust::transform(myVector.begin(),myVector.end(),outputVector.begin(),image_block.begin(),transFormFunctor());
+  thrust::for_each(thrust::cuda::shared,myVector.begin(),myVector.end(),forEachFunctor());
   // thrust::convolve(float_image_block.begin(),float_image_block.end(),kernel.begin());
   // unsigned char * outputImageData = (unsigned char *)malloc(sizeof(unsigned char)*(image_block.end()-image_block.begin()));
   // cudaMemcpy(outputImageData,thrust::raw_pointer_cast(image_block.data()),sizeof(unsigned char)*(image_block.end()-image_block.begin()),cudaMemcpyDeviceToHost);
 
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
-  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
+  cudaMemcpy(img,thrust::raw_pointer_cast(float_image_block.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];
