@@ -27,12 +27,11 @@ namespace thrust
       shared_kernel[i] = kernel[kernel.index_to_int2(i)];
     }
     int position =  (blockIdx.y*gridDim.x+ blockIdx.x)*operations_per_block + operation_within_block;
-    if(threadIdx.x*kernel_width>operations_per_block)
+    if(threadIdx.x/kernel_width>operations_per_block)
     {
       return;
     }
     int2 block_coordinates = block.index_to_int2(position);
-
     int abs_row_offset = threadIdx.x % kernel_width;
     int row_offset = abs_row_offset-kernel_half_width;
     shared_reduce_space[threadIdx.x]=0;
@@ -50,6 +49,14 @@ namespace thrust
         shared_reduce_space[threadIdx.x]+=shared_reduce_space[i];
       }
       block[block_coordinates.y][block_coordinates.x]=shared_reduce_space[threadIdx.x];
+      if(block[block_coordinates.y][block_coordinates.x]>255)
+      {
+        block[block_coordinates.y][block_coordinates.x] =255;
+      }
+      else if(block[block_coordinates.y][block_coordinates.x]<0)
+      {
+        block[block_coordinates.y][block_coordinates.x]=0;
+      }
     }
 
     return;
@@ -80,7 +87,7 @@ namespace thrust
     // int maxOperationsInShared = ((shared_memory/(2*sizeof(T)))-(kernel_dim*kernel_dim))/kernel_dim;
     int max_operations_by_thread = properties.maxThreadsPerBlock/kernel_dim;
     int operations = max_operations_by_thread;
-    // printf("  Max Operations = %d, Operations = %d\n", min(max_operations_by_thread,maxOperationsInShared),operations);
+    printf("  Max Operations = %d, Operations = %d\n", max_operations_by_thread,operations);
     // int operations = min(max_operations_by_thread,maxOperationsInShared);
 
     int blocks = ceil(((float)num_of_operations)/operations);
@@ -94,9 +101,9 @@ namespace thrust
     {
       xblocks = blocks;
     }
-    // printf(" Blocks = %d,%d \n",xblocks,yblocks);
-    // printf("Shared Memory Allocated = %d \n",(kernel->dim_y*kernel->dim_x+ operations*kernel_dim)*sizeof(T));
-    // printf("Actual Block Size = %d, Grid Size = %d ",operations*kernel_dim,xblocks*yblocks);
+    printf(" Blocks = %d,%d \n",xblocks,yblocks);
+    printf("Shared Memory Allocated = %d \n",(kernel->dim_y*kernel->dim_x+ operations*kernel_dim)*sizeof(T));
+    printf("Actual Block Size = %d, Grid Size = %d \n",operations*kernel_dim,xblocks*yblocks);
     convolve_kernel<<<dim3(xblocks,yblocks),operations*kernel_dim,(kernel->dim_y*kernel->dim_x+operations*kernel_dim)*sizeof(T)>>>(*(input->device_pointer),*(kernel->device_pointer),operations,num_of_operations);
     cudaCheckError();
   }
