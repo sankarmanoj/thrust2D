@@ -44,27 +44,43 @@ void getGaussianKernelBlock(int dim, float sigma,thrust::block_2d<float> &Gaussi
   }
   printf("Total = %f,newTotal=%f\n",total,newTotal);
 }
+class transFormFunctor //: public thrust::shared_binary_window_transform_functor<float>
+{
+  public:
+
+
+  __device__ float operator() (const thrust::window_2d<float> &inputWindow,const thrust::window_2d<float> &outputWindow) const
+  {
+    float temp = 255;
+    for(int i = 0; i<inputWindow.window_dim_y;i++)
+    {
+      for(int j = 0; j<inputWindow.window_dim_x;j++)
+      {
+        temp = min(temp,inputWindow[i][j]);
+      }
+    }
+    outputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=temp;
+    return 0.0f;
+
+  }
+};
 class forEachFunctor : public thrust::shared_window_for_each_functor<float>
 {
   public:
-  // resize(small,image,Size(150,200));
-  thrust::block_2d<float> *kernel;
-  forEachFunctor(thrust::block_2d<float> *kernel)
-  {
-    this->kernel = kernel;
-  }
+
 
   __device__ void operator() (const thrust::window_2d<float> &inputWindow) const
   {
-    float temp = 0;
-     for(int i = 0; i< inputWindow.window_dim_y;i++)
-     {
-       for(int j = 0; j<inputWindow.window_dim_x;j++)
-       {
-         temp+=inputWindow[i][j]*(float)((*kernel)[i][j]);
-       }
-     }
-     inputWindow[1][1]=0;
+    float temp = 255;
+    for(int i = 0; i<inputWindow.window_dim_y;i++)
+    {
+      for(int j = 0; j<inputWindow.window_dim_x;j++)
+      {
+        temp = min(temp,inputWindow[i][j]);
+      }
+    }
+    inputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=temp;
+
   }
 };
 int main(int argc, char const *argv[]) {
@@ -72,7 +88,7 @@ int main(int argc, char const *argv[]) {
   Mat image;
   int dim = 13;
   image = small;
-  // resize(small,image,Size(50,50));
+  // resize(small,image,Size(1000,1000));
   thrust::block_2d<float> kernel(dim,dim);
   getGaussianKernelBlock(dim,5,kernel);
   // thrust::fill(kernel.begin(),kernel.end(),0.0f);
@@ -100,14 +116,16 @@ int main(int argc, char const *argv[]) {
   // image_block.assign(image.ptr(),image.ptr()+image.cols*image.rows);
   Mat cvGB;
   GaussianBlur(image,cvGB,Size(3,3),3);
-  // thrust::window_vector<float> myVector = thrust::window_vector<float>(&float_image_block,3,3,3,3);
-  // thrust::for_each(thrust::cuda::shared,myVector.begin(),myVector.end(),forEachFunctor(kernel.device_pointer));
-  thrust::convolve(float_image_block.begin(),float_image_block.end(),kernel.begin());
+  thrust::window_vector<float> myVector = thrust::window_vector<float>(&float_image_block,9,9,1,1);
+  thrust::window_vector<float> outputVector = thrust::window_vector<float>(&outBlock,9,9,1,1);
+  thrust::transform(myVector.begin(),myVector.end(),outputVector.begin(),image_block.begin(),transFormFunctor());
+  // thrust::for_each(myVector.begin(),myVector.end(),forEachFunctor());
+  // thrust::convolve(float_image_block.begin(),float_image_block.end(),kernel.begin());
   // unsigned char * outputImageData = (unsigned char *)malloc(sizeof(unsigned char)*(image_block.end()-image_block.begin()));
   // cudaMemcpy(outputImageData,thrust::raw_pointer_cast(image_block.data()),sizeof(unsigned char)*(image_block.end()-image_block.begin()),cudaMemcpyDeviceToHost);
 
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
-  cudaMemcpy(img,thrust::raw_pointer_cast(float_image_block.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
+  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];
@@ -118,7 +136,7 @@ int main(int argc, char const *argv[]) {
   // std::cout<<output.type()<<"  "<<Size(image.cols,image.rows)<<"="<<image_block.end()-image_block.begin()<<"\n";
   imshow("input",image);
   imshow("output",output);
-  imwrite("output.png",output);
+  imwrite("output2.png",output);
 
   waitKey(0);
   // std::cout<<float_image<<"\n";
