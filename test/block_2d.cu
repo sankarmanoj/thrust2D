@@ -1,9 +1,9 @@
-
 #include <thrust/sequence.h>
 #include <thrust/execution_policy.h>
 #include <iostream>
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
+#include <thrust/block_2d.h>
 using namespace thrust;
 
 
@@ -28,11 +28,7 @@ __device__  __host__ void operator() (const int  &a) const
 };
 int main()
 {
-  // int *temp;
-  printf("Helo World\n");
-  // temp = (int *) malloc(25 * sizeof(int));
-
-  device_vector<int> a(5*5);
+  block_2d<int> a(5,5);
   sequence(a.begin(),a.end());
   for_each(thrust::host,a.begin(),a.end(),printFunctor2());
 

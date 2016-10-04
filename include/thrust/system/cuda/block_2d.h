@@ -20,10 +20,10 @@ namespace thrust
 		typedef thrust::device_reference<T> reference;
 		typedef T* pointer;
 		__host__ __device__ reference	operator* () const;
-    	__host__ __device__ reference operator[] (long index);
+		__host__ __device__ reference operator[] (long index);
 
-		 __host__ __device__ block_iterator (const block_iterator<T> &pb) ;
-		 __host__ __device__ block_iterator (block_2d<T> *pB, int position);
+		__host__ __device__ block_iterator (const block_iterator<T> &pb) ;
+		__host__ __device__ block_iterator (block_2d<T> *pB, int position);
 
 		__host__ __device__ block_iterator<T> operator+ (long value);
 		__host__ __device__ difference_type operator- (const block_iterator& it);
@@ -49,40 +49,40 @@ namespace thrust
 	{
 	public:
 
-	int dim_x,dim_y;
-	int offset_x, offset_y;
-	// device_vector<T> device_data;
-	detail::normal_iterator<device_ptr<T> > device_iterator;
-	block_2d * device_pointer;
-	block_2d(int dim_x,int dim_y);
-	block_2d(int dim_x,int dim_y,T value);
+		int dim_x,dim_y;
+		int offset_x, offset_y;
+		// device_vector<T> device_data;
+		detail::normal_iterator<device_ptr<T> > device_iterator;
+		block_2d * device_pointer;
+		block_2d(int dim_x,int dim_y);
+		block_2d(int dim_x,int dim_y,T value);
 
-	block_2d(block_2d<T> &other);
+		block_2d(block_2d<T> &other);
 
-	// 	void initalize_device_memory();
-	__host__ __device__ int2 index_to_int2(int index);
-	block_2d* sub_block (int ul_x, int ul_y, int br_x, int br_y);
+		// 	void initalize_device_memory();
+		__host__ __device__ int2 index_to_int2(int index);
+		block_2d* sub_block (int ul_x, int ul_y, int br_x, int br_y);
 
-	template <class InputIterator>
-	block_2d(InputIterator first, InputIterator last) : device_vector<T>(first,last)
-	{
-		this->dim_x = last-first;
-		this->dim_y = 1;
-		this->offset_x = 0;
-		this->offset_y = 0;
-		// device_data = device_vector<T>(dim_x * dim_y);
-		device_iterator = this->data();
-		block_2d<T> * temp;
-		cudaMalloc((void **)&temp,sizeof(block_2d));
-		cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
-		this->device_pointer = temp;
-	}
+		template <class InputIterator>
+		block_2d(InputIterator first, InputIterator last) : device_vector<T>(first,last)
+		{
+			this->dim_x = last-first;
+			this->dim_y = 1;
+			this->offset_x = 0;
+			this->offset_y = 0;
+			// device_data = device_vector<T>(dim_x * dim_y);
+			device_iterator = this->data();
+			block_2d<T> * temp;
+			cudaMalloc((void **)&temp,sizeof(block_2d));
+			cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
+			this->device_pointer = temp;
+		}
 
-	__host__ __device__ detail::normal_iterator<device_ptr<T> > operator[] (int index);
-	__host__ __device__ T operator[] (int2 index);
+		__host__ __device__ detail::normal_iterator<device_ptr<T> > operator[] (int index);
+		__host__ __device__ T operator[] (int2 index);
 
-	block_iterator<T> begin();
-	block_iterator<T> end();
+		block_iterator<T> begin();
+		block_iterator<T> end();
 
 	};
 
