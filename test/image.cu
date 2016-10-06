@@ -59,7 +59,7 @@ class transFormFunctor //: public thrust::shared_unary_window_transform_functor<
         temp = min(temp,inputWindow[i][j]);
       }
     }
-    outputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=temp;
+    outputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=temp;//((threadIdx.x)%255);
     return 0.0f;
 
   }
@@ -88,7 +88,7 @@ int main(int argc, char const *argv[]) {
   Mat image;
   int dim = 13;
   image = small;
-  resize(small,image,Size(2000,2000));
+  resize(small,image,Size(3000,1000));
   thrust::block_2d<float> kernel(dim,dim);
   getGaussianKernelBlock(dim,5,kernel);
   // thrust::fill(kernel.begin(),kernel.end(),0.0f);
@@ -118,26 +118,26 @@ int main(int argc, char const *argv[]) {
   GaussianBlur(image,cvGB,Size(3,3),3);
   thrust::window_vector<float> myVector = thrust::window_vector<float>(&float_image_block,9,9,1,1);
   thrust::window_vector<float> outputVector = thrust::window_vector<float>(&outBlock,9,9,1,1);
-  // thrust::transform(thrust::cuda::shared,myVector.begin(),myVector.end(),outputVector.begin(),transFormFunctor());
+  thrust::transform(thrust::cuda::shared,myVector.begin(),myVector.end(),outputVector.begin(),transFormFunctor());
   // thrust::transform(myVector.begin(),myVector.end(),outputVector.begin(),image_block.begin(),transFormFunctor());
-  thrust::for_each(thrust::cuda::shared,myVector.begin(),myVector.end(),forEachFunctor());
+  // thrust::for_each(thrust::cuda::shared,myVector.begin(),myVector.end(),forEachFunctor());
   // thrust::convolve(float_image_block.begin(),float_image_block.end(),kernel.begin());
   // unsigned char * outputImageData = (unsigned char *)malloc(sizeof(unsigned char)*(image_block.end()-image_block.begin()));
   // cudaMemcpy(outputImageData,thrust::raw_pointer_cast(image_block.data()),sizeof(unsigned char)*(image_block.end()-image_block.begin()),cudaMemcpyDeviceToHost);
 
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
-  cudaMemcpy(img,thrust::raw_pointer_cast(float_image_block.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
+  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
   // std::cout<<output;
-  cudaCheckError();
+  // cudaCheckError();
   // std::cout<<output.type()<<"  "<<Size(image.cols,image.rows)<<"="<<image_block.end()-image_block.begin()<<"\n";
-  imshow("input",image);
-  imshow("output",output);
-  imwrite("output2.png",output);
+  // imshow("input",image);
+  // imshow("output",output);
+  imwrite("output-thrust.png",output);
 
   waitKey(0);
   // std::cout<<float_image<<"\n";

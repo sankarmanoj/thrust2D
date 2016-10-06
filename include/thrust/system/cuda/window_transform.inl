@@ -291,14 +291,23 @@ namespace thrust
   {
     extern __shared__ T shared_memory [];
     int abs_position = (blockIdx.y*gridDim.x + blockIdx.x)*operations_per_block + threadIdx.x;
+    // int windowSize = input->window_dim_x*(input->window_dim_y);
+
     if(abs_position>=total_operations||threadIdx.x >=operations_per_block)
     return;
-    window_2d<T> input_window = (*input)[abs_position];
-    window_2d<T> output_window =(*output) [abs_position];
-    int start_x = (threadIdx.x%input->windows_along_x)*input->window_dim_x;
-    int start_y = (threadIdx.x/input->windows_along_x)*input->window_dim_y;
-
-    window_2d<T> shared_input_window(shared_memory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
+    // printf ("%d\n",abs_position);
+    window_2d<T> current_window = (*input)[abs_position];
+    window_2d<T> output_window = (*output)[abs_position];
+    if(blockIdx.x==10&&threadIdx.x<50)
+    printf("current_window -x=%d -y=%d abs_position=%d\n",current_window.start_x,current_window.start_y,abs_position);
+    int ind_window_size = min(input->stride_y,input->window_dim_y)*min(input->stride_x,input->window_dim_x);
+    int start_x = (threadIdx.x%input->windows_along_x)*input->stride_x;
+    int start_y = (threadIdx.x/input->windows_along_x)*input->stride_y;
+    // if(blockIdx.x==0&&threadIdx.x<100)
+    // {
+      // printf("X,Y = %d,%d  TiD = %d\n",start_x,start_y,threadIdx.x);
+    // }
+    window_2d<T> shared_window(shared_memory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
     int y_range,x_range;
     if(start_y+input->window_dim_y==shared_block_dim_y)
     {
@@ -315,27 +324,17 @@ namespace thrust
       x_range = min(input->stride_x,input->window_dim_x);
     }
 
-    for(int j = 0; j<y_range;j++)
+    for(int j = 0; j<input->window_dim_y;j++)
     {
-      for(int i = 0; i<y_range;i++)
+      for(int i = 0; i<x_range;i++)
       {
-        shared_input_window[j][i]=input_window[j][i];
-        // shared_output_window[j][i]=output_window[j][i];
+        shared_window[j][i]=current_window[j][i];
         // printf("Val = %f i = %d j = %d x = %d y = %d \n",current_window[j][i],i,j,current_window.start_x,current_window.start_y);
       }
     }
+    __syncthreads();
+    f(shared_window,output_window);
 
-    f(shared_input_window,output_window);
-
-    // for(int j = 0; j<min(input->stride_y,input->window_dim_y);j++)
-    // {
-    //   for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
-    //   {
-    //     input_window[j][i]=shared_input_window[j][i];
-    //     output_window[j][i]=shared_output_window[j][i];
-    //     // printf("Val = %f i = %d j = %d x = %d y = %d \n",current_window[j][i],i,j,current_window.start_x,current_window.start_y);
-    //   }
-    // }
   }
   template <class Iterator, class Func>
   void transform(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2, Func f)
