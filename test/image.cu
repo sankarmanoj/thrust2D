@@ -59,7 +59,7 @@ class transFormFunctor //: public thrust::shared_unary_window_transform_functor<
         temp = min(temp,inputWindow[i][j]);
       }
     }
-    outputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=temp;//((threadIdx.x)%255);
+    outputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=temp;
     return 0.0f;
 
   }
@@ -88,7 +88,7 @@ int main(int argc, char const *argv[]) {
   Mat image;
   int dim = 13;
   image = small;
-  resize(small,image,Size(3000,1000));
+  resize(small,image,Size(1500,1500));
   thrust::block_2d<float> kernel(dim,dim);
   getGaussianKernelBlock(dim,5,kernel);
   // thrust::fill(kernel.begin(),kernel.end(),0.0f);
@@ -135,9 +135,9 @@ int main(int argc, char const *argv[]) {
   // std::cout<<output;
   // cudaCheckError();
   // std::cout<<output.type()<<"  "<<Size(image.cols,image.rows)<<"="<<image_block.end()-image_block.begin()<<"\n";
-  // imshow("input",image);
+  imwrite("input.png",image);
   // imshow("output",output);
-  imwrite("output-thrust.png",output);
+  imwrite("output.png",output);
 
   waitKey(0);
   // std::cout<<float_image<<"\n";
