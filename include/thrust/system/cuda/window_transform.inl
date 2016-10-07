@@ -24,7 +24,8 @@ namespace thrust
     int operation_within_block = threadIdx.x/kernel_width;
     if(threadIdx.x<kernel_size)
     {
-      shared_kernel[i] = kernel[kernel.index_to_int2(i)];
+      int2 index = kernel.index_to_int2(i);
+      shared_kernel[i] = kernel[index.y][index.x];
     }
     int position =  (blockIdx.y*gridDim.x+ blockIdx.x)*operations_per_block + operation_within_block;
     if(threadIdx.x/kernel_width>operations_per_block)
@@ -37,7 +38,8 @@ namespace thrust
     shared_reduce_space[threadIdx.x]=0;
     for(int i = 0; i< kernel_width; i++)
     {
-      element = block[make_int2(block_coordinates.x-kernel_half_width + i,block_coordinates.y+row_offset)];
+      int2 index = make_int2(block_coordinates.x-kernel_half_width + i,block_coordinates.y+row_offset);
+      element = block[index.y][index.x];
       shared_reduce_space[threadIdx.x]+=element*shared_kernel[abs_row_offset*kernel_width + i];
     }
     __syncthreads();
@@ -105,7 +107,7 @@ namespace thrust
     printf("Shared Memory Allocated = %d \n",(kernel->dim_y*kernel->dim_x+ operations*kernel_dim)*sizeof(T));
     printf("Actual Block Size = %d, Grid Size = %d \n",operations*kernel_dim,xblocks*yblocks);
     convolve_kernel<<<dim3(xblocks,yblocks),operations*kernel_dim,(kernel->dim_y*kernel->dim_x+operations*kernel_dim)*sizeof(T)>>>(*(input->device_pointer),*(kernel->device_pointer),operations,num_of_operations);
-    cudaCheckError();
+    // cudaCheckError();
   }
 
   template<typename T, class Func>
