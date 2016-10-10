@@ -79,7 +79,7 @@ class forEachFunctor : public thrust::shared_window_for_each_functor<float>
         temp = min(temp,inputWindow[i][j]);
       }
     }
-    inputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=threadIdx.x%255;
+    inputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=temp;
 
   }
 };
