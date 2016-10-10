@@ -40,6 +40,9 @@ namespace thrust
 
   };
 
+  template <class T>
+	using host_window_2d=window_2d<T,std::allocator<T> >;
+
   template <class T,class Alloc=device_malloc_allocator<T> >
   class window_iterator : private detail::normal_iterator<typename detail::vector_base<window_2d<T>,Alloc>::pointer>
   {
@@ -122,5 +125,8 @@ namespace thrust
     window_iterator<T,Alloc> begin();
     window_iterator<T,Alloc> end();
   };
+
+  template <class T>
+	using host_window_vector=window_vector<T,std::allocator<T> >;
 }
 #include <thrust/system/cuda/window_2d.inl>

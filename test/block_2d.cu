@@ -32,7 +32,7 @@ int main()
   sequence(a.begin(),a.end());
   for_each(a.begin(),a.end(),printFunctor2());
 
-  block_2d<int,std::allocator<int> > b(5,5);
+  host_block_2d<int> b(5,5);
   sequence(b.begin(),b.end());
   for_each(thrust::host,b.begin(),b.end(),printFunctor2());
 

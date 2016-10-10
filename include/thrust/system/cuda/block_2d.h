@@ -94,5 +94,7 @@ namespace thrust
 		iterator begin();
 		iterator end();
 	};
+	template <class T>
+	using host_block_2d=block_2d<T,std::allocator<T> >;
 }
 #include <thrust/system/cuda/block_2d.inl>

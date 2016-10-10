@@ -11,7 +11,7 @@ using namespace thrust;
 class printFunctor
 {
 public:
-  __host__ __device__ void operator() (const window_2d<int,std::allocator<int> > &myWindow) const
+  __host__ __device__ void operator() (const host_window_2d<int> &myWindow) const
   {
     int value = myWindow[0][0];
     myWindow[0][0]=666;
@@ -22,7 +22,7 @@ public:
 class printFunctor2
 {
 public:
-  __host__ __device__ int operator() (const window_2d<int,std::allocator<int> > &myWindow) const
+  __host__ __device__ int operator() (const host_window_2d<int> &myWindow) const
   {
     int value = myWindow[0][0];
     myWindow[0][0]=666;
@@ -45,12 +45,12 @@ public:
 };
 int main()
 {
-  block_2d<int> a(X,Y,0);
+  host_block_2d<int> a(X,Y,0);
   sequence(a.begin(),a.end());
-  window_vector<int> myVector(&a,3,3,3,3);
+  host_window_vector<int> myVector(&a,3,3,3,3);
   std::cout<<"Size ="<<myVector.end()-myVector.begin()<<std::endl;
-  device_vector<int> b(myVector.end()-myVector.begin(),0);
-  transform(myVector.begin(),myVector.end(),b.begin(),printFunctor2());
+  host_vector<int> b(myVector.end()-myVector.begin(),0);
+  transform(thrust::host,myVector.begin(),myVector.end(),b.begin(),printFunctor2());
   cudaDeviceSynchronize();
   for (int i=0; i<Y;i++)
   {
