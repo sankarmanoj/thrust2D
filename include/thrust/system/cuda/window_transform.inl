@@ -111,51 +111,70 @@ namespace thrust
   }
 
   template<typename T, class Func>
-  __global__ void for_each_kernel (window_iterator<T> *input, int operations_per_block,int total_operations, int shared_block_dim_x , int shared_block_dim_y ,Func f)
+  __global__ void for_each_kernel (window_iterator<T> *input,int operations_per_block,int total_operations, int shared_block_dim_x , int shared_block_dim_y ,int blocks_per_row, Func f)
   {
     extern __shared__ T shared_memory [];
-    int abs_position = (blockIdx.y*gridDim.x + blockIdx.x)*operations_per_block + threadIdx.x;
-    // int windowSize = input->window_dim_x*(input->window_dim_y);
+  int abs_position ;
+  int y_range,x_range;
+  int start_x = (threadIdx.x%input->windows_along_x)*input->stride_x;
+  int start_y = (threadIdx.x/input->windows_along_x)*input->stride_y;
+  if(start_y+input->window_dim_y==shared_block_dim_y)
+  {
+    y_range = input->window_dim_y;
+  }
+  else{
+    y_range = min(input->stride_y,input->window_dim_y);
+  }
+  if(start_x+input->window_dim_x==shared_block_dim_x)
+  {
+    x_range = input->window_dim_x;
+  }
+  else{
+    x_range = min(input->stride_x,input->window_dim_x);
+  }
 
+  if(blocks_per_row)
+  {
+      int block_position = blockIdx.y*gridDim.x + blockIdx.x;
+      int blockx = block_position%blocks_per_row;
+      int blocky = block_position/blocks_per_row;
+      int xposition = blockx*operations_per_block;
+      // if(xposition>=(*input).windows_along_x)
+      // {
+      //   return;
+      // }
+      if(threadIdx.x==(operations_per_block-1))
+      {
+        x_range = input->window_dim_x;
+      }
+      abs_position = blocky*(*input).windows_along_x + xposition+threadIdx.x;
+  }
+  else
+  {
+     abs_position = (blockIdx.y*gridDim.x + blockIdx.x)*operations_per_block + threadIdx.x;
+    // int windowSize = input->window_dim_x*(input->window_dim_y);
+  }
     if(abs_position>=total_operations||threadIdx.x >=operations_per_block)
     return;
     // printf ("%d\n",abs_position);
     window_2d<T> current_window = (*input)[abs_position];
-    if(blockIdx.x==0&&threadIdx.x<50)
-    printf("current_window -x=%d -y=%d abs_position=%d\n",current_window.start_x,current_window.start_y,abs_position);
-    int ind_window_size = min(input->stride_y,input->window_dim_y)*min(input->stride_x,input->window_dim_x);
-    int start_x = (threadIdx.x%input->windows_along_x)*input->stride_x;
-    int start_y = (threadIdx.x/input->windows_along_x)*input->stride_y;
-    // if(blockIdx.x==0&&threadIdx.x<100)
-    // {
-      // printf("X,Y = %d,%d  TiD = %d\n",start_x,start_y,threadIdx.x);
-    // }
-    window_2d<T> shared_window(shared_memory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
-    int y_range,x_range;
-    if(start_y+input->window_dim_y==shared_block_dim_y)
-    {
-      y_range = input->window_dim_y;
-    }
-    else{
-      y_range = min(input->stride_y,input->window_dim_y);
-    }
-    if(start_x+input->window_dim_x==shared_block_dim_x)
-    {
-      x_range = input->window_dim_x;
-    }
-    else{
-      x_range = min(input->stride_x,input->window_dim_x);
-    }
 
-    for(int j = 0; j<input->window_dim_y;j++)
+
+  // if(blockIdx.x==0&&threadIdx.x<100)
+  // {
+    // printf("X,Y = %d,%d  TiD = %d\n",start_x,start_y,threadIdx.x);
+  // }
+  window_2d<T> shared_window(shared_memory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
+
+  for(int j = 0; j<input->window_dim_y;j++)
+  {
+    for(int i = 0; i<x_range;i++)
     {
-      for(int i = 0; i<x_range;i++)
-      {
-        shared_window[j][i]=current_window[j][i];
-        // printf("Val = %f i = %d j = %d x = %d y = %d \n",current_window[j][i],i,j,current_window.start_x,current_window.start_y);
-      }
+      shared_window[j][i]=current_window[j][i];
+      // printf("Val = %f i = %d j = %d x = %d y = %d \n",current_window[j][i],i,j,current_window.start_x,current_window.start_y);
     }
-    __syncthreads();
+  }
+  __syncthreads();
     f(shared_window);
     __syncthreads();
 
@@ -256,7 +275,7 @@ namespace thrust
     assert((size_single_win_row)<shared_memory_size);
     assert(rows_per_block_by_memory);
 
-    for_each_kernel<<<dim3(xblocks,yblocks),operations_per_block,shared_memory_size>>>(device_begin_1,operations_per_block,num_of_operations,shared_block_dim_x,shared_block_dim_y,f);
+    for_each_kernel<<<dim3(xblocks,yblocks),operations_per_block,shared_memory_size>>>(device_begin_1,operations_per_block,num_of_operations,shared_block_dim_x,shared_block_dim_y,0,f);
     }
     else{
       int blocks_per_row = max(ceil((float)size_single_win_row/shared_memory_size),ceil(((float)begin1.windows_along_x)/properties.maxThreadsPerBlock));
@@ -282,7 +301,7 @@ namespace thrust
       printf("Total Operations = %d,Operations Per Block = %d, OPB By Memory = %d\n",num_of_operations,operations_per_block,operations_per_block_by_memory);
       printf("\n Config = (%d,%d)x%d SharedMem=%d",xblocks,yblocks,operations_per_block,shared_memory_size);
       #endif
-      for_each_kernel<<<dim3(xblocks,yblocks),operations_per_block,shared_memory_size>>>(device_begin_1,operations_per_block,num_of_operations,shared_block_dim_x,begin1.window_dim_y,f);
+      for_each_kernel<<<dim3(xblocks,yblocks),operations_per_block,shared_memory_size>>>(device_begin_1,operations_per_block,num_of_operations,shared_block_dim_x,begin1.window_dim_y,blocks_per_row,f);
 
 
     }
@@ -293,6 +312,24 @@ namespace thrust
   {
     extern __shared__ T shared_memory [];
     int abs_position ;
+    int y_range,x_range;
+    int start_x = (threadIdx.x%input->windows_along_x)*input->stride_x;
+    int start_y = (threadIdx.x/input->windows_along_x)*input->stride_y;
+    if(start_y+input->window_dim_y==shared_block_dim_y)
+    {
+      y_range = input->window_dim_y;
+    }
+    else{
+      y_range = min(input->stride_y,input->window_dim_y);
+    }
+    if(start_x+input->window_dim_x==shared_block_dim_x)
+    {
+      x_range = input->window_dim_x;
+    }
+    else{
+      x_range = min(input->stride_x,input->window_dim_x);
+    }
+
     if(blocks_per_row)
     {
         int block_position = blockIdx.y*gridDim.x + blockIdx.x;
@@ -303,6 +340,10 @@ namespace thrust
         // {
         //   return;
         // }
+        if(threadIdx.x==(operations_per_block-1))
+        {
+          x_range = input->window_dim_x;
+        }
         abs_position = blocky*(*input).windows_along_x + xposition+threadIdx.x;
     }
     else
@@ -320,28 +361,12 @@ namespace thrust
     if(blockIdx.x==10&&threadIdx.x<50)
     // printf("current_window -x=%d -y=%d abs_position=%d\n",current_window.start_x,current_window.start_y,abs_position);
     int ind_window_size = min(input->stride_y,input->window_dim_y)*min(input->stride_x,input->window_dim_x);
-    int start_x = (threadIdx.x%input->windows_along_x)*input->stride_x;
-    int start_y = (threadIdx.x/input->windows_along_x)*input->stride_y;
+
     // if(blockIdx.x==0&&threadIdx.x<100)
     // {
       // printf("X,Y = %d,%d  TiD = %d\n",start_x,start_y,threadIdx.x);
     // }
     window_2d<T> shared_window(shared_memory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
-    int y_range,x_range;
-    if(start_y+input->window_dim_y==shared_block_dim_y)
-    {
-      y_range = input->window_dim_y;
-    }
-    else{
-      y_range = min(input->stride_y,input->window_dim_y);
-    }
-    if(start_x+input->window_dim_x==shared_block_dim_x)
-    {
-      x_range = input->window_dim_x;
-    }
-    else{
-      x_range = min(input->stride_x,input->window_dim_x);
-    }
 
     for(int j = 0; j<input->window_dim_y;j++)
     {
