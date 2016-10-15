@@ -28,7 +28,8 @@ __device__  __host__ void operator() (const int  &a) const
 };
 int main()
 {
-  block_2d<int> a(5,5);
+  block_2d<int> a(5,5,99);
+  printf("Last value = %d",(int)a[0][25]);
   sequence(a.begin(),a.end());
   for_each(a.begin(),a.end(),printFunctor2());
 

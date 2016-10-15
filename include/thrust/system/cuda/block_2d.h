@@ -15,6 +15,7 @@ namespace thrust
 	public:
 		block_2d<T,Alloc> *parent_block;
 		block_2d<T,Alloc> *parent_block_host;
+
 		int position;
 		int dim_x,dim_y;
 		typedef typename block_2d<T,Alloc>::value_type value_type;

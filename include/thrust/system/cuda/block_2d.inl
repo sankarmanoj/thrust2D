@@ -3,7 +3,7 @@
 namespace thrust
 {
   template <class T,class Alloc>
-  block_2d<T,Alloc>::block_2d (int dim_x, int dim_y) : detail::vector_base<T,Alloc>(dim_x*dim_y)
+  block_2d<T,Alloc>::block_2d (int dim_x, int dim_y) : detail::vector_base<T,Alloc>(dim_x*dim_y+1)
   {
     this->dim_x = dim_x;
     this->dim_y = dim_y;
@@ -23,7 +23,7 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  block_2d<T,Alloc>::block_2d (int dim_x, int dim_y, T value) : detail::vector_base<T,Alloc>(dim_x*dim_y,value)
+  block_2d<T,Alloc>::block_2d (int dim_x, int dim_y, T value) : detail::vector_base<T,Alloc>(dim_x*dim_y+1,value)
   {
     this->dim_x = dim_x;
     this->dim_y = dim_y;
@@ -77,7 +77,8 @@ namespace thrust
   {
     if(index.y<0||index.x<0||index.y>=dim_y||index.x>=dim_x)
     {
-      return 0;
+
+      return this->device_iterator[this->dim_x*this->dim_y];
     }
     return this->device_iterator[index.y * (this->dim_x + this->offset_x) + offset_y + index.x];
   }

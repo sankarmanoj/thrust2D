@@ -25,10 +25,6 @@ public:
     y_out = (int)((*transformMatrix)[1][0]*inputWindow.start_x+(*transformMatrix)[1][1]*inputWindow.start_y+(*transformMatrix)[1][2]*1);
 
     (*outBlock)[y_out][x_out]=inputWindow[0][0];
-    if(inputWindow.start_x>0&inputWindow.start_x<10)
-    {
-      printf("(X,Y) = (%d,%d) %f-%f\n",inputWindow.start_x,inputWindow.start_y,(float)inputWindow[0][0],(float)  (*outBlock)[y_out][x_out]);
-    }
   }
 };
 int main(int argc, char const *argv[]) {
@@ -99,7 +95,7 @@ int main(int argc, char const *argv[]) {
   thrust::for_each(inputVector.begin(),inputVector.end(),atf);
   cudaDeviceSynchronize();
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
-  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyHostToHost);
+  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];
