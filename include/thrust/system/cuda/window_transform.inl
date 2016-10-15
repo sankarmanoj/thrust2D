@@ -166,7 +166,7 @@ namespace thrust
   // }
   window_2d<T> shared_window(shared_memory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
 
-  for(int j = 0; j<input->window_dim_y;j++)
+  for(int j = 0; j<y_range;j++)
   {
     for(int i = 0; i<x_range;i++)
     {

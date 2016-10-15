@@ -17,6 +17,9 @@ endif
 
 image:image.cu
 	$(CC) $(CFLAGS) $(DFLAGS) $(OPENCVFLAGS) image.cu -o image.out
+aimage:image_affine.cu
+	$(CC) $(CFLAGS) $(DFLAGS) $(OPENCVFLAGS) $< -o aimage.out
+
 
 test_%: %.out
 	./$<
