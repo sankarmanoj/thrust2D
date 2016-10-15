@@ -44,7 +44,7 @@ public:
 		this->rows = rows;
 		this->q0sqr = q0sqr;
 	}
-	__device__ float operator() (const thrust::window_2d<float> &w, const thrust::window_2d<float> &v) const
+	__device__ void operator() (const thrust::window_2d<float> &w, const thrust::window_2d<float> &v) const
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
@@ -83,24 +83,24 @@ public:
 		}
 		v[ty][tx] = c;
 
-		if(w.start_y == 0)
-			w[N][tx] = w[ty][tx];
-		if(w.start_y == rows - w.window_dim_y)
-			w[S][tx] = w[ty][tx];
-		if(w.start_x == 0)
-			w[ty][W] = w[ty][tx];
-		if(w.start_x == cols - w.window_dim_x)
-			w[ty][E] = w[ty][tx];
-		if(w.start_y == 0 && w.start_x == 0)
-			w[N][W] = w[ty][tx];
-		if(w.start_y == rows - w.window_dim_y && w.start_x == cols - w.window_dim_x)
-			w[S][E] = w[ty][tx];
-		if(w.start_x == 0 && w.start_y == rows - w.window_dim_y)
-			w[S][W] = w[ty][tx];
-		if(w.start_x == cols - w.window_dim_x && w.start_y == 0)
-			w[N][E] = w[ty][tx];
+		// if(w.start_y == 0)
+		// 	w[N][tx] = w[ty][tx];
+		// if(w.start_y == rows - w.window_dim_y)
+		// 	w[S][tx] = w[ty][tx];
+		// if(w.start_x == 0)
+		// 	w[ty][W] = w[ty][tx];
+		// if(w.start_x == cols - w.window_dim_x)
+		// 	w[ty][E] = w[ty][tx];
+		// if(w.start_y == 0 && w.start_x == 0)
+		// 	w[N][W] = w[ty][tx];
+		// if(w.start_y == rows - w.window_dim_y && w.start_x == cols - w.window_dim_x)
+		// 	w[S][E] = w[ty][tx];
+		// if(w.start_x == 0 && w.start_y == rows - w.window_dim_y)
+		// 	w[S][W] = w[ty][tx];
+		// if(w.start_x == cols - w.window_dim_x && w.start_y == 0)
+		// 	w[N][E] = w[ty][tx];
 
-		return 0.0;
+
 
 	}
 
@@ -130,7 +130,7 @@ public:
 		this->q0sqr = q0sqr;
 	}
 
-	__device__ float operator() (const thrust::window_2d<float> &w, const thrust::window_2d<float> &c) const
+	__device__ void operator() ( const thrust::window_2d<float> &c,const thrust::window_2d<float> &w) const
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
@@ -179,7 +179,7 @@ public:
 			w[N][E] = w[ty][tx];
 
 		// printf("%f\n", (float) w[ty][tx]);
-		return 0.0f;
+
 	}
 
 };

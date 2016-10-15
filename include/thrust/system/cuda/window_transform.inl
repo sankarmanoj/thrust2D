@@ -378,6 +378,7 @@ namespace thrust
     }
     __syncthreads();
     f(shared_window,output_window);
+
     // output_window[1][1]=threadIdx.x%255;
 
   }
