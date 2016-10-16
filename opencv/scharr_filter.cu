@@ -9,12 +9,12 @@
 
 #define PI 3.14159
 using namespace cv;
-class transFunctor : public thrust::shared_binary_window_transform_functor<float>
+class transFunctor
 {
 public:
-  __device__ void operator() (const thrust::window_2d<float> &inputWindow1,const thrust::window_2d<float> &inputWindow2,const thrust::window_2d<float> &outputWindow) const
+  __device__ float operator() (const float a,const float b) const
   {
-    (outputWindow)[outputWindow.window_dim_y/2][outputWindow.window_dim_x/2] = sqrt((inputWindow1)[inputWindow1.window_dim_y/2][inputWindow1.window_dim_x/2]*(inputWindow1)[inputWindow1.window_dim_y/2][inputWindow1.window_dim_x/2] + (inputWindow2)[inputWindow2.window_dim_y/2][inputWindow2.window_dim_x/2]*(inputWindow2)[inputWindow2.window_dim_y/2][inputWindow2.window_dim_x/2]);
+    return sqrt(a*a + b*b);
   }
 };
 int main(int argc, char const *argv[]) {
@@ -26,44 +26,44 @@ int main(int argc, char const *argv[]) {
   thrust::block_2d<float> kernelx(dim,dim);
   thrust::block_2d<float> kernely(dim,dim);
   //Sobel Filter
-  kernelx[0][0]=-1;
-  kernelx[0][1]=0;
-  kernelx[0][2]=+1;
-  kernelx[1][0]=-2;
-  kernelx[1][1]=0;
-  kernelx[1][2]=+2;
-  kernelx[2][0]=-1;
-  kernelx[2][1]=0;
-  kernelx[2][2]=+1;
-  kernely[0][0]=-1;
-  kernely[0][1]=-2;
-  kernely[0][2]=-1;
-  kernely[1][0]=0;
-  kernely[1][1]=0;
-  kernely[1][2]=0;
-  kernely[2][0]=+1;
-  kernely[2][1]=+2;
-  kernely[2][2]=+1;
-
-  //Scharr Filter
-  // kernelx[0][0]=-3;
+  // kernelx[0][0]=-1;
   // kernelx[0][1]=0;
-  // kernelx[0][2]=+3;
-  // kernelx[1][0]=-10;
+  // kernelx[0][2]=+1;
+  // kernelx[1][0]=-2;
   // kernelx[1][1]=0;
-  // kernelx[1][2]=+10;
-  // kernelx[2][0]=-3;
+  // kernelx[1][2]=+2;
+  // kernelx[2][0]=-1;
   // kernelx[2][1]=0;
-  // kernelx[2][2]=+3;
-  // kernely[0][0]=-3;
-  // kernely[0][1]=-10;
-  // kernely[0][2]=-3;
+  // kernelx[2][2]=+1;
+  // kernely[0][0]=-1;
+  // kernely[0][1]=-2;
+  // kernely[0][2]=-1;
   // kernely[1][0]=0;
   // kernely[1][1]=0;
   // kernely[1][2]=0;
-  // kernely[2][0]=+3;
-  // kernely[2][1]=+10;
-  // kernely[2][2]=+3;
+  // kernely[2][0]=+1;
+  // kernely[2][1]=+2;
+  // kernely[2][2]=+1;
+
+  //Scharr Filter
+  kernelx[0][0]=-3;
+  kernelx[0][1]=0;
+  kernelx[0][2]=+3;
+  kernelx[1][0]=-10;
+  kernelx[1][1]=0;
+  kernelx[1][2]=+10;
+  kernelx[2][0]=-3;
+  kernelx[2][1]=0;
+  kernelx[2][2]=+3;
+  kernely[0][0]=-3;
+  kernely[0][1]=-10;
+  kernely[0][2]=-3;
+  kernely[1][0]=0;
+  kernely[1][1]=0;
+  kernely[1][2]=0;
+  kernely[2][0]=+3;
+  kernely[2][1]=+10;
+  kernely[2][2]=+3;
 
   std::cout<<dim<<"  "<<image.isContinuous()<<std::endl;
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
@@ -83,10 +83,10 @@ int main(int argc, char const *argv[]) {
 
   thrust::convolve(convolve1_block.begin(),convolve1_block.end(),kernelx.begin());
   thrust::convolve(convolve2_block.begin(),convolve2_block.end(),kernely.begin());
-  thrust::window_vector<float> myVector1 = thrust::window_vector<float>(&convolve1_block,3,3,1,1);
-  thrust::window_vector<float> myVector2 = thrust::window_vector<float>(&convolve2_block,3,3,1,1);
-  thrust::window_vector<float> myVector3 = thrust::window_vector<float>(&outBlock,3,3,1,1);
-  thrust::transform(thrust::cuda::shared,myVector1.begin(),myVector1.end(),myVector2.begin(),myVector3.begin(),transFunctor());
+  // thrust::window_vector<float> myVector1 = thrust::window_vector<float>(&convolve1_block,1,1,1,1);
+  // thrust::window_vector<float> myVector2 = thrust::window_vector<float>(&convolve2_block,1,1,1,1);
+  // thrust::window_vector<float> myVector3 = thrust::window_vector<float>(&outBlock,3,3,1,1);
+  thrust::transform(convolve1_block.begin(),convolve1_block.end(),convolve2_block.begin(),outBlock.begin(),transFunctor());
 
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
   cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
