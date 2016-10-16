@@ -113,27 +113,27 @@ namespace thrust
   __global__ void for_each_kernel (window_iterator<T> *input,int operations_per_block,int total_operations, int shared_block_dim_x , int shared_block_dim_y ,int blocks_per_row, Func f)
   {
     extern __shared__ T shared_memory [];
-  int abs_position ;
-  int y_range,x_range;
-  int start_x = (threadIdx.x%input->windows_along_x)*input->stride_x;
-  int start_y = (threadIdx.x/input->windows_along_x)*input->stride_y;
-  if(start_y+input->window_dim_y==shared_block_dim_y)
-  {
-    y_range = input->window_dim_y;
-  }
-  else{
-    y_range = min(input->stride_y,input->window_dim_y);
-  }
-  if(start_x+input->window_dim_x==shared_block_dim_x)
-  {
-    x_range = input->window_dim_x;
-  }
-  else{
-    x_range = min(input->stride_x,input->window_dim_x);
-  }
+    int abs_position ;
+    int y_range,x_range;
+    int start_x = (threadIdx.x%input->windows_along_x)*input->stride_x;
+    int start_y = (threadIdx.x/input->windows_along_x)*input->stride_y;
+    if(start_y+input->window_dim_y==shared_block_dim_y)
+    {
+      y_range = input->window_dim_y;
+    }
+    else{
+      y_range = min(input->stride_y,input->window_dim_y);
+    }
+    if(start_x+input->window_dim_x==shared_block_dim_x)
+    {
+      x_range = input->window_dim_x;
+    }
+    else{
+      x_range = min(input->stride_x,input->window_dim_x);
+    }
 
-  if(blocks_per_row)
-  {
+    if(blocks_per_row)
+    {
       int block_position = blockIdx.y*gridDim.x + blockIdx.x;
       int blockx = block_position%blocks_per_row;
       int blocky = block_position/blocks_per_row;
@@ -147,33 +147,33 @@ namespace thrust
         x_range = input->window_dim_x;
       }
       abs_position = blocky*(*input).windows_along_x + xposition+threadIdx.x;
-  }
-  else
-  {
-     abs_position = (blockIdx.y*gridDim.x + blockIdx.x)*operations_per_block + threadIdx.x;
-    // int windowSize = input->window_dim_x*(input->window_dim_y);
-  }
+    }
+    else
+    {
+      abs_position = (blockIdx.y*gridDim.x + blockIdx.x)*operations_per_block + threadIdx.x;
+      // int windowSize = input->window_dim_x*(input->window_dim_y);
+    }
     if(abs_position>=total_operations||threadIdx.x >=operations_per_block)
     return;
     // printf ("%d\n",abs_position);
     window_2d<T> current_window = (*input)[abs_position];
 
 
-  // if(blockIdx.x==0&&threadIdx.x<100)
-  // {
+    // if(blockIdx.x==0&&threadIdx.x<100)
+    // {
     // printf("X,Y = %d,%d  TiD = %d\n",start_x,start_y,threadIdx.x);
-  // }
-  window_2d<T> shared_window(shared_memory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
+    // }
+    window_2d<T> shared_window(shared_memory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
 
-  for(int j = 0; j<y_range;j++)
-  {
-    for(int i = 0; i<x_range;i++)
+    for(int j = 0; j<y_range;j++)
     {
-      shared_window[j][i]=current_window[j][i];
-      // printf("Val = %f i = %d j = %d x = %d y = %d \n",current_window[j][i],i,j,current_window.start_x,current_window.start_y);
+      for(int i = 0; i<x_range;i++)
+      {
+        shared_window[j][i]=current_window[j][i];
+        // printf("Val = %f i = %d j = %d x = %d y = %d \n",current_window[j][i],i,j,current_window.start_x,current_window.start_y);
+      }
     }
-  }
-  __syncthreads();
+    __syncthreads();
     f(shared_window);
     __syncthreads();
 
@@ -181,7 +181,7 @@ namespace thrust
     // {
     //   for(int i = 0; i<min(input->stride_x,input->window_dim_x);i++)
     //   {
-        current_window[current_window.window_dim_y/2][current_window.window_dim_x/2]=shared_window[shared_window.window_dim_y/2][shared_window.window_dim_x/2];
+    current_window[current_window.window_dim_y/2][current_window.window_dim_x/2]=shared_window[shared_window.window_dim_y/2][shared_window.window_dim_x/2];
     //     // printf("Val = %f i = %d j = %d x = %d y = %d \n",current_window[j][i],i,j,current_window.start_x,current_window.start_y);
     //   }
     // }
@@ -248,33 +248,33 @@ namespace thrust
     cudaMemcpy(device_begin_1,&begin1,sizeof(Iterator),cudaMemcpyHostToDevice);
     if(rows_per_block)
     {
-    operations_per_block = rows_per_block*begin1.windows_along_x;
-    int blocks = ceil(((float)num_of_operations)/operations_per_block);
-    int xblocks = 1, yblocks =1 ;
-    if(blocks>65535)
-    {
-      xblocks = 65535;
-      yblocks = ceil(blocks/xblocks);
-    }
-    else
-    {
-      xblocks = blocks;
-    }
-    #ifdef DEBUG
-    printf("First route\n");
-    printf("Shared Block Dim X = %d\n",shared_block_dim_x);
-    printf("Config = (%d,%d)x%d SharedMem=%d\n",xblocks,yblocks,operations_per_block,shared_memory_size);
-    printf("Number Of Total Windows Created = %d \n",num_windows );
-    printf("Size of T = %d, Size of A Single Row of Windows = %d\n",sizeof(T),666);
-    printf("Windows Along X,Y = %d,%d \n",begin1.windows_along_x,begin1.windows_along_y);
-    printf("Rows Per Block = %d Data Rows Per Block = %d\n",rows_per_block,shared_block_dim_y);
-    // printf("Total Operations = %d,Operations Per Block = %d, OPB By Memory = %d\n",num_of_operations,operations_per_block,operations_per_block_by_memory);
+      operations_per_block = rows_per_block*begin1.windows_along_x;
+      int blocks = ceil(((float)num_of_operations)/operations_per_block);
+      int xblocks = 1, yblocks =1 ;
+      if(blocks>65535)
+      {
+        xblocks = 65535;
+        yblocks = ceil(blocks/xblocks);
+      }
+      else
+      {
+        xblocks = blocks;
+      }
+      #ifdef DEBUG
+      printf("First route\n");
+      printf("Shared Block Dim X = %d\n",shared_block_dim_x);
+      printf("Config = (%d,%d)x%d SharedMem=%d\n",xblocks,yblocks,operations_per_block,shared_memory_size);
+      printf("Number Of Total Windows Created = %d \n",num_windows );
+      printf("Size of T = %d, Size of A Single Row of Windows = %d\n",sizeof(T),666);
+      printf("Windows Along X,Y = %d,%d \n",begin1.windows_along_x,begin1.windows_along_y);
+      printf("Rows Per Block = %d Data Rows Per Block = %d\n",rows_per_block,shared_block_dim_y);
+      // printf("Total Operations = %d,Operations Per Block = %d, OPB By Memory = %d\n",num_of_operations,operations_per_block,operations_per_block_by_memory);
 
-    #endif
-    assert((size_single_win_row)<shared_memory_size);
-    assert(rows_per_block_by_memory);
+      #endif
+      assert((size_single_win_row)<shared_memory_size);
+      assert(rows_per_block_by_memory);
 
-    for_each_kernel<<<dim3(xblocks,yblocks),operations_per_block,shared_memory_size>>>(device_begin_1,operations_per_block,num_of_operations,shared_block_dim_x,shared_block_dim_y,0,f);
+      for_each_kernel<<<dim3(xblocks,yblocks),operations_per_block,shared_memory_size>>>(device_begin_1,operations_per_block,num_of_operations,shared_block_dim_x,shared_block_dim_y,0,f);
     }
     else{
       int blocks_per_row = max(ceil((float)size_single_win_row/shared_memory_size),ceil(((float)begin1.windows_along_x)/properties.maxThreadsPerBlock));
@@ -331,30 +331,30 @@ namespace thrust
 
     if(blocks_per_row)
     {
-        int block_position = blockIdx.y*gridDim.x + blockIdx.x;
-        int blockx = block_position%blocks_per_row;
-        int blocky = block_position/blocks_per_row;
-        int xposition = blockx*operations_per_block;
-        // if(xposition>=(*input).windows_along_x)
-        // {
-        //   return;
-        // }
-        if(threadIdx.x==(operations_per_block-1))
-        {
-          x_range = input->window_dim_x;
-        }
-        abs_position = blocky*(*input).windows_along_x + xposition+threadIdx.x;
+      int block_position = blockIdx.y*gridDim.x + blockIdx.x;
+      int blockx = block_position%blocks_per_row;
+      int blocky = block_position/blocks_per_row;
+      int xposition = blockx*operations_per_block;
+      // if(xposition>=(*input).windows_along_x)
+      // {
+      //   return;
+      // }
+      if(threadIdx.x==(operations_per_block-1))
+      {
+        x_range = input->window_dim_x;
+      }
+      abs_position = blocky*(*input).windows_along_x + xposition+threadIdx.x;
     }
     else
     {
-       abs_position = (blockIdx.y*gridDim.x + blockIdx.x)*operations_per_block + threadIdx.x;
+      abs_position = (blockIdx.y*gridDim.x + blockIdx.x)*operations_per_block + threadIdx.x;
       // int windowSize = input->window_dim_x*(input->window_dim_y);
     }
-      if(abs_position>=total_operations||threadIdx.x >=operations_per_block)
-      return;
-      // printf ("%d\n",abs_position);
-      window_2d<T> current_window = (*input)[abs_position];
-      window_2d<T> output_window = (*output)[abs_position];
+    if(abs_position>=total_operations||threadIdx.x >=operations_per_block)
+    return;
+    // printf ("%d\n",abs_position);
+    window_2d<T> current_window = (*input)[abs_position];
+    window_2d<T> output_window = (*output)[abs_position];
 
 
     if(blockIdx.x==10&&threadIdx.x<50)
@@ -363,7 +363,7 @@ namespace thrust
 
     // if(blockIdx.x==0&&threadIdx.x<100)
     // {
-      // printf("X,Y = %d,%d  TiD = %d\n",start_x,start_y,threadIdx.x);
+    // printf("X,Y = %d,%d  TiD = %d\n",start_x,start_y,threadIdx.x);
     // }
     window_2d<T> shared_window(shared_memory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
 
@@ -452,33 +452,33 @@ namespace thrust
     cudaMemcpy(device_begin_2,&begin2,sizeof(Iterator),cudaMemcpyHostToDevice);
     if(rows_per_block)
     {
-    operations_per_block = rows_per_block*begin1.windows_along_x;
-    int blocks = ceil(((float)num_of_operations)/operations_per_block);
-    int xblocks = 1, yblocks =1 ;
-    if(blocks>65535)
-    {
-      xblocks = 65535;
-      yblocks = ceil(blocks/xblocks);
-    }
-    else
-    {
-      xblocks = blocks;
-    }
-    #ifdef DEBUG
-    printf("First route\n");
-    printf("Shared Block Dim X = %d\n",shared_block_dim_x);
-    printf("Config = (%d,%d)x%d SharedMem=%d\n",xblocks,yblocks,operations_per_block,shared_memory_size);
-    printf("Number Of Total Windows Created = %d \n",num_windows );
-    printf("Size of T = %d, Size of A Single Row of Windows = %d\n",sizeof(T),666);
-    printf("Windows Along X,Y = %d,%d \n",begin1.windows_along_x,begin1.windows_along_y);
-    printf("Rows Per Block = %d Data Rows Per Block = %d\n",rows_per_block,shared_block_dim_y);
-    // printf("Total Operations = %d,Operations Per Block = %d, OPB By Memory = %d\n",num_of_operations,operations_per_block,operations_per_block_by_memory);
+      operations_per_block = rows_per_block*begin1.windows_along_x;
+      int blocks = ceil(((float)num_of_operations)/operations_per_block);
+      int xblocks = 1, yblocks =1 ;
+      if(blocks>65535)
+      {
+        xblocks = 65535;
+        yblocks = ceil(blocks/xblocks);
+      }
+      else
+      {
+        xblocks = blocks;
+      }
+      #ifdef DEBUG
+      printf("First route\n");
+      printf("Shared Block Dim X = %d\n",shared_block_dim_x);
+      printf("Config = (%d,%d)x%d SharedMem=%d\n",xblocks,yblocks,operations_per_block,shared_memory_size);
+      printf("Number Of Total Windows Created = %d \n",num_windows );
+      printf("Size of T = %d, Size of A Single Row of Windows = %d\n",sizeof(T),666);
+      printf("Windows Along X,Y = %d,%d \n",begin1.windows_along_x,begin1.windows_along_y);
+      printf("Rows Per Block = %d Data Rows Per Block = %d\n",rows_per_block,shared_block_dim_y);
+      // printf("Total Operations = %d,Operations Per Block = %d, OPB By Memory = %d\n",num_of_operations,operations_per_block,operations_per_block_by_memory);
 
-    #endif
-    assert((size_single_win_row)<shared_memory_size);
-    assert(rows_per_block_by_memory);
+      #endif
+      assert((size_single_win_row)<shared_memory_size);
+      assert(rows_per_block_by_memory);
 
-    transform_kernel<<<dim3(xblocks,yblocks),operations_per_block,shared_memory_size>>>(device_begin_1,device_begin_2,operations_per_block,num_of_operations,shared_block_dim_x,shared_block_dim_y,0,f);
+      transform_kernel<<<dim3(xblocks,yblocks),operations_per_block,shared_memory_size>>>(device_begin_1,device_begin_2,operations_per_block,num_of_operations,shared_block_dim_x,shared_block_dim_y,0,f);
     }
     else{
       int blocks_per_row = max(ceil((float)size_single_win_row/shared_memory_size),ceil(((float)begin1.windows_along_x)/properties.maxThreadsPerBlock));
