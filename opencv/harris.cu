@@ -91,15 +91,49 @@ public:
     outputWindow[2][2]=intensityValue*0.08;
   }
 };
+class HarrisIntensityThrustFunctor
+{
 
+public:
+  thrust::block_2d<float> * kernel;
+  HarrisIntensityThrustFunctor(thrust::block_2d<float> * kernel)
+  {
+    this->kernel = kernel;
+  }
+  __device__ float operator() (const thrust::window_2d<float> &inputWindow,const thrust::window_2d<float> &outputWindow) const
+  {
+    float intensityValue;
+
+    for(int xoffset = 1 ; xoffset <=1 ; xoffset++)
+    {
+      for(int yoffset = 1 ; yoffset <=1 ; yoffset++)
+      {
+        for(int i = 0; i< 3; i++)
+        {
+          for(int j = 0; j< 3; j++)
+          {
+              intensityValue += ((*kernel)[i][j])*(inputWindow[i + yoffset][j + xoffset]-inputWindow[i][j]);
+          }
+        }
+      }
+    }
+    outputWindow[2][2]=intensityValue*0.08;
+    return 0.0;
+  }
+};
 int main(int argc, char const *argv[]) {
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
   image = small;
   // resize(small,image,Size(50,50));
-
+  cudaEvent_t start, stop;
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+  float milliseconds;
   std::cout<<image.isContinuous()<<image.type()<<std::endl;
   thrust::block_2d<float> float_image_block (image.cols,image.rows);
+
+  thrust::block_2d<float> null_block (image.cols,image.rows);
   thrust::fill(float_image_block.begin(),float_image_block.end(),0.0f);
   thrust::block_2d<float> outBlock (image.cols,image.rows);
   thrust::fill(outBlock.begin(),outBlock.end(),0.0f);
@@ -114,8 +148,18 @@ int main(int argc, char const *argv[]) {
   getGaussianKernelBlock(3,5,kernel);
   thrust::window_vector<float> inputVector = thrust::window_vector<float>(&float_image_block,5,5,1,1);
   thrust::window_vector<float> outputVector = thrust::window_vector<float>(&outBlock,5,5,1,1);
+  cudaEventRecord(start);
+  thrust::transform(inputVector.begin(),inputVector.end(),outputVector.begin(),null_block.begin(),HarrisIntensityThrustFunctor(kernel.device_pointer));
+  cudaEventRecord(stop);
+  cudaEventSynchronize(stop);
+  cudaEventElapsedTime(&milliseconds, start, stop);
+  std::cout<<"Time taken on Shared = "<<milliseconds<<std::endl;
+  cudaEventRecord(start);
   thrust::transform(thrust::cuda::shared,inputVector.begin(),inputVector.end(),outputVector.begin(),HarrisIntensityFunctor(kernel.device_pointer));
-
+  cudaEventRecord(stop);
+  cudaEventSynchronize(stop);
+  cudaEventElapsedTime(&milliseconds, start, stop);
+  std::cout<<"Time taken on Thrust = "<<milliseconds<<std::endl;
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
   cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
