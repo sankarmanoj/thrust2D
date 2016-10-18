@@ -92,7 +92,7 @@ public:
         }
       }
     }
-    outputWindow[2][2]=intensityValue*0.1;
+    outputWindow[2][2]=intensityValue*0.08;
   }
 };
 
@@ -239,7 +239,7 @@ int main(int argc, char const *argv[]) {
   imshow("ainput.png",image);
   // imshow("output",output);
   imshow("aoutput.png",output);
-  waitKey(0);
+  // waitKey(0);
   #endif
   // waitKey(0);
   // std::cout<<float_image<<"\n";

@@ -11,6 +11,6 @@ OBJS=$(SRCS:.cu=.o)
 all: $(OBJS)
 
 %.o:%.cu
-	$(CC) $(CFLAGS) $(DFLAGS) -O0 $(OPENCVFLAGS) $< -o $@
+	$(CC) $(CFLAGS) -O0 $(OPENCVFLAGS) $< -o $@
 clean:
 	rm *.o

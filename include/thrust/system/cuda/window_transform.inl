@@ -96,7 +96,7 @@ namespace thrust
       xblocks = blocks;
     }
     printf(" Blocks = %d,%d \n",xblocks,yblocks);
-    printf("Shared Memory Allocated = %d \n",(kernel->dim_y*kernel->dim_x+ operations*kernel_dim)*sizeof(T));
+    printf("Shared Memory Allocated = %d \n",(int)((kernel->dim_y*kernel->dim_x+ operations*kernel_dim)*sizeof(T)));
     printf("Actual Block Size = %d, Grid Size = %d \n",operations*kernel_dim,xblocks*yblocks);
     convolve_kernel<<<dim3(xblocks,yblocks),operations*kernel_dim,(kernel->dim_y*kernel->dim_x+operations*kernel_dim)*sizeof(T)>>>(*(input->device_pointer),*(output->device_pointer),*(kernel->device_pointer),operations,num_of_operations);
     cudaDeviceSynchronize();
@@ -261,7 +261,7 @@ namespace thrust
       printf("Shared Block Dim X = %d\n",shared_block_dim_x);
       printf("Config = (%d,%d)x%d SharedMem=%d\n",xblocks,yblocks,operations_per_block,shared_memory_size);
       printf("Number Of Total Windows Created = %d \n",num_windows );
-      printf("Size of T = %d, Size of A Single Row of Windows = %d\n",sizeof(T),666);
+      printf("Size of T = %d, Size of A Single Row of Windows = %d\n",(int)sizeof(T),666);
       printf("Windows Along X,Y = %d,%d \n",begin1.windows_along_x,begin1.windows_along_y);
       printf("Rows Per Block = %d Data Rows Per Block = %d\n",rows_per_block,shared_block_dim_y);
       // printf("Total Operations = %d,Operations Per Block = %d, OPB By Memory = %d\n",num_of_operations,operations_per_block,operations_per_block_by_memory);
@@ -290,8 +290,8 @@ namespace thrust
       #ifdef DEBUG
       printf("Second Route\n");
       printf("Number Of Total Windows Created = %d \n",num_windows );
-      printf("Size of T = %d, Size of A Single Row of Windows = %d\n",sizeof(T),size_single_win_row);
-      printf("Windows Along X,Y = %d,%d Shared Block Dim X = %d\n",begin1.windows_along_x,begin1.windows_along_y, shared_block_dim_x);
+      printf("Size of T = %d, Size of A Single Row of Windows = %d\n",(int)sizeof(T),size_single_win_row);
+      printf("Windows Along X,Y = %d,%d Shared Block Dim X = %d\n",begin1.windows_along_x,begin1.windows_along_y,(int) shared_block_dim_x);
       printf("Blocks = %d , Xblocks = %d , Yblocks = %d  Blocks Per Row =%d\n",blocks,xblocks,yblocks,blocks_per_row);
       printf("Total Operations = %d,Operations Per Block = %d, OPB By Memory = %d\n",num_of_operations,operations_per_block,operations_per_block_by_memory);
       printf("\n Config = (%d,%d)x%d SharedMem=%d",xblocks,yblocks,operations_per_block,shared_memory_size);
@@ -363,7 +363,7 @@ namespace thrust
     // }
     window_2d<T> shared_window(shared_memory,start_x,start_y,input->window_dim_x,input->window_dim_y,shared_block_dim_x,shared_block_dim_y);
 
-    for(int j = 0; j<input->window_dim_y;j++)
+    for(int j = 0; j<y_range;j++)
     {
       for(int i = 0; i<x_range;i++)
       {
@@ -463,9 +463,9 @@ namespace thrust
       #ifdef DEBUG
       printf("First route\n");
       printf("Shared Block Dim X = %d\n",shared_block_dim_x);
-      printf("Config = (%d,%d)x%d SharedMem=%d\n",xblocks,yblocks,operations_per_block,shared_memory_size);
+      printf("Config = (%d,%d)x%d SharedMem=%d\n",xblocks,yblocks,(int)operations_per_block,(int)shared_memory_size);
       printf("Number Of Total Windows Created = %d \n",num_windows );
-      printf("Size of T = %d, Size of A Single Row of Windows = %d\n",sizeof(T),666);
+      printf("Size of T = %d, Size of A Single Row of Windows = %d\n",(int)sizeof(T),666);
       printf("Windows Along X,Y = %d,%d \n",begin1.windows_along_x,begin1.windows_along_y);
       printf("Rows Per Block = %d Data Rows Per Block = %d\n",rows_per_block,shared_block_dim_y);
       // printf("Total Operations = %d,Operations Per Block = %d, OPB By Memory = %d\n",num_of_operations,operations_per_block,operations_per_block_by_memory);
@@ -494,7 +494,7 @@ namespace thrust
       #ifdef DEBUG
       printf("Second Route\n");
       printf("Number Of Total Windows Created = %d \n",num_windows );
-      printf("Size of T = %d, Size of A Single Row of Windows = %d\n",sizeof(T),size_single_win_row);
+      printf("Size of T = %d, Size of A Single Row of Windows = %d\n",(int)sizeof(T),(int)size_single_win_row);
       printf("Windows Along X,Y = %d,%d Shared Block Dim X = %d\n",begin1.windows_along_x,begin1.windows_along_y, shared_block_dim_x);
       printf("Blocks = %d , Xblocks = %d , Yblocks = %d  Blocks Per Row =%d\n",blocks,xblocks,yblocks,blocks_per_row);
       printf("Total Operations = %d,Operations Per Block = %d, OPB By Memory = %d\n",num_of_operations,operations_per_block,operations_per_block_by_memory);
@@ -558,7 +558,7 @@ namespace thrust
     window_2d<T> shared_input_window(shared_memory,start_x,start_y,input->window_dim_x,input->window_dim_y,2*shared_block_dim_x,shared_block_dim_y);
     window_2d<T> shared_input_window1(shared_memory,start_x+shared_block_dim_x,start_y,input->window_dim_x,input->window_dim_y,2*shared_block_dim_x,shared_block_dim_y);
     // window_2d<T> shared_output_window(shared_memory,start_x+2*shared_block_dim_x,start_y,input->window_dim_x,input->window_dim_y,3*shared_block_dim_x,shared_block_dim_y);
-    for(int j = 0; j<input->window_dim_y;j++)
+    for(int j = 0; j<y_range;j++)
     {
       for(int i = 0; i<x_range;i++)
       {

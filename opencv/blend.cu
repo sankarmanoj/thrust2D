@@ -17,7 +17,20 @@ public:
   }
   __device__ void operator() (const thrust::window_2d<float> &inputWindow1,const thrust::window_2d<float> &inputWindow2,const thrust::window_2d<float> &outputWindow) const
   {
-    outputWindow[0][0] = alpha*inputWindow1[0][0];//+(1-alpha)*inputWindow2[0][0];
+    outputWindow[0][0] = alpha*inputWindow1[0][0]+(1-alpha)*inputWindow2[0][0];
+  }
+};
+class blendUnaryFunctor: public thrust::shared_unary_window_transform_functor<float>
+{
+  float alpha;
+public:
+  blendUnaryFunctor(float alpha)
+  {
+    this->alpha = alpha;
+  }
+  __device__ void operator() (const thrust::window_2d<float> &inputWindow1,const thrust::window_2d<float> &outputWindow) const
+  {
+    outputWindow[0][0] = inputWindow1[0][0];
   }
 };
 
@@ -42,18 +55,20 @@ int main(int argc, char const *argv[]) {
   {
     floatImageData[i]=(float)input1.ptr()[i];
   }
-  input_image_block_1.assign(charImageData,charImageData+input1.cols*input1.rows);
+  input_image_block_1.assign(floatImageData,floatImageData+input1.cols*input1.rows);
   for(int i = 0; i<input1.cols*input1.rows;i++)
   {
     floatImageData[i]=(float)input2.ptr()[i];
   }
-  input_image_block_2.assign(charImageData,charImageData+input2.cols*input2.rows);
+  input_image_block_2.assign(floatImageData,floatImageData+input2.cols*input2.rows);
   thrust::window_vector<float> inputWindow1 (&input_image_block_1,1,1,1,1);
   thrust::window_vector<float> inputWindow2 (&input_image_block_2,1,1,1,1);
   thrust::window_vector<float> outputWindow (&output_image_block,1,1,1,1);
 
-  thrust::transform(thrust::cuda::shared,inputWindow1.begin(),inputWindow1.end(),inputWindow2.begin(),outputWindow.begin(),blendFunctor(0));
-  cudaMemcpy(floatImageData,thrust::raw_pointer_cast(output_image_block.data()),sizeof(float)*(output_image_block.end()-output_image_block.begin()),cudaMemcpyDeviceToHost);
+  thrust::transform(thrust::cuda::shared,inputWindow1.begin(),inputWindow1.end(),inputWindow2.begin(),outputWindow.begin(),blendFunctor(0.5));
+  // thrust::transform(thrust::cuda::shared,inputWindow1.begin(),inputWindow1.end(),outputWindow.begin(),blendUnaryFunctor(0.8));
+
+  cudaMemcpy(floatImageData,output_image_block.data().get(),sizeof(float)*(output_image_block.end()-output_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<input1.cols*input1.rows;i++)
   {
     charImageData[i]=(unsigned char)floatImageData[i];
