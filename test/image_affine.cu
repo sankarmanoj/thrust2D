@@ -6,7 +6,8 @@
 #include <thrust/window_transform.h>
 #include <math.h>
 using namespace cv;
-
+// #define AFFINE
+#define HARRIS
 class AffineTransformFunctor : public thrust::shared_window_for_each_functor<float>
 {
 public:
@@ -44,7 +45,7 @@ int main(int argc, char const *argv[]) {
     img[i]=(float)image.ptr()[i];
   }
   float_image_block.assign(img,img+image.cols*image.rows);
-
+  #ifdef AFFINE
 
     Point2f srcTri[3];
     Point2f dstTri[3];
@@ -94,19 +95,62 @@ int main(int argc, char const *argv[]) {
   AffineTransformFunctor atf(&warp_block,&outBlock);
   thrust::for_each(inputVector.begin(),inputVector.end(),atf);
   cudaDeviceSynchronize();
+
+    unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
+    cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
+    for(int i = 0; i<image.cols*image.rows;i++)
+    {
+      outputFloatImageData[i]=(unsigned char)img[i];
+    }
+    Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
+    // std::cout<<output;
+    // cudaCheckError();
+    // std::cout<<output.type()<<"  "<<Size(image.cols,image.rows)<<"="<<image_block.end()-image_block.begin()<<"\n";
+    imwrite("ainput.png",image);
+    // imshow("output",output);
+    imwrite("aoutput.png",output);
+  #endif
+
+  #ifdef HARRIS
+  thrust::block_2d<float> XDeriv (image.cols,image.rows);
+  thrust::block_2d<float> YDeriv (image.cols,image.rows);
+  thrust::copy(float_image_block.begin(),float_image_block.end(),XDeriv.begin());
+  thrust::copy(float_image_block.begin(),float_image_block.end(),YDeriv.begin());
+  thrust::block_2d<float> SobelXKernel (3,3,0);
+  thrust::block_2d<float> SobelYKernel (3,3,0);
+  SobelXKernel[0][0]= -1;
+  SobelXKernel[0][1]= -2;
+  SobelXKernel[0][2]= -1;
+  SobelXKernel[2][0]= 1;
+  SobelXKernel[2][1]= 2;
+  SobelXKernel[2][2]= 1;
+  SobelYKernel[0][0]= -1;
+  SobelYKernel[1][0]= -2;
+  SobelYKernel[2][0]= -1;
+  SobelYKernel[0][2]= 1;
+  SobelYKernel[1][2]= 2;
+  SobelYKernel[2][2]= 1;
+  thrust::convolve(XDeriv.begin(),XDeriv.end(),SobelXKernel.begin());
+  thrust::convolve(YDeriv.begin(),YDeriv.end(),SobelYKernel.begin());
+
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
-  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
+  cudaMemcpy(img,thrust::raw_pointer_cast(XDeriv.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];
   }
-  Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
-  // std::cout<<output;
-  // cudaCheckError();
-  // std::cout<<output.type()<<"  "<<Size(image.cols,image.rows)<<"="<<image_block.end()-image_block.begin()<<"\n";
-  imwrite("ainput.png",image);
-  // imshow("output",output);
-  imwrite("aoutput.png",output);
+  Mat xout (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
+  imwrite("harris_input.png",image);
+  imwrite("xout.png",xout);
+  cudaMemcpy(img,thrust::raw_pointer_cast(YDeriv.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
+  for(int i = 0; i<image.cols*image.rows;i++)
+  {
+    outputFloatImageData[i]=(unsigned char)img[i];
+  }
+  Mat yout (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
+  imwrite("yout.png",yout);
+  #endif
+
 
   // waitKey(0);
   // std::cout<<float_image<<"\n";
