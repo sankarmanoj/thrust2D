@@ -18,10 +18,6 @@ inline float gauss(int x, int y, int mid, float sigma )
 void getGaussianKernelBlock(int dim, float sigma,thrust::block_2d<float> &GaussianKernel )
 {
   assert(dim%2);
-  float inverseSigmaSquare;
-  inverseSigmaSquare = 1/pow(sigma,2);
-  float pi2SigSquare;
-  pi2SigSquare = inverseSigmaSquare*2*PI;
   int mid = (dim-1)/2;
   float total = 0;
   for(int i = 0; i<dim;i++)

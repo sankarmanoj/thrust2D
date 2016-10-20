@@ -49,9 +49,7 @@ namespace thrust
         shared_reduce_space[threadIdx.x]+=shared_reduce_space[i];
       }
       output_block[block_coordinates.y][block_coordinates.x]=shared_reduce_space[threadIdx.x];
-
     }
-
     return;
   }
   template<class Iterator>

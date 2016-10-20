@@ -92,7 +92,7 @@ int main(int argc, char const *argv[]) {
   //Create Windows For Indexing
   thrust::window_vector<float> inputVector(&float_image_block,1,1,1,1);
   AffineTransformFunctor atf(&warp_block,&outBlock);
-  thrust::for_each(thrust::cuda::shared, inputVector.begin(),inputVector.end(),atf);
+  thrust::for_each(inputVector.begin(),inputVector.end(),atf);
   cudaDeviceSynchronize();
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
   cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
