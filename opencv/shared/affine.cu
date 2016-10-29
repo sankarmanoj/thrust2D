@@ -45,11 +45,7 @@ int main(int argc, char const *argv[]) {
   std::cout<<"Time taken from Host to Device = "<<m_milliseconds<<std::endl;
   Point2f srcTri[3];
   Point2f dstTri[3];
-  Mat rot_mat( 2, 3, CV_32FC1 );
   Mat warp_mat( 2, 3, CV_32FC1 );
-  Mat warp_dst;
-  /// Set the dst image the same type and size as src
-  warp_dst = Mat::zeros( image.rows, image.cols, image.type() );
   /// Set your 3 points to calculate the  Affine Transform
   srcTri[0] = Point2f( 0,0 );
   srcTri[1] = Point2f( image.cols - 1, 0 );
