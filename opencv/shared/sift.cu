@@ -1,12 +1,6 @@
 #include <opencv2/opencv.hpp>
-#include <stdio.h>
-#include <iostream>
-#include <stdlib.h>
 #include <thrust/window_2d.h>
 #include <thrust/window_transform.h>
-#include <math.h>
-
-#define PI 3.14159
 using namespace cv;
 class siftTransformFunctor : public thrust::shared_unary_window_transform_functor<float>
 {
@@ -51,16 +45,18 @@ int main()
   Mat image=small;
   Mat pyrup=imread("pyrup.png",CV_LOAD_IMAGE_GRAYSCALE);
   Mat pyrdown=imread("pyrdown.png",CV_LOAD_IMAGE_GRAYSCALE);
-  // resize(small,image,Size(1500,1500));
-  std::cout<<"  "<<image.isContinuous()<<std::endl;
+  cudaEvent_t m_start, m_stop;
+  cudaEventCreate(&m_start);
+  cudaEventCreate(&m_stop);
+  float m_milliseconds;
+  cudaEventRecord(m_start);
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
   thrust::block_2d<float> float_image_block (image.cols,image.rows);
   thrust::block_2d<unsigned char > pyrup_block (pyrup.cols,pyrup.rows);
   thrust::block_2d<float> float_pyrup_block (pyrup.cols,pyrup.rows);
   thrust::block_2d<unsigned char > pyrdown_block (pyrdown.cols,pyrdown.rows);
   thrust::block_2d<float> float_pyrdown_block (pyrdown.cols,pyrdown.rows);
-  thrust::block_2d<float> outBlock (image.cols,image.rows);
-  thrust::fill(outBlock.begin(),outBlock.end(),0.0f);
+  thrust::block_2d<float> outBlock (image.cols,image.rows,0.0f);
   float * img = (float * )malloc(sizeof(float)*(image_block.end()-image_block.begin()));
   float * imgpu = (float * )malloc(sizeof(float)*(pyrup_block.end()-pyrup_block.begin()));
   float * imgpd = (float * )malloc(sizeof(float)*(pyrdown_block.end()-pyrdown_block.begin()));
@@ -80,13 +76,31 @@ int main()
   float_image_block.assign(img,img+image.cols*image.rows);
   float_pyrup_block.assign(imgpu,imgpu+pyrup.cols*pyrup.rows);
   float_pyrdown_block.assign(imgpd,imgpd+pyrdown.cols*pyrdown.rows);
+  cudaEventRecord(m_stop);
+  cudaEventSynchronize(m_stop);
+  cudaEventElapsedTime(&m_milliseconds, m_start, m_stop);
+  std::cout<<"Time taken from Host to Device = "<<m_milliseconds<<std::endl;
   thrust::window_vector<float> inputVector(&float_image_block,3,3,1,1);
   thrust::window_vector<float> outputVector(&outBlock,3,3,1,1);
   siftTransformFunctor stf(&float_pyrup_block,&float_pyrdown_block);
+  cudaEvent_t start, stop;
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+  float milliseconds;
+  cudaEventRecord(start);
   thrust::transform(thrust::cuda::shared,inputVector.begin(),inputVector.end(),outputVector.begin(),stf);
   cudaDeviceSynchronize();
+  cudaEventRecord(stop);
+  cudaEventSynchronize(stop);
+  cudaEventElapsedTime(&milliseconds, start, stop);
+  std::cout<<"Time taken on Shared = "<<milliseconds<<std::endl;
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(outBlock.end()-outBlock.begin()));
+  cudaEventRecord(m_start);
   cudaMemcpy(img1,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(outBlock.end()-outBlock.begin()),cudaMemcpyDeviceToHost);
+  cudaEventRecord(m_stop);
+  cudaEventSynchronize(m_stop);
+  cudaEventElapsedTime(&m_milliseconds, m_start, m_stop);
+  std::cout<<"Time taken from Device to Host = "<<m_milliseconds<<std::endl;
   for(int i = 0; i<(outBlock.end()-outBlock.begin());i++)
   {
     outputFloatImageData[i]=(unsigned char)img1[i];

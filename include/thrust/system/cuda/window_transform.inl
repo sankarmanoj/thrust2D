@@ -79,7 +79,9 @@ namespace thrust
     // int maxOperationsInShared = ((shared_memory/(2*sizeof(T)))-(kernel_dim*kernel_dim))/kernel_dim;
     int max_operations_by_thread = properties.maxThreadsPerBlock/kernel_dim;
     int operations = max_operations_by_thread;
+    #ifdef DEBUG
     printf("  Max Operations = %d, Operations = %d\n", max_operations_by_thread,operations);
+    #endif
     // int operations = min(max_operations_by_thread,maxOperationsInShared);
 
     int blocks = ceil(((float)num_of_operations)/operations);
@@ -93,9 +95,11 @@ namespace thrust
     {
       xblocks = blocks;
     }
+    #ifdef DEBUG
     printf(" Blocks = %d,%d \n",xblocks,yblocks);
     printf("Shared Memory Allocated = %d \n",(int)((kernel->dim_y*kernel->dim_x+ operations*kernel_dim)*sizeof(T)));
     printf("Actual Block Size = %d, Grid Size = %d \n",operations*kernel_dim,xblocks*yblocks);
+    #endif
     convolve_kernel<<<dim3(xblocks,yblocks),operations*kernel_dim,(kernel->dim_y*kernel->dim_x+operations*kernel_dim)*sizeof(T)>>>(*(input->device_pointer),*(output->device_pointer),*(kernel->device_pointer),operations,num_of_operations);
     cudaDeviceSynchronize();
     cudaMemcpy(input->data().get(),output->data().get(),sizeof(T)*num_of_operations,cudaMemcpyDeviceToDevice);

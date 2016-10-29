@@ -1,4 +1,4 @@
-IDIR =../include
+IDIR =../../include
 CC=nvcc
 CFLAGS=-I$(IDIR) -ccbin=g++-5 -std=c++11 -Wno-deprecated-gpu-targets -D_MWAITXINTRIN_H_INCLUDED
 DFLAGS =-DDEBUG -g -G -lineinfo
