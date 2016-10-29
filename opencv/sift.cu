@@ -32,10 +32,15 @@ siftTransformFunctor(thrust::block_2d<float> * pyrup,thrust::block_2d<float> * p
     {
       for (int j = 0; j < inputWindow.window_dim_x; j++)
       {
-        outputWindow[y][x]=outputWindow[y][x] + abs(inputWindow[y][x]-inputWindow[i][j]);
-        outputWindow[y][x]=outputWindow[y][x] + abs(inputWindow[y][x]-(*pyrup)[pu_y][pu_x]);
-        outputWindow[y][x]=outputWindow[y][x] + abs(inputWindow[y][x]-(*pyrdown)[pd_y][pd_x]);
+        outputWindow[y][x]=outputWindow[y][x] + inputWindow[y][x]-inputWindow[i][j];
+        outputWindow[y][x]=outputWindow[y][x] + inputWindow[y][x]-(*pyrup)[pu_y][pu_x];
+        outputWindow[y][x]=outputWindow[y][x] + inputWindow[y][x]-(*pyrdown)[pd_y][pd_x];
       }
+    }
+    outputWindow[y][x] = outputWindow[y][x] * 0.05;
+    if (outputWindow[y][x] < 0)
+    {
+      outputWindow[0][0] = 0;
     }
   }
 };
