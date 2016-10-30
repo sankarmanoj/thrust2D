@@ -13,10 +13,10 @@ namespace thrust
   template<typename T>
   __global__ void convolve_kernel (block_2d<T> &block,block_2d<T> &output_block, block_2d<T> &kernel, int operations_per_block,int total_operations)
   {
-    extern __shared__ T shared_memory []  ;
-    T * shared_kernel = shared_memory;
+    extern volatile __shared__ T shared_memory_convolve [];
+    volatile T * shared_kernel = shared_memory_convolve;
     int kernel_size = kernel.dim_x*kernel.dim_x;
-    T * shared_reduce_space = (shared_memory+kernel_size);
+    volatile T * shared_reduce_space = (shared_memory_convolve+kernel_size);
     int kernel_width = kernel.dim_x;
     int kernel_half_width = (kernel.dim_x-1)/2;
     T element;
@@ -48,7 +48,7 @@ namespace thrust
       {
         shared_reduce_space[threadIdx.x]+=shared_reduce_space[i];
       }
-      output_block[block_coordinates.y][block_coordinates.x]=shared_reduce_space[threadIdx.x];
+      output_block[block_coordinates.y][block_coordinates.x]=(T) shared_reduce_space[threadIdx.x];
     }
     return;
   }

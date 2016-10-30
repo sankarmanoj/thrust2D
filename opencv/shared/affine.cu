@@ -92,7 +92,7 @@ int main(int argc, char const *argv[]) {
     outputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
-  imwrite("ainput.png",image);
+  imwrite("input.png",image);
   imwrite("aoutput.png",output);
   return 0;
 }
