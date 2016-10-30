@@ -1,6 +1,6 @@
 IDIR =../../include
 CC=nvcc
-CFLAGS=-I$(IDIR)
+CFLAGS=-I$(IDIR) -ccbin=g++-5 -std=c++11 -Wno-deprecated-gpu-targets -D_MWAITXINTRIN_H_INCLUDED
 
 %.out: %.cu
 	clear
@@ -54,3 +54,15 @@ rod_hotspot_foreach_512: hotspot_foreach.out
 rod_hotspot_foreach_1024: hotspot_foreach.out
 	./hotspot_foreach.out 1024 2 2 temp_1024	power_1024 result_foreach.out
 	openssl md5 result_foreach.out
+
+rod_hotspot_host_64: hotspot_host.out
+	./hotspot_host.out 64 2 2 temp_64	power_64 result_host.out
+	openssl md5 result_host.out
+
+rod_hotspot_host_512: hotspot_host.out
+	./hotspot_host.out 512 2 2 temp_512	power_512 result_host.out
+	openssl md5 result_host.out
+
+rod_hotspot_host_1024: hotspot_host.out
+	./hotspot_host.out 1024 2 2 temp_1024	power_1024 result_host.out
+	openssl md5 result_host.out

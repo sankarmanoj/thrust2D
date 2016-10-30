@@ -13,10 +13,10 @@ namespace thrust
   template<typename T>
   __global__ void convolve_kernel (block_2d<T> &block,block_2d<T> &output_block, block_2d<T> &kernel, int operations_per_block,int total_operations)
   {
-    extern __shared__ T shared_memory []  ;
-    T * shared_kernel = shared_memory;
+    extern volatile __shared__ T shared_memory_convolve [];
+    volatile T * shared_kernel = shared_memory_convolve;
     int kernel_size = kernel.dim_x*kernel.dim_x;
-    T * shared_reduce_space = (shared_memory+kernel_size);
+    volatile T * shared_reduce_space = (shared_memory_convolve+kernel_size);
     int kernel_width = kernel.dim_x;
     int kernel_half_width = (kernel.dim_x-1)/2;
     T element;
@@ -48,10 +48,8 @@ namespace thrust
       {
         shared_reduce_space[threadIdx.x]+=shared_reduce_space[i];
       }
-      output_block[block_coordinates.y][block_coordinates.x]=shared_reduce_space[threadIdx.x];
-
+      output_block[block_coordinates.y][block_coordinates.x]=(T) shared_reduce_space[threadIdx.x];
     }
-
     return;
   }
   template<class Iterator>
@@ -81,7 +79,9 @@ namespace thrust
     // int maxOperationsInShared = ((shared_memory/(2*sizeof(T)))-(kernel_dim*kernel_dim))/kernel_dim;
     int max_operations_by_thread = properties.maxThreadsPerBlock/kernel_dim;
     int operations = max_operations_by_thread;
+    #ifdef DEBUG
     printf("  Max Operations = %d, Operations = %d\n", max_operations_by_thread,operations);
+    #endif
     // int operations = min(max_operations_by_thread,maxOperationsInShared);
 
     int blocks = ceil(((float)num_of_operations)/operations);
@@ -95,9 +95,11 @@ namespace thrust
     {
       xblocks = blocks;
     }
+    #ifdef DEBUG
     printf(" Blocks = %d,%d \n",xblocks,yblocks);
     printf("Shared Memory Allocated = %d \n",(int)((kernel->dim_y*kernel->dim_x+ operations*kernel_dim)*sizeof(T)));
     printf("Actual Block Size = %d, Grid Size = %d \n",operations*kernel_dim,xblocks*yblocks);
+    #endif
     convolve_kernel<<<dim3(xblocks,yblocks),operations*kernel_dim,(kernel->dim_y*kernel->dim_x+operations*kernel_dim)*sizeof(T)>>>(*(input->device_pointer),*(output->device_pointer),*(kernel->device_pointer),operations,num_of_operations);
     cudaDeviceSynchronize();
     cudaMemcpy(input->data().get(),output->data().get(),sizeof(T)*num_of_operations,cudaMemcpyDeviceToDevice);
