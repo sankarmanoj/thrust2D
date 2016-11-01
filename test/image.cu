@@ -56,15 +56,15 @@ class forEachFunctor : public thrust::shared_window_for_each_functor<float>
 
   __device__ void operator() (const thrust::window_2d<float> &inputWindow) const
   {
-    float temp = 0;
-     for(int i = 0; i< inputWindow.window_dim_y;i++)
-     {
-       for(int j = 0; j<inputWindow.window_dim_x;j++)
-       {
-         temp+=inputWindow[i][j]*(float)((*kernel)[i][j]);
-       }
-     }
-     inputWindow[1][1]=0;
+    // float temp = 0;
+    //  for(int i = 0; i< inputWindow.window_dim_y;i++)
+    //  {
+    //    for(int j = 0; j<inputWindow.window_dim_x;j++)
+    //    {
+    //      temp+=inputWindow[i][j]*(float)((*kernel)[i][j]);
+    //    }
+    //  }
+     inputWindow[1][1]=inputWindow[1][1]*0.5;
   }
 };
 int main(int argc, char const *argv[]) {
@@ -72,7 +72,7 @@ int main(int argc, char const *argv[]) {
   Mat image;
   int dim = 13;
   image = small;
-  // resize(small,image,Size(50,50));
+  resize(small,image,Size(1500,1500));
   thrust::block_2d<float> kernel(dim,dim);
   getGaussianKernelBlock(dim,5,kernel);
   // thrust::fill(kernel.begin(),kernel.end(),0.0f);
@@ -100,9 +100,9 @@ int main(int argc, char const *argv[]) {
   // image_block.assign(image.ptr(),image.ptr()+image.cols*image.rows);
   Mat cvGB;
   GaussianBlur(image,cvGB,Size(3,3),3);
-  // thrust::window_vector<float> myVector = thrust::window_vector<float>(&float_image_block,3,3,3,3);
-  // thrust::for_each(thrust::cuda::shared,myVector.begin(),myVector.end(),forEachFunctor(kernel.device_pointer));
-  thrust::convolve(float_image_block.begin(),float_image_block.end(),kernel.begin());
+  thrust::window_vector<float> myVector = thrust::window_vector<float>(&float_image_block,3,3,1,1);
+  thrust::for_each(thrust::cuda::shared,myVector.begin(),myVector.end(),forEachFunctor(kernel.device_pointer));
+
   // unsigned char * outputImageData = (unsigned char *)malloc(sizeof(unsigned char)*(image_block.end()-image_block.begin()));
   // cudaMemcpy(outputImageData,thrust::raw_pointer_cast(image_block.data()),sizeof(unsigned char)*(image_block.end()-image_block.begin()),cudaMemcpyDeviceToHost);
 

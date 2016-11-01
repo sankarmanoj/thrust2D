@@ -10,6 +10,16 @@ namespace thrust
     struct shared_policy : device_execution_policy<shared_policy> {};
     shared_policy shared;
   }
+  struct launcher_config
+  {
+    int shared_block_dim_y , shared_block_dim_x ;
+    int rows_per_block_by_windows ;
+    int operations_per_block , operations_per_thread;
+    int shared_memory_size;
+    int blocks; // Total blocks
+    int blocks_per_row;
+    int total_operations;
+  };
   template <class Iterator>
   void convolve(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2);
   template <class Iterator, class Func>
