@@ -12,18 +12,9 @@ int main()
     cout << "Cannot load image!" << endl;
     return -1;
   }
-  imshow("Image", image);//displaying image
+  imwrite("input.png", image);//displaying image
   Mat image1=image.clone();//cloning image
-  cudaEvent_t start, stop;
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
-  float milliseconds;
-  cudaEventRecord(start);
   GaussianBlur( image, image1, Size( 7, 7), 0, 0 );//applying Gaussian filter
-  cudaEventRecord(stop);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&milliseconds, start, stop);
-  std::cout<<"Time taken on OpenCV = "<<milliseconds<<std::endl;
-  imshow("image1:",image1);//displaying image1
-  waitKey(0);
+  imwrite("output.png",image1);//displaying image1
+
 }

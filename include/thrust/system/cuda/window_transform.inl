@@ -280,7 +280,7 @@ namespace thrust
     {
         xblocks = for_each_config.blocks;
     }
-    print_config(for_each_config);
+    // print_config(for_each_config);
     for_each_kernel<<<dim3(xblocks,yblocks),for_each_config.operations_per_block/for_each_config.operations_per_thread,for_each_config.shared_memory_size>>>(device_begin_1,for_each_config,f);
     cudaCheckError();
   }
@@ -389,7 +389,7 @@ namespace thrust
     {
         xblocks = tConfig.blocks;
     }
-    print_config(tConfig);
+    // print_config(tConfig);
     transform_kernel<<<dim3(xblocks,yblocks),tConfig.operations_per_block/tConfig.operations_per_thread,tConfig.shared_memory_size>>>(device_begin_1,device_begin_2,tConfig,f);
     cudaCheckError();
   }

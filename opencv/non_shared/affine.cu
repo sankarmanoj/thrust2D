@@ -26,11 +26,6 @@ int main(int argc, char const *argv[]) {
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
   image = small;
-  cudaEvent_t m_start, m_stop;
-  cudaEventCreate(&m_start);
-  cudaEventCreate(&m_stop);
-  float m_milliseconds;
-  cudaEventRecord(m_start);
   thrust::block_2d<float> float_image_block (image.cols,image.rows,0.0f);
   thrust::block_2d<float> outBlock (image.cols,image.rows,0.0f);
   float * img = (float * )malloc(sizeof(float)*(image.cols*image.rows));
@@ -39,10 +34,6 @@ int main(int argc, char const *argv[]) {
     img[i]=(float)image.ptr()[i];
   }
   float_image_block.assign(img,img+image.cols*image.rows);
-  cudaEventRecord(m_stop);
-  cudaEventSynchronize(m_stop);
-  cudaEventElapsedTime(&m_milliseconds, m_start, m_stop);
-  std::cout<<"Time taken from Host to Device = "<<m_milliseconds<<std::endl;
   Point2f srcTri[3];
   Point2f dstTri[3];
   Mat warp_mat( 2, 3, CV_32FC1 );
@@ -67,24 +58,10 @@ int main(int argc, char const *argv[]) {
   //Create Windows For Indexing
   thrust::window_vector<float> inputVector(&float_image_block,1,1,1,1);
   AffineTransformFunctor atf(&warp_block,&outBlock);
-  cudaEvent_t start, stop;
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
-  float milliseconds;
-  cudaEventRecord(start);
   thrust::for_each(inputVector.begin(),inputVector.end(),atf);
-  cudaEventRecord(stop);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&milliseconds, start, stop);
-  std::cout<<"Time taken on Non Shared = "<<milliseconds<<std::endl;
   cudaDeviceSynchronize();
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
-  cudaEventRecord(m_start);
   cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
-  cudaEventRecord(m_stop);
-  cudaEventSynchronize(m_stop);
-  cudaEventElapsedTime(&m_milliseconds, m_start, m_stop);
-  std::cout<<"Time taken from Device to Host = "<<m_milliseconds<<std::endl;
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];

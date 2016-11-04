@@ -49,7 +49,11 @@ void writeoutput(float *vect, int grid_rows, int grid_cols, char *file){
 	if( (fp = fopen(file, "w" )) == 0 )
 	printf( "The file was not opened\n" );
 
-
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    float milliseconds;
+    cudaEventRecord(start);
 	for (i=0; i < grid_rows; i++)
 	for (j=0; j < grid_cols; j++)
 	{
@@ -227,10 +231,6 @@ public:
 		Ry_1=1/Ry;
 		Rz_1=1/Rz;
 		printf("step_div_Cap = %f\nrx,ry,rz = %f,%f,%f\n",step_div_Cap,Rx_1,Ry_1,Rz_1);
-		cudaEvent_t tstart, tstop;
-		cudaEventCreate(&tstart);
-		cudaEventCreate(&tstop);
-		cudaEventRecord(tstart);
 		for (t = 0; t < total_iterations; t+=pyramid_height)
 		{
 			int required_iterations = MIN(pyramid_height,total_iterations-t);
@@ -242,11 +242,6 @@ public:
 			thrust::for_each(wv.begin(),wv.end(),functor);
 		}
 		printf("Ending simulation\n");
-		cudaEventRecord(tstop);
-		cudaEventSynchronize(tstop);
-		float timeTaken;
-		cudaEventElapsedTime(&timeTaken,tstart,tstop);
-		printf("Thrust Time = %f \n",timeTaken);
 		cudaMemcpy(FilesavingTemp,thrust::raw_pointer_cast(TemperatureBlock.data()),size*sizeof(float),cudaMemcpyDeviceToHost);
 		writeoutput(FilesavingTemp,grid_rows, grid_cols, ofile);
 	}

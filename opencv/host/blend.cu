@@ -41,25 +41,16 @@ int main(int argc, char const *argv[]) {
   input_image_block_2.assign(floatImageData,floatImageData+input2.cols*input2.rows);
   thrust::host_window_vector<float> inputWindow1 (&input_image_block_1,1,1,1,1);
   thrust::host_window_vector<float> inputWindow2 (&input_image_block_2,1,1,1,1);
-  cudaEvent_t start, stop;
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
-  float milliseconds;
-  cudaEventRecord(start);
   thrust::transform(thrust::host,inputWindow1.begin(),inputWindow1.end(),inputWindow2.begin(),output_image_block.begin(),blendFunctor(0.5));
-  cudaEventRecord(stop);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&milliseconds, start, stop);
-  std::cout<<"Time taken on Host = "<<milliseconds<<std::endl;
   cudaMemcpy(floatImageData,output_image_block.data(),sizeof(float)*(output_image_block.end()-output_image_block.begin()),cudaMemcpyHostToHost);
   for(int i = 0; i<input1.cols*input1.rows;i++)
   {
     charImageData[i]=(unsigned char)floatImageData[i];
   }
   Mat output (Size(input1.cols,input1.rows),CV_8UC1,charImageData);
-  imshow("blend-input1.png",input1);
-  imshow("blend-input2.png",input2);
-  imshow("blend-output.png",output);
-  waitKey(0);
+  imwrite("blend-input1.png",input1);
+  imwrite("blend-input2.png",input2);
+  imwrite("blend-output.png",output);
+
   return 0;
 }

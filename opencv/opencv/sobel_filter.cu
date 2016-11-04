@@ -12,15 +12,10 @@ int main()
     cout << "Cannot load image!" << endl;
     return -1;
   }
-  imshow("Image", image);//displaying image
+  imwrite("input.png", image);//displaying image
   int scale = 1;
   int delta = 0;
   int ddepth = CV_16S;
-  cudaEvent_t start, stop;
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
-  float milliseconds;
-  cudaEventRecord(start);
   /// Generate grad_x and grad_y
   Mat grad_x, grad_y,grad;
   Mat abs_grad_x, abs_grad_y;
@@ -37,10 +32,6 @@ int main()
 
   /// Total Gradient (approximate)
   addWeighted( abs_grad_x, 0.5, abs_grad_y, 0.5, 0, grad );
-  cudaEventRecord(stop);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&milliseconds, start, stop);
-  std::cout<<"Time taken on OpenCV = "<<milliseconds<<std::endl;
-  imshow("image1:",grad);//displaying image1
-  waitKey(0);
+  imwrite("output.png",grad);//displaying image1
+
 }

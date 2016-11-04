@@ -116,11 +116,11 @@ int main(int argc, char const *argv[]) {
   // std::cout<<output;
   cudaCheckError();
   // std::cout<<output.type()<<"  "<<Size(image.cols,image.rows)<<"="<<image_block.end()-image_block.begin()<<"\n";
-  imshow("input",image);
-  imshow("output",output);
+  imwrite("input",image);
+  imwrite("output",output);
   // imwrite("output.png",output);
 
-  waitKey(0);
+  
   // std::cout<<float_image<<"\n";
   return 0;
 }

@@ -59,16 +59,7 @@ int main(int argc, char const *argv[]) {
   //Create Windows For Indexing
   thrust::host_window_vector<float> inputVector(&float_image_block,1,1,1,1);
   AffineTransformFunctor atf(&warp_block,&outBlock);
-  cudaEvent_t start, stop;
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
-  float milliseconds;
-  cudaEventRecord(start);
   thrust::for_each(thrust::host,inputVector.begin(),inputVector.end(),atf);
-  cudaEventRecord(stop);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&milliseconds, start, stop);
-  std::cout<<"Time taken on Host = "<<milliseconds<<std::endl;
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
   cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyHostToHost);
   for(int i = 0; i<image.cols*image.rows;i++)

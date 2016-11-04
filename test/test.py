@@ -14,5 +14,5 @@ while (block_dim <= 1000):
         j += 1
     block_dim += 10
     i += 1
-plt.imshow(a)
+plt.imwrite(a)
 plt.show()

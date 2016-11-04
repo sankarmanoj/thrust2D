@@ -13,17 +13,8 @@ int main( int argc, char** argv )
     { printf(" No data! -- Exiting the program \n");
       return -1; }
   dst = tmp;
-  cudaEvent_t start, stop;
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
-  float milliseconds;
-  cudaEventRecord(start);
   pyrUp( src, dst, Size( tmp.cols*2, tmp.rows*2));
-  cudaEventRecord(stop);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&milliseconds, start, stop);
-  std::cout<<"Time taken on OpenCV = "<<milliseconds<<std::endl;
-  imshow( "pyrdown", dst );
-  waitKey(0);
+  imwrite( "pyrup.png", dst );
+
   return 0;
 }

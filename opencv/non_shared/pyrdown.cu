@@ -63,11 +63,6 @@ int main()
   getGaussianKernelBlock(dim,1.0,kernel);
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image=small;
-  cudaEvent_t m_start, m_stop;
-  cudaEventCreate(&m_start);
-  cudaEventCreate(&m_stop);
-  float m_milliseconds;
-  cudaEventRecord(m_start);
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
   thrust::block_2d<float> float_image_block (image.cols,image.rows);
   thrust::block_2d<float> outBlock (image.cols*2,image.rows*2,0.0f);
@@ -78,31 +73,13 @@ int main()
     img[i]=(float)image.ptr()[i];
   }
   float_image_block.assign(img,img+image.cols*image.rows);
-  cudaEventRecord(m_stop);
-  cudaEventSynchronize(m_stop);
-  cudaEventElapsedTime(&m_milliseconds, m_start, m_stop);
-  std::cout<<"Time taken from Host to Device = "<<m_milliseconds<<std::endl;
   thrust::window_vector<float> inputVector(&outBlock,1,1,1,1);
   pyrdownTransformFunctor ptf(&float_image_block);
-  cudaEvent_t start, stop;
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
-  float milliseconds;
-  cudaEventRecord(start);
   thrust::for_each(inputVector.begin(),inputVector.end(),ptf);
   cudaDeviceSynchronize();
   thrust::convolve(outBlock.begin(),outBlock.end(),kernel.begin());
-  cudaEventRecord(stop);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&milliseconds, start, stop);
-  std::cout<<"Time taken on Non Shared = "<<milliseconds<<std::endl;
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(outBlock.end()-outBlock.begin()));
-  cudaEventRecord(m_start);
   cudaMemcpy(img_out,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(outBlock.end()-outBlock.begin()),cudaMemcpyDeviceToHost);
-  cudaEventRecord(m_stop);
-  cudaEventSynchronize(m_stop);
-  cudaEventElapsedTime(&m_milliseconds, m_start, m_stop);
-  std::cout<<"Time taken from Device to Host = "<<m_milliseconds<<std::endl;
   for(int i = 0; i<image.cols*image.rows*4;i++)
   {
     outputFloatImageData[i]=(unsigned char)img_out[i];

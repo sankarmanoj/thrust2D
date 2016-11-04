@@ -35,16 +35,7 @@ int main(int argc, char const *argv[]) {
   float_image_block.assign(img,img+image.cols*image.rows);
   thrust::host_window_vector<float> myVector(&float_image_block,3,3,1,1);
   thrust::host_window_vector<float> outputVector(&outBlock,3,3,1,1);
-  cudaEvent_t start, stop;
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
-  float milliseconds;
-  cudaEventRecord(start);
   thrust::transform(thrust::host,myVector.begin(),myVector.end(),outputVector.begin(),null_block.begin(),lbpFunctor());
-  cudaEventRecord(stop);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&milliseconds, start, stop);
-  std::cout<<"Time taken on Host = "<<milliseconds<<std::endl;
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
   cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyHostToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
@@ -52,8 +43,8 @@ int main(int argc, char const *argv[]) {
     outputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
-  imshow("input",image);
-  imshow("output",output);
-  waitKey(0);
+  imwrite("input.png",image);
+  imwrite("output.png",output);
+
   return 0;
 }

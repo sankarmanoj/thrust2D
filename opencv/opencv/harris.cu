@@ -19,36 +19,25 @@ int main( )
     dst = Mat::zeros( src.size(), CV_32FC1 );
 
     // Detecting corners
-    cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-    float milliseconds;
-    cudaEventRecord(start);
     cornerHarris( gray, dst, 7, 5, 0.05, BORDER_DEFAULT );
 
     // Normalizing
     normalize( dst, dst_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat() );
     convertScaleAbs( dst_norm, dst_norm_scaled );
-    cudaEventRecord(stop);
-    cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&milliseconds, start, stop);
-    std::cout<<"Time taken on OpenCV = "<<milliseconds<<std::endl;
 
     // Drawing a circle around corners
     for( int j = 0; j < dst_norm.rows ; j++ )
-    { for( int i = 0; i < dst_norm.cols; i++ )
     {
+      for( int i = 0; i < dst_norm.cols; i++ )
+      {
         if( (int) dst_norm.at<float>(j,i) > thresh )
         {
            circle( dst_norm_scaled, Point( i, j ), 5,  Scalar(0), 2, 8, 0 );
         }
-    }
+      }
     }
 
-
-    // Showing the result
-    namedWindow( "corners_window", CV_WINDOW_AUTOSIZE );
-    imshow( "corners_window", dst_norm_scaled );
-    waitKey(0);
+    imwrite( "harris.png", dst_norm_scaled );
+    
     return(0);
 }

@@ -20,16 +20,7 @@ int main( int argc, char** argv )
   dstTri[1] = Point2f( image.cols*0.8, image.rows*0.2 );
   dstTri[2] = Point2f( image.cols*0.2, image.rows*0.7 );
   /// Get the Affine Transform
-  cudaEvent_t start, stop;
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
-  float milliseconds;
-  cudaEventRecord(start);
   warp_mat = getAffineTransform( srcTri, dstTri );
-  cudaEventRecord(stop);
-  cudaEventSynchronize(stop);
-  cudaEventElapsedTime(&milliseconds, start, stop);
-  std::cout<<"Time taken on OpenCV = "<<milliseconds<<std::endl;
   /// Apply the Affine Transform just found to the src image
   warpAffine( image, warp_dst, warp_mat, warp_dst.size() );
   imwrite("ainput.png",image);

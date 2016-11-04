@@ -175,7 +175,7 @@ int main(int argc, char const *argv[]) {
     // cudaCheckError();
     // std::cout<<output.type()<<"  "<<Size(image.cols,image.rows)<<"="<<image_block.end()-image_block.begin()<<"\n";
     imwrite("ainput.png",image);
-    // imshow("output",output);
+    // imwrite("output",output);
     imwrite("aoutput.png",output);
   #endif
 
@@ -236,12 +236,12 @@ int main(int argc, char const *argv[]) {
   // std::cout<<output;
   // cudaCheckError();
   // std::cout<<output.type()<<"  "<<Size(image.cols,image.rows)<<"="<<image_block.end()-image_block.begin()<<"\n";
-  imshow("ainput.png",image);
-  // imshow("output",output);
-  imshow("aoutput.png",output);
-  // waitKey(0);
+  imwrite("ainput.png",image);
+  // imwrite("output",output);
+  imwrite("aoutput.png",output);
+  // 
   #endif
-  // waitKey(0);
+  // 
   // std::cout<<float_image<<"\n";
   return 0;
 }
