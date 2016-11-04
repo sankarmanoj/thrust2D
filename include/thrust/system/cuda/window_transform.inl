@@ -35,7 +35,7 @@ namespace thrust
 
       //Compute Rows that can fit in Shared Memory
       int rows_per_block_by_memory = properties.sharedMemPerBlock/(sizeof(T)*size_of_row_in_shared);
-      printf("Rows Per Block By Memory = %d\n Size Of Row In Shared = %d\n",rows_per_block_by_memory, size_of_row_in_shared);
+      // printf("Rows Per Block By Memory = %d\n Size Of Row In Shared = %d\n",rows_per_block_by_memory, size_of_row_in_shared);
       //Multi Window Rows Per Block
       if(rows_per_block_by_memory>=begin.window_dim_y)
       {
@@ -129,7 +129,7 @@ namespace thrust
     block_2d<T> *kernel = begin2.parent_block_host;
     block_2d<T> *output = new block_2d<T>(input->dim_x,input->dim_y);
     int num_of_operations = begin1.dim_x * begin1.dim_y;
-    // printf("Number Of Operations = %d\n", num_of_operations);
+    // printf("Number Of Operations = e%d\n", num_of_operations);
     assert(kernel->dim_x==kernel->dim_y);
     assert(kernel->dim_x%2);
     int kernel_dim = kernel->dim_x;
@@ -390,7 +390,6 @@ namespace thrust
         xblocks = tConfig.blocks;
     }
     print_config(tConfig);
-    printf("Configuration = %d %d %d %d\n",xblocks,yblocks,tConfig.operations_per_block,tConfig.shared_memory_size);
     transform_kernel<<<dim3(xblocks,yblocks),tConfig.operations_per_block/tConfig.operations_per_thread,tConfig.shared_memory_size>>>(device_begin_1,device_begin_2,tConfig,f);
     cudaCheckError();
   }

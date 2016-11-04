@@ -19,7 +19,7 @@ public:
     x_out = (int)((*transformMatrix)[0][0]*inputWindow.start_x+(*transformMatrix)[0][1]*inputWindow.start_y+(*transformMatrix)[0][2]*1);
     y_out = (int)((*transformMatrix)[1][0]*inputWindow.start_x+(*transformMatrix)[1][1]*inputWindow.start_y+(*transformMatrix)[1][2]*1);
 
-    inputWindow[0][0]=255;
+    (*outBlock)[y_out][x_out]=inputWindow[0][0];
   }
 };
 int main(int argc, char const *argv[]) {
