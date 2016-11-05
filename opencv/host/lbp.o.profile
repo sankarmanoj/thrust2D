@@ -1,14 +1,14 @@
-==14004== NVPROF is profiling process 14004, command: ./lbp.o
-==14004== Profiling application: ./lbp.o
-==14004== Profiling result:
+==5476== NVPROF is profiling process 5476, command: ./lbp.o
+==5476== Profiling application: ./lbp.o
+==5476== Profiling result:
 Time(%)      Time     Calls       Avg       Min       Max  Name
-100.00%  134.34us         1  134.34us  134.34us  134.34us  [CUDA memcpy HtoH]
+100.00%  81.751us         1  81.751us  81.751us  81.751us  [CUDA memcpy HtoH]
 
-==14004== API calls:
+==5476== API calls:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 99.53%  123.87ms         1  123.87ms  123.87ms  123.87ms  cudaMemcpy
-  0.28%  349.48us        90  3.8830us     103ns  143.16us  cuDeviceGetAttribute
-  0.16%  197.86us         1  197.86us  197.86us  197.86us  cuDeviceTotalMem
-  0.03%  31.796us         1  31.796us  31.796us  31.796us  cuDeviceGetName
-  0.00%  1.5540us         2     777ns     288ns  1.2660us  cuDeviceGetCount
-  0.00%     327ns         2     163ns     151ns     176ns  cuDeviceGet
+ 94.70%  245.42ms         1  245.42ms  245.42ms  245.42ms  cudaMemcpy
+  5.18%  13.434ms        90  149.27us     103ns  5.0203ms  cuDeviceGetAttribute
+  0.09%  229.83us         1  229.83us  229.83us  229.83us  cuDeviceTotalMem
+  0.03%  67.491us         1  67.491us  67.491us  67.491us  cuDeviceGetName
+  0.00%  2.4220us         2  1.2110us     762ns  1.6600us  cuDeviceGetCount
+  0.00%     486ns         2     243ns     221ns     265ns  cuDeviceGet

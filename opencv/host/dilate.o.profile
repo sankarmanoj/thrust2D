@@ -1,14 +1,14 @@
-==14079== NVPROF is profiling process 14079, command: ./dilate.o
-==14079== Profiling application: ./dilate.o
-==14079== Profiling result:
+==5484== NVPROF is profiling process 5484, command: ./dilate.o
+==5484== Profiling application: ./dilate.o
+==5484== Profiling result:
 Time(%)      Time     Calls       Avg       Min       Max  Name
-100.00%  82.452us         1  82.452us  82.452us  82.452us  [CUDA memcpy HtoH]
+100.00%  89.301us         1  89.301us  89.301us  89.301us  [CUDA memcpy HtoH]
 
-==14079== API calls:
+==5484== API calls:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 99.61%  133.66ms         1  133.66ms  133.66ms  133.66ms  cudaMemcpy
-  0.23%  302.14us        90  3.3570us     102ns  120.72us  cuDeviceGetAttribute
-  0.15%  195.59us         1  195.59us  195.59us  195.59us  cuDeviceTotalMem
-  0.02%  21.215us         1  21.215us  21.215us  21.215us  cuDeviceGetName
-  0.00%  1.9210us         2     960ns     247ns  1.6740us  cuDeviceGetCount
-  0.00%     308ns         2     154ns     119ns     189ns  cuDeviceGet
+ 99.80%  283.47ms         1  283.47ms  283.47ms  283.47ms  cudaMemcpy
+  0.12%  339.09us        90  3.7670us     100ns  131.98us  cuDeviceGetAttribute
+  0.07%  199.82us         1  199.82us  199.82us  199.82us  cuDeviceTotalMem
+  0.01%  38.827us         1  38.827us  38.827us  38.827us  cuDeviceGetName
+  0.00%  1.6100us         2     805ns     234ns  1.3760us  cuDeviceGetCount
+  0.00%     554ns         2     277ns     179ns     375ns  cuDeviceGet
