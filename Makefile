@@ -1,5 +1,7 @@
 .PHONY: clean help
 
+all:
+	cd opencv && make -j
 rod_%: ## Compile and Run indivitual rodinia programs using make run_rodinia_name
 rod_%:
 	cd rodinia; make $@
