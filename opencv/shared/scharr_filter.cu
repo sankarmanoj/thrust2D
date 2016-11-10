@@ -63,7 +63,7 @@ int main(int argc, char const *argv[]) {
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
   imwrite("input.png",image);
-  imwrite("output.png",output);
+  imwrite("scharr.png",output);
 
   return 0;
 }

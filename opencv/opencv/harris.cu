@@ -1,13 +1,13 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/cudaimgproc.hpp>
 
-int thresh = 200;
+int thresh = 180;
 
 int main( )
 {
     cv::Mat src, gray;
     // Load source image and convert it to gray
-    src = cv::imread( "car.jpg", 1 );
+    src = cv::imread( "building.jpg", 1 );
 
     cv::cvtColor( src, gray, CV_BGR2GRAY );
     cv::cuda::GpuMat src_d;
