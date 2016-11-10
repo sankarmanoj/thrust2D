@@ -12,7 +12,7 @@ public:
   }
 };
 int main(int argc, char const *argv[]) {
-  Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+  Mat small = imread("building.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
   int dim = 3;
   image = small;
@@ -62,7 +62,7 @@ int main(int argc, char const *argv[]) {
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
   imwrite("input.png",image);
-  imwrite("output.png",output);
+  imwrite("sobel.png",output);
 
   return 0;
 }
