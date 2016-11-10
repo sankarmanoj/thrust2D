@@ -147,7 +147,7 @@ else ifneq ($(TARGET_ARCH),$(HOST_ARCH))
         HOST_COMPILER ?= powerpc64le-linux-gnu-g++
     endif
 endif
-HOST_COMPILER ?= g++-5
+HOST_COMPILER ?= g++
 NVCC          := $(CUDA_PATH)/bin/nvcc -ccbin $(HOST_COMPILER)
 
 # internal flags
@@ -190,7 +190,7 @@ else
       BUILD_TYPE := release
 endif
 
-ALL_CCFLAGS :=
+ALL_CCFLAGS :=  -std=c++11 -Wno-deprecated-gpu-targets
 ALL_CCFLAGS += $(NVCCFLAGS)
 ALL_CCFLAGS += $(EXTRA_NVCCFLAGS)
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(CCFLAGS))
@@ -204,7 +204,7 @@ ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(EXTRA_LDFLAGS))
 
 # Common includes and paths for CUDA
-INCLUDES  := -I../../common/inc
+INCLUDES  := -I../common/inc -I../../include
 LIBRARIES :=
 
 ################################################################################
@@ -224,7 +224,7 @@ else
 endif
 
 # Gencode arguments
-SMS ?= 60
+SMS ?= 20 30 35 37 50 52 60
 
 ifeq ($(SMS),)
 $(info >>> WARNING - no SM architectures have been specified - waiving sample <<<)
@@ -251,6 +251,7 @@ endif
 # Target rules
 all: build
 
+re : clean build
 build: bicubicTexture
 
 check.deps:
@@ -260,16 +261,15 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-bicubicTexture.o:bicubicTexture.cpp
+bicubicTexture.o:bicubicTexture.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
 bicubicTexture_cuda.o:bicubicTexture_cuda.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-bicubicTexture: bicubicTexture.o bicubicTexture_cuda.o
-	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
-	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
-	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
+bicubicTexture: bicubicTexture.cu bicubicTexture_cuda.cu
+	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS)  $(GENCODE_FLAGS) $(LIBRARIES) $+  -o $@ 
+
 
 run: build
 	$(EXEC) ./bicubicTexture
