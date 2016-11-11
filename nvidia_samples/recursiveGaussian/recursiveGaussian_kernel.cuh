@@ -142,6 +142,69 @@ d_simpleRecursive_rgba(uint *id, uint *od, int w, int h, float a)
     a0-a3, b1, b2, coefp, coefn - filter parameters
 */
 
+class d_recursiveGaussian_functor
+{
+public:
+  int w,h;
+  float a0,a1,a2,a3,b1,b2,coefp,coefn;
+  d_recursiveGaussian_functor(int w, int h, float a0, float a1, float a2, float a3, float b1, float b2, float coefp, float coefn)
+  {
+    this->w=w;
+    this->h=h;
+    this->a0=a0;
+    this->a1=a1;
+    this->a2=a2;
+    this->b1=b1;
+    this->b2=b2;
+    this->coefp=coefp;
+    this->coefn=coefn;
+  }
+  __device__ unsigned int operator()(thrust::window_2d<unsigned int> &in, thrust::window_2d<unsigned int> &out)
+  {
+    // forward pass
+    float4 xp = make_float4(0.0f);  // previous input
+    float4 yp = make_float4(0.0f);  // previous output
+    float4 yb = make_float4(0.0f);  // previous output by 2
+#if CLAMP_TO_EDGE
+    xp = rgbaIntToFloat(in[in.start_y][in.start_x]);
+    yb = coefp*xp;
+    yp = yb;
+#endif
+    for (int y = 0; y < h; y++)
+    {
+      float4 xc = rgbaIntToFloat(in[y][in.start_x]);
+      float4 yc = a0*xc + a1*xp - b1*yp - b2*yb;
+      out[y][in.start_x] = rgbaFloatToInt(yc);
+      xp = xc;
+      yb = yp;
+      yp = yc;
+    }
+    // reverse pass
+    // ensures response is symmetrical
+    float4 xn = make_float4(0.0f);
+    float4 xa = make_float4(0.0f);
+    float4 yn = make_float4(0.0f);
+    float4 ya = make_float4(0.0f);
+#if CLAMP_TO_EDGE
+    xn = xa = rgbaIntToFloat(in[in.start_y + h -1][in.start_x]);
+    yn = coefn*xn;
+    ya = yn;
+#endif
+
+    for (int y = h-1; y >= 0; y--)
+    {
+        float4 xc = rgbaIntToFloat(in[y][in.start_x]);
+        float4 yc = a2*xn + a3*xa - b1*yn - b2*ya;
+        xa = xn;
+        xn = xc;
+        ya = yn;
+        yn = yc;
+        out[y][in.start_x] = rgbaFloatToInt(rgbaIntToFloat(out[y][in.start_x]) + yc);
+    }
+    return 0.0f;
+  }
+};
+
 __global__ void
 d_recursiveGaussian_rgba(uint *id, uint *od, int w, int h, float a0, float a1, float a2, float a3, float b1, float b2, float coefp, float coefn)
 {

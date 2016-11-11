@@ -190,7 +190,7 @@ else
       BUILD_TYPE := release
 endif
 
-ALL_CCFLAGS :=
+ALL_CCFLAGS := -std=c++11 -Wno-deprecated-gpu-targets
 ALL_CCFLAGS += $(NVCCFLAGS)
 ALL_CCFLAGS += $(EXTRA_NVCCFLAGS)
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(CCFLAGS))
@@ -204,7 +204,7 @@ ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(EXTRA_LDFLAGS))
 
 # Common includes and paths for CUDA
-INCLUDES  := -I../../common/inc
+INCLUDES  := -I../../common/inc -I../../include
 LIBRARIES :=
 
 ################################################################################
@@ -260,7 +260,7 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-recursiveGaussian.o:recursiveGaussian.cpp
+recursiveGaussian.o:recursiveGaussian.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
 recursiveGaussian_cuda.o:recursiveGaussian_cuda.cu

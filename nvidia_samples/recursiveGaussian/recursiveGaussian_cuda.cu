@@ -41,6 +41,8 @@
 #include <helper_cuda.h>
 #include <helper_math.h>
 
+#include <thrust/window_2d.h>
+
 #include "recursiveGaussian_kernel.cuh"
 
 #define USE_SIMPLE_FILTER 0
@@ -78,7 +80,7 @@ void transpose(uint *d_src, uint *d_dest, uint width, int height)
 
 // 8-bit RGBA version
 extern "C"
-void gaussianFilterRGBA(uint *d_src, uint *d_dest, uint *d_temp, int width, int height, float sigma, int order, int nthreads)
+void gaussianFilterRGBA(uint *d_src,thrust::block_2d<unsigned int> &block_d_input, uint *d_dest,thrust::block_2d<unsigned int> &block_d_output, uint *d_temp, int width, int height, float sigma, int order, int nthreads)
 {
     // compute filter coefficients
     const float
@@ -132,11 +134,14 @@ void gaussianFilterRGBA(uint *d_src, uint *d_dest, uint *d_temp, int width, int 
 
     coefp = (a0+a1)/(1+b1+b2);
     coefn = (a2+a3)/(1+b1+b2);
-
+    thrust::window_vector<unsigned int> input_window_vector(&block_d_input,1,height,1,1);
+    thrust::window_vector<unsigned int> output_window_vector(&block_d_output,1,height,1,1);
+    thrust::block_2d<unsigned int> null_vector(width,height);
     // process columns
 #if USE_SIMPLE_FILTER
     d_simpleRecursive_rgba<<< iDivUp(width, nthreads), nthreads >>>(d_src, d_temp, width, height, ema);
 #else
+    thrust::transform(input_window_vector.begin(),input_window_vector.end(),output_window_vector.begin(),null_vector.begin(),d_recursiveGaussian_functor(width, height, a0, a1, a2, a3, b1, b2, coefp, coefn));
     d_recursiveGaussian_rgba<<< iDivUp(width, nthreads), nthreads >>>(d_src, d_temp, width, height, a0, a1, a2, a3, b1, b2, coefp, coefn);
 #endif
     getLastCudaError("Kernel execution failed");

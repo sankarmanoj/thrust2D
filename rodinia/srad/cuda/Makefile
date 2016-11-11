@@ -1,5 +1,5 @@
 CC := nvcc
-CCFLAGS := -D_FORCE_INLINES
+CCFLAGS := -D_FORCE_INLINES -std=c++11 -ccbin=g++-5 -D_MWAITXINTRIN_H_INCLUDED
 # Example
 # target: dependencies
 	# command 1
@@ -25,7 +25,7 @@ main.o: 	main.cu \
 				srad2_kernel.cu \
 				compress_kernel.cu
 	nvcc $(CCFLAGS)	main.cu \
-				-c -O3
+				-c
 
 # delete all object files
 clean:
