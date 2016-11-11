@@ -190,7 +190,7 @@ else
       BUILD_TYPE := release
 endif
 
-ALL_CCFLAGS :=  -std=c++11 -Wno-deprecated-gpu-targets
+ALL_CCFLAGS :=
 ALL_CCFLAGS += $(NVCCFLAGS)
 ALL_CCFLAGS += $(EXTRA_NVCCFLAGS)
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(CCFLAGS))
@@ -204,24 +204,10 @@ ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(EXTRA_LDFLAGS))
 
 # Common includes and paths for CUDA
-INCLUDES  := -I../common/inc -I../../include
+INCLUDES  := -I../../common/inc
 LIBRARIES :=
 
 ################################################################################
-
-# Makefile include to help find GL Libraries
-include ./findgllib.mk
-
-# OpenGL specific libraries
-ifeq ($(TARGET_OS),darwin)
- # Mac OSX specific libraries and paths to include
- LIBRARIES += -L/System/Library/Frameworks/OpenGL.framework/Libraries
- LIBRARIES += -lGL -lGLU
- ALL_LDFLAGS += -Xlinker -framework -Xlinker GLUT
-else
- LIBRARIES += $(GLLINK)
- LIBRARIES += -lGL -lGLU -lX11 -lglut
-endif
 
 # Gencode arguments
 SMS ?= 60
@@ -251,8 +237,7 @@ endif
 # Target rules
 all: build
 
-re : clean build
-build: bicubicTexture
+build: matrixMul
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -261,21 +246,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-bicubicTexture.o:bicubicTexture.cu
+matrixMul.o:matrixMul.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-bicubicTexture_cuda.o:bicubicTexture_cuda.cu
-	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
-
-bicubicTexture: bicubicTexture.cu bicubicTexture_cuda.cu
-	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS)  $(GENCODE_FLAGS) $(LIBRARIES) $+  -o $@
-
+matrixMul: matrixMul.o
+	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
+	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
+	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./bicubicTexture
+	$(EXEC) ./matrixMul
 
 clean:
-	rm -f bicubicTexture bicubicTexture.o bicubicTexture_cuda.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/bicubicTexture
+	rm -f matrixMul matrixMul.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/matrixMul
 
 clobber: clean

@@ -56,6 +56,10 @@
 #include <helper_cuda.h>      // includes cuda.h and cuda_runtime_api.h
 #include <helper_cuda_gl.h>   // includes cuda_runtime_api.h
 
+#include <thrust/window_2d.h>
+#include <thrust/block_2d.h>
+#include <thrust/device_vector.h>
+
 // Includes
 #include <stdlib.h>
 #include <stdio.h>
@@ -120,7 +124,7 @@ extern "C"
 void transpose(unsigned int *d_src, unsigned int *d_dest, unsigned int width, int height);
 
 extern "C"
-void gaussianFilterRGBA(unsigned int *d_src, unsigned int *d_dest, unsigned int *d_temp, int width, int height, float sigma, int order, int nthreads);
+void gaussianFilterRGBA(unsigned int *d_src,thrust::block_2d<unsigned int> &block_d_input, unsigned int *d_dest,thrust::block_2d<unsigned int> &block_d_output, unsigned int *d_temp, int width, int height, float sigma, int order, int nthreads);
 
 void cleanup();
 
@@ -151,7 +155,10 @@ void display()
     // execute filter, writing results to pbo
     unsigned int *d_result;
     checkCudaErrors(cudaGLMapBufferObject((void **)&d_result, pbo));
-    gaussianFilterRGBA(d_img, d_result, d_temp, width, height, sigma, order, nthreads);
+    thrust::block_2d<unsigned int> block_d_output (width,height,0);
+    thrust::block_2d<unsigned int> block_d_input (width,height,0);
+    gaussianFilterRGBA(d_img,block_d_input, d_result,block_d_output, d_temp, width, height, sigma, order, nthreads);
+    checkCudaErrors(cudaMemcpy(d_result,block_d_output.data().get(),width*height*sizeof(unsigned int),cudaMemcpyDeviceToDevice));
     checkCudaErrors(cudaGLUnmapBufferObject(pbo));
 
     // load texture from pbo
@@ -355,9 +362,10 @@ benchmark(int iterations)
     unsigned int *d_result;
     unsigned int size = width * height * sizeof(unsigned int);
     checkCudaErrors(cudaMalloc((void **) &d_result, size));
-
+    thrust::block_2d<unsigned int> block_d_output (width,height,0);
+    thrust::block_2d<unsigned int> block_d_input (width,height,0);
     // warm-up
-    gaussianFilterRGBA(d_img, d_result, d_temp, width, height, sigma, order, nthreads);
+    gaussianFilterRGBA(d_img,block_d_input, d_result,block_d_output, d_temp, width, height, sigma, order, nthreads);
 
     checkCudaErrors(cudaDeviceSynchronize());
     sdkStartTimer(&timer);
@@ -365,8 +373,10 @@ benchmark(int iterations)
     // execute the kernel
     for (int i = 0; i < iterations; i++)
     {
-        gaussianFilterRGBA(d_img, d_result, d_temp, width, height, sigma, order, nthreads);
+      gaussianFilterRGBA(d_img, block_d_input,d_result,block_d_output, d_temp, width, height, sigma, order, nthreads);
     }
+
+    checkCudaErrors(cudaMemcpy(d_result,block_d_output.data().get(),width*height*sizeof(unsigned int),cudaMemcpyDeviceToDevice));
 
     checkCudaErrors(cudaDeviceSynchronize());
     sdkStopTimer(&timer);
@@ -390,12 +400,16 @@ runSingleTest(const char *ref_file, const char *exec_path)
     checkCudaErrors(cudaMalloc((void **) &d_result, size));
 
     // warm-up
-    gaussianFilterRGBA(d_img, d_result, d_temp, width, height, sigma, order, nthreads);
+    thrust::block_2d<unsigned int> block_d_output (width,height,0);
+    thrust::block_2d<unsigned int> block_d_input (width,height,0);
+    gaussianFilterRGBA(d_img,block_d_input, d_result,block_d_output, d_temp, width, height, sigma, order, nthreads);
+    checkCudaErrors(cudaMemcpy(d_result,block_d_output.data().get(),width*height*sizeof(unsigned int),cudaMemcpyDeviceToDevice));
 
     checkCudaErrors(cudaDeviceSynchronize());
     sdkStartTimer(&timer);
 
-    gaussianFilterRGBA(d_img, d_result, d_temp, width, height, sigma, order, nthreads);
+    gaussianFilterRGBA(d_img,block_d_input, d_result,block_d_output, d_temp, width, height, sigma, order, nthreads);
+    checkCudaErrors(cudaMemcpy(d_result,block_d_output.data().get(),width*height*sizeof(unsigned int),cudaMemcpyDeviceToDevice));
     checkCudaErrors(cudaDeviceSynchronize());
     getLastCudaError("Kernel execution failed");
     sdkStopTimer(&timer);

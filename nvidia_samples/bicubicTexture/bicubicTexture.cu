@@ -246,9 +246,11 @@ void display()
     size_t num_bytes;
     checkCudaErrors(cudaGraphicsResourceGetMappedPointer((void **)&d_output, &num_bytes,
                                                          cuda_pbo_resource));
-    checkCudaErrors(cudaMemcpy(block_d_output.data().get(),d_output,num_bytes,cudaMemcpyDeviceToDevice));
+    // checkCudaErrors(cudaMemcpy(block_d_output.data().get(),d_output,num_bytes,cudaMemcpyDeviceToDevice));
     render(imageWidth, imageHeight, tx, ty, scale, cx, cy,
            blockSize, gridSize, g_FilterMode,d_output,block_d_output);
+
+    checkCudaErrors(cudaMemcpy(d_output,block_d_output.data().get(),num_bytes,cudaMemcpyDeviceToDevice));
 
     checkCudaErrors(cudaGraphicsUnmapResources(1, &cuda_pbo_resource, 0));
 
@@ -616,7 +618,7 @@ void runAutoTest(int argc, char **argv, const char *dump_filename, eFilterMode f
     getLastCudaError("Error: render (bicubicTexture) Kernel execution FAILED");
     checkCudaErrors(cudaDeviceSynchronize());
 
-    cudaMemcpy(h_result, d_output, imageWidth*imageHeight*4, cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_result, block_d_output.data().get(), imageWidth*imageHeight*4, cudaMemcpyDeviceToHost);
 
     sdkSavePPM4ub(dump_filename, (unsigned char *)h_result, imageWidth, imageHeight);
 
