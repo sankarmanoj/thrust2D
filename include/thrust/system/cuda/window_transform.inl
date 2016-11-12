@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 #include <thrust/system/cuda/window_2d.h>
 void mAssert(int x, const char * message)
 {
@@ -95,12 +95,11 @@ namespace thrust
     {
       shared_kernel[i] = kernel[kernel.index_to_int2(i)];
     }
-    int position =  (blockIdx.y*gridDim.x+ blockIdx.x)*operations_per_block + operation_within_block;
     if(threadIdx.x/kernel_width>operations_per_block)
     {
       return;
     }
-    int2 block_coordinates = block.index_to_int2(position);
+    int2 block_coordinates = block.index_to_int2((blockIdx.y*gridDim.x+ blockIdx.x)*operations_per_block + operation_within_block);
     int abs_row_offset = threadIdx.x % kernel_width;
     int row_offset = abs_row_offset-kernel_half_width;
     shared_reduce_space[threadIdx.x]=0;
@@ -177,11 +176,25 @@ namespace thrust
 
 
   template<typename T, class Func>
-  __global__ void for_each_kernel (window_iterator<T> *input,launcher_config for_each_config, Func f)
+  __global__ void for_each_kernel (window_iterator<T> *input, launcher_config for_each_config, Func f)
   {
     extern __shared__ T shared_memory [];
     int abs_position ;
     int y_range,x_range;
+    if(for_each_config.blocks_per_row)
+    {
+
+    }
+    else
+    {
+      int starting_position = (blockIdx.y*gridDim.x + blockIdx.x)*(for_each_config.shared_block_dim_y*for_each_config.shared_block_dim_x);
+      int position =threadIdx.x;
+      while(position<for_each_config.shared_block_dim_y*for_each_config.shared_block_dim_x)
+      {
+        shared_memory[position]=input->data_pointer[starting_position+position];
+        position+=blockDim.x;
+      }
+    }
     for(int count = 0; count<for_each_config.operations_per_thread;count++)
     {
       int start_x = ((threadIdx.x*for_each_config.operations_per_thread+count)%input->windows_along_x)*input->stride_x;
@@ -221,26 +234,25 @@ namespace thrust
       else
       {
         abs_position = (blockIdx.y*gridDim.x + blockIdx.x)*for_each_config.operations_per_block + (threadIdx.x*for_each_config.operations_per_thread+count);
-        // int windowSize = input->window_dim_x*(input->window_dim_y);
       }
       if(abs_position>=for_each_config.total_operations||threadIdx.x >=for_each_config.operations_per_block)
       return;
-      // printf ("%d\n",abs_position);
       window_2d<T> current_window = (*input)[abs_position];
 
-
-      // if(blockIdx.x==0&&threadIdx.x<100)
-      // {
-      // printf("X,Y = %d,%d  TiD = %d\n",start_x,start_y,threadIdx.x);
-      // }
       window_2d<T> shared_window(shared_memory,start_x,start_y,input->window_dim_x,input->window_dim_y,for_each_config.shared_block_dim_x,for_each_config.shared_block_dim_y);
-
-      for(int j = 0; j<y_range;j++)
+      //
+      // int threads_per_row = blockDim.x/for_each_config.shared_block_dim_y;
+      // int row_to_copy = blockDim.x / threads_per_row;
+      // int locations_per_thread = ceil(((float)for_each_config.shared_block_dim_x)/threads_per_row);
+      if(for_each_config.blocks_per_row)
       {
-        for(int i = 0; i<x_range;i++)
+        for(int j = 0; j<y_range;j++)
         {
-          shared_window[j][i]=current_window[j][i];
-          // printf("Val = %f i = %d j = %d x = %d y = %d \n",current_window[j][i],i,j,current_window.start_x,current_window.start_y);
+          for(int i = 0; i<x_range;i++)
+          {
+            shared_window[j][i]=current_window[j][i];
+
+          }
         }
       }
       __syncthreads();
@@ -281,6 +293,8 @@ namespace thrust
         xblocks = for_each_config.blocks;
     }
     // print_config(for_each_config);
+
+
     for_each_kernel<<<dim3(xblocks,yblocks),for_each_config.operations_per_block/for_each_config.operations_per_thread,for_each_config.shared_memory_size>>>(device_begin_1,for_each_config,f);
     cudaCheckError();
   }
@@ -389,6 +403,7 @@ namespace thrust
     {
         xblocks = tConfig.blocks;
     }
+    // printf("\n Launch Configuration Blocks = (%d,%d) , Threads Per Block = %d , Shared Memory = %d ",xblocks,yblocks,tConfig.operations_per_block/tConfig.operations_per_thread,tConfig.shared_memory_size);
     // print_config(tConfig);
     transform_kernel<<<dim3(xblocks,yblocks),tConfig.operations_per_block/tConfig.operations_per_thread,tConfig.shared_memory_size>>>(device_begin_1,device_begin_2,tConfig,f);
     cudaCheckError();

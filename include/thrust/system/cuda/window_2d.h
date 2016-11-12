@@ -49,6 +49,7 @@ namespace thrust
     int position;
   public:
     block_2d<T,Alloc> *b;
+    T * data_pointer;
     typedef long difference_type;
     typedef T base_value_type;
     typedef window_2d<T,Alloc> value_type;

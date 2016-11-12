@@ -139,6 +139,7 @@ namespace thrust
   __host__ window_iterator<T,Alloc>::window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
   {
     this->b = b->device_pointer;
+    this->data_pointer = b->data().get();
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
     this->window_dim_x = window_dim_x;
@@ -155,6 +156,7 @@ namespace thrust
   __host__ window_iterator<T,Alloc>::window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y,int position)
   {
     this->b = b->device_pointer;
+    this->data_pointer = b->data().get();
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
     this->window_dim_x = window_dim_x;
