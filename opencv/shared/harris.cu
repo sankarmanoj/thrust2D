@@ -62,7 +62,7 @@ public:
   }
 };
 int main(int argc, char const *argv[]) {
-  Mat small = imread("sobel.png",CV_LOAD_IMAGE_GRAYSCALE);
+  Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
   image = small;
   thrust::block_2d<float> float_image_block (image.cols,image.rows,0.0f);

@@ -80,7 +80,9 @@ namespace thrust
     }
 
   template<typename T>
-  __global__ void convolve_kernel (block_2d<T> &block,block_2d<T> &output_block, block_2d<T> &kernel, int operations_per_block,int total_operations)
+  __global__
+  __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)
+  void convolve_kernel (block_2d<T> &block,block_2d<T> &output_block, block_2d<T> &kernel, int operations_per_block,int total_operations)
   {
     extern volatile __shared__ T shared_memory_convolve [];
     volatile T * shared_kernel = shared_memory_convolve;
@@ -176,7 +178,10 @@ namespace thrust
 
 
   template<typename T, class Func>
-  __global__ void for_each_kernel (window_iterator<T> *input, launcher_config for_each_config, Func f)
+  __global__ 
+  __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)
+  void for_each_kernel (window_iterator<T> *input,launcher_config for_each_config, Func f)
+
   {
     extern __shared__ T shared_memory [];
     int abs_position ;
@@ -300,7 +305,9 @@ namespace thrust
   }
 
   template<typename T, class Func>
-  __global__ void transform_kernel (window_iterator<T> *input, window_iterator<T> * output, launcher_config transform_config, Func f)
+  __global__
+  __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)
+  void transform_kernel (window_iterator<T> *input, window_iterator<T> * output, launcher_config transform_config, Func f)
   {
     extern __shared__ T shared_memory [];
     int abs_position ;
@@ -409,7 +416,9 @@ namespace thrust
     cudaCheckError();
   }
   template<typename T, class Func>
-  __global__ void transform_kernel (window_iterator<T> *input,window_iterator<T> *input1, window_iterator<T> * output, int operations_per_block,int total_operations, int shared_block_dim_x , int shared_block_dim_y,int blocks_per_row,Func f)
+  __global__
+  __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)
+  void transform_kernel (window_iterator<T> *input,window_iterator<T> *input1, window_iterator<T> * output, int operations_per_block,int total_operations, int shared_block_dim_x , int shared_block_dim_y,int blocks_per_row,Func f)
   {
     extern __shared__ T shared_memory [];
     int abs_position ;

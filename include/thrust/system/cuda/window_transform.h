@@ -3,6 +3,9 @@
 #include <thrust/window_2d.h>
 #include <thrust/execution_policy.h>
 
+#define maxThreadsPerBlock1 1024
+#define minBlocksPerMultiprocessor 2
+
 namespace thrust
 {
   namespace cuda
