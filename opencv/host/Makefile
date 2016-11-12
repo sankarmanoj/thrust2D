@@ -14,4 +14,4 @@ all: $(OBJS)
 	nvprof --unified-memory-profiling off --log-file $@.profile ./$@
 clean:
 	rm *.o
-	rm profiling
+	
