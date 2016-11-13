@@ -8,7 +8,7 @@ public:
   thrust::block_2d<float> *transformMatrix;
   thrust::block_2d<float> *outBlock;
 
-  AffineTransformFunctor(thrust::block_2d<float> *tm,thrust::block_2d<float> *outBlock)
+  AffineTransformFunctor(thrust::block_2d<float> * tm,thrust::block_2d<float> * outBlock)
   {
     this->transformMatrix = tm->device_pointer;
     this->outBlock = outBlock->device_pointer;
@@ -28,12 +28,12 @@ int main(int argc, char const *argv[]) {
   image = small;
   thrust::block_2d<float> float_image_block (image.cols,image.rows,0.0f);
   thrust::block_2d<float> outBlock (image.cols,image.rows,0.0f);
-
+  float * img = (float * )malloc(sizeof(float)*(image.cols*image.rows));
   for(int i = 0; i<image.cols*image.rows;i++)
   {
-    float_image_block[make_int2(i/image.cols,i%image.cols)]=(float)image.ptr()[i];
+    img[i]=(float)image.ptr()[i];
   }
-
+  float_image_block.assign(img,img+image.cols*image.rows);
   Point2f srcTri[3];
   Point2f dstTri[3];
   Mat warp_mat( 2, 3, CV_32FC1 );
@@ -48,22 +48,25 @@ int main(int argc, char const *argv[]) {
   warp_mat = getAffineTransform( srcTri, dstTri );
   warp_mat.convertTo(warp_mat,CV_32FC1);
   thrust::block_2d<float> warp_block(warp_mat.cols,warp_mat.rows);
+  float * warp_mat_g = (float * )malloc(sizeof(float)*(warp_mat.cols*warp_mat.rows));
   for(int i = 0; i< warp_mat.rows;i++)
   {
     for(int j = 0; j<warp_mat.cols;j++)
     {
-      warp_block[i][j]=warp_mat.at<float>(i,j);
+      warp_mat_g[i]=(float)warp_mat.ptr()[i];
     }
   }
+  warp_block.assign(warp_mat_g,warp_mat_g+warp_mat.cols*warp_mat.rows);
   //Create Windows For Indexing
   thrust::window_vector<float> inputVector(&float_image_block,1,1,1,1);
   AffineTransformFunctor atf(&warp_block,&outBlock);
   thrust::for_each(inputVector.begin(),inputVector.end(),atf);
   cudaDeviceSynchronize();
-  unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(outBlock.end()-outBlock.begin()));
+  unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
+  cudaMemcpy(img,outBlock.data,sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
-    outputFloatImageData[i]=(unsigned char) outBlock[make_int2(i/image.cols,i%image.cols)];
+    outputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
   imwrite("input.png",image);
