@@ -10,10 +10,8 @@ namespace thrust
     if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
     {
       cudaMallocManaged((void **) &data, sizeof(T)*dim_x*dim_y);
-      cudaDeviceSynchronize();
       cudaMallocManaged((void **)&device_pointer,sizeof(block_2d));
       cudaMemcpy(device_pointer,this,sizeof(block_2d),cudaMemcpyHostToDevice);
-      cudaDeviceSynchronize();
     }
     else
     {
@@ -30,14 +28,11 @@ namespace thrust
     if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
     {
       cudaMallocManaged((void **) &data, sizeof(T)*dim_x*dim_y);
-      cudaDeviceSynchronize();
       cudaMemPrefetchAsync(data, sizeof(T)*dim_x*dim_y, 0, 0);
       cudaDeviceSynchronize();
       cudaMemset((void *) data, value, sizeof(T)*dim_x*dim_y);
-      cudaDeviceSynchronize();
       cudaMallocManaged((void **)&device_pointer,sizeof(block_2d));
       cudaMemcpy(device_pointer,this,sizeof(block_2d),cudaMemcpyHostToDevice);
-      cudaDeviceSynchronize();
     }
     else
     {
