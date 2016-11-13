@@ -8,7 +8,7 @@ public:
   thrust::block_2d<float> *transformMatrix;
   thrust::block_2d<float> *outBlock;
 
-  AffineTransformFunctor(thrust::block_2d<float> * tm,thrust::block_2d<float> * outBlock)
+  AffineTransformFunctor(thrust::block_2d<float> *tm,thrust::block_2d<float> *outBlock)
   {
     this->transformMatrix = tm->device_pointer;
     this->outBlock = outBlock->device_pointer;

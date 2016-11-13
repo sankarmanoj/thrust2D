@@ -1,8 +1,6 @@
 #include <thrust/sequence.h>
 #include <thrust/execution_policy.h>
 #include <iostream>
-#include <thrust/host_vector.h>
-#include <thrust/device_vector.h>
 #include <thrust/block_2d.h>
 using namespace thrust;
 
@@ -29,7 +27,7 @@ __device__  __host__ void operator() (const int  &a) const
 int main()
 {
   block_2d<int> a(5,5,99);
-  printf("Last value = %d",(int)a[0][25]);
+  printf("Last value = %d",(int)a[1][2]);
   sequence(a.begin(),a.end());
   for_each(a.begin(),a.end(),printFunctor2());
 

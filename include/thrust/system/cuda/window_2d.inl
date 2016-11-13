@@ -11,50 +11,39 @@ namespace thrust
   template <class T,class Alloc>
   __host__ __device__ window_2d<T,Alloc>::window_2d(block_2d<T,Alloc> *b,int start_x, int start_y, int window_dim_x, int window_dim_y)
   {
-    // TODO: Better Boundary checks.
     this->start_x = start_x;
     this->window_dim_x = window_dim_x;
-    //printf("start x = %d , window_dim_x = %d , parent_dim = %d\n", start_x,window_dim_x,b->dim_x);
-    // NOTE: Strictly less or less than equal to? Should a window comprising of entire block be allowed?
-    // assert(start_x + window_dim_x <= b->dim_x);
     this->start_y = start_y;
     this->window_dim_y = window_dim_y;
-    // assert(start_y + window_dim_y <= b->dim_y);
     this->b = b;
-    this->block_dim_x = b->dim_x;
-    this->block_dim_y = b->dim_y;
-    this->is_shared = false;
+    block_dim_x = b->dim_x;
+    block_dim_y = b->dim_y;
+    is_shared = false;
   }
   template <class T,class Alloc>
   __host__ __device__ window_2d<T,Alloc>::window_2d (const window_2d<T,Alloc> &obj)
   {
-    this->start_x = obj.start_x;
-    this->start_y = obj.start_y;
-    this->window_dim_x = obj.window_dim_x;
-    this->window_dim_y = obj.window_dim_y;
-    this->b = obj.b;
-    this->block_dim_y = obj.block_dim_y;
-    this->block_dim_x = obj.block_dim_x;
-    this->is_shared = obj.is_shared;
+    start_x = obj.start_x;
+    start_y = obj.start_y;
+    window_dim_x = obj.window_dim_x;
+    window_dim_y = obj.window_dim_y;
+    b = obj.b;
+    block_dim_y = obj.block_dim_y;
+    block_dim_x = obj.block_dim_x;
+    is_shared = obj.is_shared;
   }
 
   template <class T,class Alloc>
   __host__ __device__ window_2d<T,Alloc>::window_2d(T *data,int start_x, int start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y)
   {
-    // TODO: Better Boundary checks.
     this->start_x = start_x;
     this->window_dim_x = window_dim_x;
-    //printf("start x = %d , window_dim_x = %d , parent_dim = %d\n", start_x,window_dim_x,b->dim_x);
-    // NOTE: Strictly less or less than equal to? Should a window comprising of entire block be allowed?
-    // assert(start_x + window_dim_x <= b->dim_x);
     this->start_y = start_y;
     this->window_dim_y = window_dim_y;
-
-    // assert(start_y + window_dim_y <= b->dim_y);
     this->data = data;
     this->block_dim_x = block_dim_x;
     this->block_dim_y = block_dim_y;
-    this->is_shared = true;
+    is_shared = true;
   }
 
   template <class T,class Alloc>
@@ -62,7 +51,7 @@ namespace thrust
   {
     this->data = data;
     this->position = position;
-    this->is_shared =true;
+    is_shared =true;
   }
 
   template <class T,class Alloc>
@@ -70,68 +59,58 @@ namespace thrust
   {
     this->b = b;
     this->position = position;
-    this->is_shared = false;
+    is_shared = false;
   }
   template <class T,class Alloc>
   __host__ __device__ window_2d_iterator<T,Alloc> window_2d<T,Alloc>::operator[] (long index)
   {
-    // TODO: Check Indexing of Window of a SubBlock.
-    // printf("%d\n",b->dim_x);
-    long position = (start_y+index)*this->block_dim_x + start_x;
-    if(this->is_shared)
+    long position = (start_y+index)*block_dim_x + start_x;
+    if(is_shared)
     {
-      // printf("StartX = %d, StartY = %d Index = %d Positon = %ld\n",this->start_x,this->start_y,index,position);
       return window_2d_iterator<T,Alloc>(data,position);
     }
     else
     {
-      // return (*b)[start_y + index] + start_x;
-      return window_2d_iterator<T,Alloc>(this->b,position);
+      return window_2d_iterator<T,Alloc>(b,position);
     }
   }
 
   template <class T,class Alloc>
   __host__ __device__ const window_2d_iterator<T,Alloc> window_2d<T,Alloc>::operator[] (long index) const
   {
-    // TODO: Check Indexing of Window of a SubBlock.
-    // printf("%d\n",b->dim_x);
-    long position = (start_y+index)*this->block_dim_x + start_x;
-    if(this->is_shared)
+    long position = (start_y+index)*block_dim_x + start_x;
+    if(is_shared)
     {
-      // printf("StartX = %d, StartY = %d Index = %d Positon = %ld\n",this->start_x,this->start_y,index,position);
       return window_2d_iterator<T,Alloc>(data,position);
     }
     else
     {
-      // return (*b)[start_y + index] + start_x;
-      return window_2d_iterator<T,Alloc>(this->b,position);
+      return window_2d_iterator<T,Alloc>(b,position);
     }
   }
   template<class T,class Alloc>
-  __host__ __device__ window_2d_iterator<T,Alloc>::reference window_2d_iterator<T,Alloc>::operator[] (long index)
+  __host__ __device__ T& window_2d_iterator<T,Alloc>::operator[] (long index)
   {
-    if(this->is_shared)
+    if(is_shared)
     {
-      return *pointer(&data[this->position + index]);
+      return &data[position + index];
     }
     else
     {
-      int2 bindex = b->index_to_int2(this->position + index);
-      return  (*b)[bindex.y][bindex.x];
+      &(b->data[position + index]);
     }
   }
 
   template<class T,class Alloc>
-  __host__ __device__ window_2d_iterator<T,Alloc>::reference window_2d_iterator<T,Alloc>::operator[] (long index) const
+  __host__ __device__ T& window_2d_iterator<T,Alloc>::operator[] (long index) const
   {
-    if(this->is_shared)
+    if(is_shared)
     {
-      return *pointer(&data[this->position + index]);
+      return data[position + index];
     }
     else
     {
-      int2 bindex = b->index_to_int2(this->position + index);
-      return  (*b)[bindex.y][bindex.x];
+      return (b->data[position + index]);
     }
   }
 
@@ -139,7 +118,7 @@ namespace thrust
   __host__ window_iterator<T,Alloc>::window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
   {
     this->b = b->device_pointer;
-    this->data_pointer = b->data().get();
+    this->data_pointer = b->data;
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
     this->window_dim_x = window_dim_x;
@@ -147,16 +126,15 @@ namespace thrust
     this->stride_x = stride_x;
     this->stride_y = stride_y;
     this->position =0;
-    this->windows_along_x= int((this->block_dim_x-window_dim_x)/stride_x) +1;
+    this->windows_along_x = int((this->block_dim_x-window_dim_x)/stride_x)+1;
     this->windows_along_y = int((this->block_dim_y-window_dim_y)/stride_y)+1;
-
   }
 
   template <class T,class Alloc>
   __host__ window_iterator<T,Alloc>::window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y,int position)
   {
     this->b = b->device_pointer;
-    this->data_pointer = b->data().get();
+    this->data_pointer = b->data;
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
     this->window_dim_x = window_dim_x;
@@ -166,12 +144,10 @@ namespace thrust
     this->position =position;
     this->windows_along_x= int((this->block_dim_x-window_dim_x)/stride_x) +1;
     this->windows_along_y = int((this->block_dim_y-window_dim_y)/stride_y)+1;
-
   }
   template <class T,class Alloc>
   __host__ __device__ window_iterator<T,Alloc>::reference window_iterator<T,Alloc>::operator[] (long index)
   {
-    // printf("Reached Here 1");
     int i = index%windows_along_x;
     int j = index/windows_along_x;
     int start_x = stride_x*i;
@@ -183,8 +159,6 @@ namespace thrust
   template <class T,class Alloc>
   __host__ __device__ const window_iterator<T,Alloc>::reference window_iterator<T,Alloc>::operator[] (long index) const
   {
-
-    // printf("Reached Here 2");
     int i = index%windows_along_x;
     int j = index/windows_along_x;
     int start_x = stride_x*i;
@@ -196,13 +170,10 @@ namespace thrust
   template <class T,class Alloc>
   __host__ __device__ window_iterator<T,Alloc>::reference window_iterator<T,Alloc>::operator* ()
   {
-
-    // printf("Reached Here 3");
     int i = position%windows_along_x;
     int j = position/windows_along_x;
     int start_x = stride_x*i;
     int start_y = stride_y*j;
-
     window_2d<T,Alloc> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
     return temp;
   }
@@ -210,8 +181,6 @@ namespace thrust
   template <class T,class Alloc>
   __host__ __device__ const window_iterator<T,Alloc>::reference window_iterator<T,Alloc>::operator* () const
   {
-
-    // printf("Reached Here 4");
     int i = position%windows_along_x;
     int j = position/windows_along_x;
     int start_x = stride_x*i;
@@ -248,7 +217,7 @@ namespace thrust
   {
     this->position = this->position+N;
     if(this->position>=(this->windows_along_x*this->windows_along_y))
-    this->position=(this->windows_along_x*this->windows_along_y);
+      this->position=(this->windows_along_x*this->windows_along_y);
     return *this;
   }
 
@@ -257,7 +226,7 @@ namespace thrust
   {
     this->position++;
     if(this->position>=(this->windows_along_x*this->windows_along_y))
-    this->position=(this->windows_along_x*this->windows_along_y);
+      this->position=(this->windows_along_x*this->windows_along_y);
     return *this;
   }
 
@@ -266,7 +235,7 @@ namespace thrust
   {
     this->position = this->position - N;
     if(this->position<0)
-    this->position = 0;
+      this->position = 0;
     return *this;
   }
 
@@ -288,7 +257,6 @@ namespace thrust
   template <class T,class Alloc>
   __host__ __device__ window_iterator<T,Alloc>& window_iterator<T,Alloc>::operator= (window_iterator<T,Alloc>& it)
   {
-    // printf("Reached Here 2\n");
     this->b = it.b;
     this->window_dim_x = it.window_dim_x;
     this->window_dim_y = it.window_dim_y;
@@ -307,7 +275,7 @@ namespace thrust
   {
     this->position+=N;
     if(this->position>=(this->windows_along_x*this->windows_along_y))
-    this->position=(this->windows_along_x*this->windows_along_y);
+      this->position=(this->windows_along_x*this->windows_along_y);
     return *this;
   }
 
@@ -316,7 +284,7 @@ namespace thrust
   {
     this->position+=N;
     if(this->position>=(this->windows_along_x*this->windows_along_y))
-    this->position=(this->windows_along_x*this->windows_along_y);
+      this->position=(this->windows_along_x*this->windows_along_y);
     return *this;
   }
 
@@ -372,7 +340,6 @@ namespace thrust
   template <class T,class Alloc>
   window_iterator<T,Alloc> window_vector<T,Alloc>::end()
   {
-
     int windowsX = int((b->dim_x-window_dim_x)/stride_x) +1;
     int windowsY = int((b->dim_y-window_dim_y)/stride_y)+1;
     return window_iterator<T,Alloc>(b,window_dim_x,window_dim_y,stride_x,stride_y,windowsX*windowsY);

@@ -1,9 +1,8 @@
-#include <thrust/window_2d.h>
-#include <thrust/window_transform.h>
 #include <thrust/sequence.h>
 #include <thrust/execution_policy.h>
-#include <thrust/device_vector.h>
 #include <iostream>
+#include <thrust/host_vector.h>
+#include <thrust/window_2d.h>
 #define X 7
 #define Y 6
 using namespace thrust;
@@ -31,7 +30,7 @@ public:
   }
 };
 
-class printFunctor1 : shared_window_for_each_functor<int>
+class printFunctor1
 {
 public:
   __device__ void operator() (const window_2d<int> &myWindow) const

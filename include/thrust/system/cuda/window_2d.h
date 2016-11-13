@@ -3,8 +3,8 @@
 #include <thrust/block_2d.h>
 namespace thrust
 {
-  template<class T,class Alloc=device_malloc_allocator<T> > class window_2d_iterator;
-  template <class T,class Alloc=device_malloc_allocator<T> >
+  template <class T,class Alloc=device_custom_malloc_allocator<T> > class window_2d_iterator;
+  template <class T,class Alloc=device_custom_malloc_allocator<T> >
   class window_2d
   {
   public:
@@ -24,32 +24,30 @@ namespace thrust
   };
 
   template<class T,class Alloc>
-  class window_2d_iterator : private block_2d<T,Alloc>::iterator_base
+  class window_2d_iterator
   {
     int position;
-    T * data;
+    T *data;
     block_2d<T,Alloc> *b;
     bool is_shared;
   public:
-    typedef typename block_2d<T,Alloc>::reference reference;
-    typedef typename detail::vector_base<window_2d<T>,Alloc>::pointer pointer;
     __host__ __device__ window_2d_iterator(T * data, long position);
     __host__ __device__ window_2d_iterator(block_2d<T,Alloc> *b, long position);
-    __host__ __device__ reference operator[] (long index);
-    __host__ __device__ reference operator[] (long index) const;
+    __host__ __device__ T& operator[] (long index);
+    __host__ __device__ T& operator[] (long index) const;
 
   };
 
   template <class T>
 	using host_window_2d=window_2d<T,std::allocator<T> >;
 
-  template <class T,class Alloc=device_malloc_allocator<T> >
-  class window_iterator : private detail::normal_iterator<typename detail::vector_base<window_2d<T>,Alloc>::pointer>
+  template <class T,class Alloc=device_custom_malloc_allocator<T> >
+  class window_iterator
   {
     int position;
   public:
     block_2d<T,Alloc> *b;
-    T * data_pointer;
+    T *data_pointer;
     typedef long difference_type;
     typedef T base_value_type;
     typedef window_2d<T,Alloc> value_type;
@@ -84,7 +82,7 @@ namespace thrust
 
     __host__ __device__ window_iterator<T,Alloc> operator- (long N);
 
-    __host__  __device__ window_iterator<T,Alloc> (const window_iterator<T,Alloc>& other);
+    __host__ __device__ window_iterator<T,Alloc> (const window_iterator<T,Alloc>& other);
 
     __host__ __device__ window_iterator<T,Alloc>& operator= (window_iterator<T,Alloc>& it);
 
@@ -101,7 +99,7 @@ namespace thrust
 
   };
 
-  template <class T,class Alloc=device_malloc_allocator<T> >
+  template <class T,class Alloc=device_custom_malloc_allocator<T> >
   class window_vector
   {
     int windows_along_x, windows_along_y;
@@ -121,7 +119,6 @@ namespace thrust
     __host__ __device__ const reference operator[] (unsigned int index) const;
     __host__ __device__ reference operator* ();
     __host__ __device__ const reference operator* () const;
-
 
     window_iterator<T,Alloc> begin();
     window_iterator<T,Alloc> end();
