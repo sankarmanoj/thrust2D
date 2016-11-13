@@ -7,15 +7,13 @@ namespace thrust
   {
     this->dim_x = dim_x;
     this->dim_y = dim_y;
-    if (typeid(Alloc) == typeid(device_custom_malloc_allocator<T>))
+    if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
     {
       cudaMallocManaged((void **) &data, sizeof(T)*dim_x*dim_y);
       cudaDeviceSynchronize();
-      block_2d<T,Alloc> *temp;
-      cudaMalloc((void **)&temp,sizeof(block_2d));
-      cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
+      cudaMalloc((void **)&device_pointer,sizeof(block_2d));
+      cudaMemcpy(device_pointer,this,sizeof(block_2d),cudaMemcpyHostToDevice);
       cudaDeviceSynchronize();
-      device_pointer = temp;
     }
     else
     {
@@ -29,17 +27,14 @@ namespace thrust
   {
     this->dim_x = dim_x;
     this->dim_y = dim_y;
-    if (typeid(Alloc) == typeid(device_custom_malloc_allocator<T>))
+    if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
     {
       cudaMallocManaged((void **) &data, sizeof(T)*dim_x*dim_y);
-      cudaMemset((void **) &data, value, sizeof(T)*dim_x*dim_y);
+      cudaMemset((void *) data, value, sizeof(T)*dim_x*dim_y);
       cudaDeviceSynchronize();
-      block_2d<T,Alloc> *temp;
-      cudaMalloc((void **)&temp,sizeof(block_2d));
-      cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
+      cudaMalloc((void **)&device_pointer,sizeof(block_2d));
+      cudaMemcpy(device_pointer,this,sizeof(block_2d),cudaMemcpyHostToDevice);
       cudaDeviceSynchronize();
-      device_pointer = temp;
-      // cudaMemcpy(device_pointer->data,data,sizeof(T)*dim_x*dim_y,cudaMemcpyHostToDevice);
     }
     else
     {
@@ -85,13 +80,7 @@ namespace thrust
   template <class T,class Alloc>
   void block_2d<T,Alloc>::assign(T *begin,T *end)
   {
-    long size = end - begin;
-    long i=0;
-    while(i<size)
-    {
-      data[i] = begin[i];
-      ++i;
-    }
+    cudaMemcpy(data,begin,sizeof(T)*(end-begin),cudaMemcpyHostToDevice);
   }
 
   template <class T,class Alloc>

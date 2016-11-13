@@ -1,14 +1,16 @@
 #pragma once
+#include <thrust/detail/vector_base.h>
+#include <thrust/device_malloc_allocator.h>
 #include <typeinfo>
 #include <memory.h>
 namespace thrust
 {
-	template <class T>
-	class device_custom_malloc_allocator
-	{
-
-	};
-	template <class T,class Alloc=device_custom_malloc_allocator<T> > class block_2d;
+	// template <class T>
+	// class device_custom_malloc_allocator
+	// {
+	//
+	// };
+	template <class T,class Alloc=device_malloc_allocator<T> > class block_2d;
 	template <class T,class Alloc>
 	class block_2d_iterator
 	{

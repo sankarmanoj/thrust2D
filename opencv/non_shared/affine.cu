@@ -60,10 +60,10 @@ int main(int argc, char const *argv[]) {
   AffineTransformFunctor atf(&warp_block,&outBlock);
   thrust::for_each(inputVector.begin(),inputVector.end(),atf);
   cudaDeviceSynchronize();
-  unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
+  unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(outBlock.end()-outBlock.begin()));
   for(int i = 0; i<image.cols*image.rows;i++)
   {
-    outputFloatImageData[i]=(unsigned char)float_image_block[make_int2(i/image.cols,i%image.cols)];
+    outputFloatImageData[i]=(unsigned char) outBlock[make_int2(i/image.cols,i%image.cols)];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
   imwrite("input.png",image);

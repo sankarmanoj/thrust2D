@@ -4,8 +4,8 @@
 #include <thrust/iterator/iterator_categories.h>
 namespace thrust
 {
-  template <class T,class Alloc=device_custom_malloc_allocator<T> > class window_2d_iterator;
-  template <class T,class Alloc=device_custom_malloc_allocator<T> >
+  template <class T,class Alloc=device_malloc_allocator<T> > class window_2d_iterator;
+  template <class T,class Alloc=device_malloc_allocator<T> >
   class window_2d
   {
   public:
@@ -42,7 +42,7 @@ namespace thrust
   template <class T>
 	using host_window_2d=window_2d<T,std::allocator<T> >;
 
-  template <class T,class Alloc=device_custom_malloc_allocator<T> >
+  template <class T,class Alloc=device_malloc_allocator<T> >
   class window_iterator
   {
     int position;
@@ -52,7 +52,8 @@ namespace thrust
     typedef long difference_type;
     typedef T base_value_type;
     typedef window_2d<T,Alloc> value_type;
-    typedef typename thrust::random_access_device_iterator_tag iterator_category;
+    typedef typename detail::normal_iterator<typename detail::vector_base<window_2d<T>,Alloc>::pointer> iterator;
+    typedef typename iterator::iterator_category iterator_category;
     typedef window_2d<T,Alloc> reference;
     typedef window_2d<T,Alloc>* pointer;
     int window_dim_x;
@@ -99,7 +100,7 @@ namespace thrust
 
   };
 
-  template <class T,class Alloc=device_custom_malloc_allocator<T> >
+  template <class T,class Alloc=device_malloc_allocator<T> >
   class window_vector
   {
     int windows_along_x, windows_along_y;
