@@ -128,6 +128,11 @@ namespace thrust
     this->position =0;
     this->windows_along_x = int((this->block_dim_x-window_dim_x)/stride_x)+1;
     this->windows_along_y = int((this->block_dim_y-window_dim_y)/stride_y)+1;
+    if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
+    {
+      cudaMemPrefetchAsync(this->data_pointer, sizeof(T)*block_dim_x*block_dim_y, 0, 0);
+      cudaDeviceSynchronize();
+    }
   }
 
   template <class T,class Alloc>
