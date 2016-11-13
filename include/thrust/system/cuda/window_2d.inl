@@ -9,15 +9,15 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ window_2d<T,Alloc>::window_2d(block_2d<T,Alloc> *b,int start_x, int start_y, int window_dim_x, int window_dim_y)
+  __host__ __device__ window_2d<T,Alloc>::window_2d(block_2d<T,Alloc> *b,int start_x, int start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y)
   {
     this->start_x = start_x;
     this->window_dim_x = window_dim_x;
     this->start_y = start_y;
     this->window_dim_y = window_dim_y;
     this->b = b;
-    block_dim_x = b->dim_x;
-    block_dim_y = b->dim_y;
+    this->block_dim_x = block_dim_x;
+    this->block_dim_y = block_dim_y;
     is_shared = false;
   }
   template <class T,class Alloc>
@@ -152,7 +152,7 @@ namespace thrust
     int j = index/windows_along_x;
     int start_x = stride_x*i;
     int start_y = stride_y*j;
-    window_2d<T,Alloc> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
+    window_2d<T,Alloc> temp(b, start_x,start_y,window_dim_x, window_dim_y, block_dim_x, block_dim_y);
     return temp;
   }
 
@@ -163,7 +163,7 @@ namespace thrust
     int j = index/windows_along_x;
     int start_x = stride_x*i;
     int start_y = stride_y*j;
-    window_2d<T,Alloc> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
+    window_2d<T,Alloc> temp(b, start_x,start_y,window_dim_x, window_dim_y, block_dim_x, block_dim_y);
     return temp;
   }
 
@@ -174,7 +174,7 @@ namespace thrust
     int j = position/windows_along_x;
     int start_x = stride_x*i;
     int start_y = stride_y*j;
-    window_2d<T,Alloc> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
+    window_2d<T,Alloc> temp(b, start_x,start_y,window_dim_x, window_dim_y, block_dim_x, block_dim_y);
     return temp;
   }
 
@@ -185,7 +185,7 @@ namespace thrust
     int j = position/windows_along_x;
     int start_x = stride_x*i;
     int start_y = stride_y*j;
-    window_2d<T,Alloc> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
+    window_2d<T,Alloc> temp(b, start_x,start_y,window_dim_x, window_dim_y, block_dim_x, block_dim_y);
     return temp;
   }
 

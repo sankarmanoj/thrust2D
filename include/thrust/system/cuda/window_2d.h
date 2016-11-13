@@ -1,6 +1,7 @@
 #pragma once
 
 #include <thrust/block_2d.h>
+#include <thrust/iterator/iterator_categories.h>
 namespace thrust
 {
   template <class T,class Alloc=device_custom_malloc_allocator<T> > class window_2d_iterator;
@@ -16,7 +17,7 @@ namespace thrust
     T *data;
     bool is_shared;
     __host__ __device__ window_2d();
-    __host__ __device__ window_2d(block_2d<T,Alloc> *b, int start_x, int start_y, int window_dim_x, int window_dim_y);
+    __host__ __device__ window_2d(block_2d<T,Alloc> *b, int start_x, int start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y);
     __host__ __device__ window_2d(T *data , int start_x, int start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y);
     __host__ __device__ window_2d(const window_2d &obj);
     __host__ __device__ window_2d_iterator<T,Alloc> operator[](long index);
@@ -51,8 +52,7 @@ namespace thrust
     typedef long difference_type;
     typedef T base_value_type;
     typedef window_2d<T,Alloc> value_type;
-    typedef typename detail::normal_iterator<typename detail::vector_base<window_2d<T>,Alloc>::pointer> iterator;
-    typedef typename iterator::iterator_category iterator_category;
+    typedef typename thrust::random_access_device_iterator_tag iterator_category;
     typedef window_2d<T,Alloc> reference;
     typedef window_2d<T,Alloc>* pointer;
     int window_dim_x;

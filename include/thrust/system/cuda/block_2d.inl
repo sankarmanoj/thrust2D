@@ -69,7 +69,7 @@ namespace thrust
   {
     if(index.y<0||index.x<0||index.y>=dim_y||index.x>=dim_x)
     {
-      return 0;
+      return data[dim_y*dim_x];
     }
     return data[index.y*(dim_x) + index.x];
   }
