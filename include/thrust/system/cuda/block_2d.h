@@ -5,20 +5,15 @@
 #include <memory.h>
 namespace thrust
 {
-	// template <class T>
-	// class device_custom_malloc_allocator
-	// {
-	//
-	// };
 	template <class T,class Alloc=device_malloc_allocator<T> > class block_2d;
 	template <class T,class Alloc>
 	class block_2d_iterator
 	{
 	public:
-		block_2d<T,Alloc> *b;
+		const block_2d<T,Alloc> *b;
 		int index_y;
-		__host__ __device__ block_2d_iterator(block_2d<T,Alloc> *b, int index);
-		__host__ __device__ T& operator[] (int index);
+		__host__ __device__ block_2d_iterator(const block_2d<T,Alloc> *b, int index);
+		__host__ __device__ T& operator[] (int index) const;
 	};
 	template <class T,class Alloc>
 	class block_2d
@@ -30,10 +25,11 @@ namespace thrust
 		block_2d(int dim_x,int dim_y);
 		block_2d(int dim_x,int dim_y,T value);
 		block_2d(block_2d<T,Alloc> &other);
-		__host__ __device__ int2 index_to_int2(int index);
-		__host__ __device__ block_2d_iterator<T,Alloc> operator[] (int index);
-		__host__ __device__ T& operator[] (int2 index);
+		__host__ __device__ int2 index_to_int2(int index) const;
+		__host__ __device__ block_2d_iterator<T,Alloc> operator[] (int index) const;
+		__host__ __device__ T& operator[] (int2 index) const;
 		void assign(T *begin,T *end);
+		T* download();
 		T* begin();
 		T* end();
 	};

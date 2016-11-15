@@ -16,10 +16,10 @@ public:
   __device__ void operator() (const thrust::window_2d<float> &inputWindow) const
   {
     int x_out, y_out;
-    x_out = (int)((*transformMatrix)[0][0]*inputWindow.start_x+(*transformMatrix)[0][1]*inputWindow.start_y+(*transformMatrix)[0][2]*1);
-    y_out = (int)((*transformMatrix)[1][0]*inputWindow.start_x+(*transformMatrix)[1][1]*inputWindow.start_y+(*transformMatrix)[1][2]*1);
+    x_out = (int)((*transformMatrix)[make_int2(0,0)]*inputWindow.start_x+(*transformMatrix)[make_int2(0,1)]*inputWindow.start_y+(*transformMatrix)[make_int2(0,2)]*1);
+    y_out = (int)((*transformMatrix)[make_int2(1,0)]*inputWindow.start_x+(*transformMatrix)[make_int2(1,1)]*inputWindow.start_y+(*transformMatrix)[make_int2(1,2)]*1);
 
-    (*outBlock)[y_out][x_out]=inputWindow[0][0];
+    (*outBlock)[make_int2(y_out,x_out)]=inputWindow[make_int(0,0)];
   }
 };
 int main(int argc, char const *argv[]) {
@@ -49,12 +49,9 @@ int main(int argc, char const *argv[]) {
   warp_mat.convertTo(warp_mat,CV_32FC1);
   thrust::block_2d<float> warp_block(warp_mat.cols,warp_mat.rows);
   float * warp_mat_g = (float * )malloc(sizeof(float)*(warp_mat.cols*warp_mat.rows));
-  for(int i = 0; i< warp_mat.rows;i++)
+  for(int i = 0; i< warp_mat.rows*warp_mat.cols;i++)
   {
-    for(int j = 0; j<warp_mat.cols;j++)
-    {
       warp_mat_g[i]=(float)warp_mat.ptr()[i];
-    }
   }
   warp_block.assign(warp_mat_g,warp_mat_g+warp_mat.cols*warp_mat.rows);
   //Create Windows For Indexing
@@ -63,7 +60,8 @@ int main(int argc, char const *argv[]) {
   thrust::for_each(inputVector.begin(),inputVector.end(),atf);
   cudaDeviceSynchronize();
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
-  cudaMemcpy(img,outBlock.data,sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
+  free(img);
+  img=outBlock.download();
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];

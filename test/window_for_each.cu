@@ -35,25 +35,26 @@ public:
 
   __device__ void operator() (const thrust::window_2d<float> &inputWindow) const
   {
-     inputWindow[0][0]=934;
+     inputWindow[make_int2(0,0)]=934;
     //  printf("%d %d %d\n",outputWindow[0][0], inputWindow[0][0],inputWindow1[0][0]);
   }
 };
 int main()
 {
   thrust::block_2d<float> outBlock(X,Y,0.0);
-  thrust::window_vector<float> mySecondVector = thrust::window_vector<float>(&outBlock,3,3,1,1);
+  thrust::window_vector<float> mySecondVector = thrust::window_vector<float>(&outBlock,3,3,3,3);
   // thrust::transform(thrust::cuda::shared,myVector.begin(),myVector.end(),myVector1.begin(),mySecondVector.begin(),printFunctor());
   // thrust::transform(thrust::cuda::shared,myVector.begin(),myVector.end(),mySecondVector.begin(),printFunctor1());
   thrust::for_each(mySecondVector.begin(),mySecondVector.end(),forEachFunctor());
-
+  float *out = outBlock.download();
   for (int j=0;j<Y;j++)
   {
     for (int i=0;i<X;i++)
     {
         int2 pos = make_int2(i,j);
-        printf("%5.0f  ",(float)outBlock[pos]);
+        printf("%5.0f  ",out[j*X + i]);
     }
     std::cout<<"\n";
   }
+  free (out);
 }

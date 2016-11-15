@@ -55,28 +55,15 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ window_2d_iterator<T,Alloc>::window_2d_iterator<T,Alloc>(block_2d<T,Alloc> *b, long position)
+  __host__ __device__ window_2d_iterator<T,Alloc>::window_2d_iterator<T,Alloc>(const block_2d<T,Alloc> *b, long position)
   {
     this->b = b;
     this->position = position;
     is_shared = false;
   }
-  template <class T,class Alloc>
-  __host__ __device__ window_2d_iterator<T,Alloc> window_2d<T,Alloc>::operator[] (long index)
-  {
-    long position = (start_y+index)*block_dim_x + start_x;
-    if(is_shared)
-    {
-      return window_2d_iterator<T,Alloc>(data,position);
-    }
-    else
-    {
-      return window_2d_iterator<T,Alloc>(b,position);
-    }
-  }
 
   template <class T,class Alloc>
-  __host__ __device__ const window_2d_iterator<T,Alloc> window_2d<T,Alloc>::operator[] (long index) const
+  __host__ __device__ window_2d_iterator<T,Alloc> window_2d<T,Alloc>::operator[] (long index) const
   {
     long position = (start_y+index)*block_dim_x + start_x;
     if(is_shared)
@@ -89,15 +76,15 @@ namespace thrust
     }
   }
   template<class T,class Alloc>
-  __host__ __device__ T& window_2d_iterator<T,Alloc>::operator[] (long index)
+  __host__ __device__ T& window_2d<T,Alloc>::operator[] (int2 index) const
   {
     if(is_shared)
     {
-      return &data[position + index];
+      return data[(start_y+index.y)*block_dim_x + start_x + index.x];
     }
     else
     {
-      &(b->data[position + index]);
+      return (b->data[(start_y+index.y)*block_dim_x + start_x + index.x]);
     }
   }
 
@@ -145,30 +132,9 @@ namespace thrust
     this->windows_along_x= int((this->block_dim_x-window_dim_x)/stride_x) +1;
     this->windows_along_y = int((this->block_dim_y-window_dim_y)/stride_y)+1;
   }
-  template <class T,class Alloc>
-  __host__ __device__ window_iterator<T,Alloc>::reference window_iterator<T,Alloc>::operator[] (long index)
-  {
-    int i = index%windows_along_x;
-    int j = index/windows_along_x;
-    int start_x = stride_x*i;
-    int start_y = stride_y*j;
-    window_2d<T,Alloc> temp(b, start_x,start_y,window_dim_x, window_dim_y, block_dim_x, block_dim_y);
-    return temp;
-  }
 
   template <class T,class Alloc>
-  __host__ __device__ const window_iterator<T,Alloc>::reference window_iterator<T,Alloc>::operator[] (long index) const
-  {
-    int i = index%windows_along_x;
-    int j = index/windows_along_x;
-    int start_x = stride_x*i;
-    int start_y = stride_y*j;
-    window_2d<T,Alloc> temp(b, start_x,start_y,window_dim_x, window_dim_y, block_dim_x, block_dim_y);
-    return temp;
-  }
-
-  template <class T,class Alloc>
-  __host__ __device__ window_iterator<T,Alloc>::reference window_iterator<T,Alloc>::operator* ()
+  __host__ __device__ window_iterator<T,Alloc>::reference window_iterator<T,Alloc>::operator* () const
   {
     int i = position%windows_along_x;
     int j = position/windows_along_x;
@@ -176,35 +142,6 @@ namespace thrust
     int start_y = stride_y*j;
     window_2d<T,Alloc> temp(b, start_x,start_y,window_dim_x, window_dim_y, block_dim_x, block_dim_y);
     return temp;
-  }
-
-  template <class T,class Alloc>
-  __host__ __device__ const window_iterator<T,Alloc>::reference window_iterator<T,Alloc>::operator* () const
-  {
-    int i = position%windows_along_x;
-    int j = position/windows_along_x;
-    int start_x = stride_x*i;
-    int start_y = stride_y*j;
-    window_2d<T,Alloc> temp(b, start_x,start_y,window_dim_x, window_dim_y, block_dim_x, block_dim_y);
-    return temp;
-  }
-
-  template <class T,class Alloc>
-  __host__ __device__ window_iterator<T,Alloc>::difference_type window_iterator<T,Alloc>::operator- (window_iterator<T,Alloc> &it)
-  {
-    return this->position - it.position;
-  }
-
-  template <class T,class Alloc>
-  __host__ __device__ window_iterator<T,Alloc>::difference_type window_iterator<T,Alloc>::operator- (const window_iterator<T,Alloc> &it)
-  {
-    return this->position - it.position;
-  }
-
-  template <class T,class Alloc>
-  __host__ __device__ window_iterator<T,Alloc>::difference_type window_iterator<T,Alloc>::operator- (const window_iterator<T,Alloc> &it) const
-  {
-    return this->position - it.position;
   }
 
   template <class T,class Alloc>
@@ -272,15 +209,6 @@ namespace thrust
 
   template <class T,class Alloc>
   __host__ __device__ __forceinline__ window_iterator<T,Alloc> window_iterator<T,Alloc>::operator+= (long N)
-  {
-    this->position+=N;
-    if(this->position>=(this->windows_along_x*this->windows_along_y))
-      this->position=(this->windows_along_x*this->windows_along_y);
-    return *this;
-  }
-
-  template <class T,class Alloc>
-  __host__ __device__ __forceinline__ const window_iterator<T,Alloc> window_iterator<T,Alloc>::operator+= (long N) const
   {
     this->position+=N;
     if(this->position>=(this->windows_along_x*this->windows_along_y))

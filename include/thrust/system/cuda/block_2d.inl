@@ -10,10 +10,8 @@ namespace thrust
     if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
     {
       cudaMalloc((void **) &data, sizeof(T)*dim_x*dim_y);
-      cudaDeviceSynchronize();
       cudaMalloc((void **)&device_pointer,sizeof(block_2d));
       cudaMemcpy(device_pointer,this,sizeof(block_2d),cudaMemcpyHostToDevice);
-      cudaDeviceSynchronize();
     }
     else
     {
@@ -31,10 +29,8 @@ namespace thrust
     {
       cudaMalloc((void **) &data, sizeof(T)*dim_x*dim_y);
       cudaMemset((void *) data, value, sizeof(T)*dim_x*dim_y);
-      cudaDeviceSynchronize();
       cudaMalloc((void **)&device_pointer,sizeof(block_2d));
       cudaMemcpy(device_pointer,this,sizeof(block_2d),cudaMemcpyHostToDevice);
-      cudaDeviceSynchronize();
     }
     else
     {
@@ -54,13 +50,13 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ block_2d_iterator<T,Alloc> block_2d<T,Alloc>::operator[] (int index)
+  __host__ __device__ block_2d_iterator<T,Alloc> block_2d<T,Alloc>::operator[] (int index) const
   {
     return block_2d_iterator<T,Alloc>(this,index);
   }
 
   template <class T,class Alloc>
-	__host__ __device__ T& block_2d<T,Alloc>::operator[] (int2 index)
+	__host__ __device__ T& block_2d<T,Alloc>::operator[] (int2 index) const
   {
     if(index.y<0||index.x<0||index.y>=dim_y||index.x>=dim_x)
     {
@@ -70,7 +66,7 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ __forceinline__ int2 block_2d<T,Alloc>::index_to_int2(int position)
+  __host__ __device__ __forceinline__ int2 block_2d<T,Alloc>::index_to_int2(int position) const
   {
     int i = position/dim_x;
     int j = position%dim_x;
@@ -81,6 +77,15 @@ namespace thrust
   void block_2d<T,Alloc>::assign(T *begin,T *end)
   {
     cudaMemcpy(data,begin,sizeof(T)*(end-begin),cudaMemcpyHostToDevice);
+  }
+
+  template <class T,class Alloc>
+  T* block_2d<T,Alloc>::download()
+  {
+    T* temp;
+    temp = (T*) std::malloc(sizeof(T) * dim_x*dim_y);
+    cudaMemcpy(temp,data,sizeof(T)*(dim_x*dim_y),cudaMemcpyDeviceToHost);
+    return temp;
   }
 
   template <class T,class Alloc>
@@ -95,14 +100,14 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ block_2d_iterator<T,Alloc>::block_2d_iterator(block_2d<T,Alloc> *b, int index)
+  __host__ __device__ block_2d_iterator<T,Alloc>::block_2d_iterator(const block_2d<T,Alloc> *b, int index)
   {
     this->b = b;
     index_y = index;
   }
 
   template <class T, class Alloc>
-  __host__ __device__ T& block_2d_iterator<T,Alloc>::operator[] (int index)
+  __host__ __device__ T& block_2d_iterator<T,Alloc>::operator[] (int index) const
   {
     return b->data[index_y*(b->dim_x) + index];
   }
