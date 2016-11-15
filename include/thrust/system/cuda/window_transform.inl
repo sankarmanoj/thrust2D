@@ -1,5 +1,5 @@
- #pragma once
-#include <thrust/system/cuda/window_2d.h>
+#pragma once
+#include <thrust/system/cuda/window_transform.h>
 void mAssert(int x, const char * message)
 {
   if(!x)
@@ -73,6 +73,8 @@ namespace thrust
       mConfiguration.operations_per_thread = ceil((float)mConfiguration.operations_per_block/properties.maxThreadsPerBlock);
       return mConfiguration;
     }
+
+
     void print_config(launcher_config config)
     {
       printf("Total Operations %d \n Operations Per Block %d\nShared Block X,Y=(%d,%d)\n Total Blocks %d\n Rows Per Block %d\n Blocks Per Row %d\n Operations Per Thread %d\n",config.total_operations,config.operations_per_block,\
@@ -178,7 +180,7 @@ namespace thrust
 
 
   template<typename T, class Func>
-  __global__ 
+  __global__
   __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)
   void for_each_kernel (window_iterator<T> *input,launcher_config for_each_config, Func f)
 
@@ -379,42 +381,42 @@ namespace thrust
     }
 
   }
-  template <class Iterator, class Func>
-  void transform(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2, Func f)
-  {
-    typedef typename Iterator::value_type T;
-
-    assert(begin1.block_dim_x == begin2.block_dim_x);
-    assert(begin1.block_dim_y == begin2.block_dim_y);
-    assert(begin1.window_dim_x == begin2.window_dim_x);
-    assert(begin1.window_dim_y == begin2.window_dim_y);
-    assert(begin1.stride_x == begin2.stride_x);
-    assert(begin1.stride_y == begin2.stride_y);
-
-
-    Iterator * device_begin_1;
-    cudaMalloc((void **)&device_begin_1, sizeof(Iterator));
-    cudaMemcpy(device_begin_1,&begin1,sizeof(Iterator),cudaMemcpyHostToDevice);
-    Iterator * device_begin_2;
-    cudaMalloc((void **)&device_begin_2, sizeof(Iterator));
-    cudaMemcpy(device_begin_2,&begin2,sizeof(Iterator),cudaMemcpyHostToDevice);
-    launcher_config tConfig = generate_launcher_config(begin1,end1);
-    int xblocks,yblocks;
-    yblocks =1 ;
-    if(tConfig.blocks>65536)
-    {
-      xblocks = 65536;
-      yblocks = ceil((float)tConfig.blocks/65536);
-    }
-    else
-    {
-        xblocks = tConfig.blocks;
-    }
-    // printf("\n Launch Configuration Blocks = (%d,%d) , Threads Per Block = %d , Shared Memory = %d ",xblocks,yblocks,tConfig.operations_per_block/tConfig.operations_per_thread,tConfig.shared_memory_size);
-    // print_config(tConfig);
-    transform_kernel<<<dim3(xblocks,yblocks),tConfig.operations_per_block/tConfig.operations_per_thread,tConfig.shared_memory_size>>>(device_begin_1,device_begin_2,tConfig,f);
-    cudaCheckError();
-  }
+  // template <class Iterator, class Func>
+  // void transform(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2, Func f)
+  // {
+  //   typedef typename Iterator::value_type T;
+  //
+  //   assert(begin1.block_dim_x == begin2.block_dim_x);
+  //   assert(begin1.block_dim_y == begin2.block_dim_y);
+  //   assert(begin1.window_dim_x == begin2.window_dim_x);
+  //   assert(begin1.window_dim_y == begin2.window_dim_y);
+  //   assert(begin1.stride_x == begin2.stride_x);
+  //   assert(begin1.stride_y == begin2.stride_y);
+  //
+  //
+  //   Iterator * device_begin_1;
+  //   cudaMalloc((void **)&device_begin_1, sizeof(Iterator));
+  //   cudaMemcpy(device_begin_1,&begin1,sizeof(Iterator),cudaMemcpyHostToDevice);
+  //   Iterator * device_begin_2;
+  //   cudaMalloc((void **)&device_begin_2, sizeof(Iterator));
+  //   cudaMemcpy(device_begin_2,&begin2,sizeof(Iterator),cudaMemcpyHostToDevice);
+  //   launcher_config tConfig = generate_launcher_config(begin1,end1);
+  //   int xblocks,yblocks;
+  //   yblocks =1 ;
+  //   if(tConfig.blocks>65536)
+  //   {
+  //     xblocks = 65536;
+  //     yblocks = ceil((float)tConfig.blocks/65536);
+  //   }
+  //   else
+  //   {
+  //       xblocks = tConfig.blocks;
+  //   }
+  //   // printf("\n Launch Configuration Blocks = (%d,%d) , Threads Per Block = %d , Shared Memory = %d ",xblocks,yblocks,tConfig.operations_per_block/tConfig.operations_per_thread,tConfig.shared_memory_size);
+  //   // print_config(tConfig);
+  //   transform_kernel<<<dim3(xblocks,yblocks),tConfig.operations_per_block/tConfig.operations_per_thread,tConfig.shared_memory_size>>>(device_begin_1,device_begin_2,tConfig,f);
+  //   cudaCheckError();
+  // }
   template<typename T, class Func>
   __global__
   __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)

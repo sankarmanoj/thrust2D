@@ -1,27 +1,27 @@
-==7607== NVPROF is profiling process 7607, command: ./pyrup.o
-==7607== Profiling application: ./pyrup.o
-==7607== Profiling result:
+==8660== NVPROF is profiling process 8660, command: ./pyrup.o
+==8660== Profiling application: ./pyrup.o
+==8660== Profiling result:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 53.31%  75.521us         1  75.521us  75.521us  75.521us  [CUDA memcpy DtoH]
- 30.93%  43.814us         1  43.814us  43.814us  43.814us  void cv::cuda::device::imgproc::pyrUp<unsigned char>(cv::cuda::PtrStepSz<unsigned char>, unsigned char)
- 15.76%  22.323us         1  22.323us  22.323us  22.323us  [CUDA memcpy HtoD]
+ 62.89%  122.37us         1  122.37us  122.37us  122.37us  [CUDA memcpy DtoH]
+ 26.40%  51.360us         1  51.360us  51.360us  51.360us  void cv::cuda::device::imgproc::pyrUp<unsigned char>(cv::cuda::PtrStepSz<unsigned char>, unsigned char)
+ 10.71%  20.832us         1  20.832us  20.832us  20.832us  [CUDA memcpy HtoD]
 
-==7607== API calls:
+==8660== API calls:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 96.09%  982.94ms         2  491.47ms  19.180us  982.92ms  cudaMallocPitch
-  1.89%  19.289ms         1  19.289ms  19.289ms  19.289ms  cudaGetDeviceProperties
-  1.22%  12.433ms        90  138.15us     122ns  5.5027ms  cuDeviceGetAttribute
-  0.37%  3.7739ms         2  1.8870ms  26.137us  3.7478ms  cudaFree
-  0.28%  2.8629ms         1  2.8629ms  2.8629ms  2.8629ms  cudaMalloc
-  0.06%  617.97us         2  308.99us  45.768us  572.21us  cudaMemcpy2D
-  0.05%  488.74us         1  488.74us  488.74us  488.74us  cuDeviceGetName
-  0.04%  364.26us         1  364.26us  364.26us  364.26us  cuDeviceTotalMem
-  0.02%  163.65us         1  163.65us  163.65us  163.65us  cudaDeviceSynchronize
-  0.00%  29.486us         1  29.486us  29.486us  29.486us  cudaLaunch
-  0.00%  2.4560us         2  1.2280us     607ns  1.8490us  cuDeviceGetCount
-  0.00%  1.5350us         2     767ns     435ns  1.1000us  cudaGetDevice
-  0.00%  1.2890us         1  1.2890us  1.2890us  1.2890us  cudaConfigureCall
-  0.00%     981ns         2     490ns     224ns     757ns  cudaSetupArgument
-  0.00%     887ns         4     221ns     130ns     397ns  cudaGetDeviceCount
-  0.00%     593ns         2     296ns     263ns     330ns  cuDeviceGet
-  0.00%     550ns         1     550ns     550ns     550ns  cudaGetLastError
+ 99.96%  8.91443s         2  4.45722s  8.2010us  8.91442s  cudaMallocPitch
+  0.02%  1.6839ms        90  18.710us     136ns  918.95us  cuDeviceGetAttribute
+  0.01%  505.06us         2  252.53us  93.250us  411.81us  cudaMemcpy2D
+  0.00%  237.34us         1  237.34us  237.34us  237.34us  cudaMalloc
+  0.00%  230.54us         1  230.54us  230.54us  230.54us  cuDeviceTotalMem
+  0.00%  188.10us         1  188.10us  188.10us  188.10us  cudaGetDeviceProperties
+  0.00%  161.72us         2  80.858us  41.661us  120.06us  cudaFree
+  0.00%  64.678us         1  64.678us  64.678us  64.678us  cuDeviceGetName
+  0.00%  50.727us         1  50.727us  50.727us  50.727us  cudaDeviceSynchronize
+  0.00%  29.893us         1  29.893us  29.893us  29.893us  cudaLaunch
+  0.00%  2.5980us         2  1.2990us     530ns  2.0680us  cuDeviceGetCount
+  0.00%  2.1220us         2  1.0610us     508ns  1.6140us  cudaGetDevice
+  0.00%  1.2020us         1  1.2020us  1.2020us  1.2020us  cudaConfigureCall
+  0.00%     879ns         4     219ns     160ns     324ns  cudaGetDeviceCount
+  0.00%     837ns         2     418ns     233ns     604ns  cudaSetupArgument
+  0.00%     749ns         2     374ns     215ns     534ns  cuDeviceGet
+  0.00%     612ns         1     612ns     612ns     612ns  cudaGetLastError

@@ -59,7 +59,7 @@ public:
 int main(int argc, char const *argv[]) {
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
-  int dim = 5;
+  int dim = 19;
   image = small;
   thrust::block_2d<float> kernel(dim,dim);
   getGaussianKernelBlock(dim,5,kernel);
@@ -75,6 +75,7 @@ int main(int argc, char const *argv[]) {
   float_image_block.assign(img,img+image.cols*image.rows);
   thrust::window_vector<float> input_wv(&float_image_block,dim,dim,1,1);
   thrust::window_vector<float> output_wv(&output_image_block,dim,dim,1,1);
+  thrust::counting_iterator<float> zeros(0);
   thrust::transform(input_wv.begin(),input_wv.end(),output_wv.begin(),zero_image_block.begin(),convolutionFunctor(kernel.device_pointer,dim));
 
   unsigned char * toutputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));

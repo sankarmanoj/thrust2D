@@ -63,7 +63,7 @@ public:
     this->dim =dim;
     this->kernel = kernel;
   }
-  __device__ void operator() (const thrust::window_2d<float> & input_window,const thrust::window_2d<float> & output_window) const
+  __device__ float operator() (const thrust::window_2d<float> & input_window,const thrust::window_2d<float> & output_window) const
   {
     float temp = 0;
     for(int i = 0; i< dim; i++)
@@ -74,6 +74,7 @@ public:
       }
     }
     output_window[1][1]=temp;
+    return 0.0 ;
   }
 };
 
@@ -81,12 +82,14 @@ int main()
 {
   int dim = 3;
   thrust::block_2d<float> kernel(dim,dim);
+  Mat image;
   getGaussianKernelBlock(dim,5.0,kernel);
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
-  Mat image=small;
+  resize(small,image,Size(512,512));
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
   thrust::block_2d<float> float_image_block (image.cols,image.rows);
   thrust::block_2d<float> outBlock (image.cols*2,image.rows*2,0.0f);
+  thrust::block_2d<float> zero_image_block (image.cols,image.rows);
   thrust::block_2d<float> output_image_block(image.cols*2,image.rows*2,0.0f);
   float * img = (float * )malloc(sizeof(float)*(image_block.end()-image_block.begin()));
   float * img_out = (float * )malloc(sizeof(float)*(outBlock.end()-outBlock.begin()));
@@ -98,10 +101,10 @@ int main()
   thrust::window_vector<float> inputVector(&float_image_block,1,1,1,1);
   thrust::window_vector<float> inputVector1(&outBlock,dim,dim,1,1);
   pyrdownTransformFunctor ptf(&outBlock);
-  thrust::for_each(thrust::cuda::shared,inputVector.begin(),inputVector.end(),ptf);
+  thrust::for_each(inputVector.begin(),inputVector.end(),ptf);
   cudaDeviceSynchronize();
   thrust::window_vector<float> output_wv(&output_image_block,dim,dim,1,1);
-  thrust::transform(thrust::cuda::shared,inputVector1.begin(),inputVector1.end(),output_wv.begin(),convolutionFunctor(kernel.device_pointer,dim));
+  thrust::transform(inputVector1.begin(),inputVector1.end(),output_wv.begin(),zero_image_block.begin(),convolutionFunctor(kernel.device_pointer,dim));
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(output_image_block.end()-output_image_block.begin()));
   cudaMemcpy(img_out,thrust::raw_pointer_cast(output_image_block.data()),sizeof(float)*(output_image_block.end()-output_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows*4;i++)

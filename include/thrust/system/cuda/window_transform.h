@@ -23,6 +23,11 @@ namespace thrust
     int blocks_per_row;
     int total_operations;
   };
+  struct warp_launcher_config
+  {
+    int size_along_x ,
+        size_along_y ;
+  };
   template <class Iterator>
   void convolve(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2);
   template <class Iterator, class Func>
@@ -56,4 +61,4 @@ namespace thrust
     __device__ virtual void operator() (const window_2d<T> &w) const = 0;
   };
 }
-#include <thrust/system/cuda/window_transform.inl>
+#include <thrust/system/cuda/window_opt_transform.inl>
