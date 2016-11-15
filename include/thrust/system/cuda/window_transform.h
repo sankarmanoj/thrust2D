@@ -61,4 +61,4 @@ namespace thrust
     __device__ virtual void operator() (const window_2d<T> &w) const = 0;
   };
 }
-#include <thrust/system/cuda/window_transform.inl>
+#include <thrust/system/cuda/window_opt_transform.inl>

@@ -9,12 +9,12 @@ namespace thrust
   {
     extern __shared__ T shared_memory [];
     shared_memory[threadIdx.y*32+threadIdx.x]=(*(input->b))[make_int2(blockIdx.x*32 + threadIdx.x,blockIdx.y*32 + threadIdx.y)];
-    if(threadIdx.x%input->stride_x&&threadIdx.y%input->stride_y)
-    {
+    // if(threadIdx.x%input->stride_x&&threadIdx.y%input->stride_y)
+    // {
         window_2d<T> shared_window(shared_memory,threadIdx.x,threadIdx.y,input->window_dim_x,input->window_dim_y,32,32);
         window_2d<T> output_window(output->b,blockIdx.x*32 + threadIdx.x,blockIdx.y*32 + threadIdx.y,output->window_dim_x,output->window_dim_y);
         f(shared_window,output_window);
-    }
+    // }
   }
 
   template <class Iterator, class Func>
