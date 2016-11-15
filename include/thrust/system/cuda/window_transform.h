@@ -27,6 +27,7 @@ namespace thrust
   {
     int size_along_x ,
         size_along_y ;
+        int sx,sy;
   };
   template <class Iterator>
   void convolve(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2);

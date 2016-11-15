@@ -39,7 +39,7 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ window_2d<T,Alloc>::window_2d(T *data,int start_x, int start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y)
+  __host__ __device__ window_2d<T,Alloc>::window_2d(T *data,int start_x, int start_y, int local_start_x, int local_start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y)
   {
     // TODO: Better Boundary checks.
     this->start_x = start_x;
@@ -49,7 +49,8 @@ namespace thrust
     // assert(start_x + window_dim_x <= b->dim_x);
     this->start_y = start_y;
     this->window_dim_y = window_dim_y;
-
+    this->local_start_x = local_start_x;
+    this->local_start_y = local_start_y;
     // assert(start_y + window_dim_y <= b->dim_y);
     this->data = data;
     this->block_dim_x = block_dim_x;
@@ -77,14 +78,15 @@ namespace thrust
   {
     // TODO: Check Indexing of Window of a SubBlock.
     // printf("%d\n",b->dim_x);
-    long position = (start_y+index)*this->block_dim_x + start_x;
     if(this->is_shared)
     {
+      long position = (local_start_y+index)*this->block_dim_x + local_start_x;
       // printf("StartX = %d, StartY = %d Index = %d Positon = %ld\n",this->start_x,this->start_y,index,position);
       return window_2d_iterator<T,Alloc>(data,position);
     }
     else
     {
+      long position = (start_y+index)*this->block_dim_x + start_x;
       // return (*b)[start_y + index] + start_x;
       return window_2d_iterator<T,Alloc>(this->b,position);
     }
@@ -95,14 +97,15 @@ namespace thrust
   {
     // TODO: Check Indexing of Window of a SubBlock.
     // printf("%d\n",b->dim_x);
-    long position = (start_y+index)*this->block_dim_x + start_x;
     if(this->is_shared)
     {
+      long position = (local_start_y+index)*this->block_dim_x + local_start_x;
       // printf("StartX = %d, StartY = %d Index = %d Positon = %ld\n",this->start_x,this->start_y,index,position);
       return window_2d_iterator<T,Alloc>(data,position);
     }
     else
     {
+      long position = (start_y+index)*this->block_dim_x + start_x;
       // return (*b)[start_y + index] + start_x;
       return window_2d_iterator<T,Alloc>(this->b,position);
     }
