@@ -23,6 +23,11 @@ namespace thrust
     int blocks_per_row;
     int total_operations;
   };
+  struct warp_launcher_config
+  {
+    int size_along_x ,
+        size_along_y ;
+  };
   template <class Iterator>
   void convolve(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2);
   template <class Iterator, class Func>

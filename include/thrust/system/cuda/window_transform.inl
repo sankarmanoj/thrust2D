@@ -1,5 +1,5 @@
- #pragma once
-#include <thrust/system/cuda/window_2d.h>
+#pragma once
+#include <thrust/system/cuda/window_transform.h>
 void mAssert(int x, const char * message)
 {
   if(!x)
@@ -73,6 +73,8 @@ namespace thrust
       mConfiguration.operations_per_thread = ceil((float)mConfiguration.operations_per_block/properties.maxThreadsPerBlock);
       return mConfiguration;
     }
+
+
     void print_config(launcher_config config)
     {
       printf("Total Operations %d \n Operations Per Block %d\nShared Block X,Y=(%d,%d)\n Total Blocks %d\n Rows Per Block %d\n Blocks Per Row %d\n Operations Per Thread %d\n",config.total_operations,config.operations_per_block,\
@@ -178,7 +180,7 @@ namespace thrust
 
 
   template<typename T, class Func>
-  __global__ 
+  __global__
   __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)
   void for_each_kernel (window_iterator<T> *input,launcher_config for_each_config, Func f)
 
