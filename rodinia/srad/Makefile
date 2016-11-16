@@ -7,16 +7,17 @@ ifeq ($(OS),Darwin)
 else
 	display=display
 endif
+all: srad.out srad_non_shared.out
+	#display image.pgm &
+	nvprof --log-file srad.profile ./srad.out 502 458 0.5 100 image.pgm image_out.pgm
+	# $(display) image_out.pgm &
 %.out: %.cu
-	clear
-	clear
-	$(CC)  -o $@ $< $(CFLAGS)
+	$(CC) -O3 -o $@ $< $(CFLAGS)
+
 srad.cu : srad_kernel.cu
 srad_non_shared.cu : srad_kernel.cu
+clean :
+	rm *.out
 
-rod_srad_1: srad.out srad_non_shared.out
-	#display image.pgm &
-	./srad.out 502 458 0.5 100 image.pgm image_out.pgm
-	# $(display) image_out.pgm &
 rod_srad_cuda:
 	cd cuda; make srad

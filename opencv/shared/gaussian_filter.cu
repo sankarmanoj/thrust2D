@@ -49,7 +49,7 @@ public:
     {
       for(int j = 0; j<dim; j++)
       {
-        temp+=input_window[i][j]*(*kernel)[i][j];
+        temp+=input_window[make_int2(i,j)]*(*kernel)[make_int2(i,j)];
       }
     }
     output_window[1][1]=temp;

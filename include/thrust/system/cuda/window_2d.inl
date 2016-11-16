@@ -39,10 +39,11 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ window_2d<T,Alloc>::window_2d(T *data,int start_x, int start_y, int local_start_x, int local_start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y)
+  __host__ __device__ window_2d<T,Alloc>::window_2d(block_2d<T,Alloc> *b, T *data,int start_x, int start_y, int local_start_x, int local_start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y)
   {
     // TODO: Better Boundary checks.
     this->start_x = start_x;
+    this->b = b;
     this->window_dim_x = window_dim_x;
     //printf("start x = %d , window_dim_x = %d , parent_dim = %d\n", start_x,window_dim_x,b->dim_x);
     // NOTE: Strictly less or less than equal to? Should a window comprising of entire block be allowed?
@@ -89,6 +90,25 @@ namespace thrust
     }
   }
 
+  template <class T,class Alloc>
+  __host__ __device__ T window_2d<T,Alloc>::operator[] (int2 index) const
+  {
+    if(this->is_shared)
+    {
+      if(((local_start_x+index.x)>=block_dim_x)||((local_start_y+index.y)>=block_dim_y))
+      {
+        return (*b)[start_y+index.y][start_x+index.x];
+      }
+      else
+      {
+        return data[(local_start_y+index.y)*block_dim_x + local_start_x+index.x];
+      }
+    }
+    else
+    {
+      return (*b)[start_y+index.y][start_x+index.x];
+    }
+  }
   template<class T,class Alloc>
   __host__ __device__ window_2d_iterator<T,Alloc>::reference window_2d_iterator<T,Alloc>::operator[] (long index) const
   {

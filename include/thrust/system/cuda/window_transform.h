@@ -25,9 +25,9 @@ namespace thrust
   };
   struct warp_launcher_config
   {
-    int size_along_x ,
-        size_along_y ;
-        int sx,sy;
+    int size_along_x, size_along_y;
+    int warp_size;
+    int stride_x,stride_y;
   };
   template <class Iterator>
   void convolve(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2);

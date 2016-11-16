@@ -1,9 +1,8 @@
-// includes, system
 #include "srad.h"
 #include "graphics.c"
 #include "resize.c"
-#include <thrust/execution_policy.h>
 #include <thrust/window_transform.h>
+#include <thrust/execution_policy.h>
 // includes, kernels
 #include "srad_kernel.cu"
 
@@ -95,13 +94,14 @@ runTest( int argc, char** argv)
 		meanROI = sum / size_R;
 		varROI  = (sum2 / size_R) - meanROI*meanROI;
 		q0sqr   = varROI / (meanROI*meanROI);
-		printf("%f",q0sqr);
 		SRADFunctor1 functor1(cols,rows,q0sqr);
 		SRADFunctor2 functor2(cols,rows,lambda,q0sqr);
 		thrust::window_vector<float> wv = thrust::window_vector<float>(&(J_cuda),3,3,1,1);
 		thrust::window_vector<float> d_cwv = thrust::window_vector<float>(&(d_c),3,3,1,1);
 		thrust::transform(thrust::cuda::shared,wv.begin(),wv.end(),d_cwv.begin(),functor1);
-		thrust::transform(thrust::cuda::shared,d_cwv.begin(),d_cwv.end(),wv.begin(),functor2);
+		// thrust::for_each(J_cuda.begin(),J_cuda.end(),printFunctor());
+		// thrust::for_each(d_c.begin(),d_c.end(),printFunctor());
+		thrust::transform(thrust::cuda::shared,wv.begin(),wv.end(),d_cwv.begin(),functor2);
 	}
 	printf("Computation Done\n");
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),compressFunctor());

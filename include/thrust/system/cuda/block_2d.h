@@ -21,14 +21,17 @@ namespace thrust
 		typedef typename block_2d<T,Alloc>::reference reference;
 		typedef long difference_type;
 		__host__ __device__ reference	operator* () const;
+		__host__ __device__ reference	operator[] (const int index) const;
 		__host__ __device__ block_iterator (const block_iterator<T,Alloc> &pb) ;
 		__host__ __device__ block_iterator (block_2d<T,Alloc> *pB, int position);
 		__host__ __device__ block_iterator<T,Alloc> operator+ (long value);
 		__host__ __device__ difference_type operator- (const block_iterator<T,Alloc>& it) const;
-		__host__ __device__ block_iterator<T,Alloc> operator- (const long N) const;
+		__host__ __device__ difference_type operator- (block_iterator<T,Alloc>& it) const;
 		__host__ __device__ block_iterator<T,Alloc> operator-- ();
 		__host__ __device__ block_iterator<T,Alloc>& operator+= (long N);
 		__host__ __device__ block_iterator<T,Alloc>& operator++ ();
+		__host__ __device__ block_iterator<T,Alloc> operator- (const long N);
+		__host__ __device__ block_iterator<T,Alloc> operator- (const long N) const;
 		__host__ __device__ bool operator!= (const block_iterator<T,Alloc>& it) const;
 		__host__ __device__ bool operator== (const block_iterator<T,Alloc>& it) const;
 		__host__ __device__ bool operator>= (const block_iterator<T,Alloc>& it) const;

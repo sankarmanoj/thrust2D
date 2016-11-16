@@ -18,10 +18,10 @@ namespace thrust
     bool is_shared;
     __host__ __device__ window_2d();
     __host__ __device__ window_2d(block_2d<T,Alloc> *b, int start_x, int start_y, int window_dim_x, int window_dim_y);
-    __host__ __device__ window_2d(T *data , int start_x, int start_y, int local_start_x, int local_start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y);
+    __host__ __device__ window_2d(block_2d<T,Alloc> *b,T *data , int start_x, int start_y, int local_start_x, int local_start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y);
     __host__ __device__ window_2d(const window_2d &obj);
     __host__ __device__ window_2d_iterator<T,Alloc> operator[](long index) const;
-     __host__ __device__ T& operator[](int2 index) const ;
+     __host__ __device__ T operator[](int2 index) const ;
   };
 
   template<class T,class Alloc>

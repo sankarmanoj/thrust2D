@@ -115,6 +115,12 @@ __host__ __device__ block_iterator<T,Alloc>::block_iterator(const block_iterator
     return (*parent_block)[temp.y][temp.x];
   }
   template<class T,class Alloc>
+  __host__ __device__ block_iterator<T,Alloc>::reference	block_iterator<T,Alloc>::operator[] (const int index) const
+  {
+    int2 temp = parent_block->index_to_int2(position+index);
+    return (*parent_block)[temp.y][temp.x];
+  }
+  template<class T,class Alloc>
   __host__ __device__ block_iterator<T,Alloc> block_iterator<T,Alloc>::operator+ (long value)
   {
     block_iterator<T> temp = *this;
@@ -137,6 +143,19 @@ __host__ __device__ block_iterator<T,Alloc>::block_iterator(const block_iterator
   __host__ __device__ block_iterator<T,Alloc>::difference_type block_iterator<T,Alloc>::operator- (const block_iterator<T,Alloc>& it) const
   {
     return position - it.position;
+  }
+
+  template<class T,class Alloc>
+  __host__ __device__ block_iterator<T,Alloc>::difference_type block_iterator<T,Alloc>::operator- (block_iterator<T,Alloc>& it) const
+  {
+    return position - it.position;
+  }
+  template<class T,class Alloc>
+  __host__ __device__ block_iterator<T,Alloc> block_iterator<T,Alloc>::operator- (const long N)
+  {
+    block_iterator<T,Alloc> temp = *this;
+    temp.position-=N;
+    return temp;
   }
   template<class T,class Alloc>
   __host__ __device__ block_iterator<T,Alloc> block_iterator<T,Alloc>::operator- (const long N) const
