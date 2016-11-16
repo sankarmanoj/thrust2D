@@ -42,25 +42,29 @@ public:
     this->kernel = kernel;
     this->dim = dim;
   }
-  __device__ float operator() (thrust::window_2d<float> input_window,thrust::window_2d<float> output_window)
+  __device__ void operator() (thrust::window_2d<float> &input_window,thrust::window_2d<float> &output_window)
   {
     float temp = 0;
     for(int i = 0; i< dim; i++)
     {
       for(int j = 0; j<dim; j++)
       {
-        temp+=input_window[i][j]*0.1;
+        temp+=input_window[i][j]*(*kernel)[i][j];
       }
     }
     output_window[1][1]=temp;
-    return 0.0;
   }
 };
 int main(int argc, char const *argv[]) {
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
   int dim = 3;
-  resize(small,image,Size(512,512));
+  int dim1 = 512;
+  if(argc ==2)
+  {
+    dim1 = atoi(argv[1]);
+  }
+  resize(small,image,Size(dim1,dim1));
   thrust::block_2d<float> kernel(dim,dim);
   getGaussianKernelBlock(dim,5,kernel);
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);

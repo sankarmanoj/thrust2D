@@ -1,6 +1,5 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
-#include <thrust/window_transform.h>
 using namespace cv;
 inline float gauss(int x, int y, int mid, float sigma )
 {
@@ -85,7 +84,7 @@ int main(int argc, char const *argv[]) {
     outputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
-  imwrite("input.png.png",image);
-  imwrite("houtput.png.png",output);
+  imwrite("input.png",image);
+  imwrite("houtput.png",output);
   return 0;
 }

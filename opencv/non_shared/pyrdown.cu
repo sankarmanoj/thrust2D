@@ -3,7 +3,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include <thrust/window_2d.h>
-#include <thrust/window_transform.h>
 #include <math.h>
 using namespace cv;
 inline float gauss(int x, int y, int mid, float sigma )

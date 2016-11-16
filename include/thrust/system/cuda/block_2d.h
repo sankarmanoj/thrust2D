@@ -15,30 +15,19 @@ namespace thrust
 	public:
 		block_2d<T,Alloc> *parent_block;
 		block_2d<T,Alloc> *parent_block_host;
-
 		int position;
 		int dim_x,dim_y;
 		typedef typename block_2d<T,Alloc>::value_type value_type;
 		typedef typename block_2d<T,Alloc>::reference reference;
 		typedef long difference_type;
-		// typedef detail::iterator_category_with_system_and_traversal<random_access_device_iterator_tag, system::cuda::detail::tag, random_access_traversal_tag> iterator_category;
-		// typedef thrust::device_reference<T> reference;
-		// typedef T* pointer;
 		__host__ __device__ reference	operator* () const;
-		__host__ __device__ reference operator[] (long index);
-
 		__host__ __device__ block_iterator (const block_iterator<T,Alloc> &pb) ;
 		__host__ __device__ block_iterator (block_2d<T,Alloc> *pB, int position);
-
 		__host__ __device__ block_iterator<T,Alloc> operator+ (long value);
-		__host__ __device__ difference_type operator- (const block_iterator<T,Alloc>& it);
 		__host__ __device__ difference_type operator- (const block_iterator<T,Alloc>& it) const;
-		__host__ __device__ block_iterator<T,Alloc> operator- (const long N);
 		__host__ __device__ block_iterator<T,Alloc> operator- (const long N) const;
 		__host__ __device__ block_iterator<T,Alloc> operator-- ();
 		__host__ __device__ block_iterator<T,Alloc>& operator+= (long N);
-
-		// __host__ __device__ block_iterator<T>& operator+= (const long N)const ;
 		__host__ __device__ block_iterator<T,Alloc>& operator++ ();
 		__host__ __device__ bool operator!= (const block_iterator<T,Alloc>& it) const;
 		__host__ __device__ bool operator== (const block_iterator<T,Alloc>& it) const;
@@ -46,7 +35,6 @@ namespace thrust
 		__host__ __device__ bool operator<= (const block_iterator<T,Alloc>& it) const;
 		__host__ __device__ bool operator> (const block_iterator<T,Alloc>& it) const;
 		__host__ __device__ bool operator< (const block_iterator<T,Alloc>& it) const;
-
 	};
 
 	template <class T,class Alloc>
@@ -59,16 +47,12 @@ namespace thrust
 		typedef typename detail::vector_base<T,Alloc>::value_type value_type;
 		int dim_x,dim_y;
 		int offset_x, offset_y;
-		// device_vector<T> device_data;
 		iterator_base device_iterator;
 		block_2d *device_pointer;
 		block_2d(int dim_x,int dim_y);
 		block_2d(int dim_x,int dim_y,T value);
-
 		block_2d(block_2d<T> &other);
-		__host__ __device__ int2 index_to_int2(int index);
-		block_2d* sub_block (int ul_x, int ul_y, int br_x, int br_y);
-
+		__host__ __device__ int2 index_to_int2(int index) const;
 		template <class InputIterator>
 		block_2d(InputIterator first, InputIterator last) : detail::vector_base<T,Alloc>(first,last)
 		{
@@ -88,10 +72,8 @@ namespace thrust
 	    else
 	      this->device_pointer = this;
 		}
-
-		__host__ __device__ iterator_base operator[] (int index);
-		__host__ __device__ reference operator[] (int2 index);
-
+		__host__ __device__ iterator_base operator[] (int index) const;
+		__host__ __device__ reference operator[] (int2 index) const;
 		iterator begin();
 		iterator end();
 	};

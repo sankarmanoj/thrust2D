@@ -1,6 +1,5 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
-#include <thrust/window_transform.h>
 using namespace cv;
 class dilateFunctor //: public thrust::shared_unary_window_transform_functor<float>
 {

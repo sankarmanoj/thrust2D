@@ -79,14 +79,19 @@ public:
   }
 };
 
-int main()
+int main(int argc, char const *argv[])
 {
   int dim = 3;
   thrust::block_2d<float> kernel(dim,dim);
   getGaussianKernelBlock(dim,5.0,kernel);
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
-  resize(small,image,Size(512,512));
+  int dim1 = 512;
+  if(argc ==2)
+  {
+    dim1 = atoi(argv[1]);
+  }
+  resize(small,image,Size(dim1,dim1));
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
   thrust::block_2d<float> float_image_block (image.cols,image.rows);
   thrust::block_2d<float> outBlock (image.cols*2,image.rows*2,0.0f);
