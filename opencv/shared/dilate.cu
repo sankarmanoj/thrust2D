@@ -14,7 +14,8 @@ class dilateFunctor : public thrust::shared_unary_window_transform_functor<float
     {
       for(int j = 0; j<3;j++)
       {
-        temp = max(temp,inputWindow[i][j]);
+        temp = max(temp,inputWindow[make_int2(i,j)]);
+
       }
     }
     outputWindow[1][1]=temp;

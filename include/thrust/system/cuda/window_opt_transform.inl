@@ -5,19 +5,28 @@ namespace thrust
 
   template<typename T, class Func>
   __global__
-  __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)
+  // __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)
   void transform_kernel (window_iterator<T> *input, window_iterator<T> * output, warp_launcher_config mConfiguration, Func f)
   {
     extern __shared__ T shared_memory [];
-    shared_memory[threadIdx.y*mConfiguration.warp_size+threadIdx.x]=(*(input->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y)];
-    __syncthreads();
+    shared_memory[threadIdx.y*mConfiguration.shared_size_x+threadIdx.x]=(*(input->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y)];
+    if(threadIdx.y>=mConfiguration.warp_size-2)
+    {
+      shared_memory[(threadIdx.y+2)*mConfiguration.shared_size_x+threadIdx.x]=(*(input->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + (threadIdx.y+2))];
+
+    }
+    if(threadIdx.x>=mConfiguration.warp_size-2)
+    {
+      shared_memory[threadIdx.y*mConfiguration.shared_size_x+threadIdx.x+2]=(*(input->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x+2,blockIdx.y*mConfiguration.warp_size + threadIdx.y)];
+
+    }
     if((threadIdx.x%mConfiguration.stride_x)||(threadIdx.y%mConfiguration.stride_y))
       return;
-    {
-        window_2d<T> shared_window(input->b,shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,input->window_dim_x,input->window_dim_y,mConfiguration.warp_size,mConfiguration.warp_size);
+      __syncthreads();
+        window_2d<T> shared_window(input->b,shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,input->window_dim_x,input->window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+2);
         window_2d<T> output_window(output->b,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,output->window_dim_x,output->window_dim_y);
         f(shared_window,output_window);
-    }
+
   }
 
   template <class Iterator, class Func>
@@ -34,6 +43,7 @@ namespace thrust
     mConfiguration.stride_x = begin1.stride_x;
     mConfiguration.stride_y = begin1.stride_y;
     mConfiguration.warp_size = properties.warpSize;
+    mConfiguration.shared_size_x = mConfiguration.warp_size+2;
     // assert(!(begin1.block_dim_y%mConfiguration.warp_size));
     // assert(!(begin1.block_dim_x%mConfiguration.warp_size));
     assert(begin1.window_dim_x>=begin1.stride_x);
@@ -52,12 +62,12 @@ namespace thrust
     Iterator * device_begin_2;
     cudaMalloc((void **)&device_begin_2, sizeof(Iterator));
     cudaMemcpy(device_begin_2,&begin2,sizeof(Iterator),cudaMemcpyHostToDevice);
-    transform_kernel<<<dim3(begin1.block_dim_x/mConfiguration.warp_size,begin1.block_dim_y/mConfiguration.warp_size,1),dim3(mConfiguration.warp_size,mConfiguration.warp_size,1),size_along_y*size_along_x*sizeof(T)>>>(device_begin_1,device_begin_2,mConfiguration,f);
+    transform_kernel<<<dim3(begin1.block_dim_x/mConfiguration.warp_size,begin1.block_dim_y/mConfiguration.warp_size,1),dim3(mConfiguration.warp_size,mConfiguration.warp_size,1),(size_along_y+3)*(3+size_along_x)*sizeof(T)>>>(device_begin_1,device_begin_2,mConfiguration,f);
   }
 
   template<typename T, class Func>
   __global__
-  __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)
+  // __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)
   void for_each_kernel (window_iterator<T> *input, warp_launcher_config mConfiguration, Func f)
   {
     extern __shared__ T shared_memory [];
@@ -69,7 +79,7 @@ namespace thrust
     }
     else
     {
-    window_2d<T> shared_window(shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,input->window_dim_x,input->window_dim_y,mConfiguration.warp_size,mConfiguration.warp_size);
+    window_2d<T> shared_window(input->b,shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,input->window_dim_x,input->window_dim_y,mConfiguration.warp_size,mConfiguration.warp_size);
     // printf("%d-%d!!",threadIdx.x,threadIdx.y);
     f(shared_window);
     }
