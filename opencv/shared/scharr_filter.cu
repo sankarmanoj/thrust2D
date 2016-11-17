@@ -66,20 +66,14 @@ int main(int argc, char const *argv[]) {
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
   thrust::block_2d<float> float_image_block (image.cols,image.rows);
   thrust::block_2d<float> convolve1_block (image.cols,image.rows);
-  thrust::block_2d<float> convolve2_block (image.cols,image.rows);
-  thrust::block_2d<float> outBlock (image.cols,image.rows);
   float * img = (float * )malloc(sizeof(float)*(image_block.end()-image_block.begin()));
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     img[i]=(float)image.ptr()[i];
   }
   float_image_block.assign(img,img+image.cols*image.rows);
-  convolve1_block.assign(float_image_block.begin(),float_image_block.end());
-  convolve2_block.assign(float_image_block.begin(),float_image_block.end());
-
   thrust::window_vector<float> input_wv(&float_image_block,dim,dim,1,1);
   thrust::window_vector<float> output_wv_x(&convolve1_block,dim,dim,1,1);
-  thrust::window_vector<float> output_wv_y(&convolve2_block,dim,dim,1,1);
 
   thrust::transform(thrust::cuda::shared,input_wv.begin(),input_wv.end(),output_wv_x.begin(),convolutionFunctor(kernelx.device_pointer,kernely.device_pointer,dim));
 

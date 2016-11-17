@@ -30,6 +30,7 @@ namespace thrust
     int warp_size;
     int stride_x,stride_y;
     int shared_size_x;
+    int padding;
   };
   template <class Iterator>
   void convolve(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2);

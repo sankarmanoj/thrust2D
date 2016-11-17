@@ -95,7 +95,7 @@ namespace thrust
   {
     if(this->is_shared)
     {
-      if(0)//if(((local_start_x+index.x)>=block_dim_x)||((local_start_y+index.y)>=block_dim_y))
+      if(((local_start_x+index.x)>=block_dim_x)||((local_start_y+index.y)>=block_dim_y))
       {
         return (*b)[start_y+index.y][start_x+index.x];
       }
