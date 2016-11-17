@@ -3,36 +3,32 @@
 #include <thrust/window_transform.h>
 #define PI 3.14159
 using namespace cv;
-class transFunctor
-{
-public:
-  __device__ float operator() (const float a,const float b) const
-  {
-    return sqrt(a*a + b*b);
-  }
-};
+
 
 class convolutionFunctor //:public thrust::shared_unary_window_transform_functor<float>
 {
 public:
   int dim;
-  thrust::block_2d<float> * kernel;
-  convolutionFunctor( thrust::block_2d<float> * kernel,int dim)
+  thrust::block_2d<float> * kernel1,*kernel2;
+  convolutionFunctor( thrust::block_2d<float> * kernel1,thrust::block_2d<float> * kernel2,int dim)
   {
     this->dim =dim;
-    this->kernel = kernel;
+    this->kernel1 = kernel1;
+    this->kernel2 = kernel2;
   }
   __device__ void operator() (const thrust::window_2d<float> & input_window,const thrust::window_2d<float> & output_window) const
   {
-    float temp = 0;
+    float temp1 = 0,temp2=0;
     for(int i = 0; i< dim; i++)
     {
       for(int j = 0; j<dim; j++)
       {
-        temp+=input_window[i][j]*(*kernel)[i][j];
+        temp1+=input_window[i][j]*(*kernel1)[i][j];
+        temp2+=input_window[i][j]*(*kernel2)[i][j];
+
       }
     }
-    output_window[1][1]=temp;
+    output_window[1][1]=sqrt(temp1*temp1 + temp2*temp2);
   }
 };
 
@@ -85,11 +81,10 @@ int main(int argc, char const *argv[]) {
   thrust::window_vector<float> output_wv_x(&convolve1_block,dim,dim,1,1);
   thrust::window_vector<float> output_wv_y(&convolve2_block,dim,dim,1,1);
 
-  thrust::transform(thrust::cuda::shared,input_wv.begin(),input_wv.end(),output_wv_x.begin(),convolutionFunctor(kernelx.device_pointer,dim));
-  thrust::transform(thrust::cuda::shared,input_wv.begin(),input_wv.end(),output_wv_y.begin(),convolutionFunctor(kernely.device_pointer,dim));
-  thrust::transform(convolve1_block.begin(),convolve1_block.end(),convolve2_block.begin(),outBlock.begin(),transFunctor());
+  thrust::transform(thrust::cuda::shared,input_wv.begin(),input_wv.end(),output_wv_x.begin(),convolutionFunctor(kernelx.device_pointer,kernely.device_pointer,dim));
+
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
-  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
+  cudaMemcpy(img,thrust::raw_pointer_cast(convolve1_block.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];
