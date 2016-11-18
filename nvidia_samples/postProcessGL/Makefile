@@ -148,7 +148,7 @@ else ifneq ($(TARGET_ARCH),$(HOST_ARCH))
     endif
 endif
 HOST_COMPILER ?= g++-5
-NVCC          := $(CUDA_PATH)/bin/nvcc -ccbin $(HOST_COMPILER)
+NVCC          := $(CUDA_PATH)/bin/nvcc -I../../include  --std=c++11 -ccbin $(HOST_COMPILER)
 
 # internal flags
 NVCCFLAGS   := -m${TARGET_SIZE}
@@ -268,8 +268,8 @@ postProcessGL.o:postProcessGL.cu
 
 postProcessGL: main.o postProcessGL.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
-	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
-	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
+	# $(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
+	# $(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
 	$(EXEC) ./postProcessGL

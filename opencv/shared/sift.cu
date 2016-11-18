@@ -39,10 +39,16 @@ siftTransformFunctor(thrust::block_2d<float> * pyrup,thrust::block_2d<float> * p
   }
 };
 
-int main()
+int main(int argc, char const *argv[])
 {
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
-  Mat image=small;
+  Mat image;
+  int dim = 512;
+  if(argc ==2)
+  {
+    dim = atoi(argv[1]);
+  }
+  resize(small,image,Size(dim,dim));
   Mat pyrup=imread("pyrup.png",CV_LOAD_IMAGE_GRAYSCALE);
   Mat pyrdown=imread("pyrdown.png",CV_LOAD_IMAGE_GRAYSCALE);
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);

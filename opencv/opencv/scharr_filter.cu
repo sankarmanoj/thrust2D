@@ -3,7 +3,9 @@
 #include <opencv2/cudaarithm.hpp>
 int main()
 {
-  cv::Mat image = cv::imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+  cv::Mat input = cv::imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+  cv::Mat image;
+  cv::resize(input,image,cv::Size(512,512));
   cv::cuda::GpuMat image_d, grad_x_d,grad_y_d,grad_d;
   cv::imwrite("input.png", image);//displaying image
   image_d.upload(image);

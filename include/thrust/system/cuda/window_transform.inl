@@ -198,7 +198,7 @@ namespace thrust
       int position =threadIdx.x;
       while(position<for_each_config.shared_block_dim_y*for_each_config.shared_block_dim_x)
       {
-        shared_memory[position]=input->data_pointer[starting_position+position];
+        shared_memory[position]=input->b->device_pointer->data().get()[starting_position+position];
         position+=blockDim.x;
       }
     }

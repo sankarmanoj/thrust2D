@@ -1,6 +1,5 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
-#include <thrust/window_transform.h>
 using namespace cv;
 class AffineTransformFunctor
 {
@@ -8,7 +7,7 @@ public:
   thrust::block_2d<float> *transformMatrix;
   thrust::block_2d<float> *outBlock;
 
-  AffineTransformFunctor(thrust::block_2d<float> *tm,thrust::block_2d<float> *outBlock)
+  AffineTransformFunctor(thrust::block_2d<float> * tm,thrust::block_2d<float> * outBlock)
   {
     this->transformMatrix = tm->device_pointer;
     this->outBlock = outBlock->device_pointer;

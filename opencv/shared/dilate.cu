@@ -6,23 +6,30 @@ using namespace cv;
 class dilateFunctor : public thrust::shared_unary_window_transform_functor<float>
 {
   public:
+
   __device__ void operator() (const thrust::window_2d<float> &inputWindow,const thrust::window_2d<float> &outputWindow) const
   {
     float temp = -1.0;
-    for(int i = 0; i<inputWindow.window_dim_y;i++)
+    for(int i = 0; i<3;i++)
     {
-      for(int j = 0; j<inputWindow.window_dim_x;j++)
+      for(int j = 0; j<3;j++)
       {
-        temp = max(temp,inputWindow[i][j]);
+        temp = max(temp,inputWindow[make_int2(i,j)]);
+
       }
     }
-    outputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=temp;
+    outputWindow[1][1]=temp;
   }
 };
 int main(int argc, char const *argv[]) {
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
-  resize(small,image,Size(512,512));
+  int dim = 512;
+  if(argc ==2)
+  {
+    dim = atoi(argv[1]);
+  }
+  resize(small,image,Size(dim,dim));
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
   thrust::block_2d<float> float_image_block (image.cols,image.rows);
   thrust::block_2d<float> outBlock (image.cols,image.rows);

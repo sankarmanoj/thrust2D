@@ -1,6 +1,6 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
-#include <thrust/window_transform.h>
+#include <thrust/window_2d.h>
 using namespace cv;
 class blendFunctor
 {
@@ -51,6 +51,6 @@ int main(int argc, char const *argv[]) {
   imwrite("blend-input1.png",input1);
   imwrite("blend-input2.png",input2);
   imwrite("blend-output.png",output);
-  
+
   return 0;
 }

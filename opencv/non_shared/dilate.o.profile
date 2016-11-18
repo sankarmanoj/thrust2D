@@ -1,30 +1,30 @@
-==8348== NVPROF is profiling process 8348, command: ./dilate.o
-==8348== Profiling application: ./dilate.o
-==8348== Profiling result:
+==8636== NVPROF is profiling process 8636, command: ./dilate.o
+==8636== Profiling application: ./dilate.o
+==8636== Profiling result:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 35.52%  98.321us         5  19.664us     576ns  95.794us  [CUDA memcpy HtoD]
- 30.53%  84.503us         1  84.503us  84.503us  84.503us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::window_iterator<float, thrust::device_malloc_allocator<float>>, thrust::window_iterator<float, thrust::device_malloc_allocator<float>>, thrust::block_iterator<float, thrust::device_malloc_allocator<float>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<dilateFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
- 28.53%  78.970us         1  78.970us  78.970us  78.970us  [CUDA memcpy DtoH]
-  4.49%  12.443us         3  4.1470us  3.6790us  4.8620us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::device_ptr<float>, thrust::detail::wrapped_function<thrust::detail::device_generate_functor<thrust::detail::fill_functor<float>>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
-  0.94%  2.5900us         1  2.5900us  2.5900us  2.5900us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::device_ptr<unsigned char>, thrust::detail::wrapped_function<thrust::detail::device_generate_functor<thrust::detail::fill_functor<unsigned char>>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
+ 32.67%  93.471us         5  18.694us  1.2160us  88.607us  [CUDA memcpy HtoD]
+ 32.55%  93.118us         1  93.118us  93.118us  93.118us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::window_iterator<float, thrust::device_malloc_allocator<float>>, thrust::window_iterator<float, thrust::device_malloc_allocator<float>>, thrust::block_iterator<float, thrust::device_malloc_allocator<float>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<dilateFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
+ 28.81%  82.431us         1  82.431us  82.431us  82.431us  [CUDA memcpy DtoH]
+  4.51%  12.896us         3  4.2980us  4.1920us  4.4800us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::device_ptr<float>, thrust::detail::wrapped_function<thrust::detail::device_generate_functor<thrust::detail::fill_functor<float>>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
+  1.45%  4.1600us         1  4.1600us  4.1600us  4.1600us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::device_ptr<unsigned char>, thrust::detail::wrapped_function<thrust::detail::device_generate_functor<thrust::detail::fill_functor<unsigned char>>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
 
-==8348== API calls:
+==8636== API calls:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 98.59%  853.03ms         8  106.63ms  7.1960us  852.31ms  cudaMalloc
-  1.19%  10.320ms        90  114.67us      99ns  5.4012ms  cuDeviceGetAttribute
-  0.07%  602.65us         1  602.65us  602.65us  602.65us  cuDeviceTotalMem
-  0.05%  452.24us         5  90.447us  7.3670us  404.02us  cudaMemcpy
-  0.03%  238.93us         1  238.93us  238.93us  238.93us  cuDeviceGetName
-  0.03%  238.44us         4  59.609us  9.3970us  112.87us  cudaFree
-  0.01%  110.27us         1  110.27us  110.27us  110.27us  cudaMemcpyAsync
-  0.01%  99.289us         5  19.857us  9.9100us  40.497us  cudaLaunch
-  0.01%  66.521us        20  3.3260us  2.3250us  7.2780us  cudaFuncGetAttributes
-  0.00%  10.571us        15     704ns     389ns  2.9590us  cudaGetDevice
-  0.00%  8.9020us         5  1.7800us  1.0200us  3.0860us  cudaEventRecord
-  0.00%  8.2380us         5  1.6470us  1.2620us  2.8980us  cudaEventCreateWithFlags
-  0.00%  6.2950us        11     572ns     323ns  1.5610us  cudaDeviceGetAttribute
-  0.00%  5.9930us         5  1.1980us     310ns  3.8210us  cudaSetupArgument
-  0.00%  5.7080us         5  1.1410us     874ns  1.7030us  cudaEventDestroy
-  0.00%  3.3950us         5     679ns     333ns  1.7990us  cudaConfigureCall
-  0.00%  2.3270us         2  1.1630us     528ns  1.7990us  cuDeviceGetCount
-  0.00%     543ns         2     271ns     169ns     374ns  cuDeviceGet
+ 93.33%  420.77ms         8  52.597ms  9.0040us  407.32ms  cudaMalloc
+  2.60%  11.720ms         1  11.720ms  11.720ms  11.720ms  cuDeviceGetName
+  2.49%  11.209ms        90  124.55us     119ns  5.6022ms  cuDeviceGetAttribute
+  1.06%  4.7579ms         4  1.1895ms  23.414us  3.7178ms  cudaFree
+  0.23%  1.0174ms         1  1.0174ms  1.0174ms  1.0174ms  cuDeviceTotalMem
+  0.14%  637.37us         1  637.37us  637.37us  637.37us  cudaMemcpyAsync
+  0.09%  401.39us         5  80.277us  11.260us  305.30us  cudaMemcpy
+  0.04%  186.92us         5  37.384us  32.868us  47.356us  cudaLaunch
+  0.02%  70.400us        20  3.5200us  1.9050us  7.2930us  cudaFuncGetAttributes
+  0.00%  17.380us         5  3.4760us  2.2500us  7.6170us  cudaEventCreateWithFlags
+  0.00%  16.377us        15  1.0910us     331ns  3.2910us  cudaGetDevice
+  0.00%  10.883us         5  2.1760us     524ns  5.1670us  cudaSetupArgument
+  0.00%  10.126us         5  2.0250us  1.8260us  2.2890us  cudaEventRecord
+  0.00%  7.0040us         5  1.4000us  1.2890us  1.4550us  cudaEventDestroy
+  0.00%  4.8590us         5     971ns     791ns  1.1130us  cudaConfigureCall
+  0.00%  4.4170us        11     401ns     261ns  1.1170us  cudaDeviceGetAttribute
+  0.00%  2.9410us         2  1.4700us     767ns  2.1740us  cuDeviceGetCount
+  0.00%     745ns         2     372ns     236ns     509ns  cuDeviceGet

@@ -21,7 +21,12 @@ class lbpFunctor : public thrust::shared_unary_window_transform_functor<float>
 int main(int argc, char const *argv[]) {
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
-  image = small;
+  int dim = 512;
+  if(argc ==2)
+  {
+    dim = atoi(argv[1]);
+  }
+  resize(small,image,Size(dim,dim));
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
   thrust::block_2d<float> float_image_block (image.cols,image.rows);
   thrust::block_2d<float> outBlock (image.cols,image.rows);

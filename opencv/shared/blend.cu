@@ -20,10 +20,10 @@ int main(int argc, char const *argv[]) {
   Mat input1 = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat input2 = imread("aoutput.png",CV_LOAD_IMAGE_GRAYSCALE);
   Mat temp1;
-  resize(input1,temp1,Size(500,500));
+  resize(input1,temp1,Size(512,512));
   input1 = temp1;
   Mat temp2;
-  resize(input2,temp2,Size(500,500));
+  resize(input2,temp2,Size(512,512));
   input2 = temp2;
   thrust::block_2d<float> input_image_block_1 (input1.cols,input1.rows,0.0f);
   thrust::block_2d<float> input_image_block_2 (input2.cols,input2.rows,0.0f);
@@ -53,6 +53,6 @@ int main(int argc, char const *argv[]) {
   imwrite("blend-input1.png",input1);
   imwrite("blend-input2.png",input2);
   imwrite("blend-output.png",output);
-  
+
   return 0;
 }

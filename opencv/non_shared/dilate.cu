@@ -1,6 +1,5 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
-#include <thrust/window_transform.h>
 using namespace cv;
 class dilateFunctor //: public thrust::shared_unary_window_transform_functor<float>
 {
@@ -22,7 +21,7 @@ class dilateFunctor //: public thrust::shared_unary_window_transform_functor<flo
 int main(int argc, char const *argv[]) {
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
-  image = small;
+  resize(small,image,Size(512,512));
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
   thrust::block_2d<float> float_image_block (image.cols,image.rows);
   thrust::block_2d<float> outBlock (image.cols,image.rows);

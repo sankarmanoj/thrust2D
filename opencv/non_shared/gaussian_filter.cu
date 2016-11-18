@@ -1,6 +1,5 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
-#include <thrust/window_transform.h>
 using namespace cv;
 inline float gauss(int x, int y, int mid, float sigma )
 {
@@ -75,7 +74,6 @@ int main(int argc, char const *argv[]) {
   float_image_block.assign(img,img+image.cols*image.rows);
   thrust::window_vector<float> input_wv(&float_image_block,dim,dim,1,1);
   thrust::window_vector<float> output_wv(&output_image_block,dim,dim,1,1);
-  thrust::counting_iterator<float> zeros(0);
   thrust::transform(input_wv.begin(),input_wv.end(),output_wv.begin(),zero_image_block.begin(),convolutionFunctor(kernel.device_pointer,dim));
 
   unsigned char * toutputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));

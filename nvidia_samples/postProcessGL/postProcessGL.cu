@@ -12,7 +12,8 @@
 // Utilities and system includes
 
 #include <helper_cuda.h>
-
+#include <thrust/window_2d.h>
+#include <thrust/window_transform.h>
 #ifndef USE_TEXTURE_RGBA8UI
 texture<float4, 2, cudaReadModeElementType> inTex;
 #else
@@ -179,6 +180,14 @@ cudaProcess(unsigned int *g_odata, int imgw, int imgh,
 #endif
 }
 
+class cudaProcessFunctor
+{
+public:
+  __device__ void operator() (thrust::window_2d<uchar4> window)
+  {
+
+  }
+};
 extern "C" void
 launch_cudaProcess(dim3 grid, dim3 block, int sbytes,
                    cudaArray *g_data_array, unsigned int *g_odata,

@@ -1,14 +1,14 @@
-==5457== NVPROF is profiling process 5457, command: ./erode.o
-==5457== Profiling application: ./erode.o
-==5457== Profiling result:
+==9201== NVPROF is profiling process 9201, command: ./erode.o
+==9201== Profiling application: ./erode.o
+==9201== Profiling result:
 Time(%)      Time     Calls       Avg       Min       Max  Name
-100.00%  87.801us         1  87.801us  87.801us  87.801us  [CUDA memcpy HtoH]
+100.00%  83.489us         1  83.489us  83.489us  83.489us  [CUDA memcpy HtoH]
 
-==5457== API calls:
+==9201== API calls:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 99.25%  152.84ms         1  152.84ms  152.84ms  152.84ms  cudaMemcpy
-  0.58%  893.49us        90  9.9270us     141ns  564.66us  cuDeviceGetAttribute
-  0.14%  222.92us         1  222.92us  222.92us  222.92us  cuDeviceTotalMem
-  0.02%  37.814us         1  37.814us  37.814us  37.814us  cuDeviceGetName
-  0.00%  2.1030us         2  1.0510us     638ns  1.4650us  cuDeviceGetCount
-  0.00%     643ns         2     321ns     318ns     325ns  cuDeviceGet
+ 99.12%  134.95ms         1  134.95ms  134.95ms  134.95ms  cudaMemcpy
+  0.43%  578.93us         1  578.93us  578.93us  578.93us  cuDeviceTotalMem
+  0.41%  559.67us        90  6.2180us     348ns  213.54us  cuDeviceGetAttribute
+  0.04%  51.865us         1  51.865us  51.865us  51.865us  cuDeviceGetName
+  0.00%  3.6370us         2  1.8180us     565ns  3.0720us  cuDeviceGetCount
+  0.00%  1.0300us         2     515ns     375ns     655ns  cuDeviceGet
