@@ -110,14 +110,14 @@ namespace thrust
     mConfiguration.size_along_x = size_along_x;
     mConfiguration.size_along_y = size_along_y;
     mConfiguration.warp_size = properties.warpSize;
-    mConfiguration.padding = 0;//begin1.window_dim_x - begin1.stride_x;
+    mConfiguration.padding = begin1.window_dim_x - begin1.stride_x;
     mConfiguration.shared_size_x = mConfiguration.warp_size+mConfiguration.padding;
     // assert(!(begin1.block_dim_y%mConfiguration.warp_size));
     // assert(!(begin1.block_dim_x%mConfiguration.warp_size));
     assert(begin1.window_dim_x>=begin1.stride_x);
     assert(begin1.window_dim_y>=begin1.stride_y);
-    int blocks_along_x = begin1.windows_along_x/mConfiguration.warp_size;
-    int blocks_along_y = begin1.windows_along_y/mConfiguration.warp_size;
+    // int blocks_along_x = begin1.windows_along_x/mConfiguration.warp_size;
+    // int blocks_along_y = begin1.windows_along_y/mConfiguration.warp_size;
     assert(size_along_y*size_along_x*sizeof(T)<properties.sharedMemPerBlock);
 
     Iterator * device_begin_1;
