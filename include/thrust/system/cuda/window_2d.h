@@ -15,9 +15,12 @@ namespace thrust
     int window_dim_x, window_dim_y;
     block_2d<T,Alloc> *b;
     T *data;
+    cudaTextureObject_t texref;
     bool is_shared;
+    bool is_texture;
     __host__ __device__ window_2d();
     __host__ __device__ window_2d(block_2d<T,Alloc> *b, int start_x, int start_y, int window_dim_x, int window_dim_y);
+    __host__ __device__ window_2d(cudaTextureObject_t texref, int start_x, int start_y, int window_dim_x, int window_dim_y);
     __host__ __device__ window_2d(block_2d<T,Alloc> *b,T *data , int start_x, int start_y, int local_start_x, int local_start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y);
     __host__ __device__ window_2d(const window_2d &obj);
     __host__ __device__ window_2d_iterator<T,Alloc> operator[](long index) const;
@@ -62,6 +65,7 @@ namespace thrust
     int block_dim_y;
     int stride_x;
     int stride_y;
+    T * data_pointer;
     int windows_along_x, windows_along_y;
     __host__ window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y);
     __host__ window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y,int position);

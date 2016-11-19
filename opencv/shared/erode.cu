@@ -13,7 +13,7 @@ class erodeFunctor : public thrust::shared_unary_window_transform_functor<float>
     {
       for(int j = 0; j<inputWindow.window_dim_x;j++)
       {
-        temp = min(temp,inputWindow[i][j]);
+        temp = min(temp,inputWindow[make_int2(j,i)]);
       }
     }
     outputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=temp;
@@ -39,7 +39,7 @@ int main(int argc, char const *argv[]) {
   float_image_block.assign(img,img+image.cols*image.rows);
   thrust::window_vector<float> myVector = thrust::window_vector<float>(&float_image_block,3,3,1,1);
   thrust::window_vector<float> outputVector = thrust::window_vector<float>(&outBlock,3,3,1,1);
-  thrust::transform(thrust::cuda::shared,myVector.begin(),myVector.end(),outputVector.begin(),erodeFunctor());
+  thrust::transform_texture(thrust::cuda::shared,myVector.begin(),myVector.end(),outputVector.begin(),erodeFunctor());
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
   cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)

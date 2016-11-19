@@ -1,31 +1,31 @@
-==6723== NVPROF is profiling process 6723, command: ./affine.o
-==6723== Profiling application: ./affine.o
-==6723== Profiling result:
+==13199== NVPROF is profiling process 13199, command: ./affine.o
+==13199== Profiling application: ./affine.o
+==13199== Profiling result:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 35.06%  92.191us        11  8.3810us     576ns  80.703us  [CUDA memcpy HtoD]
- 31.33%  82.399us         1  82.399us  82.399us  82.399us  [CUDA memcpy DtoH]
- 29.70%  78.111us         1  78.111us  78.111us  78.111us  void thrust::for_each_kernel<float, AffineTransformFunctor>(thrust::window_iterator<float, thrust::device_malloc_allocator<thrust::window_iterator>>*, thrust::warp_launcher_config, AffineTransformFunctor)
-  3.91%  10.272us         3  3.4240us  1.4720us  4.9280us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::device_ptr<float>, thrust::detail::wrapped_function<thrust::detail::device_generate_functor<thrust::detail::fill_functor<float>>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
+ 84.91%  11.697ms         1  11.697ms  11.697ms  11.697ms  void thrust::for_each_kernel<float, AffineTransformFunctor>(thrust::window_iterator<float, thrust::device_malloc_allocator<thrust::window_iterator>>*, thrust::warp_launcher_config, AffineTransformFunctor)
+ 12.86%  1.7718ms         3  590.59us  181.40us  797.89us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::device_ptr<float>, thrust::detail::wrapped_function<thrust::detail::device_generate_functor<thrust::detail::fill_functor<float>>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
+  1.30%  179.67us         1  179.67us  179.67us  179.67us  [CUDA memcpy DtoH]
+  0.92%  127.13us        11  11.557us     544ns  121.15us  [CUDA memcpy HtoD]
 
-==6723== API calls:
+==13199== API calls:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 94.66%  904.12ms         7  129.16ms  6.5490us  889.42ms  cudaMalloc
-  2.31%  22.086ms        90  245.40us     103ns  9.8533ms  cuDeviceGetAttribute
-  2.20%  21.012ms         1  21.012ms  21.012ms  21.012ms  cudaGetDeviceProperties
-  0.46%  4.4027ms         3  1.4676ms  25.876us  3.2916ms  cudaFree
-  0.13%  1.2890ms         1  1.2890ms  1.2890ms  1.2890ms  cuDeviceTotalMem
-  0.07%  652.65us         1  652.65us  652.65us  652.65us  cuDeviceGetName
-  0.06%  581.32us         7  83.045us  1.9250us  459.22us  cudaMemcpyAsync
-  0.06%  536.81us         1  536.81us  536.81us  536.81us  cudaDeviceSynchronize
-  0.03%  269.73us         5  53.946us  7.3410us  203.40us  cudaMemcpy
-  0.01%  99.210us         4  24.802us  20.219us  31.121us  cudaLaunch
-  0.00%  26.456us        12  2.2040us  1.4500us  5.2530us  cudaFuncGetAttributes
-  0.00%  6.1120us         9     679ns     212ns  1.8970us  cudaGetDevice
-  0.00%  5.5340us         6     922ns     124ns  3.6750us  cudaSetupArgument
-  0.00%  5.4110us         3  1.8030us  1.6090us  2.0100us  cudaEventCreateWithFlags
-  0.00%  3.9430us         3  1.3140us  1.1600us  1.4450us  cudaEventDestroy
-  0.00%  3.8400us         3  1.2800us  1.1880us  1.3500us  cudaEventRecord
-  0.00%  3.6430us        11     331ns     229ns     888ns  cudaDeviceGetAttribute
-  0.00%  3.1700us         4     792ns     587ns  1.0020us  cudaConfigureCall
-  0.00%  1.7370us         2     868ns     293ns  1.4440us  cuDeviceGetCount
-  0.00%     534ns         2     267ns     151ns     383ns  cuDeviceGet
+ 99.69%  5.51885s         7  788.41ms  15.000us  5.51813s  cudaMalloc
+  0.25%  13.981ms         4  3.4953ms  220.10us  12.082ms  cudaDeviceSynchronize
+  0.02%  900.73us         1  900.73us  900.73us  900.73us  cudaGetDeviceProperties
+  0.01%  640.34us         4  160.08us  25.162us  555.60us  cudaLaunch
+  0.01%  628.04us         5  125.61us  12.919us  555.07us  cudaMemcpy
+  0.01%  289.84us         7  41.405us  3.1190us  266.70us  cudaMemcpyAsync
+  0.00%  225.69us        91  2.4800us     131ns  93.187us  cuDeviceGetAttribute
+  0.00%  225.45us         3  75.150us  43.128us  129.87us  cudaFree
+  0.00%  190.96us         1  190.96us  190.96us  190.96us  cuDeviceTotalMem
+  0.00%  39.342us        12  3.2780us  2.2240us  7.0850us  cudaFuncGetAttributes
+  0.00%  36.694us         1  36.694us  36.694us  36.694us  cuDeviceGetName
+  0.00%  12.501us         9  1.3890us     391ns  6.1990us  cudaGetDevice
+  0.00%  8.6220us         3  2.8740us  2.4580us  3.4240us  cudaEventCreateWithFlags
+  0.00%  6.8310us         6  1.1380us     165ns  5.0500us  cudaSetupArgument
+  0.00%  6.5090us        11     591ns     315ns  1.8310us  cudaDeviceGetAttribute
+  0.00%  6.3300us         3  2.1100us  1.7650us  2.5300us  cudaEventRecord
+  0.00%  4.7250us         3  1.5750us  1.3530us  1.7020us  cudaEventDestroy
+  0.00%  4.7190us         3  1.5730us     197ns  3.8670us  cuDeviceGetCount
+  0.00%  4.0100us         4  1.0020us     845ns  1.2900us  cudaConfigureCall
+  0.00%  1.3890us         3     463ns     298ns     551ns  cuDeviceGet

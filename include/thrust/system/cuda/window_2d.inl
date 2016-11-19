@@ -24,6 +24,7 @@ namespace thrust
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
     this->is_shared = false;
+    this->is_texture = false;
   }
   template <class T,class Alloc>
   __host__ __device__ window_2d<T,Alloc>::window_2d (const window_2d<T,Alloc> &obj)
@@ -36,6 +37,19 @@ namespace thrust
     this->block_dim_y = obj.block_dim_y;
     this->block_dim_x = obj.block_dim_x;
     this->is_shared = obj.is_shared;
+    this->is_texture = obj.is_texture;
+  }
+  template <class T, class Alloc>
+  __host__ __device__ window_2d<T,Alloc>::window_2d(cudaTextureObject_t texref, int start_x, int start_y, int window_dim_x, int window_dim_y)
+  {
+
+    this->start_x = start_x;
+    this->window_dim_x = window_dim_x;
+    this->start_y = start_y;
+    this->window_dim_y = window_dim_y;
+    this->texref = texref;
+    this->is_shared = false;
+    this->is_texture = true;
   }
 
   template <class T,class Alloc>
@@ -54,9 +68,11 @@ namespace thrust
     this->local_start_y = local_start_y;
     // assert(start_y + window_dim_y <= b->dim_y);
     this->data = data;
+    this->is_texture = false;
     this->block_dim_x = block_dim_x;
     this->block_dim_y = block_dim_y;
     this->is_shared = true;
+
   }
 
   template <class T,class Alloc>
@@ -93,6 +109,11 @@ namespace thrust
   template <class T,class Alloc>
   __host__ __device__ T window_2d<T,Alloc>::operator[] (int2 index) const
   {
+    if(is_texture)
+    {
+        return tex2D<T>(texref,start_x+index.x,start_y+index.y);
+    }
+    else
     if(this->is_shared)
     {
       if(((local_start_x+index.x)>=block_dim_x)||((local_start_y+index.y)>=block_dim_y))
@@ -127,6 +148,7 @@ namespace thrust
   __host__ window_iterator<T,Alloc>::window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
   {
     this->b = b->device_pointer;
+    this->data_pointer = b->data().get();
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
     this->window_dim_x = window_dim_x;
@@ -143,6 +165,7 @@ namespace thrust
   __host__ window_iterator<T,Alloc>::window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y,int position)
   {
     this->b = b->device_pointer;
+    this->data_pointer = b->data().get();
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
     this->window_dim_x = window_dim_x;
@@ -207,6 +230,7 @@ namespace thrust
   __host__ __device__ window_iterator<T,Alloc>::window_iterator<T,Alloc> (const window_iterator<T,Alloc>& other)
   {
     this->b = other.b;
+    this->data_pointer = other.data_pointer;
     this->window_dim_x = other.window_dim_x;
     this->window_dim_y = other.window_dim_y;
     this->stride_x = other.stride_x;
@@ -223,6 +247,7 @@ namespace thrust
   {
     // printf("Reached Here 2\n");
     this->b = it.b;
+    this->data_pointer = it.data_pointer;
     this->window_dim_x = it.window_dim_x;
     this->window_dim_y = it.window_dim_y;
     this->stride_x = it.stride_x;

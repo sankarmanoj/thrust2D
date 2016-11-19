@@ -10,7 +10,7 @@ OBJS=$(SRCS:.cu=.o)
 all: $(OBJS)
 
 %.o:%.cu
-	$(CC) $(CFLAGS) -O0 $(OPENCVFLAGS) $< -o $@
-	nvprof --unified-memory-profiling off --log-file $@.profile ./$@
+	$(CC) $(CFLAGS)  $(OPENCVFLAGS) $< -o $@
+	nvprof --log-file $@.profile ./$@
 clean:
 	rm *.o

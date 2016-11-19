@@ -12,7 +12,7 @@ class lbpFunctor : public thrust::shared_unary_window_transform_functor<float>
     {
       for(int j = 0; j<inputWindow.window_dim_x;j++)
       {
-        temp[i][j] = inputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]>=inputWindow[i][j]?1:0;
+        temp[i][j] = inputWindow[make_int2(inputWindow.window_dim_x/2,inputWindow.window_dim_y/2)]>=inputWindow[make_int2(j,i)]?1:0;
       }
     }
     outputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=128*temp[0][1]+64*temp[0][0]+32*temp[1][0]+16*temp[2][0]+8*temp[2][1]+4*temp[2][2]+2*temp[1][2]+1*temp[1][1];
@@ -38,7 +38,7 @@ int main(int argc, char const *argv[]) {
   float_image_block.assign(img,img+image.cols*image.rows);
   thrust::window_vector<float> myVector = thrust::window_vector<float>(&float_image_block,3,3,1,1);
   thrust::window_vector<float> outputVector = thrust::window_vector<float>(&outBlock,3,3,1,1);
-  thrust::transform(thrust::cuda::shared,myVector.begin(),myVector.end(),outputVector.begin(),lbpFunctor());
+  thrust::transform_texture(thrust::cuda::shared,myVector.begin(),myVector.end(),outputVector.begin(),lbpFunctor());
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
   cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)

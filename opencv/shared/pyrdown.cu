@@ -75,7 +75,7 @@ public:
       {
           for(int j = 0; j<dim; j++)
           {
-            temp+=input_window[i][j]*(*kernel)[i][j];
+            temp+=input_window[make_int2(i,j)]*(*kernel)[i][j];
           }
       }
       (*outBlock)[(input_window.start_y+1)/2][(input_window.start_x+1)/2]=temp;

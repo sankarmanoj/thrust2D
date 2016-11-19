@@ -78,7 +78,7 @@ int main(int argc, char const *argv[]) {
   float_image_block.assign(img,img+image.cols*image.rows);
   thrust::window_vector<float> input_wv(&float_image_block,dim,dim,1,1);
   thrust::window_vector<float> output_wv(&output_image_block,dim,dim,1,1);
-  thrust::transform(thrust::cuda::shared,input_wv.begin(),input_wv.end(),output_wv.begin(),convolutionFunctor(kernel.device_pointer,dim));
+  thrust::transform_texture(thrust::cuda::shared,input_wv.begin(),input_wv.end(),output_wv.begin(),convolutionFunctor(kernel.device_pointer,dim));
   // thrust::convolve(float_image_block.begin(),float_image_block.end(),kernel.begin());
 
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));

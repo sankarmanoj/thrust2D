@@ -53,7 +53,7 @@ public:
         {
           for(int j = 0; j< 3; j++)
           {
-              intensityValue += ((*kernel)[i][j])*(inputWindow[i + yoffset][j + xoffset]-inputWindow[i][j]);
+              intensityValue += ((*kernel)[i][j])*(inputWindow[make_int2(j + xoffset,i + yoffset)]-inputWindow[make_int2(i,j)]);
           }
         }
       }
@@ -82,7 +82,7 @@ int main(int argc, char const *argv[]) {
   getGaussianKernelBlock(3,5,kernel);
   thrust::window_vector<float> inputVector = thrust::window_vector<float>(&float_image_block,5,5,1,1);
   thrust::window_vector<float> outputVector = thrust::window_vector<float>(&outBlock,5,5,1,1);
-  thrust::transform(thrust::cuda::shared,inputVector.begin(),inputVector.end(),outputVector.begin(),HarrisIntensityFunctor(kernel.device_pointer));
+  thrust::transform_texture(thrust::cuda::shared,inputVector.begin(),inputVector.end(),outputVector.begin(),HarrisIntensityFunctor(kernel.device_pointer));
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
   cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
