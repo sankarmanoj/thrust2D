@@ -17,6 +17,8 @@ public:
 };
 
 int main(int argc, char const *argv[]) {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
   Mat input1 = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat input2 = imread("aoutput.png",CV_LOAD_IMAGE_GRAYSCALE);
   Mat temp1;

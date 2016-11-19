@@ -41,6 +41,8 @@ siftTransformFunctor(thrust::block_2d<float> * pyrup,thrust::block_2d<float> * p
 
 int main(int argc, char const *argv[])
 {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
   int dim = 512;

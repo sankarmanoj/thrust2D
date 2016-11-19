@@ -85,6 +85,8 @@ public:
 
 int main(int argc, char const *argv[])
 {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
   int dim = 3;
   thrust::block_2d<float> kernel(dim,dim);
   getGaussianKernelBlock(dim,1.0,kernel);

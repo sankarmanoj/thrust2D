@@ -9,17 +9,19 @@ class erodeFunctor : public thrust::shared_unary_window_transform_functor<float>
   __device__ void operator() (const thrust::window_2d<float> &inputWindow,const thrust::window_2d<float> &outputWindow) const
   {
     float temp = 255.0;
-    for(int i = 0; i<inputWindow.window_dim_y;i++)
+    for(int i = 0; i<3;i++)
     {
-      for(int j = 0; j<inputWindow.window_dim_x;j++)
+      for(int j = 0; j<3;j++)
       {
         temp = min(temp,inputWindow[make_int2(j,i)]);
       }
     }
-    outputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=temp;
+    outputWindow[1][1]=temp;
   }
 };
 int main(int argc, char const *argv[]) {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
   int dim = 512;

@@ -15,13 +15,18 @@ else
 	./window_for_each.out
 endif
 
+OBJS=$(SRCS:.cu=.o)
+all: $(OBJS)
+
 image:image.cu
 	$(CC) $(CFLAGS) $(DFLAGS) $(OPENCVFLAGS) image.cu -o image.out
 aimage:image_affine.cu
 	$(CC) $(CFLAGS) $(DFLAGS) $(OPENCVFLAGS) $< -o aimage.out
 
+%.o:%.cu
+	$(CC) $(CFLAGS)  $(DFLAGS) $(OPENCVFLAGS) $< -o $@
 
-test_%: %.out
+test_%: %.o
 	./$<
 clean:
 	rm *.out
