@@ -43,7 +43,7 @@ int main(int argc, char const *argv[]) {
   float_image_block.assign(img,img+image.cols*image.rows);
   thrust::window_vector<float> myVector = thrust::window_vector<float>(&float_image_block,3,3,1,1);
   thrust::window_vector<float> outputVector = thrust::window_vector<float>(&outBlock,3,3,1,1);
-  thrust::transform_texture(thrust::cuda::shared,myVector.begin(),myVector.end(),outputVector.begin(),dilateFunctor());
+  thrust::transform(thrust::cuda::texture,myVector.begin(),myVector.end(),outputVector.begin(),dilateFunctor());
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
   cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)

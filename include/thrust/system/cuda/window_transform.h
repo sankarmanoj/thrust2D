@@ -12,6 +12,8 @@ namespace thrust
   {
     struct shared_policy : device_execution_policy<shared_policy> {};
     shared_policy shared;
+    struct texture_policy : device_execution_policy<texture_policy> {};
+    texture_policy texture;
   }
   struct launcher_config
   {

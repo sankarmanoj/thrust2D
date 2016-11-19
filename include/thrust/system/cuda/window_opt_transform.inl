@@ -79,7 +79,7 @@ namespace thrust
   }
 
   template <class Iterator, class Func>
-  void transform_texture(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2, Func f)
+  void transform(cuda::texture_policy,Iterator begin1, Iterator end1, Iterator begin2, Func f)
   {
     typedef typename Iterator::base_value_type T;
     cudaDeviceProp properties;
@@ -109,7 +109,6 @@ namespace thrust
     T * aligned_device_memory;
     size_t pitch;
     cudaMallocPitch(&aligned_device_memory,&pitch,begin1.block_dim_x*sizeof(T),begin1.block_dim_y);
-    printf("Pitch = %d\n",pitch);
     cudaMemcpy2D(aligned_device_memory,pitch,begin1.data_pointer,begin1.block_dim_x*sizeof(T),begin1.block_dim_x*sizeof(T),begin1.block_dim_y,cudaMemcpyDeviceToDevice);
 
     //Create Resource Descriptor
