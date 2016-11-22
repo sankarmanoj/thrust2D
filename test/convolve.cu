@@ -1,20 +1,14 @@
-#include<thrust/window_transform.h>
+#include <thrust/window_transform.h>
 #include <thrust/generate.h>
 #include <thrust/sequence.h>
 #include <thrust/execution_policy.h>
 #include <iostream>
 int main(int argc, char** argv)
 {
-    int x,y;
+    int x;
     x = atoi(argv[1]);
-    y = atoi(argv[2]);
-    srand(13);
     thrust::block_2d<float> inBlock(x,x);
-    thrust::block_2d<float> kernel(y,y);
-    thrust::device_vector<float> a((long long int)x*x);
-    thrust::sequence(a.begin(),a.end());
-    thrust::copy(a.begin(),a.end(),inBlock.begin());
-    thrust::fill(kernel.begin(),kernel.end(),1.0);
+    thrust::sequence(inBlock.begin(),inBlock.end());
     for (int i=0; i<x;i++)
     {
       for (int j=0;j<x  ;j++)
@@ -23,18 +17,8 @@ int main(int argc, char** argv)
       }
       std::cout<<"\n";
     }
-    cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-
-    cudaEventRecord(start);
-    thrust::convolve(inBlock.begin(), inBlock.end(), kernel.begin());
-    cudaEventRecord(stop);
-    cudaEventSynchronize(stop);
-    float milliseconds = 0;
-    cudaEventElapsedTime(&milliseconds, start, stop);
-    printf("%f\n",milliseconds);
-    //
+    float kernel[3] = {0.25,1,0.25};
+    thrust::convolve(thrust::cuda::texture,&inBlock,kernel);
     for (int i=0; i<x;i++)
     {
       for (int j=0;j<x;j++)

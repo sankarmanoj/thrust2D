@@ -34,8 +34,6 @@ namespace thrust
     int shared_size_x;
     int padding;
   };
-  template <class Iterator>
-  void convolve(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2);
   template <class Iterator, class Func>
   void for_each(cuda::shared_policy,Iterator begin1, Iterator end1, Func f);
   template <class Iterator, class Func>
@@ -47,6 +45,8 @@ namespace thrust
   block_2d<T> matrix_multiply(block_2d<T> *a, block_2d<T> *b);
   template <class T>
   void transpose(block_2d<T> *a);
+  template <class T>
+  void convolve(cuda::texture_policy,block_2d<T> *block, T *kernel);
 
   template <class T>
   class shared_binary_window_transform_functor
@@ -68,3 +68,4 @@ namespace thrust
   };
 }
 #include <thrust/system/cuda/window_opt_transform.inl>
+#include <thrust/system/cuda/convolve.inl>
