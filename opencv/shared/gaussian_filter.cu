@@ -2,59 +2,6 @@
 #include <thrust/window_2d.h>
 #include <thrust/window_transform.h>
 using namespace cv;
-inline float gauss(int x, int y, int mid, float sigma )
-{
-  float temp = (pow(x-mid,2)+pow(y-mid,2))/sigma;
-  temp= exp(-temp);
-  return temp;
-}
-void getGaussianKernelBlock(int dim, float sigma,thrust::block_2d<float> &GaussianKernel )
-{
-  assert(dim%2);
-  int mid = (dim-1)/2;
-  float total = 0;
-  for(int i = 0; i<dim;i++)
-  {
-    for(int j = 0; j<dim;j++)
-    {
-      total+=gauss(i,j,mid,sigma);
-      (GaussianKernel)[i][j]=gauss(i,j,mid,sigma);
-    }
-  }
-  float newTotal=0;
-  for(int i = 0; i<dim;i++)
-  {
-    for(int j = 0; j<dim;j++)
-    {
-      (GaussianKernel)[i][j]/=total;
-      newTotal +=  (GaussianKernel)[i][j];
-    }
-  }
-}
-
-class convolutionFunctor
-{
-public:
-  thrust::block_2d<float> *kernel;
-  int dim;
-  convolutionFunctor(thrust::block_2d<float> *kernel,int dim)
-  {
-    this->kernel = kernel;
-    this->dim = dim;
-  }
-  __device__ void operator() (thrust::window_2d<float> &input_window,thrust::window_2d<float> &output_window)
-  {
-    float temp = 0;
-    for(int i = 0; i< dim; i++)
-    {
-      for(int j = 0; j<dim; j++)
-      {
-        temp+=input_window[make_int2(i,j)]*(*kernel)[make_int2(i,j)];
-      }
-    }
-    output_window[1][1]=temp;
-  }
-};
 int main(int argc, char const *argv[]) {
   cudaDeviceProp dev_prop;
   cudaGetDeviceProperties(&dev_prop,0);

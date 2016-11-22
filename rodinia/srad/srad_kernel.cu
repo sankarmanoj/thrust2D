@@ -4,7 +4,7 @@
 class compressFunctor
 {
 public:
-	__device__ void operator() (float &x) const
+	__device__ void operator() (float &x)
 	{
 		float y  = 255*log(x);
 		// printf("%f ,, %f \n",y,x);
@@ -14,7 +14,7 @@ public:
 class extractFunctor
 {
 public:
-	__device__ void operator() (float &x) const
+	__device__ void operator() (float &x)
 	{
 
 		x = exp((float)x/255);
@@ -26,7 +26,7 @@ class square
 {
 
 public:
-	__host__ __device__ void operator() (float &lhs) const
+	__host__ __device__ void operator() (float &lhs)
 	{
 		lhs = lhs*lhs;
 	}
@@ -44,7 +44,7 @@ public:
 		this->rows = rows;
 		this->q0sqr = q0sqr;
 	}
-	__device__ float operator() (const thrust::window_2d<float> &w, const thrust::window_2d<float> &v) const
+	__device__ void operator() (thrust::window_2d<float> &w, thrust::window_2d<float> &v)
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
@@ -83,32 +83,13 @@ public:
 		}
 		v[ty][tx] = c;
 
-		if(w.start_y == 0)
-			w[N][tx] = w[ty][tx];
-		if(w.start_y == rows - w.window_dim_y)
-			w[S][tx] = w[ty][tx];
-		if(w.start_x == 0)
-			w[ty][W] = w[ty][tx];
-		if(w.start_x == cols - w.window_dim_x)
-			w[ty][E] = w[ty][tx];
-		if(w.start_y == 0 && w.start_x == 0)
-			w[N][W] = w[ty][tx];
-		if(w.start_y == rows - w.window_dim_y && w.start_x == cols - w.window_dim_x)
-			w[S][E] = w[ty][tx];
-		if(w.start_x == 0 && w.start_y == rows - w.window_dim_y)
-			w[S][W] = w[ty][tx];
-		if(w.start_x == cols - w.window_dim_x && w.start_y == 0)
-			w[N][E] = w[ty][tx];
-
-		return 0.0;
-
 	}
 
 };
 class printFunctor
 {
 public:
-	__device__ void operator() (const float &x) const
+	__device__ void operator() (float &x) const
 	{
 		printf(" %f \n",x);
 	}
@@ -130,7 +111,7 @@ public:
 		this->q0sqr = q0sqr;
 	}
 
-	__device__ float operator() (const thrust::window_2d<float> &w, const thrust::window_2d<float> &c) const
+	__device__ void operator() (thrust::window_2d<float> &c, thrust::window_2d<float> &w)
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
@@ -160,26 +141,6 @@ public:
 		// image update (equ 61)
 		// w[ty][tx];
 		w[ty][tx] = (float) w[ty][tx] + 0.25 * lambda * d_D;
-
-		if(w.start_y == 0)
-			w[N][tx] = w[ty][tx];
-		if(w.start_y == rows - w.window_dim_y)
-			w[S][tx] = w[ty][tx];
-		if(w.start_x == 0)
-			w[ty][W] = w[ty][tx];
-		if(w.start_x == cols - w.window_dim_x)
-			w[ty][E] = w[ty][tx];
-		if(w.start_y == 0 && w.start_x == 0)
-			w[N][W] = w[ty][tx];
-		if(w.start_y == rows - w.window_dim_y && w.start_x == cols - w.window_dim_x)
-			w[S][E] = w[ty][tx];
-		if(w.start_x == 0 && w.start_y == rows - w.window_dim_y)
-			w[S][W] = w[ty][tx];
-		if(w.start_x == cols - w.window_dim_x && w.start_y == 0)
-			w[N][E] = w[ty][tx];
-
-		// printf("%f\n", (float) w[ty][tx]);
-		return 0.0f;
 	}
 
 };

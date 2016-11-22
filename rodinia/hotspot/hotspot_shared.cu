@@ -235,7 +235,7 @@ public:
 			// thrust::window_vector<float> wp = thrust::window_vector<float>(&(PowerBlock),3,3,1,1);
 			// thrust::device_vector<int> null_vector(grid_rows*grid_cols);
 			// thrust::transform(wv.begin(),wv.end(),wp.begin(),null_vector.begin(),functor);
-			thrust::for_each(thrust::cuda::shared,wv.begin(),wv.end(),functor);
+			thrust::for_each(thrust::cuda::texture,wv.begin(),wv.end(),functor);
 		}
 		printf("Ending simulation\n");
 		cudaMemcpy(FilesavingTemp,thrust::raw_pointer_cast(TemperatureBlock.data()),size*sizeof(float),cudaMemcpyDeviceToHost);
