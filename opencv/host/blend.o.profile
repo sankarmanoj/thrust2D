@@ -1,14 +1,14 @@
-==9157== NVPROF is profiling process 9157, command: ./blend.o
-==9157== Profiling application: ./blend.o
-==9157== Profiling result:
+==22132== NVPROF is profiling process 22132, command: ./blend.o
+==22132== Profiling application: ./blend.o
+==22132== Profiling result:
 Time(%)      Time     Calls       Avg       Min       Max  Name
-100.00%  89.160us         1  89.160us  89.160us  89.160us  [CUDA memcpy HtoH]
+100.00%  24.559us         1  24.559us  24.559us  24.559us  [CUDA memcpy HtoH]
 
-==9157== API calls:
+==22132== API calls:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 99.56%  116.86ms         1  116.86ms  116.86ms  116.86ms  cudaMemcpy
-  0.25%  294.69us        90  3.2740us     108ns  116.73us  cuDeviceGetAttribute
-  0.16%  190.42us         1  190.42us  190.42us  190.42us  cuDeviceTotalMem
-  0.02%  26.464us         1  26.464us  26.464us  26.464us  cuDeviceGetName
-  0.00%  1.4910us         2     745ns     127ns  1.3640us  cuDeviceGetCount
-  0.00%     378ns         2     189ns     101ns     277ns  cuDeviceGet
+ 99.78%  229.51ms         1  229.51ms  229.51ms  229.51ms  cudaMemcpy
+  0.13%  295.67us        90  3.2850us     103ns  118.79us  cuDeviceGetAttribute
+  0.08%  188.75us         1  188.75us  188.75us  188.75us  cuDeviceTotalMem
+  0.01%  27.315us         1  27.315us  27.315us  27.315us  cuDeviceGetName
+  0.00%  1.3290us         2     664ns     155ns  1.1740us  cuDeviceGetCount
+  0.00%     351ns         2     175ns     132ns     219ns  cuDeviceGet

@@ -31,7 +31,7 @@ void getGaussianKernelBlock(int dim, float sigma,thrust::block_2d<float> &Gaussi
   }
 }
 
-class convolutionFunctor //:public thrust::shared_unary_window_transform_functor<float>
+class convolutionFunctor //:public thrust::shared_unary_window_transform_functor<uchar>
 {
 public:
   int dim;
@@ -41,9 +41,9 @@ public:
     this->dim =dim;
     this->kernel = kernel;
   }
-  __device__ float operator() (const thrust::window_2d<float> & input_window,const thrust::window_2d<float> & output_window) const
+  __device__ uchar operator() (const thrust::window_2d<uchar> & input_window,const thrust::window_2d<uchar> & output_window) const
   {
-    float temp = 0;
+    uchar temp = 0;
     for(int i = 0; i< dim; i++)
     {
       for(int j = 0; j<dim; j++)
@@ -52,7 +52,7 @@ public:
       }
     }
     output_window[1][1]=temp;
-    return 0.0 ;
+    return 0;
   }
 };
 int main(int argc, char const *argv[]) {
@@ -63,21 +63,21 @@ int main(int argc, char const *argv[]) {
   thrust::block_2d<float> kernel(dim,dim);
   getGaussianKernelBlock(dim,5,kernel);
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
-  thrust::block_2d<float> float_image_block (image.cols,image.rows);
-  thrust::block_2d<float> zero_image_block (image.cols,image.rows);
-  thrust::block_2d<float> output_image_block(image.cols,image.rows);
-  float * img = (float * )malloc(sizeof(float)*(image_block.end()-image_block.begin()));
+  thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
+  thrust::block_2d<uchar> zero_image_block (image.cols,image.rows);
+  thrust::block_2d<uchar> output_image_block(image.cols,image.rows);
+  uchar * img = (uchar * )malloc(sizeof(uchar)*(image_block.end()-image_block.begin()));
   for(int i = 0; i<image.cols*image.rows;i++)
   {
-    img[i]=(float)image.ptr()[i];
+    img[i]=(uchar)image.ptr()[i];
   }
-  float_image_block.assign(img,img+image.cols*image.rows);
-  thrust::window_vector<float> input_wv(&float_image_block,dim,dim,1,1);
-  thrust::window_vector<float> output_wv(&output_image_block,dim,dim,1,1);
+  uchar_image_block.assign(img,img+image.cols*image.rows);
+  thrust::window_vector<uchar> input_wv(&uchar_image_block,dim,dim,1,1);
+  thrust::window_vector<uchar> output_wv(&output_image_block,dim,dim,1,1);
   thrust::transform(input_wv.begin(),input_wv.end(),output_wv.begin(),zero_image_block.begin(),convolutionFunctor(kernel.device_pointer,dim));
 
-  unsigned char * toutputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
-  cudaMemcpy(img,thrust::raw_pointer_cast(output_image_block.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
+  unsigned char * toutputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
+  cudaMemcpy(img,thrust::raw_pointer_cast(output_image_block.data()),sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     toutputFloatImageData[i]=(unsigned char)img[i];

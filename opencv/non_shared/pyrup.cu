@@ -36,13 +36,13 @@ void getGaussianKernelBlock(int dim, float sigma,thrust::block_2d<float> &Gaussi
 class pyrupTransformFunctor
 {
 public:
-  thrust::block_2d<float> *inBlock;
+  thrust::block_2d<uchar> *inBlock;
 
-pyrupTransformFunctor(thrust::block_2d<float> * inBlock)
+pyrupTransformFunctor(thrust::block_2d<uchar> * inBlock)
   {
     this->inBlock = inBlock->device_pointer;
   }
-  __device__ void operator() (const thrust::window_2d<float> &outputWindow) const
+  __device__ void operator() (const thrust::window_2d<uchar> &outputWindow) const
   {
     int x_in, y_in;
     if(outputWindow.start_x%2 && outputWindow.start_y%2)
@@ -54,7 +54,7 @@ pyrupTransformFunctor(thrust::block_2d<float> * inBlock)
   }
 };
 
-class convolutionFunctor //:public thrust::shared_unary_window_transform_functor<float>
+class convolutionFunctor //:public thrust::shared_unary_window_transform_functor<uchar>
 {
 public:
   int dim;
@@ -64,9 +64,9 @@ public:
     this->dim =dim;
     this->kernel = kernel;
   }
-  __device__ float operator() (const thrust::window_2d<float> & input_window,const thrust::window_2d<float> & output_window) const
+  __device__ uchar operator() (const thrust::window_2d<uchar> & input_window,const thrust::window_2d<uchar> & output_window) const
   {
-    float temp = 0;
+    uchar temp = 0;
     for(int i = 0; i< dim; i++)
     {
       for(int j = 0; j<dim; j++)
@@ -75,7 +75,7 @@ public:
       }
     }
     output_window[1][1]=temp;
-    return 0.0 ;
+    return 0;
   }
 };
 
@@ -87,25 +87,25 @@ int main()
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image=small;
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
-  thrust::block_2d<float> float_image_block (image.cols,image.rows);
-  thrust::block_2d<float> outBlock (image.cols/2,image.rows/2,0.0f);
-  thrust::block_2d<float> zero_image_block (image.cols,image.rows);
-  thrust::block_2d<float> output_image_block(image.cols,image.rows);
-  float * img = (float * )malloc(sizeof(float)*(image_block.end()-image_block.begin()));
-  float * img1 = (float * )malloc(sizeof(float)*(outBlock.end()-outBlock.begin()));
+  thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
+  thrust::block_2d<uchar> outBlock (image.cols/2,image.rows/2,0.0f);
+  thrust::block_2d<uchar> zero_image_block (image.cols,image.rows);
+  thrust::block_2d<uchar> output_image_block(image.cols,image.rows);
+  uchar * img = (uchar * )malloc(sizeof(uchar)*(image_block.end()-image_block.begin()));
+  uchar * img1 = (uchar * )malloc(sizeof(uchar)*(outBlock.end()-outBlock.begin()));
   for(int i = 0; i<image.cols*image.rows;i++)
   {
-    img[i]=(float)image.ptr()[i];
+    img[i]=(uchar)image.ptr()[i];
   }
-  float_image_block.assign(img,img+image.cols*image.rows);
-  thrust::window_vector<float> input_wv(&float_image_block,dim,dim,1,1);
-  thrust::window_vector<float> output_wv(&output_image_block,dim,dim,1,1);
+  uchar_image_block.assign(img,img+image.cols*image.rows);
+  thrust::window_vector<uchar> input_wv(&uchar_image_block,dim,dim,1,1);
+  thrust::window_vector<uchar> output_wv(&output_image_block,dim,dim,1,1);
   thrust::transform(input_wv.begin(),input_wv.end(),output_wv.begin(),zero_image_block.begin(),convolutionFunctor(kernel.device_pointer,dim));
-  thrust::window_vector<float> inputVector(&outBlock,1,1,1,1);
+  thrust::window_vector<uchar> inputVector(&outBlock,1,1,1,1);
   pyrupTransformFunctor ptf(&output_image_block);
   thrust::for_each(inputVector.begin(),inputVector.end(),ptf);
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(outBlock.end()-outBlock.begin()));
-  cudaMemcpy(img1,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(outBlock.end()-outBlock.begin()),cudaMemcpyDeviceToHost);
+  cudaMemcpy(img1,thrust::raw_pointer_cast(outBlock.data()),sizeof(uchar)*(outBlock.end()-outBlock.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<(outBlock.end()-outBlock.begin());i++)
   {
     outputFloatImageData[i]=(unsigned char)img1[i];
