@@ -58,7 +58,7 @@ public:
         }
       }
     }
-    outputWindow[2][2]=(intensityValue);
+    outputWindow[2][2]=abs((float)intensityValue);
   }
 };
 int main(int argc, char const *argv[]) {
@@ -80,7 +80,7 @@ int main(int argc, char const *argv[]) {
     img[i]=(uchar)image.ptr()[i];
   }
   uchar_image_block.assign(img,img+image.cols*image.rows);
-  thrust::block_2d<uchar> kernel(3,3);
+  thrust::block_2d<float> kernel(3,3);
   getGaussianKernelBlock(3,5,kernel);
   thrust::window_vector<uchar> inputVector = thrust::window_vector<uchar>(&uchar_image_block,5,5,1,1);
   thrust::window_vector<uchar> outputVector = thrust::window_vector<uchar>(&outBlock,5,5,1,1);

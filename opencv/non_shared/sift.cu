@@ -5,15 +5,15 @@ using namespace cv;
 class siftTransformFunctor
 {
 public:
-  thrust::block_2d<float> *pyrup;
-  thrust::block_2d<float> *pyrdown;
+  thrust::block_2d<uchar> *pyrup;
+  thrust::block_2d<uchar> *pyrdown;
 
-siftTransformFunctor(thrust::block_2d<float> * pyrup,thrust::block_2d<float> * pyrdown)
+siftTransformFunctor(thrust::block_2d<uchar> * pyrup,thrust::block_2d<uchar> * pyrdown)
   {
     this->pyrup=pyrup->device_pointer;
     this->pyrdown=pyrdown->device_pointer;
   }
-  __device__ float operator() (const thrust::window_2d<float> &inputWindow,const thrust::window_2d<float> &outputWindow) const
+  __device__ uchar operator() (const thrust::window_2d<uchar> &inputWindow,const thrust::window_2d<uchar> &outputWindow) const
   {
     int x = inputWindow.window_dim_x/2;
     int y = inputWindow.window_dim_y/2;
@@ -32,11 +32,7 @@ siftTransformFunctor(thrust::block_2d<float> * pyrup,thrust::block_2d<float> * p
       }
     }
     outputWindow[y][x] = outputWindow[y][x] * 0.05;
-    if (outputWindow[y][x] < 0)
-    {
-      outputWindow[0][0] = 0;
-    }
-    return 0.0f;
+    return 0;
   }
 };
 
@@ -47,38 +43,38 @@ int main()
   Mat pyrup=imread("pyrup.png",CV_LOAD_IMAGE_GRAYSCALE);
   Mat pyrdown=imread("pyrdown.png",CV_LOAD_IMAGE_GRAYSCALE);
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
-  thrust::block_2d<float> float_image_block (image.cols,image.rows);
+  thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
   thrust::block_2d<unsigned char > pyrup_block (pyrup.cols,pyrup.rows);
-  thrust::block_2d<float> float_pyrup_block (pyrup.cols,pyrup.rows);
+  thrust::block_2d<uchar> uchar_pyrup_block (pyrup.cols,pyrup.rows);
   thrust::block_2d<unsigned char > pyrdown_block (pyrdown.cols,pyrdown.rows);
-  thrust::block_2d<float> float_pyrdown_block (pyrdown.cols,pyrdown.rows);
-  thrust::block_2d<float> outBlock (image.cols,image.rows,0.0f);
-  thrust::block_2d<float> null_block (image.cols,image.rows,0.0f);
-  float * img = (float * )malloc(sizeof(float)*(image_block.end()-image_block.begin()));
-  float * imgpu = (float * )malloc(sizeof(float)*(pyrup_block.end()-pyrup_block.begin()));
-  float * imgpd = (float * )malloc(sizeof(float)*(pyrdown_block.end()-pyrdown_block.begin()));
-  float * img1 = (float * )malloc(sizeof(float)*(outBlock.end()-outBlock.begin()));
+  thrust::block_2d<uchar> uchar_pyrdown_block (pyrdown.cols,pyrdown.rows);
+  thrust::block_2d<uchar> outBlock (image.cols,image.rows,0.0f);
+  thrust::block_2d<uchar> null_block (image.cols,image.rows,0.0f);
+  uchar * img = (uchar * )malloc(sizeof(uchar)*(image_block.end()-image_block.begin()));
+  uchar * imgpu = (uchar * )malloc(sizeof(uchar)*(pyrup_block.end()-pyrup_block.begin()));
+  uchar * imgpd = (uchar * )malloc(sizeof(uchar)*(pyrdown_block.end()-pyrdown_block.begin()));
+  uchar * img1 = (uchar * )malloc(sizeof(uchar)*(outBlock.end()-outBlock.begin()));
   for(int i = 0; i<image.cols*image.rows;i++)
   {
-    img[i]=(float)image.ptr()[i];
+    img[i]=(uchar)image.ptr()[i];
   }
   for(int i = 0; i<pyrup.cols*pyrup.rows;i++)
   {
-    imgpu[i]=(float)pyrup.ptr()[i];
+    imgpu[i]=(uchar)pyrup.ptr()[i];
   }
   for(int i = 0; i<pyrdown.cols*pyrdown.rows;i++)
   {
-    imgpd[i]=(float)pyrdown.ptr()[i];
+    imgpd[i]=(uchar)pyrdown.ptr()[i];
   }
-  float_image_block.assign(img,img+image.cols*image.rows);
-  float_pyrup_block.assign(imgpu,imgpu+pyrup.cols*pyrup.rows);
-  float_pyrdown_block.assign(imgpd,imgpd+pyrdown.cols*pyrdown.rows);
-  thrust::window_vector<float> inputVector(&float_image_block,3,3,1,1);
-  thrust::window_vector<float> outputVector(&outBlock,3,3,1,1);
-  siftTransformFunctor stf(&float_pyrup_block,&float_pyrdown_block);
+  uchar_image_block.assign(img,img+image.cols*image.rows);
+  uchar_pyrup_block.assign(imgpu,imgpu+pyrup.cols*pyrup.rows);
+  uchar_pyrdown_block.assign(imgpd,imgpd+pyrdown.cols*pyrdown.rows);
+  thrust::window_vector<uchar> inputVector(&uchar_image_block,3,3,1,1);
+  thrust::window_vector<uchar> outputVector(&outBlock,3,3,1,1);
+  siftTransformFunctor stf(&uchar_pyrup_block,&uchar_pyrdown_block);
   thrust::transform(inputVector.begin(),inputVector.end(),outputVector.begin(),null_block.begin(),stf);
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(outBlock.end()-outBlock.begin()));
-  cudaMemcpy(img1,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(outBlock.end()-outBlock.begin()),cudaMemcpyDeviceToHost);
+  cudaMemcpy(img1,thrust::raw_pointer_cast(outBlock.data()),sizeof(uchar)*(outBlock.end()-outBlock.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<(outBlock.end()-outBlock.begin());i++)
   {
     outputFloatImageData[i]=(unsigned char)img1[i];

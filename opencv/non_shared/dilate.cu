@@ -1,12 +1,12 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
 using namespace cv;
-class dilateFunctor //: public thrust::shared_unary_window_transform_functor<float>
+class dilateFunctor //: public thrust::shared_unary_window_transform_functor<uchar>
 {
   public:
-  __device__ float operator() (const thrust::window_2d<float> &inputWindow,const thrust::window_2d<float> &outputWindow) const
+  __device__ uchar operator() (const thrust::window_2d<uchar> &inputWindow,const thrust::window_2d<uchar> &outputWindow) const
   {
-    float temp = -1.0;
+    uchar temp = 0;
     for(int i = 0; i<inputWindow.window_dim_y;i++)
     {
       for(int j = 0; j<inputWindow.window_dim_x;j++)
@@ -15,7 +15,7 @@ class dilateFunctor //: public thrust::shared_unary_window_transform_functor<flo
       }
     }
     outputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=temp;
-    return 0.0f;
+    return 0;
   }
 };
 int main(int argc, char const *argv[]) {
@@ -23,20 +23,20 @@ int main(int argc, char const *argv[]) {
   Mat image;
   resize(small,image,Size(512,512));
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
-  thrust::block_2d<float> float_image_block (image.cols,image.rows);
-  thrust::block_2d<float> outBlock (image.cols,image.rows);
-  thrust::block_2d<float> null_block (image.cols,image.rows);
-  float * img = (float * )malloc(sizeof(float)*(image_block.end()-image_block.begin()));
+  thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
+  thrust::block_2d<uchar> outBlock (image.cols,image.rows);
+  thrust::block_2d<uchar> null_block (image.cols,image.rows);
+  uchar * img = (uchar * )malloc(sizeof(uchar)*(image_block.end()-image_block.begin()));
   for(int i = 0; i<image.cols*image.rows;i++)
   {
-    img[i]=(float)image.ptr()[i];
+    img[i]=(uchar)image.ptr()[i];
   }
-  float_image_block.assign(img,img+image.cols*image.rows);
-  thrust::window_vector<float> myVector = thrust::window_vector<float>(&float_image_block,3,3,1,1);
-  thrust::window_vector<float> outputVector = thrust::window_vector<float>(&outBlock,3,3,1,1);
+  uchar_image_block.assign(img,img+image.cols*image.rows);
+  thrust::window_vector<uchar> myVector = thrust::window_vector<uchar>(&uchar_image_block,3,3,1,1);
+  thrust::window_vector<uchar> outputVector = thrust::window_vector<uchar>(&outBlock,3,3,1,1);
   thrust::transform(myVector.begin(),myVector.end(),outputVector.begin(),null_block.begin(),dilateFunctor());
-  unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
-  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
+  unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
+  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];

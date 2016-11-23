@@ -8,13 +8,12 @@ class erodeFunctor : public thrust::shared_unary_window_transform_functor<uchar>
   public:
   __device__ void operator() (const thrust::window_2d<uchar> &inputWindow,const thrust::window_2d<uchar> &outputWindow) const
   {
-    uchar temp = 255.0;
+    uchar temp = 255;
     for(int i = 0; i<3;i++)
     {
       for(int j = 0; j<3;j++)
       {
-        uchar value= inputWindow[make_int2(i,j)];
-        temp = (temp>value)*value + (value<=temp)*temp;
+        temp = min((float)temp,(float)inputWindow[make_int2(j,i)]);
       }
     }
     outputWindow[1][1]=temp;

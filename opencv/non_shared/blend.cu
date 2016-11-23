@@ -10,7 +10,7 @@ public:
   {
     this->alpha = alpha;
   }
-  __device__ float operator() (const thrust::window_2d<float> &inputWindow1,const thrust::window_2d<float> &inputWindow2) const
+  __device__ uchar operator() (const thrust::window_2d<uchar> &inputWindow1,const thrust::window_2d<uchar> &inputWindow2) const
   {
     return alpha*inputWindow1[0][0]+(1-alpha)*inputWindow2[0][0];
   }
@@ -24,28 +24,28 @@ int main(int argc, char const *argv[]) {
   Mat temp2;
   resize(input2,temp2,Size(500,500));
   input2 = temp2;
-  thrust::block_2d<float> input_image_block_1 (input1.cols,input1.rows,0.0f);
-  thrust::block_2d<float> input_image_block_2 (input2.cols,input2.rows,0.0f);
-  thrust::block_2d<float> output_image_block (input1.cols,input1.rows,0.0f);
-  float * floatImageData = (float * )malloc(sizeof(float)*(input1.cols*input1.rows));
+  thrust::block_2d<uchar> input_image_block_1 (input1.cols,input1.rows,0.0f);
+  thrust::block_2d<uchar> input_image_block_2 (input2.cols,input2.rows,0.0f);
+  thrust::block_2d<uchar> output_image_block (input1.cols,input1.rows,0.0f);
+  uchar * ucharImageData = (uchar * )malloc(sizeof(uchar)*(input1.cols*input1.rows));
   unsigned char * charImageData = (unsigned char *)malloc(sizeof(unsigned char)*(input_image_block_1.end()-input_image_block_1.begin()));
   for(int i = 0; i<input1.cols*input1.rows;i++)
   {
-    floatImageData[i]=(float)input1.ptr()[i];
+    ucharImageData[i]=(uchar)input1.ptr()[i];
   }
-  input_image_block_1.assign(floatImageData,floatImageData+input1.cols*input1.rows);
+  input_image_block_1.assign(ucharImageData,ucharImageData+input1.cols*input1.rows);
   for(int i = 0; i<input1.cols*input1.rows;i++)
   {
-    floatImageData[i]=(float)input2.ptr()[i];
+    ucharImageData[i]=(uchar)input2.ptr()[i];
   }
-  input_image_block_2.assign(floatImageData,floatImageData+input2.cols*input2.rows);
-  thrust::window_vector<float> inputWindow1 (&input_image_block_1,1,1,1,1);
-  thrust::window_vector<float> inputWindow2 (&input_image_block_2,1,1,1,1);
+  input_image_block_2.assign(ucharImageData,ucharImageData+input2.cols*input2.rows);
+  thrust::window_vector<uchar> inputWindow1 (&input_image_block_1,1,1,1,1);
+  thrust::window_vector<uchar> inputWindow2 (&input_image_block_2,1,1,1,1);
   thrust::transform(inputWindow1.begin(),inputWindow1.end(),inputWindow2.begin(),output_image_block.begin(),blendFunctor(0.5));
-  cudaMemcpy(floatImageData,output_image_block.data().get(),sizeof(float)*(output_image_block.end()-output_image_block.begin()),cudaMemcpyDeviceToHost);
+  cudaMemcpy(ucharImageData,output_image_block.data().get(),sizeof(uchar)*(output_image_block.end()-output_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<input1.cols*input1.rows;i++)
   {
-    charImageData[i]=(unsigned char)floatImageData[i];
+    charImageData[i]=(unsigned char)ucharImageData[i];
   }
   Mat output (Size(input1.cols,input1.rows),CV_8UC1,charImageData);
   imwrite("blend-input1.png",input1);
