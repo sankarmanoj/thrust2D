@@ -22,23 +22,23 @@ void getGaussianKernelBlock(int dim, float sigma,thrust::block_2d<float> &Gaussi
       (GaussianKernel)[i][j]=gauss(i,j,mid,sigma);
     }
   }
-  float newTotal=0;
+  float newfloatotal=0;
   for(int i = 0; i<dim;i++)
   {
     for(int j = 0; j<dim;j++)
     {
       (GaussianKernel)[i][j]/=total;
-      newTotal +=  (GaussianKernel)[i][j];
+      newfloatotal +=  (GaussianKernel)[i][j];
     }
   }
 }
 
-// class pyrupTransformFunctor
+// class pyrupfloatransformFunctor
 // {
 // public:
 //   thrust::block_2d<float> *inBlock;
 //
-// pyrupTransformFunctor(thrust::block_2d<float> * inBlock)
+// pyrupfloatransformFunctor(thrust::block_2d<float> * inBlock)
 //   {
 //     this->inBlock = inBlock->device_pointer;
 //   }
@@ -57,29 +57,18 @@ void getGaussianKernelBlock(int dim, float sigma,thrust::block_2d<float> &Gaussi
 class convolutionFunctor //:public thrust::shared_unary_window_transform_functor<float>
 {
 public:
-  int dim;
-  thrust::block_2d<float> * kernel;
-  thrust::block_2d<float> * outBlock;
-  convolutionFunctor( thrust::block_2d<float> * kernel,int dim,   thrust::block_2d<float> * outBlock)
+  cudaTextureObject_t texref;
+  convolutionFunctor(   cudaTextureObject_t texref)
   {
-    this->dim =dim;
-    this->kernel = kernel;
-    this->outBlock = outBlock;
+    this->texref = texref;
   }
   __device__ void operator() (const thrust::window_2d<float> & input_window) const
   {
-    float temp = 0;
-    if(input_window.start_x&1&&input_window.start_y&1)
-    {
-      for(int i = 0; i< dim; i++)
-      {
-          for(int j = 0; j<dim; j++)
-          {
-            temp+=input_window[make_int2(i,j)]*(*kernel)[i][j];
-          }
-      }
-      (*outBlock)[(input_window.start_y+1)/2][(input_window.start_x+1)/2]=temp;
-    }
+    input_window[0][0]=0.4*tex2D<float>(texref,input_window.start_x*2,input_window.start_y*2) + \
+    0.15*tex2D<float>(texref,input_window.start_x*2+1,input_window.start_y*2) +\
+    0.15*tex2D<float>(texref,input_window.start_x*2-1,input_window.start_y*2) +\
+    0.15*tex2D<float>(texref,input_window.start_x*2,input_window.start_y*2+1)+\
+    0.15*tex2D<float>(texref,input_window.start_x*2,input_window.start_y*2-1);
   }
 };
 
@@ -98,22 +87,38 @@ int main(int argc, char const *argv[])
     dim1 = atoi(argv[1]);
   }
   resize(small,image,Size(dim1,dim1));
-  thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
-  thrust::block_2d<float> float_image_block (image.cols,image.rows);
   thrust::block_2d<float> outBlock (image.cols/2,image.rows/2,0.0f);
-  thrust::block_2d<float> output_image_block(image.cols,image.rows);
-  float * img = (float * )malloc(sizeof(float)*(image_block.end()-image_block.begin()));
+  thrust::window_vector<float> output_wv(&outBlock,1,1,1,1);
+  float * img = (float * )malloc(sizeof(float)*(image.cols*image.rows));
   float * img1 = (float * )malloc(sizeof(float)*(outBlock.end()-outBlock.begin()));
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     img[i]=(float)image.ptr()[i];
   }
-  float_image_block.assign(img,img+image.cols*image.rows);
-  thrust::window_vector<float> input_wv(&float_image_block,dim,dim,1,1);
-  thrust::window_vector<float> output_wv(&output_image_block,dim,dim,1,1);
-  thrust::for_each(thrust::cuda::shared,input_wv.begin(),input_wv.end(),convolutionFunctor(kernel.device_pointer,dim,outBlock.device_pointer));
+  float * aligned_device_memory;
+  size_t pitch;
+  cudaMallocPitch(&aligned_device_memory,&pitch,image.cols*sizeof(float),image.rows);
+  cudaMemcpy2D(aligned_device_memory,pitch,img,image.cols*sizeof(float),image.cols*sizeof(float),image.rows,cudaMemcpyHostToDevice);
+
+  //Create Resource Descriptor
+  cudaResourceDesc resDesc;
+  memset(&resDesc, 0, sizeof(resDesc));
+  resDesc.resType = cudaResourceTypePitch2D;
+  resDesc.res.pitch2D.desc = cudaCreateChannelDesc<float>();
+  resDesc.res.pitch2D.pitchInBytes=pitch;
+  resDesc.res.pitch2D.height = image.rows;
+  resDesc.res.pitch2D.width=image.cols;
+  resDesc.res.pitch2D.devPtr = aligned_device_memory;
+  //Create floatexture Descriptor
+  cudaTextureDesc texDesc;
+  memset(&texDesc, 0, sizeof(texDesc));
+  //floatexture Object Creation
+  cudaTextureObject_t texref;
+  cudaCreateTextureObject(&texref, &resDesc, &texDesc, NULL);
+
+  thrust::for_each(thrust::cuda::shared,output_wv.begin(),output_wv.end(),convolutionFunctor(texref));
   // thrust::window_vector<float> inputVector(&outBlock,1,1,1,1);
-  // pyrupTransformFunctor ptf(&output_image_block);
+  // pyrupfloatransformFunctor ptf(&output_image_block);
   // thrust::for_each(thrust::cuda::shared,inputVector.begin(),inputVector.end(),ptf);
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(outBlock.end()-outBlock.begin()));
   cudaMemcpy(img1,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(outBlock.end()-outBlock.begin()),cudaMemcpyDeviceToHost);

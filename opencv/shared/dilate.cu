@@ -9,13 +9,13 @@ class dilateFunctor : public thrust::shared_unary_window_transform_functor<float
 
   __device__ void operator() (const thrust::window_2d<float> &inputWindow,const thrust::window_2d<float> &outputWindow) const
   {
-    float temp = -1.0;
+    float temp = 0;
     for(int i = 0; i<3;i++)
     {
       for(int j = 0; j<3;j++)
       {
-        temp = max(temp,inputWindow[make_int2(i,j)]);
-
+        float value= inputWindow[make_int2(i,j)];
+        temp = (temp>value)*temp + (value<=temp)*value;
       }
     }
     outputWindow[1][1]=temp;

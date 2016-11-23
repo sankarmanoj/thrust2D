@@ -2,17 +2,17 @@
 #include <thrust/window_2d.h>
 #include <thrust/window_transform.h>
 using namespace cv;
-inline float gauss(int x, int y, int mid, float sigma )
+inline uchar gauss(int x, int y, int mid, uchar sigma )
 {
-  float temp = (pow(x-mid,2)+pow(y-mid,2))/sigma;
+  uchar temp = (pow(x-mid,2)+pow(y-mid,2))/sigma;
   temp= exp(-temp);
   return temp;
 }
-void getGaussianKernelBlock(int dim, float sigma,thrust::block_2d<float> &GaussianKernel )
+void getGaussianKernelBlock(int dim, uchar sigma,thrust::block_2d<uchar> &GaussianKernel )
 {
   assert(dim%2);
   int mid = (dim-1)/2;
-  float total = 0;
+  uchar total = 0;
   for(int i = 0; i<dim;i++)
   {
     for(int j = 0; j<dim;j++)
@@ -22,7 +22,7 @@ void getGaussianKernelBlock(int dim, float sigma,thrust::block_2d<float> &Gaussi
     }
   }
 
-  float newTotal=0;
+  uchar newTotal=0;
   for(int i = 0; i<dim;i++)
   {
     for(int j = 0; j<dim;j++)
@@ -32,18 +32,18 @@ void getGaussianKernelBlock(int dim, float sigma,thrust::block_2d<float> &Gaussi
     }
   }
 }
-class HarrisIntensityFunctor : public thrust::shared_unary_window_transform_functor<float>
+class HarrisIntensityFunctor : public thrust::shared_unary_window_transform_functor<uchar>
 {
 
 public:
-  thrust::block_2d<float> * kernel;
-  HarrisIntensityFunctor(thrust::block_2d<float> * kernel)
+  thrust::block_2d<uchar> * kernel;
+  HarrisIntensityFunctor(thrust::block_2d<uchar> * kernel)
   {
     this->kernel = kernel;
   }
-  __device__ void operator() (const thrust::window_2d<float> &inputWindow,const thrust::window_2d<float> &outputWindow) const
+  __device__ void operator() (const thrust::window_2d<uchar> &inputWindow,const thrust::window_2d<uchar> &outputWindow) const
   {
-    float intensityValue;
+    uchar intensityValue;
 
     for(int xoffset = 1 ; xoffset <=1 ; xoffset++)
     {
@@ -58,7 +58,7 @@ public:
         }
       }
     }
-    outputWindow[2][2]=abs(intensityValue);
+    outputWindow[2][2]=(intensityValue);
   }
 };
 int main(int argc, char const *argv[]) {
@@ -72,21 +72,21 @@ int main(int argc, char const *argv[]) {
     dim = atoi(argv[1]);
   }
   resize(small,image,Size(dim,dim));
-  thrust::block_2d<float> float_image_block (image.cols,image.rows,0.0f);
-  thrust::block_2d<float> outBlock (image.cols,image.rows,0.0f);
-  float * img = (float * )malloc(sizeof(float)*(image.cols*image.rows));
+  thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows,0.0f);
+  thrust::block_2d<uchar> outBlock (image.cols,image.rows,0.0f);
+  uchar * img = (uchar * )malloc(sizeof(uchar)*(image.cols*image.rows));
   for(int i = 0; i<image.cols*image.rows;i++)
   {
-    img[i]=(float)image.ptr()[i];
+    img[i]=(uchar)image.ptr()[i];
   }
-  float_image_block.assign(img,img+image.cols*image.rows);
-  thrust::block_2d<float> kernel(3,3);
+  uchar_image_block.assign(img,img+image.cols*image.rows);
+  thrust::block_2d<uchar> kernel(3,3);
   getGaussianKernelBlock(3,5,kernel);
-  thrust::window_vector<float> inputVector = thrust::window_vector<float>(&float_image_block,5,5,1,1);
-  thrust::window_vector<float> outputVector = thrust::window_vector<float>(&outBlock,5,5,1,1);
+  thrust::window_vector<uchar> inputVector = thrust::window_vector<uchar>(&uchar_image_block,5,5,1,1);
+  thrust::window_vector<uchar> outputVector = thrust::window_vector<uchar>(&outBlock,5,5,1,1);
   thrust::transform(thrust::cuda::texture,inputVector.begin(),inputVector.end(),outputVector.begin(),HarrisIntensityFunctor(kernel.device_pointer));
-  unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
-  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
+  unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
+  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];

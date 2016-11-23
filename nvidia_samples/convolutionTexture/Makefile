@@ -147,11 +147,11 @@ else ifneq ($(TARGET_ARCH),$(HOST_ARCH))
         HOST_COMPILER ?= powerpc64le-linux-gnu-g++
     endif
 endif
-HOST_COMPILER ?= g++-5
-NVCC          := $(CUDA_PATH)/bin/nvcc -ccbin $(HOST_COMPILER)
+HOST_COMPILER ?= g++-5 -std=c++11
+NVCC          := $(CUDA_PATH)/bin/nvcc -ccbin $(HOST_COMPILER) 
 
 # internal flags
-NVCCFLAGS   := -m${TARGET_SIZE}
+NVCCFLAGS   := -m${TARGET_SIZE} -I../../include
 CCFLAGS     :=
 LDFLAGS     :=
 
@@ -257,8 +257,7 @@ main.o:main.cpp
 
 convolutionTexture: convolutionTexture.o convolutionTexture_gold.o main.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
-	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
-	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
+
 
 run: build
 	$(EXEC) ./convolutionTexture

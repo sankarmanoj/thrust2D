@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <helper_cuda.h>
-
+#include <thrust/window_transform.h>
 #include "convolutionTexture_common.h"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -94,6 +94,29 @@ template<> __device__ float convolutionColumn<-1>(float x, float y)
 ////////////////////////////////////////////////////////////////////////////////
 // Row convolution filter
 ////////////////////////////////////////////////////////////////////////////////
+class rowsKernelFunctor
+{
+public:
+  __device__ void operator() (thrust::window_2d<float>  window)
+  {
+    const float x = (float) window.start_x + 0.5;
+    const float y = (float) window.start_y + 0.5;
+    float sum = 0;
+  #if(UNROLL_INNER)
+      sum = convolutionColumn<2 *KERNEL_RADIUS>(x, y);
+  #else
+
+      for (int k = -KERNEL_RADIUS; k <= KERNEL_RADIUS; k++)
+      {
+          sum += tex2D(texSrc, x, y + (float)k) * c_Kernel[KERNEL_RADIUS - k];
+      }
+
+  #endif
+window[0][0]=sum;
+  }
+};
+
+
 __global__ void convolutionRowsKernel(
     float *d_Dst,
     int imageW,
@@ -138,6 +161,10 @@ extern "C" void convolutionRowsGPU(
     dim3 blocks(iDivUp(imageW, threads.x), iDivUp(imageH, threads.y));
 
     checkCudaErrors(cudaBindTextureToArray(texSrc, a_Src));
+    cudaDeviceSynchronize();
+    thrust::block_2d<float> input_block (imageW,imageH);
+    thrust::window_vector<float> wv(&input_block,1,1,1,1);
+    thrust::for_each(wv.begin(),wv.end(),rowsKernelFunctor());
     convolutionRowsKernel<<<blocks, threads>>>(
         d_Dst,
         imageW,
@@ -153,6 +180,29 @@ extern "C" void convolutionRowsGPU(
 ////////////////////////////////////////////////////////////////////////////////
 // Column convolution filter
 ////////////////////////////////////////////////////////////////////////////////
+class columnsKernelFunctor
+{
+public:
+  __device__ void operator() (thrust::window_2d<float>  window)
+  {
+    const float x = (float) window.start_x + 0.5;
+    const float y = (float) window.start_y + 0.5;
+    float sum = 0;
+  #if(UNROLL_INNER)
+      sum = convolutionColumn<2 *KERNEL_RADIUS>(x, y);
+  #else
+
+      for (int k = -KERNEL_RADIUS; k <= KERNEL_RADIUS; k++)
+      {
+          sum += tex2D(texSrc, x, y + (float)k) * c_Kernel[KERNEL_RADIUS - k];
+      }
+
+  #endif
+window[0][0]=sum;
+  }
+};
+
+
 __global__ void convolutionColumnsKernel(
     float *d_Dst,
     int imageW,
@@ -194,8 +244,13 @@ extern "C" void convolutionColumnsGPU(
 {
     dim3 threads(16, 12);
     dim3 blocks(iDivUp(imageW, threads.x), iDivUp(imageH, threads.y));
-
     checkCudaErrors(cudaBindTextureToArray(texSrc, a_Src));
+
+    cudaDeviceSynchronize();
+    thrust::block_2d<float> input_block (imageW,imageH);
+    thrust::window_vector<float> wv(&input_block,1,1,1,1);
+    thrust::for_each(wv.begin(),wv.end(),columnsKernelFunctor());
+
     convolutionColumnsKernel<<<blocks, threads>>>(
         d_Dst,
         imageW,

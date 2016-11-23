@@ -5,7 +5,7 @@ int main( int argc, char** argv )
   cv::Mat src, dst,r;
   cv::cuda::GpuMat src_d, dst_d;
   r = cv::imread( "car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
-  cv::resize(r,src,cv::Size(256,256));
+  cv::resize(r,src,cv::Size(512,512));
   src_d.upload(src);
   cv::cuda::pyrUp( src_d, dst_d);
   dst_d.download(dst);
