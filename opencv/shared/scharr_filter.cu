@@ -6,9 +6,9 @@ using namespace cv;
 class transFunctor
 {
 public:
-  __device__ float operator() (const float a,const float b) const
+  __device__ uchar operator() (const uchar a,const uchar b) const
   {
-    return sqrt(a*a + b*b);
+    return sqrt((float)a*a + b*b);
   }
 };
 int main(int argc, char const *argv[]) {
@@ -23,23 +23,23 @@ int main(int argc, char const *argv[]) {
   kernely[0]=+3;
   kernely[1]=+10;
   kernely[2]=+3;
-  thrust::block_2d<float> float_image_block (image.cols,image.rows);
-  thrust::block_2d<float> convolve1_block (image.cols,image.rows);
-  thrust::block_2d<float> convolve2_block (image.cols,image.rows);
-  thrust::block_2d<float> outBlock (image.cols,image.rows);
-  float * img = (float * )malloc(sizeof(float)*(float_image_block.end()-float_image_block.begin()));
+  thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
+  thrust::block_2d<uchar> convolve1_block (image.cols,image.rows);
+  thrust::block_2d<uchar> convolve2_block (image.cols,image.rows);
+  thrust::block_2d<uchar> outBlock (image.cols,image.rows);
+  uchar * img = (uchar * )malloc(sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()));
   for(int i = 0; i<image.cols*image.rows;i++)
   {
-    img[i]=(float)image.ptr()[i];
+    img[i]=(uchar)image.ptr()[i];
   }
-  float_image_block.assign(img,img+image.cols*image.rows);
-  convolve1_block.assign(float_image_block.begin(),float_image_block.end());
-  convolve2_block.assign(float_image_block.begin(),float_image_block.end());
+  uchar_image_block.assign(img,img+image.cols*image.rows);
+  convolve1_block.assign(uchar_image_block.begin(),uchar_image_block.end());
+  convolve2_block.assign(uchar_image_block.begin(),uchar_image_block.end());
   thrust::convolve(thrust::cuda::texture,&convolve1_block,kernelx);
   thrust::convolve(thrust::cuda::texture,&convolve2_block,kernely);
   thrust::transform(convolve1_block.begin(),convolve1_block.end(),convolve2_block.begin(),outBlock.begin(),transFunctor());
-  unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
-  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(float)*(float_image_block.end()-float_image_block.begin()),cudaMemcpyDeviceToHost);
+  unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
+  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];
