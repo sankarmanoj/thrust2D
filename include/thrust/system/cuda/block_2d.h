@@ -50,6 +50,7 @@ namespace thrust
 		typedef typename detail::vector_base<T,Alloc>::value_type value_type;
 		int dim_x,dim_y;
 		int offset_x, offset_y;
+		T * data_pointer;
 		iterator_base device_iterator;
 		block_2d *device_pointer;
 		block_2d(int dim_x,int dim_y);

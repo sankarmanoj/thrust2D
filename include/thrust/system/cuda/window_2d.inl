@@ -20,7 +20,7 @@ namespace thrust
     this->start_y = start_y;
     this->window_dim_y = window_dim_y;
     // assert(start_y + window_dim_y <= b->dim_y);
-    this->b = b;
+    this->data = b->data_pointer;
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
     this->is_shared = false;
@@ -33,7 +33,8 @@ namespace thrust
     this->start_y = obj.start_y;
     this->window_dim_x = obj.window_dim_x;
     this->window_dim_y = obj.window_dim_y;
-    this->b = obj.b;
+    this->texref = texref;
+    this->data = obj.data;
     this->block_dim_y = obj.block_dim_y;
     this->block_dim_x = obj.block_dim_x;
     this->is_shared = obj.is_shared;
@@ -57,7 +58,6 @@ namespace thrust
   {
     // TODO: Better Boundary checks.
     this->start_x = start_x;
-    this->b = b;
     this->window_dim_x = window_dim_x;
     //printf("start x = %d , window_dim_x = %d , parent_dim = %d\n", start_x,window_dim_x,b->dim_x);
     // NOTE: Strictly less or less than equal to? Should a window comprising of entire block be allowed?
@@ -75,35 +75,29 @@ namespace thrust
 
   }
 
-  template <class T,class Alloc>
-  __host__ __device__ window_2d_iterator<T,Alloc>::window_2d_iterator<T,Alloc>(T * data, long position)
+  template <class T>
+  __host__ __device__ window_2d_iterator<T>::window_2d_iterator<T>(T * data, long position)
   {
     this->data = data;
     this->position = position;
     this->is_shared =true;
+
   }
 
-  template <class T,class Alloc>
-  __host__ __device__ window_2d_iterator<T,Alloc>::window_2d_iterator<T,Alloc>(block_2d<T,Alloc> *b, long position)
-  {
-    this->b = b;
-    this->position = position;
-    this->is_shared = false;
-  }
 
   template <class T,class Alloc>
-  __host__ __device__ window_2d_iterator<T,Alloc> window_2d<T,Alloc>::operator[] (long index) const
+  __host__ __device__ window_2d_iterator<T> window_2d<T,Alloc>::operator[] (long index) const
   {
-    if(this->is_shared)
+    long position;
+     if(this->is_shared)
     {
-      long position = (local_start_y+index)*this->block_dim_x + local_start_x;
-      return window_2d_iterator<T,Alloc>(data,position);
+      position = (local_start_y+index)*this->block_dim_x + local_start_x;
     }
     else
     {
-      long position = (start_y+index)*this->block_dim_x + start_x;
-      return window_2d_iterator<T,Alloc>(this->b,position);
+      position = (start_y+index)*this->block_dim_x + start_x;
     }
+      return window_2d_iterator<T>(data,position);
   }
 
   template <class T,class Alloc>
@@ -116,39 +110,25 @@ namespace thrust
     else
     if(this->is_shared)
     {
-      if(((local_start_x+index.x)>=block_dim_x)||((local_start_y+index.y)>=block_dim_y))
-      {
-        return (*b)[start_y+index.y][start_x+index.x];
-      }
-      else
-      {
+
         return data[(local_start_y+index.y)*block_dim_x + local_start_x+index.x];
-      }
     }
     else
     {
-      return (*b)[start_y+index.y][start_x+index.x];
+      return data[(start_y+index.y)*block_dim_x + start_x+index.x];
     }
   }
-  template<class T,class Alloc>
-  __host__ __device__ window_2d_iterator<T,Alloc>::reference window_2d_iterator<T,Alloc>::operator[] (long index) const
+  template<class T>
+  __host__ __device__ T & window_2d_iterator<T>::operator[] (long index) const
   {
-    if(this->is_shared)
-    {
-      return *pointer(&data[this->position + index]);
-    }
-    else
-    {
-      int2 bindex = b->index_to_int2(this->position + index);
-      return  (*b)[bindex.y][bindex.x];
-    }
+      return data[this->position + index];
   }
 
   template <class T,class Alloc>
   __host__ window_iterator<T,Alloc>::window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
   {
     this->b = b->device_pointer;
-    this->data_pointer = b->data().get();
+    this->data_pointer = b->data_pointer;
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
     this->window_dim_x = window_dim_x;
@@ -165,7 +145,7 @@ namespace thrust
   __host__ window_iterator<T,Alloc>::window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y,int position)
   {
     this->b = b->device_pointer;
-    this->data_pointer = b->data().get();
+    this->data_pointer = b->data_pointer;
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
     this->window_dim_x = window_dim_x;

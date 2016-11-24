@@ -10,6 +10,7 @@ namespace thrust
     this->offset_x = 0;
     this->offset_y = 0;
   	device_iterator = this->data();
+    data_pointer = this->data().get();
     if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
     {
       block_2d<T,Alloc> * temp;
@@ -29,6 +30,7 @@ namespace thrust
     this->offset_x = 0;
     this->offset_y = 0;
     device_iterator = this->data();
+    data_pointer = this->data().get();
     if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
     {
       block_2d<T,Alloc> * temp;
@@ -49,6 +51,7 @@ namespace thrust
     this->offset_y = other.offset_y;
   	// device_data = device_vector<T>(other.device_data.begin(), other.device_data.end());
   	device_iterator = this->data();
+    this->data_pointer = other.data_pointer;
     this->device_pointer = other.device_pointer;
   }
 
