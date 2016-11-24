@@ -10,7 +10,7 @@ OBJS=$(SRCS:.cu=.o)
 all: $(OBJS)
 
 %.o:%.cu
-	$(CC) $(CFLAGS) $(DFLAGS) $(OPENCVFLAGS) $< -o $@
+	$(CC) $(CFLAGS)  $(OPENCVFLAGS) $< -o $@
 	nvprof  --log-file $@.profile ./$@
 clean:
 	rm *.o

@@ -15,7 +15,7 @@ namespace thrust
   #define IMAD(a, b, c) ( __mul24((a), (b)) + (c) )
 
   //Use unrolled innermost convolution loop
-  #define UNROLL_INNER 1
+  #define UNROLL_INNER 0
 
   // //Round a / b to nearest higher integer value
   // inline int iDivUp(int a, int b)
@@ -179,7 +179,7 @@ void convolutionRowsGPU(
 
       for (int k = -KERNEL_RADIUS; k <= KERNEL_RADIUS; k++)
       {
-          sum += tex2D(texSrc, x, y + (T)k) * c_Kernel[KERNEL_RADIUS - k];
+          sum += tex2D<T>(texObjSrc, x, y + (T)k) * c_Kernel[KERNEL_RADIUS - k];
       }
 
   #endif
@@ -220,7 +220,7 @@ void convolutionRowsGPU(
 
 
   template <class T>
-  void convolve(cuda::texture_policy,block_2d<T> *block, T *kernel)
+  void convolve(cuda::texture_policy,block_2d<T> *block, float *kernel)
   {
     cudaArray *a_Src;
     T *d_Output;
