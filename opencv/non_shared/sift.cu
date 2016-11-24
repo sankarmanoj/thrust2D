@@ -21,7 +21,7 @@ siftTransformFunctor(thrust::block_2d<uchar> * pyrup,thrust::block_2d<uchar> * p
     int pu_y = (inputWindow.start_y + y)/2;
     int pd_x = (inputWindow.start_x + x)*2;
     int pd_y = (inputWindow.start_y + y)*2;
-    outputWindow[y][x]=0.0;
+    outputWindow[y][x]=0;
     for (int i = 0; i < inputWindow.window_dim_y; i++)
     {
       for (int j = 0; j < inputWindow.window_dim_x; j++)

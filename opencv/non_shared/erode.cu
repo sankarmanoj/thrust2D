@@ -11,7 +11,7 @@ class erodeFunctor //: public thrust::shared_unary_window_transform_functor<ucha
     {
       for(int j = 0; j<inputWindow.window_dim_x;j++)
       {
-        temp = min(temp,inputWindow[i][j]);
+        temp = min((float)temp,(float)inputWindow[i][j]);
       }
     }
     outputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=temp;
