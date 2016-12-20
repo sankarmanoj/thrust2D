@@ -26,7 +26,7 @@ pyrdownTransformFunctor(thrust::block_2d<uchar> * inBlock)
 
 int main()
 {
-  Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+  Mat small = imread("santiago.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image=small;
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
   thrust::block_2d<uchar> outBlock (image.cols/2,image.rows/2,0.0f);
@@ -49,8 +49,15 @@ int main()
     outputFloatImageData[i]=(unsigned char)img1[i];
   }
   Mat output (Size(image.cols/2,image.rows/2),CV_8UC1,outputFloatImageData);
+  #ifdef OWRITE
   imwrite("input.png",image);
   imwrite("pyrdown.png",output);
+  #endif
+  #ifdef SHOW
+  imshow("input.png",image);
+  imshow("pyrdown.png",output);
+  waitKey(0);
+  #endif
   free (img);
   free (img1);
   free (outputFloatImageData);

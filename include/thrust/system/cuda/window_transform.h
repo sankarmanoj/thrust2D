@@ -33,6 +33,8 @@ namespace thrust
     int stride_x,stride_y;
     int shared_size_x;
     int padding;
+    int block_dim_x, block_dim_y;
+    int window_dim_x, window_dim_y;
   };
   template <class Iterator, class Func>
   void for_each(cuda::shared_policy,Iterator begin1, Iterator end1, Func f);
