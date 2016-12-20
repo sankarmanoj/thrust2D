@@ -12,7 +12,7 @@ public:
   }
 };
 int main(int argc, char const *argv[]) {
-  Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+  Mat small = imread("santiago.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
   image = small;
   float kernelx[3], kernely[3];
@@ -45,7 +45,15 @@ int main(int argc, char const *argv[]) {
     outputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
+  #ifdef OWRITE
   imwrite("input.png",image);
   imwrite("sobel.png",output);
+
+  #endif
+  #ifdef SHOW
+  imshow("input.png",image);
+  imshow("sobel.png",output);
+  #endif
+  waitKey(0);
   return 0;
 }

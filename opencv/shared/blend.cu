@@ -22,7 +22,7 @@ public:
 int main(int argc, char const *argv[]) {
   cudaDeviceProp dev_prop;
   cudaGetDeviceProperties(&dev_prop,0);
-  Mat input1 = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+  Mat input1 = imread("santiago.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat input2 = imread("aoutput.png",CV_LOAD_IMAGE_GRAYSCALE);
   Mat temp1;
   resize(input1,temp1,Size(512,512));
@@ -55,9 +55,16 @@ int main(int argc, char const *argv[]) {
     charImageData[i]=(unsigned char)ucharImageData[i];
   }
   Mat output (Size(input1.cols,input1.rows),CV_8UC1,charImageData);
+  #ifdef OWRITE
   imwrite("blend-input1.png",input1);
   imwrite("blend-input2.png",input2);
   imwrite("blend-output.png",output);
-
+  #endif
+  #ifdef SHOW
+  imshow("blend-input1.png",input1);
+  imshow("blend-input2.png",input2);
+  imshow("blend-output.png",output);
+  waitKey(0);
+  #endif
   return 0;
 }

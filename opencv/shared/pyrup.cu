@@ -25,7 +25,7 @@ pyrupTransformFunctor(thrust::block_2d<uchar> * inBlock)
 
 int main()
 {
-  Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+  Mat small = imread("santiago.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image=small;
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
@@ -51,7 +51,15 @@ int main()
     outputFloatImageData[i]=(unsigned char)img_out[i];
   }
   Mat output (Size(image.cols*2,image.rows*2),CV_8UC1,outputFloatImageData);
+  #ifdef OWRITE
   imwrite("input.png",image);
   imwrite("pyrup.png",output);
+
+  #endif
+  #ifdef SHOW
+  imshow("input.png",image);
+  imshow("pyrup.png",output);
+  waitKey(0);
+  #endif
   return 0;
 }

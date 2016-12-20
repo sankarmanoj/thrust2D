@@ -25,6 +25,8 @@ namespace thrust
     }
     if((threadIdx.x%mConfiguration.stride_x)||(threadIdx.y%mConfiguration.stride_y))
       return;
+    if(mConfiguration.block_dim_x<=(mConfiguration.stride_x/2)+mConfiguration.stride_x*(blockIdx.x*blockDim.x+ threadIdx.x))
+      return;
     __syncthreads();
     window_2d<T> shared_window(input->b,shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,input->window_dim_x,input->window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+mConfiguration.padding);
     window_2d<T> output_window(output->b,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,output->window_dim_x,output->window_dim_y);
@@ -45,6 +47,10 @@ namespace thrust
     mConfiguration.stride_x = begin1.stride_x;
     mConfiguration.stride_y = begin1.stride_y;
     mConfiguration.warp_size = properties.warpSize;
+    mConfiguration.block_dim_x = begin1.block_dim_x;
+    mConfiguration.block_dim_y = begin1.block_dim_y;
+    mConfiguration.window_dim_x = begin1.window_dim_x;
+    mConfiguration.window_dim_y = begin1.window_dim_y;
     mConfiguration.padding = begin1.window_dim_x - begin1.stride_x;
     mConfiguration.shared_size_x = mConfiguration.warp_size+mConfiguration.padding;
     // assert(!(begin1.block_dim_y%mConfiguration.warp_size));
@@ -65,16 +71,17 @@ namespace thrust
     Iterator * device_begin_2;
     cudaMalloc((void **)&device_begin_2, sizeof(Iterator));
     cudaMemcpy(device_begin_2,&begin2,sizeof(Iterator),cudaMemcpyHostToDevice);
-    transform_kernel<<<dim3(begin1.block_dim_x/mConfiguration.warp_size,begin1.block_dim_y/mConfiguration.warp_size,1),dim3(mConfiguration.warp_size,mConfiguration.warp_size,1),(size_along_y+mConfiguration.padding)*(mConfiguration.padding+size_along_x)*sizeof(T)>>>(device_begin_1,device_begin_2,mConfiguration,f);
+    transform_kernel<<<dim3(iDivUp(begin1.block_dim_x,mConfiguration.warp_size),iDivUp(begin1.block_dim_y,mConfiguration.warp_size),1),dim3(mConfiguration.warp_size,mConfiguration.warp_size,1),(size_along_y+mConfiguration.padding)*(mConfiguration.padding+size_along_x)*sizeof(T)>>>(device_begin_1,device_begin_2,mConfiguration,f);
   }
   template<typename T, class Func>
   __global__
   // __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)
   void transform_texture_kernel (cudaTextureObject_t texref, window_iterator<T> * output, warp_launcher_config mConfiguration, Func f)
   {
-
-    window_2d<T> shared_window(texref,output->stride_x*(blockIdx.x*blockDim.x+ threadIdx.x),output->stride_y*(blockIdx.y*blockDim.y+ threadIdx.y),output->window_dim_x,output->window_dim_y);
-    window_2d<T> output_window(output->b,output->stride_x*(blockIdx.x*blockDim.x+ threadIdx.x),output->stride_y*(blockIdx.y*blockDim.y+ threadIdx.y),output->window_dim_x,output->window_dim_y);
+    if(mConfiguration.block_dim_x<=(mConfiguration.stride_x/2)+mConfiguration.stride_x*(blockIdx.x*blockDim.x+ threadIdx.x))
+      return;
+    window_2d<T> shared_window(texref,mConfiguration.stride_x*(blockIdx.x*blockDim.x+ threadIdx.x),output->stride_y*(blockIdx.y*blockDim.y+ threadIdx.y),output->window_dim_x,output->window_dim_y);
+    window_2d<T> output_window(output->b,mConfiguration.stride_x*(blockIdx.x*blockDim.x+ threadIdx.x),output->stride_y*(blockIdx.y*blockDim.y+ threadIdx.y),output->window_dim_x,output->window_dim_y);
     f(shared_window,output_window);
   }
 
@@ -92,6 +99,10 @@ namespace thrust
     mConfiguration.stride_x = begin1.stride_x;
     mConfiguration.stride_y = begin1.stride_y;
     mConfiguration.warp_size = properties.warpSize;
+    mConfiguration.block_dim_x = begin1.block_dim_x;
+    mConfiguration.block_dim_y = begin1.block_dim_y;
+    mConfiguration.window_dim_x = begin1.window_dim_x;
+    mConfiguration.window_dim_y = begin1.window_dim_y;
     mConfiguration.padding = begin1.window_dim_x - begin1.stride_x;
     mConfiguration.shared_size_x = mConfiguration.warp_size+mConfiguration.padding;
     // assert(!(begin1.block_dim_y%mConfiguration.warp_size));
@@ -179,6 +190,10 @@ namespace thrust
     mConfiguration.size_along_x = size_along_x;
     mConfiguration.size_along_y = size_along_y;
     mConfiguration.warp_size = properties.warpSize;
+    mConfiguration.block_dim_x = begin1.block_dim_x;
+    mConfiguration.block_dim_y = begin1.block_dim_y;
+    mConfiguration.window_dim_x = begin1.window_dim_x;
+    mConfiguration.window_dim_y = begin1.window_dim_y;
     mConfiguration.padding = begin1.window_dim_x - begin1.stride_x;
     mConfiguration.shared_size_x = mConfiguration.warp_size+mConfiguration.padding;
     // assert(!(begin1.block_dim_y%mConfiguration.warp_size));

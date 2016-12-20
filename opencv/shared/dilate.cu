@@ -24,9 +24,9 @@ class dilateFunctor : public thrust::shared_unary_window_transform_functor<uchar
 int main(int argc, char const *argv[]) {
   cudaDeviceProp dev_prop;
   cudaGetDeviceProperties(&dev_prop,0);
-  Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+  Mat small = imread("santiago.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
-  int dim = 512;
+  int dim = 513;
   if(argc ==2)
   {
     dim = atoi(argv[1]);
@@ -43,7 +43,7 @@ int main(int argc, char const *argv[]) {
   uchar_image_block.assign(img,img+image.cols*image.rows);
   thrust::window_vector<uchar> myVector = thrust::window_vector<uchar>(&uchar_image_block,3,3,1,1);
   thrust::window_vector<uchar> outputVector = thrust::window_vector<uchar>(&outBlock,3,3,1,1);
-  thrust::transform(thrust::cuda::texture,myVector.begin(),myVector.end(),outputVector.begin(),dilateFunctor());
+  thrust::transform(thrust::cuda::shared,myVector.begin(),myVector.end(),outputVector.begin(),dilateFunctor());
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
@@ -51,8 +51,14 @@ int main(int argc, char const *argv[]) {
     outputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
+  #ifdef OWRITE
   imwrite("input.png",image);
   imwrite("output.png",output);
-
+  #endif
+  #ifdef SHOW
+  imshow("input.png",image);
+  imshow("output.png",output);
+  waitKey(0);
+  #endif
   return 0;
 }
