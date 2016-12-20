@@ -30,13 +30,13 @@ namespace thrust
   class window_2d_iterator
   {
     int position;
-    T * data;
+    T* data;
     bool is_shared;
   public:
-    typedef T & reference;
-    typedef  T * pointer;
-    __host__ __device__ window_2d_iterator(T * data, long position);
-    __host__ __device__  T & operator[] (long index) const;
+    typedef T& reference;
+    typedef T* pointer;
+    __host__ __device__ window_2d_iterator(pointer data, long position);
+    __host__ __device__ reference operator[] (long index) const;
 
   };
 

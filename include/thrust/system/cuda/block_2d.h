@@ -10,7 +10,7 @@ namespace thrust
 {
 	template <class T,class Alloc=device_malloc_allocator<T> > class block_2d;
 	template<class T,class Alloc=device_malloc_allocator<T> >
-	class block_iterator : public block_2d<T,Alloc>::iterator_base
+	class block_iterator
 	{
 	public:
 		block_2d<T,Alloc> *parent_block;
@@ -40,43 +40,41 @@ namespace thrust
 		__host__ __device__ bool operator< (const block_iterator<T,Alloc>& it) const;
 	};
 
+	template<class T>
+	class block_2d_iterator
+	{
+		int position;
+		T* data;
+	public:
+		typedef T& reference;
+		typedef T* pointer;
+		__host__ __device__ block_2d_iterator(pointer data, long position);
+		__host__ __device__ reference operator[] (long index) const;
+
+	};
+
 	template <class T,class Alloc>
-	class block_2d : public detail::vector_base<T,Alloc>
+	class block_2d
 	{
 	public:
-		typedef typename detail::vector_base<T,Alloc>::iterator iterator_base;
+		// typedef typename detail::vector_base<T,Alloc>::iterator iterator_base;
 		typedef block_iterator<T,Alloc> iterator;
-		typedef typename detail::vector_base<T,Alloc>::reference reference;
-		typedef typename detail::vector_base<T,Alloc>::value_type value_type;
+		// typedef typename detail::vector_base<T,Alloc>::reference reference;
+		// typedef typename detail::vector_base<T,Alloc>::value_type value_type;
+		typedef typename T& reference;
+		typedef typename T* pointer;
+		typedef typename T value_type;
 		int dim_x,dim_y;
-		int offset_x, offset_y;
-		T * data_pointer;
-		iterator_base device_iterator;
+		int pitch;
+		pointer data_pointer;
+		// iterator_base device_iterator;
 		block_2d *device_pointer;
 		block_2d(int dim_x,int dim_y);
 		block_2d(int dim_x,int dim_y,T value);
 		block_2d(block_2d<T> &other);
 		__host__ __device__ int2 index_to_int2(int index) const;
 		template <class InputIterator>
-		block_2d(InputIterator first, InputIterator last) : detail::vector_base<T,Alloc>(first,last)
-		{
-			this->dim_x = last-first;
-			this->dim_y = 1;
-			this->offset_x = 0;
-			this->offset_y = 0;
-			// device_data = device_vector<T>(dim_x * dim_y);
-			device_iterator = this->data();
-			if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
-	    {
-	      block_2d<T,Alloc> * temp;
-	      cudaMalloc((void **)&temp,sizeof(block_2d));
-	      cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
-	      this->device_pointer = temp;
-	    }
-	    else
-	      this->device_pointer = this;
-		}
-		__host__ __device__ iterator_base operator[] (int index) const;
+		__host__ __device__ block_2d_iterator operator[] (int index) const;
 		__host__ __device__ reference operator[] (int2 index) const;
 		iterator begin();
 		iterator end();

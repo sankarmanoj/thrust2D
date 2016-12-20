@@ -3,47 +3,49 @@
 namespace thrust
 {
   template <class T,class Alloc>
-  block_2d<T,Alloc>::block_2d (int dim_x, int dim_y) : detail::vector_base<T,Alloc>(dim_x*dim_y+1)
+  block_2d<T,Alloc>::block_2d (int dim_x, int dim_y)
   {
     this->dim_x = dim_x;
     this->dim_y = dim_y;
-    this->offset_x = 0;
-    this->offset_y = 0;
-  	device_iterator = this->data();
-    data_pointer = this->data().get();
     if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
     {
+      cudaMallocPitched(&data_pointer,&pitch,dim_x,dim_y);
       block_2d<T,Alloc> * temp;
       cudaMalloc((void **)&temp,sizeof(block_2d));
       cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
       this->device_pointer = temp;
     }
     else
+    {
+      data_pointer = std::malloc(dim_x*dim_y*sizeof(T));
       this->device_pointer = this;
+    }
   }
 
   template <class T,class Alloc>
-  block_2d<T,Alloc>::block_2d (int dim_x, int dim_y, T value) : detail::vector_base<T,Alloc>(dim_x*dim_y+1,value)
+  block_2d<T,Alloc>::block_2d (int dim_x, int dim_y, T value)
   {
     this->dim_x = dim_x;
     this->dim_y = dim_y;
-    this->offset_x = 0;
-    this->offset_y = 0;
-    device_iterator = this->data();
-    data_pointer = this->data().get();
     if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
     {
+      cudaMallocPitched(&data_pointer,&pitch,dim_x,dim_y);
+      cudaMemset2D(data_pointer,pitch,value,dim_x,dim_y);
       block_2d<T,Alloc> * temp;
       cudaMalloc((void **)&temp,sizeof(block_2d));
       cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
       this->device_pointer = temp;
     }
     else
+    {
+      data_pointer = std::malloc(dim_x*dim_y*sizeof(T));
+      std::memset(data_pointer,value,dim_x*dim_y*sizeof(T));
       this->device_pointer = this;
+    }
   }
 
   template <class T,class Alloc>
-  block_2d<T,Alloc>::block_2d (block_2d<T> &other) : detail::vector_base<T,Alloc>(other)
+  block_2d<T,Alloc>::block_2d (block_2d<T> &other)
   {
     this->dim_x = other.dim_x;
     this->dim_y = other.dim_y;
