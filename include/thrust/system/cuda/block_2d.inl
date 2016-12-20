@@ -19,6 +19,7 @@ namespace thrust
     {
       data_pointer = std::malloc(dim_x*dim_y*sizeof(T));
       this->device_pointer = this;
+      pitch=dim_x;
     }
   }
 
@@ -49,29 +50,26 @@ namespace thrust
   {
     this->dim_x = other.dim_x;
     this->dim_y = other.dim_y;
-    this->offset_x = other.offset_x;
-    this->offset_y = other.offset_y;
-  	// device_data = device_vector<T>(other.device_data.begin(), other.device_data.end());
-  	device_iterator = this->data();
+    this->pitch = other.pitch;
     this->data_pointer = other.data_pointer;
     this->device_pointer = other.device_pointer;
   }
 
   template <class T,class Alloc>
-  __host__ __device__ block_2d<T,Alloc>::iterator_base block_2d<T,Alloc>::operator[] (int index) const
+  __host__ __device__ block_2d_iterator<T,Alloc> block_2d<T,Alloc>::operator[] (int index) const
   {
-    return this->device_iterator + ((index * (this->dim_x + this->offset_x)) + offset_y);
+    return block_2d_iterator(this,index);
   }
 
   template <class T,class Alloc>
 	__host__ __device__ block_2d<T,Alloc>::reference block_2d<T,Alloc>::operator[] (int2 index) const
   {
-    if(index.y<0||index.x<0||index.y>=dim_y||index.x>=dim_x)
-    {
-
-      return this->device_iterator[this->dim_x*this->dim_y];
-    }
-    return this->device_iterator[index.y * (this->dim_x + this->offset_x) + offset_y + index.x];
+    // if(index.y<0||index.x<0||index.y>=dim_y||index.x>=dim_x)
+    // {
+    //
+    //   return this->device_iterator[this->dim_x*this->dim_y];
+    // }
+    return data_pointer[index.y*pitch/sizeof(T)+index.x];
   }
 
   template <class T,class Alloc>
@@ -91,6 +89,19 @@ namespace thrust
   __host__  block_2d<T,Alloc>::iterator block_2d<T,Alloc>::end()
   {
     return block_iterator<T,Alloc>(this,(this->dim_y)*(this->dim_x));
+  }
+
+  template <class T,class Alloc>
+  __host__ __device__ block_2d_iterator<T>::block_2d_iterator<T>(block_2d<T,Alloc> *b, long index)
+  {
+    this->b=b;
+    this->index_y=index;
+  }
+
+  template<class T,class Alloc>
+  __host__ __device__ T & block_2d_iterator<T>::operator[] (long index) const
+  {
+      return b->data_pointer[index_x*b->pitch/sizeof(T) + index];
   }
 
   template<class T,class Alloc>

@@ -40,15 +40,15 @@ namespace thrust
 		__host__ __device__ bool operator< (const block_iterator<T,Alloc>& it) const;
 	};
 
-	template<class T>
+	template<class T,class Alloc>
 	class block_2d_iterator
 	{
-		int position;
-		T* data;
+		int index_y;
+		block_2d<T,Alloc> *b;
 	public:
 		typedef T& reference;
 		typedef T* pointer;
-		__host__ __device__ block_2d_iterator(pointer data, long position);
+		__host__ __device__ block_2d_iterator(block_2d<T,Alloc> *b, long index);
 		__host__ __device__ reference operator[] (long index) const;
 
 	};
