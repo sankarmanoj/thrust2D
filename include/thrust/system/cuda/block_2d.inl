@@ -91,6 +91,32 @@ namespace thrust
     return block_iterator<T,Alloc>(this,(this->dim_y)*(this->dim_x));
   }
 
+  __host__ cudaTextureObject_t block_2d<T,Alloc>::getCudaTextureObject ()
+  {
+    //TODO : Remove MallocPitch after updating Block 2D to aligned memory
+    T * aligned_device_memory;
+    size_t pitch;
+    cudaMallocPitch(&aligned_device_memory,&pitch,dim_x*sizeof(T),dim_y);
+    cudaMemcpy2D(aligned_device_memory,pitch,begin1.data_pointer, dim_x*sizeof(T), dim_x*sizeof(T), dim_y,cudaMemcpyDeviceToDevice);
+
+    //Create Resource Descriptor
+    cudaResourceDesc resDesc;
+    memset(&resDesc, 0, sizeof(resDesc));
+    resDesc.resType = cudaResourceTypePitch2D;
+    resDesc.res.pitch2D.desc = cudaCreateChannelDesc<T>();
+    resDesc.res.pitch2D.pitchInBytes=pitch;
+    resDesc.res.pitch2D.height =  dim_y;
+    resDesc.res.pitch2D.width= dim_x;
+    resDesc.res.pitch2D.devPtr = aligned_device_memory;
+    //Create Texture Descriptor
+    cudaTextureDesc texDesc;
+    memset(&texDesc, 0, sizeof(texDesc));
+    //Texture Object Creation
+    cudaTextureObject_t texref;
+    cudaCreateTextureObject(&texref, &resDesc, &texDesc, NULL);
+    return texref;
+  }
+
   template<class T,class Alloc>
 	__host__ __device__ block_iterator<T,Alloc>::block_iterator (block_2d<T,Alloc> *pB, int position)
   {
