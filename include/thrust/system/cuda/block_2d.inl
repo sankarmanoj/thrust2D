@@ -91,13 +91,14 @@ namespace thrust
     return block_iterator<T,Alloc>(this,(this->dim_y)*(this->dim_x));
   }
 
+  template <class T,class Alloc>
   __host__ cudaTextureObject_t block_2d<T,Alloc>::getCudaTextureObject ()
   {
     //TODO : Remove MallocPitch after updating Block 2D to aligned memory
     T * aligned_device_memory;
     size_t pitch;
     cudaMallocPitch(&aligned_device_memory,&pitch,dim_x*sizeof(T),dim_y);
-    cudaMemcpy2D(aligned_device_memory,pitch,begin1.data_pointer, dim_x*sizeof(T), dim_x*sizeof(T), dim_y,cudaMemcpyDeviceToDevice);
+    cudaMemcpy2D(aligned_device_memory,pitch,data_pointer, dim_x*sizeof(T), dim_x*sizeof(T), dim_y,cudaMemcpyDeviceToDevice);
 
     //Create Resource Descriptor
     cudaResourceDesc resDesc;

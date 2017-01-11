@@ -80,6 +80,7 @@ namespace thrust
 		__host__ __device__ reference operator[] (int2 index) const;
 		iterator begin();
 		iterator end();
+		cudaTextureObject_t getCudaTextureObject();
 	};
 	template <class T>
 	using host_block_2d=block_2d<T,std::allocator<T> >;
