@@ -1,5 +1,6 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
+#include <thrust/window_for_each.h>
 #include <thrust/window_transform.h>
 using namespace cv;
 
@@ -24,10 +25,16 @@ pyrdownTransformFunctor(thrust::block_2d<uchar> * inBlock)
   }
 };
 
-int main()
+int main(int argc, char const *argv[])
 {
+  int dim = 512;
+  if(argc ==2)
+  {
+    dim = atoi(argv[1]);
+  }
   Mat small = imread("santiago.jpg",CV_LOAD_IMAGE_GRAYSCALE);
-  Mat image=small;
+  Mat image;
+  resize(small,image,Size(dim,dim));
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
   thrust::block_2d<uchar> outBlock (image.cols/2,image.rows/2,0.0f);
   uchar * img = (uchar * )malloc(sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()));

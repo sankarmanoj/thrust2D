@@ -1,6 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
 #include <thrust/window_transform.h>
+#include <thrust/window_for_each.h>
 using namespace cv;
 class pyrupTransformFunctor : public thrust::shared_window_for_each_functor<uchar>
 {

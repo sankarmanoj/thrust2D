@@ -1,6 +1,6 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
-#include <thrust/window_transform.h>
+#include <thrust/window_for_each.h>
 using namespace cv;
 class AffineTransformFunctor : public thrust::shared_window_for_each_functor<uchar>
 {
@@ -68,7 +68,7 @@ int main(int argc, char const *argv[]) {
   AffineTransformFunctor atf(&warp_block,&outBlock);
   // TODO: Does not work.
   thrust::for_each(thrust::cuda::shared,inputVector.begin(),inputVector.end(),atf);
-  cudaDeviceSynchronize();
+  // cudaDeviceSynchronize();
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()),cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
@@ -84,6 +84,6 @@ int main(int argc, char const *argv[]) {
   imshow("input.png",image);
   imshow("aoutput.png",output);
   waitKey(0);
-  #endif 
+  #endif
   return 0;
 }

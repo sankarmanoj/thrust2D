@@ -26,7 +26,7 @@ int main(int argc, char const *argv[]) {
   cudaGetDeviceProperties(&dev_prop,0);
   Mat small = imread("santiago.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
-  int dim = 513;
+  int dim = 512;
   if(argc ==2)
   {
     dim = atoi(argv[1]);
