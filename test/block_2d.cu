@@ -11,6 +11,7 @@ public:
 
 __device__  void  operator() ( int  &a)
   {
+    // a=threadIdx.x;
     printf("%d \n",a);
     // return 10;
   }
@@ -19,28 +20,30 @@ class printFunctor2
 {
 public:
 
-__device__  __host__ void operator() (const int  &a) const
+__device__  __host__ int operator() (int  &a)
   {
-    printf("%d \n",a);
+    return 2*a;
   }
 };
 int main()
 {
-  block_2d<int> a(5,5,99);
-  printf("Last value = %d",(int)a[1][2]);
+  block_2d<int> a(5,5);
+  block_2d<int> b(5,5);
+  // printf("Last value = %d",(int)a[1][2]);
   sequence(a.begin(),a.end());
-  for_each(a.begin(),a.end(),printFunctor2());
 
-  host_block_2d<int> b(5,5);
-  sequence(b.begin(),b.end());
-  for_each(thrust::host,b.begin(),b.end(),printFunctor2());
+  transform(a.begin(),a.end(),b.begin(),printFunctor2());
+  for_each(b.begin(),b.end(),printFunctor());
+  // host_block_2d<int> b(5,5);
+  // sequence(b.begin(),b.end());
+  // for_each(thrust::host,b.begin(),b.end(),printFunctor2());
 
   // copy(a.begin(),a.end(),b.begin());
   // for(int i = 0; i<25; i++)
   // {
   //   printf("%f\n",a[i/5][i%5]);
   // }
-  // // cudaDeviceSynchronize();
+  cudaDeviceSynchronize();
 
   // thrust::window_vector<int> wv = window_vector<int>(&(b),3,3,1,1);
   // printf("Start\n");
