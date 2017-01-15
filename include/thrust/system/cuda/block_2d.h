@@ -71,6 +71,7 @@ namespace thrust
 		pointer data_pointer;
 		// iterator_base device_iterator;
 		block_2d *device_pointer;
+		block_2d ();
 		block_2d (size_t dim_x,size_t dim_y);
 		block_2d (size_t dim_x,size_t dim_y,T value);
 		block_2d (block_2d<T> &other);
@@ -82,5 +83,15 @@ namespace thrust
 	};
 	template <class T>
 	using host_block_2d=block_2d<T,std::allocator<T> >;
+	// template <class T,class Alloc=std::allocator<T> >
+	// class host_block_2d : public block_2d<T,Alloc>
+	// {
+	// public:
+	// 	host_block_2d (size_t dim_x,size_t dim_y);
+	// 	host_block_2d (size_t dim_x,size_t dim_y,T value);
+	// 	// host_block_2d (host_block_2d<T> &other);
+	// 	host_block_2d (block_2d<T> &b);
+	// 	// __host__ void operator= (block_2d<T> b);
+	// };
 }
 #include <thrust/system/cuda/block_2d.inl>

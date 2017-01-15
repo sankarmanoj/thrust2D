@@ -9,21 +9,22 @@ namespace thrust
   {
   public:
     typedef window_2d<T,Alloc> reference;
-    int start_x,start_y;
-    int local_start_x,local_start_y;
-    int block_dim_x, block_dim_y;
-    int window_dim_x, window_dim_y;
+    size_t start_x,start_y;
+    size_t local_start_x,local_start_y;
+    size_t block_dim_x, block_dim_y;
+    size_t window_dim_x, window_dim_y;
     T *data;
+    size_t pitch;
     cudaTextureObject_t texref;
     bool is_shared;
     bool is_texture;
     __host__ __device__ window_2d();
-    __host__ __device__ window_2d(block_2d<T,Alloc> *b, int start_x, int start_y, int window_dim_x, int window_dim_y);
-    __host__ __device__ window_2d(cudaTextureObject_t texref, int start_x, int start_y, int window_dim_x, int window_dim_y);
-    __host__ __device__ window_2d(block_2d<T,Alloc> *b,T *data , int start_x, int start_y, int local_start_x, int local_start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y);
+    __host__ __device__ window_2d(block_2d<T,Alloc> *b, size_t start_x, size_t start_y, size_t window_dim_x, size_t window_dim_y);
+    __host__ __device__ window_2d(cudaTextureObject_t texref, size_t start_x, size_t start_y, size_t window_dim_x, size_t window_dim_y);
+    __host__ __device__ window_2d(block_2d<T,Alloc> *b,T *data , size_t start_x, size_t start_y, size_t local_start_x, size_t local_start_y, size_t window_dim_x, size_t window_dim_y, size_t block_dim_x, size_t block_dim_y,size_t pitch);
     __host__ __device__ window_2d(const window_2d &obj);
-    __host__ __device__ window_2d_iterator<T> operator[](long index) const;
-     __host__ __device__ T operator[](int2 index) const ;
+    __host__ __device__ window_2d_iterator<T> operator[](size_t index) const;
+    __host__ __device__ T operator[](int2 index) const ;
   };
 
   template<class T>
@@ -35,8 +36,8 @@ namespace thrust
   public:
     typedef T& reference;
     typedef T* pointer;
-    __host__ __device__ window_2d_iterator(pointer data, long position);
-    __host__ __device__ reference operator[] (long index) const;
+    __host__ __device__ window_2d_iterator(pointer data, size_t position);
+    __host__ __device__ reference operator[] (size_t index) const;
 
   };
 
@@ -46,7 +47,7 @@ namespace thrust
   template <class T,class Alloc=device_malloc_allocator<T> >
   class window_iterator : private detail::normal_iterator<typename detail::vector_base<window_2d<T>,Alloc>::pointer>
   {
-    int position;
+    size_t position;
   public:
     block_2d<T,Alloc> *b;
     typedef long difference_type;
@@ -56,16 +57,16 @@ namespace thrust
     typedef typename iterator::iterator_category iterator_category;
     typedef window_2d<T,Alloc> reference;
     typedef window_2d<T,Alloc>* pointer;
-    int window_dim_x;
-    int window_dim_y;
-    int block_dim_x;
-    int block_dim_y;
-    int stride_x;
-    int stride_y;
-    int windows_along_x, windows_along_y;
+    size_t window_dim_x;
+    size_t window_dim_y;
+    size_t block_dim_x;
+    size_t block_dim_y;
+    size_t stride_x;
+    size_t stride_y;
+    size_t windows_along_x, windows_along_y;
     T * data_pointer;
-    __host__ window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y);
-    __host__ window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y,int position);
+    __host__ window_iterator(block_2d<T,Alloc> *b, size_t window_dim_x, size_t window_dim_y, size_t stride_x, size_t stride_y);
+    __host__ window_iterator(block_2d<T,Alloc> *b, size_t window_dim_x, size_t window_dim_y, size_t stride_x, size_t stride_y,size_t position);
     __host__ __device__ reference operator* () const;
     __host__ __device__ difference_type operator- (window_iterator<T,Alloc>& it) const;
     __host__ __device__ difference_type operator- (const window_iterator<T,Alloc>& it) const;
@@ -86,18 +87,18 @@ namespace thrust
   template <class T,class Alloc=device_malloc_allocator<T> >
   class window_vector
   {
-    int windows_along_x, windows_along_y;
-    int position;
+    size_t windows_along_x, windows_along_y;
+    size_t position;
   public:
     typedef window_2d<T,Alloc> reference;
     block_2d<T,Alloc> *b;
-    int window_dim_x;
-    int window_dim_y;
-    int block_dim_x;
-    int block_dim_y;
-    int stride_x;
-    int stride_y;
-    window_vector(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y);
+    size_t window_dim_x;
+    size_t window_dim_y;
+    size_t block_dim_x;
+    size_t block_dim_y;
+    size_t stride_x;
+    size_t stride_y;
+    window_vector(block_2d<T,Alloc> *b, size_t window_dim_x, size_t window_dim_y, size_t stride_x, size_t stride_y);
     window_iterator<T,Alloc> begin();
     window_iterator<T,Alloc> end();
   };
