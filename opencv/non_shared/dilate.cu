@@ -31,12 +31,13 @@ int main(int argc, char const *argv[]) {
   {
     img[i]=(uchar)image.ptr()[i];
   }
-  uchar_image_block.assign(img,img+image.cols*image.rows);
+  // uchar_image_block.assign(img,img+image.cols*image.rows);
+  cudaMemcpy2D(uchar_image_block.data_pointer,uchar_image_block.pitch,img,image.cols*sizeof(uchar),image.cols,image.rows,cudaMemcpyHostToDevice);
   thrust::window_vector<uchar> myVector = thrust::window_vector<uchar>(&uchar_image_block,3,3,1,1);
   thrust::window_vector<uchar> outputVector = thrust::window_vector<uchar>(&outBlock,3,3,1,1);
   thrust::transform(myVector.begin(),myVector.end(),outputVector.begin(),null_block.begin(),dilateFunctor());
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
-  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()),cudaMemcpyDeviceToHost);
+  cudaMemcpy2D(img,outBlock.dim_x*sizeof(uchar),outBlock.data_pointer,outBlock.pitch,outBlock.dim_x,outBlock.dim_y,cudaMemcpyDeviceToHost);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];

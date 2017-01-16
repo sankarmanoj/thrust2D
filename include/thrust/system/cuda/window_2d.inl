@@ -9,7 +9,7 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ window_2d<T,Alloc>::window_2d(block_2d<T,Alloc> *b,int start_x, int start_y, int window_dim_x, int window_dim_y)
+  __host__ __device__ window_2d<T,Alloc>::window_2d(block_2d<T,Alloc> *b,size_t start_x, size_t start_y, size_t window_dim_x, size_t window_dim_y)
   {
     // TODO: Better Boundary checks.
     this->start_x = start_x;
@@ -23,6 +23,7 @@ namespace thrust
     this->data = b->data_pointer;
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
+    this->pitch=b->pitch;
     this->is_shared = false;
     this->is_texture = false;
   }
@@ -37,11 +38,12 @@ namespace thrust
     this->data = obj.data;
     this->block_dim_y = obj.block_dim_y;
     this->block_dim_x = obj.block_dim_x;
+    this->pitch=obj.pitch;
     this->is_shared = obj.is_shared;
     this->is_texture = obj.is_texture;
   }
   template <class T, class Alloc>
-  __host__ __device__ window_2d<T,Alloc>::window_2d(cudaTextureObject_t texref, int start_x, int start_y, int window_dim_x, int window_dim_y)
+  __host__ __device__ window_2d<T,Alloc>::window_2d(cudaTextureObject_t texref, size_t start_x, size_t start_y, size_t window_dim_x, size_t window_dim_y)
   {
 
     this->start_x = start_x;
@@ -54,7 +56,7 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ window_2d<T,Alloc>::window_2d(block_2d<T,Alloc> *b, T *data,int start_x, int start_y, int local_start_x, int local_start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y)
+  __host__ __device__ window_2d<T,Alloc>::window_2d(block_2d<T,Alloc> *b, T *data,size_t start_x, size_t start_y, size_t local_start_x, size_t local_start_y, size_t window_dim_x, size_t window_dim_y, size_t block_dim_x, size_t block_dim_y,size_t pitch)
   {
     // TODO: Better Boundary checks.
     this->start_x = start_x;
@@ -71,31 +73,30 @@ namespace thrust
     this->is_texture = false;
     this->block_dim_x = block_dim_x;
     this->block_dim_y = block_dim_y;
+    this->pitch = pitch;
     this->is_shared = true;
-
   }
 
   template <class T>
-  __host__ __device__ window_2d_iterator<T>::window_2d_iterator<T>(T * data, long position)
+  __host__ __device__ window_2d_iterator<T>::window_2d_iterator<T>(T * data, size_t position)
   {
     this->data = data;
     this->position = position;
     this->is_shared =true;
-
   }
 
 
   template <class T,class Alloc>
-  __host__ __device__ window_2d_iterator<T> window_2d<T,Alloc>::operator[] (long index) const
+  __host__ __device__ window_2d_iterator<T> window_2d<T,Alloc>::operator[] (size_t index) const
   {
-    long position;
-     if(this->is_shared)
+    size_t position;
+    if(this->is_shared)
     {
-      position = (local_start_y+index)*this->block_dim_x + local_start_x;
+      position = (local_start_y+index)*block_dim_x + local_start_x;
     }
     else
     {
-      position = (start_y+index)*this->block_dim_x + start_x;
+      position = (start_y+index)*pitch + start_x;
     }
       return window_2d_iterator<T>(data,position);
   }
@@ -115,17 +116,17 @@ namespace thrust
     }
     else
     {
-      return data[(start_y+index.y)*block_dim_x + start_x+index.x];
+      return data[(start_y+index.y)*pitch + start_x+index.x];
     }
   }
   template<class T>
-  __host__ __device__ T & window_2d_iterator<T>::operator[] (long index) const
+  __host__ __device__ T & window_2d_iterator<T>::operator[] (size_t index) const
   {
-      return data[this->position + index];
+      return data[position + index];
   }
 
   template <class T,class Alloc>
-  __host__ window_iterator<T,Alloc>::window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
+  __host__ window_iterator<T,Alloc>::window_iterator(block_2d<T,Alloc> *b, size_t window_dim_x, size_t window_dim_y, size_t stride_x, size_t stride_y)
   {
     this->b = b->device_pointer;
     this->data_pointer = b->data_pointer;
@@ -135,36 +136,36 @@ namespace thrust
     this->window_dim_y = window_dim_y;
     this->stride_x = stride_x;
     this->stride_y = stride_y;
+    this->pitch = b->pitch;
     this->position =0;
-    this->windows_along_x= int((this->block_dim_x-window_dim_x)/stride_x) +1;
-    this->windows_along_y = int((this->block_dim_y-window_dim_y)/stride_y)+1;
-
+    this->windows_along_x= size_t((this->block_dim_x-window_dim_x)/stride_x) +1;
+    this->windows_along_y = size_t((this->block_dim_y-window_dim_y)/stride_y)+1;
   }
 
   template <class T,class Alloc>
-  __host__ window_iterator<T,Alloc>::window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y,int position)
+  __host__ window_iterator<T,Alloc>::window_iterator(block_2d<T,Alloc> *b, size_t window_dim_x, size_t window_dim_y, size_t stride_x, size_t stride_y,size_t position)
   {
     this->b = b->device_pointer;
     this->data_pointer = b->data_pointer;
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
+    this->pitch = b->pitch;
     this->window_dim_x = window_dim_x;
     this->window_dim_y = window_dim_y;
     this->stride_x = stride_x;
     this->stride_y = stride_y;
     this->position =position;
-    this->windows_along_x= int((this->block_dim_x-window_dim_x)/stride_x) +1;
-    this->windows_along_y = int((this->block_dim_y-window_dim_y)/stride_y)+1;
-
+    this->windows_along_x= size_t((this->block_dim_x-window_dim_x)/stride_x) +1;
+    this->windows_along_y = size_t((this->block_dim_y-window_dim_y)/stride_y)+1;
   }
 
   template <class T,class Alloc>
   __host__ __device__ window_iterator<T,Alloc>::reference window_iterator<T,Alloc>::operator* () const
   {
-    int i = position%windows_along_x;
-    int j = position/windows_along_x;
-    int start_x = stride_x*i;
-    int start_y = stride_y*j;
+    size_t i = position%windows_along_x;
+    size_t j = position/windows_along_x;
+    size_t start_x = stride_x*i;
+    size_t start_y = stride_y*j;
     window_2d<T,Alloc> temp(b, start_x,start_y,this->window_dim_x, this->window_dim_y);
     return temp;
   }
@@ -285,7 +286,7 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  window_vector<T,Alloc>::window_vector (block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)
+  window_vector<T,Alloc>::window_vector (block_2d<T,Alloc> *b, size_t window_dim_x, size_t window_dim_y, size_t stride_x, size_t stride_y)
   {
     this->b = b;
     this->window_dim_x = window_dim_x;
@@ -302,8 +303,8 @@ namespace thrust
   window_iterator<T,Alloc> window_vector<T,Alloc>::end()
   {
 
-    int windowsX = int((b->dim_x-window_dim_x)/stride_x) +1;
-    int windowsY = int((b->dim_y-window_dim_y)/stride_y)+1;
+    size_t windowsX = size_t((b->dim_x-window_dim_x)/stride_x) +1;
+    size_t windowsY = size_t((b->dim_y-window_dim_y)/stride_y)+1;
     return window_iterator<T,Alloc>(b,window_dim_x,window_dim_y,stride_x,stride_y,windowsX*windowsY);
   }
 

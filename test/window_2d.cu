@@ -3,29 +3,29 @@
 #include <iostream>
 #include <thrust/host_vector.h>
 #include <thrust/window_2d.h>
-#define X 7
+#define X 6
 #define Y 6
 using namespace thrust;
 // testing window indexing
 class printFunctor
 {
 public:
-  __host__ __device__ void operator() (const host_window_2d<int> &myWindow) const
+  __host__ __device__ void operator() (const window_2d<int> &myWindow) const
   {
     int value = myWindow[0][0];
     myWindow[0][0]=666;
-    printf(" %d , %d , %d\n",myWindow.start_x, myWindow.start_y,value);
+    printf(" %ld , %ld , %d\n",myWindow.start_x, myWindow.start_y,value);
   }
 };
 
 class printFunctor2
 {
 public:
-  __host__ __device__ int operator() (const host_window_2d<int> &myWindow) const
+  __host__ __device__ int operator() (const window_2d<int> &myWindow) const
   {
     int value = myWindow[0][0];
     myWindow[0][0]=666;
-    printf(" %d , %d , %d\n",myWindow.start_x, myWindow.start_y,value);
+    printf(" %ld , %ld , %d\n",myWindow.start_x, myWindow.start_y,value);
     return value;
   }
 };
@@ -44,23 +44,24 @@ public:
 };
 int main()
 {
-  host_block_2d<int> a(X,Y,0);
+  block_2d<int> a(X,Y,0);
   sequence(a.begin(),a.end());
-  host_window_vector<int> myVector(&a,3,3,3,3);
-  std::cout<<"Size ="<<myVector.end()-myVector.begin()<<std::endl;
-  host_vector<int> b(myVector.end()-myVector.begin(),0);
-  transform(thrust::host,myVector.begin(),myVector.end(),b.begin(),printFunctor2());
+  window_vector<int> myVector(&a,3,3,3,3);
+  std::cout<<"Size ="<<myVector.end()-myVector.begin()<<"\n Pitch = "<<a.pitch<<std::endl;
+  // for_each(myVector.begin(),myVector.end(),printFunctor());
   cudaDeviceSynchronize();
+  int *b = (int *) malloc(a.pitch*Y);
+  cudaMemcpy2D(b,a.pitch,a.data_pointer,a.pitch,X,Y,cudaMemcpyDeviceToHost);
   for (int i=0; i<Y;i++)
   {
     for (int j=0;j<X;j++)
     {
-      std::cout<<a[i][j]<< " ";
+      std::cout<<b[i*a.pitch/sizeof(int)+j]<< " ";
     }
     std::cout<<"\n";
   }
-  for(int i=0; i<myVector.end()-myVector.begin(); i++)
-    std::cout<<b[i]<< " ";
-  std::cout<<"\n";
+  // for(int i=0; i<myVector.end()-myVector.begin(); i++)
+  //   std::cout<<b[i]<< " ";
+  // std::cout<<"\n";
   return 0;
 }
