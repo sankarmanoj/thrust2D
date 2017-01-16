@@ -50,13 +50,14 @@ int main()
   std::cout<<"Size ="<<myVector.end()-myVector.begin()<<"\n Pitch = "<<a.pitch<<std::endl;
   // for_each(myVector.begin(),myVector.end(),printFunctor());
   cudaDeviceSynchronize();
-  int *b = (int *) malloc(a.pitch*Y);
-  cudaMemcpy2D(b,a.pitch,a.data_pointer,a.pitch,X,Y,cudaMemcpyDeviceToHost);
+  // int *b = (int *) malloc(a.pitch*Y);
+  // cudaMemcpy2D(b,a.pitch,a.data_pointer,a.pitch,X,Y,cudaMemcpyDeviceToHost);
+  host_block_2d<int> b = a;
   for (int i=0; i<Y;i++)
   {
     for (int j=0;j<X;j++)
     {
-      std::cout<<b[i*a.pitch/sizeof(int)+j]<< " ";
+      std::cout<<b[i][j]<< " ";
     }
     std::cout<<"\n";
   }

@@ -2,10 +2,16 @@
 #include <opencv2/cudawarping.hpp>
 int main( int argc, char** argv )
 {
-  cv::Mat image, warp_dst;
+  cv::Mat image,timage, warp_dst;
   cv::cuda::GpuMat image1;
   /// Load the image
-  image = cv::imread( "car.jpg", CV_LOAD_IMAGE_GRAYSCALE );
+  timage = cv::imread( "car.jpg", CV_LOAD_IMAGE_GRAYSCALE );
+  int dim = 512;
+  if(argc ==2)
+  {
+    dim = atoi(argv[1]);
+  }
+  resize(timage,image,Size(dim,dim));
   image1.upload(image);
   cv::Point2f srcTri[3];
   cv::Point2f dstTri[3];

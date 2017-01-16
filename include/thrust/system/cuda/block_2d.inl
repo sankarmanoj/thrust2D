@@ -2,30 +2,30 @@
 #include <thrust/system/cuda/block_2d.h>
 namespace thrust
 {
-  // template <class T,class Alloc>
-  // host_block_2d<T,Alloc>::host_block_2d (size_t dim_x,size_t dim_y) : block_2d<T,Alloc>(size_t dim_x,size_t dim_y)
-  // {
-  //
-  // }
-  // template <class T,class Alloc>
-  // block_2d<T,Alloc>::block_2d ()// : block_2d<T,std::allocator<T> >::block_2d (size_t dim_x,size_t dim_y)
-  // {
-  //
-  // }
-  // template <class T,class Alloc>
-  // host_block_2d<T,Alloc>::host_block_2d (size_t dim_x,size_t dim_y,T value) : block_2d<T,Alloc> (size_t dim_x,size_t dim_y, T value)
-  // {
-  //
-  // }
-  // template <class T,class Alloc>
-  // host_block_2d<T,Alloc>::host_block_2d (block_2d<T> &b) //: block_2d<T,std::allocator<T> > (block_2d<T> &other)
-  // {
-  //   this->dim_x = b.dim_x;
-  //   this->dim_y = b.dim_y;
-  //   this->pitch = b.pitch;
-  //   cudaMemcpy2D(this->data_pointer,this->pitch,b.data_pointer,this->pitch,this->dim_x,this->dim_y,cudaMemcpyDeviceToHost);
-  //   this->device_pointer = this;
-  // }
+  template <class T,class Alloc>
+  host_block_2d<T,Alloc>::host_block_2d (size_t dim_x,size_t dim_y) : block_2d<T,Alloc>( dim_x,dim_y)
+  {
+
+  }
+  template <class T,class Alloc>
+  block_2d<T,Alloc>::block_2d ()// : block_2d<T,std::allocator<T> >::block_2d (size_t dim_x,size_t dim_y)
+  {
+
+  }
+  template <class T,class Alloc>
+  host_block_2d<T,Alloc>::host_block_2d (size_t dim_x,size_t dim_y,T value) : block_2d<T,Alloc> (dim_x,dim_y, value)
+  {
+
+  }
+  template <class T,class Alloc>
+  host_block_2d<T,Alloc>::host_block_2d (block_2d<T> &b) //: block_2d<T,std::allocator<T> > (block_2d<T> &other)
+  {
+    this->dim_x = b.dim_x;
+    this->dim_y = b.dim_y;
+    this->pitch = b.dim_x*sizeof(T);
+    cudaMemcpy2D(this->data_pointer,this->pitch,b.data_pointer,b.pitch,this->dim_x,this->dim_y,cudaMemcpyDeviceToHost);
+    this->device_pointer = this;
+  }
   // template <class T>
   // __host__ void host_block_2d<T>::operator= (block_2d<T> b)
   // {
@@ -138,14 +138,8 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-<<<<<<< HEAD
   __host__ cudaTextureObject_t block_2d<T,Alloc>::getCudaTextureObject ()
   {
-    //TODO : Remove MallocPitch after updating Block 2D to aligned memory
-    T * aligned_device_memory;
-    size_t pitch;
-    cudaMallocPitch(&aligned_device_memory,&pitch,dim_x*sizeof(T),dim_y);
-    cudaMemcpy2D(aligned_device_memory,pitch,data_pointer, dim_x*sizeof(T), dim_x*sizeof(T), dim_y,cudaMemcpyDeviceToDevice);
 
     //Create Resource Descriptor
     cudaResourceDesc resDesc;
@@ -155,7 +149,7 @@ namespace thrust
     resDesc.res.pitch2D.pitchInBytes=pitch;
     resDesc.res.pitch2D.height =  dim_y;
     resDesc.res.pitch2D.width= dim_x;
-    resDesc.res.pitch2D.devPtr = aligned_device_memory;
+    resDesc.res.pitch2D.devPtr = data_pointer;
     //Create Texture Descriptor
     cudaTextureDesc texDesc;
     memset(&texDesc, 0, sizeof(texDesc));
@@ -163,7 +157,9 @@ namespace thrust
     cudaTextureObject_t texref;
     cudaCreateTextureObject(&texref, &resDesc, &texDesc, NULL);
     return texref;
-=======
+  }
+
+  template<class T,class Alloc>
   __host__ __device__ block_2d_iterator<T,Alloc>::block_2d_iterator<T,Alloc>(block_2d<T,Alloc> *b, size_t index)
   {
     this->b=b;
@@ -174,7 +170,6 @@ namespace thrust
   __host__ __device__ T & block_2d_iterator<T,Alloc>::operator[] (size_t index) const
   {
       return b->data_pointer[index_y*b->pitch/sizeof(T) + index];
->>>>>>> bettermemory
   }
 
   template<class T,class Alloc>
