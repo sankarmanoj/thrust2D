@@ -95,10 +95,10 @@ namespace thrust
     cudaMemcpy2D(data_pointer,pitch,data,dim_x*sizeof(T),dim_x,dim_y,cudaMemcpyHostToDevice);
   }
   template <class T,class Alloc>
-  __host__ void block_2d<T,Alloc>::download (T* data)
+  __host__ void block_2d<T,Alloc>::download (T** data)
   {
-    data = (T*) std::malloc(sizeof(T)*dim_x*dim_y);
-    cudaMemcpy2D(data,dim_x*sizeof(T),data_pointer,pitch,dim_x,dim_y,cudaMemcpyDeviceToHost);
+    *data = (T*) std::malloc(sizeof(T)*dim_x*dim_y);
+    cudaMemcpy2D(*data,dim_x*sizeof(T),data_pointer,pitch,dim_x,dim_y,cudaMemcpyDeviceToHost);
   }
 
   template <class T,class Alloc>

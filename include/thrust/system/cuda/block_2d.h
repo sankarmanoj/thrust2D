@@ -76,7 +76,7 @@ namespace thrust
 		block_2d (size_t dim_x,size_t dim_y,T value);
 		block_2d (block_2d<T> &other);
 		__host__ void upload (T* data);
-		__host__ void download (T* data);
+		__host__ void download (T** data);
 		__host__ __device__ int2 index_to_int2(size_t index) const;
 		__host__ __device__ block_2d_iterator<T,Alloc> operator[] (size_t index);
 		__host__ __device__ reference operator[] (int2 index) const;

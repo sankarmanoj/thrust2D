@@ -7,7 +7,7 @@ namespace thrust
   // Convolution kernel size (the only parameter inlined in the code)
   ////////////////////////////////////////////////////////////////////////////////
   #define KERNEL_RADIUS 1
-  #define KERNEL_LENGTH 51*51
+  #define KERNEL_LENGTH 3
   ////////////////////////////////////////////////////////////////////////////////
   // GPU-specific defines
   ////////////////////////////////////////////////////////////////////////////////
@@ -108,7 +108,7 @@ namespace thrust
       sum = convolutionRow<2 *KERNEL_RADIUS,T>(x, y,texObjSrc);
   #else
 
-      for (int k = -ksize/2 + 1; k <= ksize/2; k++)
+      for (int k = -ksize/2; k <= ksize/2; k++)
       {
           sum += tex2D<T>(texObjSrc, x + (T)k, y) * c_Kernel[ksize/2 - k];
       }
@@ -146,7 +146,7 @@ void convolutionRowsGPU(
           imageW,
           imageH,
           texObjSrc,
-          int ksize
+          ksize
       );
 
   }
@@ -181,7 +181,7 @@ void convolutionRowsGPU(
       sum = convolutionColumn<2 *KERNEL_RADIUS,T>(x, y,texObjSrc);
   #else
 
-      for (int k = -ksize/2 + 1; k <= ksize/2; k++)
+      for (int k = -ksize/2; k <= ksize/2; k++)
       {
           sum += tex2D<T>(texObjSrc, x, y + (T)k) * c_Kernel[ksize/2 - k];
       }
@@ -217,7 +217,7 @@ void convolutionRowsGPU(
           d_Dst,
           imageW,
           imageH,
-          int ksize,
+          ksize,
           texObjSrc
       );
 
@@ -235,22 +235,22 @@ void convolutionRowsGPU(
     cudaChannelFormatDesc TTex = cudaCreateChannelDesc<T>();
     cudaMallocArray(&a_Src, &TTex, imageW, imageH);
     cudaMalloc((void **)&d_Output, imageW * imageH * sizeof(T));
-    setConvolutionKernel(kernel);
-    cudaMemcpyToArray(a_Src, 0, 0, block->data().get(), imageW * imageH * sizeof(T), cudaMemcpyHostToDevice);
+    setConvolutionKernel(kernel,ksize);
+    cudaMemcpy2DToArray(a_Src, 0, 0, block->data_pointer,block->pitch, imageW, imageH, cudaMemcpyHostToDevice);
     convolutionRowsGPU<T>(
-        block->data().get(),
+        block->data_pointer,
         a_Src,
         imageW,
         imageH,
-        int ksize
+        ksize
     );
-    cudaMemcpyToArray(a_Src, 0, 0, block->data().get(), imageW * imageH * sizeof(T), cudaMemcpyDeviceToDevice);
+    cudaMemcpy2DToArray(a_Src, 0, 0, block->data_pointer,block->pitch, imageW, imageH, cudaMemcpyDeviceToDevice);
     convolutionColumnsGPU<T>(
         d_Output,
         a_Src,
         imageW,
         imageH,
-        int ksize
+        ksize
     );
     // cudaMemcpy(block->data().get(), d_Output, imageW * imageH * sizeof(T), cudaMemcpyDeviceToDevice)
   }
