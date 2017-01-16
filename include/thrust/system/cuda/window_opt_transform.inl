@@ -216,7 +216,7 @@ namespace thrust
     memset(&resDesc1, 0, sizeof(resDesc1));
     resDesc1.resType = cudaResourceTypePitch2D;
     resDesc1.res.pitch2D.desc = cudaCreateChannelDesc<T>();
-    resDesc1.res.pitch2D.pitchInBytes=pitch;
+    resDesc1.res.pitch2D.pitchInBytes=begin1.pitch;
     resDesc1.res.pitch2D.height = begin1.block_dim_y;
     resDesc1.res.pitch2D.width=begin1.block_dim_x;
     resDesc1.res.pitch2D.devPtr = begin1.data_pointer;
@@ -225,7 +225,7 @@ namespace thrust
     memset(&resDesc2, 0, sizeof(resDesc2));
     resDesc2.resType = cudaResourceTypePitch2D;
     resDesc2.res.pitch2D.desc = cudaCreateChannelDesc<T>();
-    resDesc2.res.pitch2D.pitchInBytes=pitch;
+    resDesc2.res.pitch2D.pitchInBytes=begin2.pitch;
     resDesc2.res.pitch2D.height = begin2.block_dim_y;
     resDesc2.res.pitch2D.width=begin2.block_dim_x;
     resDesc2.res.pitch2D.devPtr = begin2.data_pointer;
@@ -297,7 +297,7 @@ namespace thrust
     memset(&resDesc, 0, sizeof(resDesc));
     resDesc.resType = cudaResourceTypePitch2D;
     resDesc.res.pitch2D.desc = cudaCreateChannelDesc<T>();
-    resDesc.res.pitch2D.pitchInBytes=pitch;
+    resDesc.res.pitch2D.pitchInBytes=begin1.pitch;
     resDesc.res.pitch2D.height = begin1.block_dim_y;
     resDesc.res.pitch2D.width=begin1.block_dim_x;
     resDesc.res.pitch2D.devPtr = begin1.data_pointer;
