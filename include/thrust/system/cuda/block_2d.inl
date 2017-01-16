@@ -52,7 +52,7 @@ namespace thrust
     {
       data_pointer = (T*) std::malloc(dim_x*dim_y*sizeof(T));
       this->device_pointer = this;
-      // pitch=dim_x*sizeof(T);
+      pitch=dim_x*sizeof(T);
     }
   }
 
@@ -75,7 +75,7 @@ namespace thrust
       data_pointer = (T*) std::malloc(dim_x*dim_y*sizeof(T));
       std::memset(data_pointer,value,dim_x*dim_y*sizeof(T));
       this->device_pointer = this;
-      // pitch=dim_x*sizeof(T);
+      pitch=dim_x*sizeof(T);
     }
   }
 
@@ -99,6 +99,17 @@ namespace thrust
   {
     *data = (T*) std::malloc(sizeof(T)*dim_x*dim_y);
     cudaMemcpy2D(*data,dim_x*sizeof(T),data_pointer,pitch,dim_x,dim_y,cudaMemcpyDeviceToHost);
+  }
+  template <class T,class Alloc>
+  __host__ void host_block_2d<T,Alloc>::upload (T* data)
+  {
+    memcpy(this->data_pointer,data,this->dim_x*sizeof(T)*this->dim_y);
+  }
+  template <class T,class Alloc>
+  __host__ void host_block_2d<T,Alloc>::download (T** data)
+  {
+    *data = (T*) std::malloc(sizeof(T)*this->dim_x*this->dim_y);
+    memcpy(data,this->data_pointer,this->dim_x*sizeof(T)*this->dim_y);
   }
 
   template <class T,class Alloc>

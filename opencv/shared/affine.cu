@@ -25,7 +25,7 @@ public:
 int main(int argc, char const *argv[]) {
   cudaDeviceProp dev_prop;
   cudaGetDeviceProperties(&dev_prop,0);
-  Mat small = imread("santiago.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+  Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
   int dim = 512;
   if(argc ==2)
@@ -70,7 +70,7 @@ int main(int argc, char const *argv[]) {
   thrust::for_each(thrust::cuda::shared,inputVector.begin(),inputVector.end(),atf);
   // cudaDeviceSynchronize();
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
-  uchar_image_block.download(img);
+  uchar_image_block.download(&img);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];

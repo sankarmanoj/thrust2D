@@ -12,7 +12,7 @@ public:
   }
 };
 int main(int argc, char const *argv[]) {
-  Mat small = imread("santiago.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+  Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
   image = small;
   float kernelx[3], kernely[3];
@@ -32,14 +32,14 @@ int main(int argc, char const *argv[]) {
   {
     img[i]=(uchar)image.ptr()[i];
   }
-  uchar_image_block.assign(img,img+image.cols*image.rows);
-  convolve1_block.assign(uchar_image_block.begin(),uchar_image_block.end());
-  convolve2_block.assign(uchar_image_block.begin(),uchar_image_block.end());
+  uchar_image_block.upload(img);
+  convolve1_block.upload(img);
+  convolve2_block.upload(img);
   thrust::convolve(thrust::cuda::texture,&convolve1_block,kernelx);
   thrust::convolve(thrust::cuda::texture,&convolve2_block,kernely);
   thrust::transform(convolve1_block.begin(),convolve1_block.end(),convolve2_block.begin(),outBlock.begin(),transFunctor());
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
-  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()),cudaMemcpyDeviceToHost);
+  outBlock.download(&img);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];
@@ -48,7 +48,6 @@ int main(int argc, char const *argv[]) {
   #ifdef OWRITE
   imwrite("input.png",image);
   imwrite("sobel.png",output);
-
   #endif
   #ifdef SHOW
   imshow("input.png",image);

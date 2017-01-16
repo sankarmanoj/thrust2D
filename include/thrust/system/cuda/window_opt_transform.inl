@@ -35,8 +35,8 @@ namespace thrust
     if(mConfiguration.block_dim_x<=(mConfiguration.stride_x/2)+mConfiguration.stride_x*(blockIdx.x*blockDim.x+ threadIdx.x))
       return;
     __syncthreads();
-    window_2d<T> shared_window1(input1->b,shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,input1->window_dim_x,input1->window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+mConfiguration.padding);
-    window_2d<T> shared_window2(input2->b,mConfiguration.shared_total_size + shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,input2->window_dim_x,input2->window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+mConfiguration.padding);
+    window_2d<T> shared_window1(input1->b,shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,input1->window_dim_x,input1->window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+mConfiguration.padding,input1->pitch);
+    window_2d<T> shared_window2(input2->b,mConfiguration.shared_total_size + shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,input2->window_dim_x,input2->window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+mConfiguration.padding,input2->pitch);
     window_2d<T> output_window(output->b,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,output->window_dim_x,output->window_dim_y);
     f(shared_window1,shared_window2,output_window);
   }

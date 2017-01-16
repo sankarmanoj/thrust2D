@@ -49,7 +49,7 @@ int main(int argc, char const *argv[]) {
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   // cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()),cudaMemcpyDeviceToHost);
   // cudaMemcpy2D(img,outBlock.dim_x*sizeof(uchar),outBlock.data_pointer,outBlock.pitch,outBlock.dim_x,outBlock.dim_y,cudaMemcpyDeviceToHost);
-  outBlock.download(img);
+  outBlock.download(&img);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];

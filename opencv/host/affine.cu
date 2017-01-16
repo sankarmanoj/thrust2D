@@ -33,7 +33,7 @@ int main(int argc, char const *argv[]) {
   {
     img[i]=(uchar)image.ptr()[i];
   }
-  uchar_image_block.assign(img,img+image.cols*image.rows);
+  uchar_image_block.upload(img);
   Point2f srcTri[3];
   Point2f dstTri[3];
   Mat warp_mat( 2, 3, CV_32FC1 );
@@ -61,7 +61,7 @@ int main(int argc, char const *argv[]) {
   AffineTransformFunctor atf(&warp_block,&outBlock);
   thrust::for_each(thrust::host,inputVector.begin(),inputVector.end(),atf);
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
-  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()),cudaMemcpyHostToHost);
+  outBlock.download(&img);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];

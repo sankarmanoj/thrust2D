@@ -116,7 +116,7 @@ namespace thrust
 
   #endif
 
-      d_Dst[IMAD(iy, pitch, ix)] = sum;
+      d_Dst[IMAD(iy, pitch, ix)] = abs((float)sum);
   }
 
 template <typename T>
@@ -192,7 +192,7 @@ void convolutionRowsGPU(
 
   #endif
 
-      d_Dst[IMAD(iy, pitch, ix)] = sum;
+      d_Dst[IMAD(iy, pitch, ix)] = abs((float)sum);
   }
 
   template<class T>

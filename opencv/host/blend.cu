@@ -33,16 +33,16 @@ int main(int argc, char const *argv[]) {
   {
     ucharImageData[i]=(uchar)input1.ptr()[i];
   }
-  input_image_block_1.assign(ucharImageData,ucharImageData+input1.cols*input1.rows);
+  input_image_block_1.upload(ucharImageData);
   for(int i = 0; i<input1.cols*input1.rows;i++)
   {
     ucharImageData[i]=(uchar)input2.ptr()[i];
   }
-  input_image_block_2.assign(ucharImageData,ucharImageData+input2.cols*input2.rows);
+  input_image_block_2.upload(ucharImageData);
   thrust::host_window_vector<uchar> inputWindow1 (&input_image_block_1,1,1,1,1);
   thrust::host_window_vector<uchar> inputWindow2 (&input_image_block_2,1,1,1,1);
   thrust::transform(thrust::host,inputWindow1.begin(),inputWindow1.end(),inputWindow2.begin(),output_image_block.begin(),blendFunctor(0.5));
-  cudaMemcpy(ucharImageData,output_image_block.data(),sizeof(uchar)*(output_image_block.end()-output_image_block.begin()),cudaMemcpyHostToHost);
+  output_image_block.download(&ucharImageData);
   for(int i = 0; i<input1.cols*input1.rows;i++)
   {
     charImageData[i]=(unsigned char)ucharImageData[i];

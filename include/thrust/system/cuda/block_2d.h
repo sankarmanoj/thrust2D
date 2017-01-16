@@ -94,6 +94,8 @@ namespace thrust
 		host_block_2d (size_t dim_x,size_t dim_y,T value);
 		// host_block_2d (host_block_2d<T> &other);
 		host_block_2d (block_2d<T> &b);
+		__host__ void upload (T* data);
+		__host__ void download (T** data);
 		// __host__ void operator= (block_2d<T> b);
 	};
 }

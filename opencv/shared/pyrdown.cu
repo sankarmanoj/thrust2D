@@ -32,7 +32,7 @@ int main(int argc, char const *argv[])
   {
     dim = atoi(argv[1]);
   }
-  Mat small = imread("santiago.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+  Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
   resize(small,image,Size(dim,dim));
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
@@ -43,14 +43,14 @@ int main(int argc, char const *argv[])
   {
     img[i]=(uchar)image.ptr()[i];
   }
-  uchar_image_block.assign(img,img+image.cols*image.rows);
+  uchar_image_block.upload(img);
   float kernel[3] = {0.25,0.5,0.25};
   thrust::convolve(thrust::cuda::texture,&uchar_image_block,kernel);
   thrust::window_vector<uchar> inputVector(&outBlock,1,1,1,1);
   pyrdownTransformFunctor ptf(&uchar_image_block);
-  thrust::for_each(thrust::cuda::texture,inputVector.begin(),inputVector.end(),ptf);
+  thrust::for_each(thrust::cuda::shared,inputVector.begin(),inputVector.end(),ptf);
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(outBlock.end()-outBlock.begin()));
-  cudaMemcpy(img1,thrust::raw_pointer_cast(outBlock.data()),sizeof(uchar)*(outBlock.end()-outBlock.begin()),cudaMemcpyDeviceToHost);
+  outBlock.download(&img);
   for(int i = 0; i<(outBlock.end()-outBlock.begin());i++)
   {
     outputFloatImageData[i]=(unsigned char)img1[i];
