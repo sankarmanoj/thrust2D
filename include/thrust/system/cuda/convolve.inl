@@ -7,7 +7,7 @@ namespace thrust
   // Convolution kernel size (the only parameter inlined in the code)
   ////////////////////////////////////////////////////////////////////////////////
   #define KERNEL_RADIUS 1
-  #define KERNEL_LENGTH (2 * KERNEL_RADIUS + 1)
+  #define KERNEL_LENGTH 51*51
   ////////////////////////////////////////////////////////////////////////////////
   // GPU-specific defines
   ////////////////////////////////////////////////////////////////////////////////
@@ -34,9 +34,9 @@ namespace thrust
   ////////////////////////////////////////////////////////////////////////////////
   __constant__ float c_Kernel[KERNEL_LENGTH];
 
-  void setConvolutionKernel(float *h_Kernel)
+  void setConvolutionKernel(float *h_Kernel, int ksize)
   {
-      cudaMemcpyToSymbol(c_Kernel, h_Kernel, KERNEL_LENGTH * sizeof(float));
+      cudaMemcpyToSymbol(c_Kernel, h_Kernel, ksize * sizeof(float));
   }
 
   // texture<T, 2, cudaReadModeElementType> texSrc;
@@ -88,6 +88,7 @@ namespace thrust
       T *d_Dst,
       int imageW,
       int imageH,
+      int ksize,
       cudaTextureObject_t texObjSrc
   )
   {
@@ -107,9 +108,9 @@ namespace thrust
       sum = convolutionRow<2 *KERNEL_RADIUS,T>(x, y,texObjSrc);
   #else
 
-      for (int k = -KERNEL_RADIUS; k <= KERNEL_RADIUS; k++)
+      for (int k = -ksize/2 + 1; k <= ksize/2; k++)
       {
-          sum += tex2D<T>(texObjSrc, x + (T)k, y) * c_Kernel[KERNEL_RADIUS - k];
+          sum += tex2D<T>(texObjSrc, x + (T)k, y) * c_Kernel[ksize/2 - k];
       }
 
   #endif
@@ -122,7 +123,8 @@ void convolutionRowsGPU(
       T *d_Dst,
       cudaArray *a_Src,
       int imageW,
-      int imageH
+      int imageH,
+      int ksize
   )
   {
       dim3 threads(16, 12);
@@ -143,7 +145,8 @@ void convolutionRowsGPU(
           d_Dst,
           imageW,
           imageH,
-          texObjSrc
+          texObjSrc,
+          int ksize
       );
 
   }
@@ -158,6 +161,7 @@ void convolutionRowsGPU(
       T *d_Dst,
       int imageW,
       int imageH,
+      int ksize,
       cudaTextureObject_t texObjSrc
   )
   {
@@ -177,9 +181,9 @@ void convolutionRowsGPU(
       sum = convolutionColumn<2 *KERNEL_RADIUS,T>(x, y,texObjSrc);
   #else
 
-      for (int k = -KERNEL_RADIUS; k <= KERNEL_RADIUS; k++)
+      for (int k = -ksize/2 + 1; k <= ksize/2; k++)
       {
-          sum += tex2D<T>(texObjSrc, x, y + (T)k) * c_Kernel[KERNEL_RADIUS - k];
+          sum += tex2D<T>(texObjSrc, x, y + (T)k) * c_Kernel[ksize/2 - k];
       }
 
   #endif
@@ -192,7 +196,8 @@ void convolutionRowsGPU(
       T *d_Dst,
       cudaArray *a_Src,
       int imageW,
-      int imageH
+      int imageH,
+      int ksize
   )
   {
       dim3 threads(16, 12);
@@ -212,6 +217,7 @@ void convolutionRowsGPU(
           d_Dst,
           imageW,
           imageH,
+          int ksize,
           texObjSrc
       );
 
@@ -220,7 +226,7 @@ void convolutionRowsGPU(
 
 
   template <class T>
-  void convolve(cuda::texture_policy,block_2d<T> *block, float *kernel)
+  void convolve(cuda::texture_policy,block_2d<T> *block, float *kernel, int ksize)
   {
     cudaArray *a_Src;
     T *d_Output;
@@ -235,14 +241,16 @@ void convolutionRowsGPU(
         block->data().get(),
         a_Src,
         imageW,
-        imageH
+        imageH,
+        int ksize
     );
     cudaMemcpyToArray(a_Src, 0, 0, block->data().get(), imageW * imageH * sizeof(T), cudaMemcpyDeviceToDevice);
     convolutionColumnsGPU<T>(
         d_Output,
         a_Src,
         imageW,
-        imageH
+        imageH,
+        int ksize
     );
     // cudaMemcpy(block->data().get(), d_Output, imageW * imageH * sizeof(T), cudaMemcpyDeviceToDevice)
   }

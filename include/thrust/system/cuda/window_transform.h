@@ -20,7 +20,7 @@ namespace thrust
   template <class T>
   void transpose(block_2d<T> *a);
   template <class T>
-  void convolve(cuda::texture_policy,block_2d<T> *block, float *kernel);
+  void convolve(cuda::texture_policy,block_2d<T> *block, float *kernel, int ksize);
 
   template <class T>
   class shared_binary_window_transform_functor

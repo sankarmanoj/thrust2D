@@ -19,15 +19,15 @@ int main(int argc, char const *argv[]) {
   {
     img[i]=(uchar)image.ptr()[i];
   }
-  uchar_image_block.assign(img,img+image.cols*image.rows);
+  uchar_image_block.upload(img);
   // thrust::window_vector<float> input_wv(&float_image_block,dim,dim,1,1);
   // thrust::window_vector<float> output_wv(&output_image_block,dim,dim,1,1);
   // thrust::transform(thrust::cuda::texture,input_wv.begin(),input_wv.end(),output_wv.begin(),convolutionFunctor(kernel.device_pointer,dim));
   float kernel[3] = {1,1,1};
-  thrust::convolve(thrust::cuda::texture,&uchar_image_block,kernel);
+  thrust::convolve(thrust::cuda::texture,&uchar_image_block,kernel,3);
 
   unsigned char * outputucharImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
-  cudaMemcpy(img,thrust::raw_pointer_cast(uchar_image_block.data()),sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()),cudaMemcpyDeviceToHost);
+  uchar_image_block.download(&img);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputucharImageData[i]=(unsigned char)img[i];
