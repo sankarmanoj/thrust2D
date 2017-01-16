@@ -28,7 +28,7 @@ namespace thrust
     if(mConfiguration.block_dim_x<=(mConfiguration.stride_x/2)+mConfiguration.stride_x*(blockIdx.x*blockDim.x+ threadIdx.x))
       return;
     __syncthreads();
-    window_2d<T> shared_window(input->b,shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,input->window_dim_x,input->window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+mConfiguration.padding);
+    window_2d<T> shared_window(input->b,shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,input->window_dim_x,input->window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+mConfiguration.padding,input->pitch);
     window_2d<T> output_window(output->b,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,output->window_dim_x,output->window_dim_y);
     f(shared_window,output_window);
   }
@@ -116,21 +116,16 @@ namespace thrust
     assert(begin1.stride_x == begin2.stride_x);
     assert(begin1.stride_y == begin2.stride_y);
     assert(size_along_y*size_along_x*sizeof(T)<properties.sharedMemPerBlock);
-    //allocate pitched 2d memory
-    T * aligned_device_memory;
-    size_t pitch;
-    cudaMallocPitch(&aligned_device_memory,&pitch,begin1.block_dim_x*sizeof(T),begin1.block_dim_y);
-    cudaMemcpy2D(aligned_device_memory,pitch,begin1.data_pointer,begin1.block_dim_x*sizeof(T),begin1.block_dim_x*sizeof(T),begin1.block_dim_y,cudaMemcpyDeviceToDevice);
 
     //Create Resource Descriptor
     cudaResourceDesc resDesc;
     memset(&resDesc, 0, sizeof(resDesc));
     resDesc.resType = cudaResourceTypePitch2D;
     resDesc.res.pitch2D.desc = cudaCreateChannelDesc<T>();
-    resDesc.res.pitch2D.pitchInBytes=pitch;
+    resDesc.res.pitch2D.pitchInBytes=begin1.pitch;
     resDesc.res.pitch2D.height = begin1.block_dim_y;
     resDesc.res.pitch2D.width=begin1.block_dim_x;
-    resDesc.res.pitch2D.devPtr = aligned_device_memory;
+    resDesc.res.pitch2D.devPtr = begin1.data_pointer;
     //Create Texture Descriptor
     cudaTextureDesc texDesc;
     memset(&texDesc, 0, sizeof(texDesc));
@@ -169,7 +164,7 @@ namespace thrust
     }
     else
     {
-      window_2d<T> shared_window(input->b,shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,input->window_dim_x,input->window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+mConfiguration.padding);
+      window_2d<T> shared_window(input->b,shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,input->window_dim_x,input->window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+mConfiguration.padding,input->pitch);
       f(shared_window);
     }
     __syncthreads();

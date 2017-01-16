@@ -64,6 +64,7 @@ namespace thrust
     size_t stride_x;
     size_t stride_y;
     size_t windows_along_x, windows_along_y;
+    size_t pitch;
     T * data_pointer;
     __host__ window_iterator(block_2d<T,Alloc> *b, size_t window_dim_x, size_t window_dim_y, size_t stride_x, size_t stride_y);
     __host__ window_iterator(block_2d<T,Alloc> *b, size_t window_dim_x, size_t window_dim_y, size_t stride_x, size_t stride_y,size_t position);

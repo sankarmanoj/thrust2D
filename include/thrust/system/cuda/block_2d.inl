@@ -90,6 +90,18 @@ namespace thrust
   }
 
   template <class T,class Alloc>
+  __host__ void block_2d<T,Alloc>::upload (T* data)
+  {
+    cudaMemcpy2D(data_pointer,pitch,data,dim_x*sizeof(T),dim_x,dim_y,cudaMemcpyHostToDevice);
+  }
+  template <class T,class Alloc>
+  __host__ void block_2d<T,Alloc>::download (T* data)
+  {
+    data = (T*) std::malloc(sizeof(T)*dim_x*dim_y);
+    cudaMemcpy2D(data,dim_x*sizeof(T),data_pointer,pitch,dim_x,dim_y,cudaMemcpyDeviceToHost);
+  }
+
+  template <class T,class Alloc>
   __host__ __device__ block_2d_iterator<T,Alloc> block_2d<T,Alloc>::operator[] (size_t index)
   {
     return block_2d_iterator<T,Alloc>(this,index);

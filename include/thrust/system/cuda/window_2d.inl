@@ -136,10 +136,10 @@ namespace thrust
     this->window_dim_y = window_dim_y;
     this->stride_x = stride_x;
     this->stride_y = stride_y;
+    this->pitch = b->pitch;
     this->position =0;
     this->windows_along_x= size_t((this->block_dim_x-window_dim_x)/stride_x) +1;
     this->windows_along_y = size_t((this->block_dim_y-window_dim_y)/stride_y)+1;
-
   }
 
   template <class T,class Alloc>
@@ -149,6 +149,7 @@ namespace thrust
     this->data_pointer = b->data_pointer;
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
+    this->pitch = b->pitch;
     this->window_dim_x = window_dim_x;
     this->window_dim_y = window_dim_y;
     this->stride_x = stride_x;
@@ -156,7 +157,6 @@ namespace thrust
     this->position =position;
     this->windows_along_x= size_t((this->block_dim_x-window_dim_x)/stride_x) +1;
     this->windows_along_y = size_t((this->block_dim_y-window_dim_y)/stride_y)+1;
-
   }
 
   template <class T,class Alloc>
