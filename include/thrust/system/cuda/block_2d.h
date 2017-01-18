@@ -9,6 +9,7 @@
 namespace thrust
 {
 	template <class T,class Alloc=device_malloc_allocator<T> > class block_2d;
+	template <class T,class Alloc=std::allocator<T> >	class host_block_2d;
 	template<class T,class Alloc=device_malloc_allocator<T> >
 	class block_iterator
 	{
@@ -75,6 +76,7 @@ namespace thrust
 		block_2d (size_t dim_x,size_t dim_y);
 		block_2d (size_t dim_x,size_t dim_y,T value);
 		block_2d (block_2d<T> &other);
+		__host__ void operator=(const host_block_2d<T> &b);
 		__host__ void upload (T* data);
 		__host__ void download (T** data);
 		__host__ __device__ int2 index_to_int2(size_t index) const;
@@ -86,7 +88,7 @@ namespace thrust
 	};
 	// template <class T>
 	// using host_block_2d=block_2d<T,std::allocator<T> >;
-	template <class T,class Alloc=std::allocator<T> >
+	template <class T,class Alloc>
 	class host_block_2d : public block_2d<T,Alloc>
 	{
 	public:
@@ -96,7 +98,7 @@ namespace thrust
 		host_block_2d (block_2d<T> &b);
 		__host__ void upload (T* data);
 		__host__ void download (T** data);
-		// __host__ void operator= (block_2d<T> b);
+		__host__ void operator= (const block_2d<T> &b);
 	};
 }
 #include <thrust/system/cuda/block_2d.inl>

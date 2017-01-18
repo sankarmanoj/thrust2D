@@ -17,24 +17,33 @@ namespace thrust
   {
 
   }
-  template <class T,class Alloc>
-  host_block_2d<T,Alloc>::host_block_2d (block_2d<T> &b) //: block_2d<T,std::allocator<T> > (block_2d<T> &other)
-  {
-    this->dim_x = b.dim_x;
-    this->dim_y = b.dim_y;
-    this->pitch = b.dim_x*sizeof(T);
-    cudaMemcpy2D(this->data_pointer,this->pitch,b.data_pointer,b.pitch,this->dim_x,this->dim_y,cudaMemcpyDeviceToHost);
-    this->device_pointer = this;
-  }
-  // template <class T>
-  // __host__ void host_block_2d<T>::operator= (block_2d<T> b)
+  // template <class T,class Alloc>
+  // host_block_2d<T,Alloc>::host_block_2d (block_2d<T> &b) //: block_2d<T,std::allocator<T> > (block_2d<T> &other)
   // {
   //   this->dim_x = b.dim_x;
   //   this->dim_y = b.dim_y;
-  //   this->pitch = b.pitch;
-  //   cudaMemcpy2D(this->data_pointer,this->pitch,b.data_pointer,this->pitch,this->dim_x,this->dim_y,cudaMemcpyDeviceToHost);
+  //   this->pitch = b.dim_x*sizeof(T);
+  //   cudaMemcpy2D(this->data_pointer,this->pitch,b.data_pointer,b.pitch,this->dim_x,this->dim_y,cudaMemcpyDeviceToHost);
   //   this->device_pointer = this;
   // }
+  template <class T,class Alloc>
+  __host__ void host_block_2d<T,Alloc>::operator= (const block_2d<T> &b)
+  {
+    printf("Copy from device block to host\n");
+    this->dim_x = b.dim_x;
+    this->dim_y = b.dim_y;
+    this->pitch = b.dim_x*sizeof(T);
+    cudaMemcpy2D(this->data_pointer,this->pitch,b.data_pointer,b.pitch,this->dim_x*sizeof(T),this->dim_y,cudaMemcpyDeviceToHost);
+    this->device_pointer = this;
+  }
+  template <class T, class Alloc>
+  __host__ void block_2d<T,Alloc>::operator= (const host_block_2d<T> &b)
+  {
+    printf("Copy from host block to device\n");
+    this->dim_x = b.dim_x;
+    this->dim_y = b.dim_y;
+    cudaMemcpy2D(this->data_pointer,this->pitch,b.data_pointer,b.pitch,this->dim_x*sizeof(T),this->dim_y,cudaMemcpyHostToDevice);
+  }
   template <class T,class Alloc>
   block_2d<T,Alloc>::block_2d (size_t dim_x, size_t dim_y)
   {
@@ -42,7 +51,7 @@ namespace thrust
     this->dim_y = dim_y;
     if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
     {
-      cudaMallocPitch((void **)&data_pointer,&pitch,dim_x*sizeof(T),dim_y*sizeof(T));
+      cudaMallocPitch((void **)&data_pointer,&pitch,dim_x*sizeof(T),dim_y);
       block_2d<T,Alloc> * temp;
       cudaMalloc((void **)&temp,sizeof(block_2d));
       cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
@@ -63,8 +72,9 @@ namespace thrust
     this->dim_y = dim_y;
     if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
     {
-      cudaMallocPitch((void **)&data_pointer,&pitch,dim_x*sizeof(T),dim_y*sizeof(T));
-      cudaMemset2D((void **)data_pointer,pitch,value,dim_x*sizeof(T),dim_y*sizeof(T));
+      printf("Device Block\n");
+      cudaMallocPitch((void **)&data_pointer,&pitch,dim_x*sizeof(T),dim_y);
+      cudaMemset2D((void **)data_pointer,pitch,value,dim_x*sizeof(T),dim_y);
       block_2d<T,Alloc> * temp;
       cudaMalloc((void **)&temp,sizeof(block_2d));
       cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
@@ -92,13 +102,13 @@ namespace thrust
   template <class T,class Alloc>
   __host__ void block_2d<T,Alloc>::upload (T* data)
   {
-    cudaMemcpy2D(data_pointer,pitch,data,dim_x*sizeof(T),dim_x,dim_y,cudaMemcpyHostToDevice);
+    cudaMemcpy2D(data_pointer,pitch,data,dim_x*sizeof(T),dim_x*sizeof(T),dim_y,cudaMemcpyHostToDevice);
   }
   template <class T,class Alloc>
   __host__ void block_2d<T,Alloc>::download (T** data)
   {
     *data = (T*) std::malloc(sizeof(T)*dim_x*dim_y);
-    cudaMemcpy2D(*data,dim_x*sizeof(T),data_pointer,pitch,dim_x,dim_y,cudaMemcpyDeviceToHost);
+    cudaMemcpy2D(*data,dim_x*sizeof(T),data_pointer,pitch,dim_x*sizeof(T),dim_y,cudaMemcpyDeviceToHost);
   }
   template <class T,class Alloc>
   __host__ void host_block_2d<T,Alloc>::upload (T* data)
