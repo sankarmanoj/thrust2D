@@ -46,6 +46,7 @@ int main(int argc, char const *argv[]) {
   /// Get the Affine Transform
   warp_mat = getAffineTransform( srcTri, dstTri );
   warp_mat.convertTo(warp_mat,CV_32FC1);
+  thrust::host_block_2d<uchar> host_warp_block(warp_mat.cols,warp_mat.rows);
   thrust::block_2d<uchar> warp_block(warp_mat.cols,warp_mat.rows);
   for(int i = 0; i< warp_mat.rows;i++)
   {
@@ -54,6 +55,7 @@ int main(int argc, char const *argv[]) {
       warp_block[i][j]=warp_mat.at<uchar>(i,j);
     }
   }
+  warp_block = host_warp_block;
   //Create Windows For Indexing
   thrust::window_vector<uchar> inputVector(&uchar_image_block,1,1,1,1);
   AffineTransformFunctor atf(&warp_block,&outBlock);

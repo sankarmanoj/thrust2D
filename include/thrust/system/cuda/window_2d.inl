@@ -203,7 +203,7 @@ namespace thrust
   {
     this->position = this->position - N;
     if(this->position<0)
-    this->position = 0;
+      this->position = 0;
     return *this;
   }
 

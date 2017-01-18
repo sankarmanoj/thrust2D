@@ -13,8 +13,7 @@ public:
   }
   __device__ void operator() (const thrust::window_2d<uchar> &inputWindow1,const thrust::window_2d<uchar> &inputWindow2,const thrust::window_2d<uchar> &outputWindow) const
   {
-
-    outputWindow[0][0] = 0.5 * inputWindow1[make_int2(0,0)]+0.5 *  inputWindow2[make_int2(0,0)];
+    outputWindow[0][0] = alpha * inputWindow1[make_int2(0,0)]+(1-alpha) *  inputWindow2[make_int2(0,0)];
   }
 };
 
@@ -26,7 +25,7 @@ int main(int argc, char const *argv[]) {
   }
   cudaDeviceProp dev_prop;
   cudaGetDeviceProperties(&dev_prop,0);
-  Mat input1 = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+  Mat input1 = imread("santiago.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat input2 = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat temp1;
   resize(input1,temp1,Size(dim,dim));
@@ -53,7 +52,7 @@ int main(int argc, char const *argv[]) {
   thrust::window_vector<uchar> inputWindow1 (&input_image_block_1,1,1,1,1);
   thrust::window_vector<uchar> inputWindow2 (&input_image_block_2,1,1,1,1);
   thrust::window_vector<uchar> outputWindow (&output_image_block,1,1,1,1);
-  thrust::transform(thrust::cuda::shared,inputWindow1.begin(),inputWindow1.end(),inputWindow2.begin(),outputWindow.begin(),blendFunctor(0));
+  thrust::transform(thrust::cuda::shared,inputWindow1.begin(),inputWindow1.end(),inputWindow2.begin(),outputWindow.begin(),blendFunctor(0.8));
   output_image_block.download(&charImageData);
     // for(int i = 0; i<input1.cols*input1.rows;i++)
   // {
