@@ -1,6 +1,6 @@
 IDIR =../../include
 CC=nvcc
-CFLAGS=-I$(IDIR) -ccbin=g++-5 -std=c++11 -Wno-deprecated-gpu-targets -D_MWAITXINTRIN_H_INCLUDED
+CFLAGS=-I$(IDIR) -ccbin=g++ -std=c++11 -Wno-deprecated-gpu-targets -D_MWAITXINTRIN_H_INCLUDED
 
 %.out: %.cu
 	clear

@@ -25,7 +25,7 @@ for texec in execs:
             cr.next()
             line = cr.next()
             values = len(line)
-            while values > 0:
+            while values >= 6 :
                 try:
                     times[line[6]]
                 except:

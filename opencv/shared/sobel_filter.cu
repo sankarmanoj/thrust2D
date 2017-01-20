@@ -57,7 +57,8 @@ int main(int argc, char const *argv[]) {
   #ifdef SHOW
   imshow("input.png",image);
   imshow("sobel.png",output);
-  #endif
   waitKey(0);
+  #endif
+
   return 0;
 }
