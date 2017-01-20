@@ -95,7 +95,7 @@ int main()
   {
     img[i]=(uchar)image.ptr()[i];
   }
-  uchar_image_block.assign(img,img+image.cols*image.rows);
+  uchar_image_block.upload(img);
   thrust::window_vector<uchar> inputVector(&uchar_image_block,1,1,1,1);
   thrust::window_vector<uchar> inputVector1(&outBlock,dim,dim,1,1);
   pyrdownTransformFunctor ptf(&outBlock);
@@ -104,7 +104,7 @@ int main()
   thrust::window_vector<uchar> output_wv(&output_image_block,dim,dim,1,1);
   thrust::transform(inputVector1.begin(),inputVector1.end(),output_wv.begin(),zero_image_block.begin(),convolutionFunctor(kernel.device_pointer,dim));
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(output_image_block.end()-output_image_block.begin()));
-  cudaMemcpy(img_out,thrust::raw_pointer_cast(output_image_block.data()),sizeof(uchar)*(output_image_block.end()-output_image_block.begin()),cudaMemcpyDeviceToHost);
+  output_image_block.download(&img);
   for(int i = 0; i<image.cols*image.rows*4;i++)
   {
     outputFloatImageData[i]=(unsigned char)img_out[i];

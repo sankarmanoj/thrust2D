@@ -1,33 +1,9 @@
-==5678== NVPROF is profiling process 5678, command: ./scharr_filter.o
-==5678== Profiling application: ./scharr_filter.o
-==5678== Profiling result:
-Time(%)      Time     Calls       Avg       Min       Max  Name
- 47.64%  136.09us         2  68.042us  67.770us  68.315us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<convolutionFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
- 17.17%  49.052us        27  1.8160us     544ns  19.134us  [CUDA memcpy HtoD]
- 12.31%  35.165us         1  35.165us  35.165us  35.165us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<transFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
- 11.18%  31.934us         2  15.967us  15.679us  16.255us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::detail::normal_iterator<thrust::device_ptr<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::unary_transform_functor<thrust::identity<unsigned char>>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
-  6.60%  18.846us         1  18.846us  18.846us  18.846us  [CUDA memcpy DtoH]
-  4.34%  12.383us         6  2.0630us  1.9840us  2.3360us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::device_ptr<unsigned char>, thrust::detail::wrapped_function<thrust::detail::device_generate_functor<thrust::detail::fill_functor<unsigned char>>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
-  0.76%  2.1760us         2  1.0880us     896ns  1.2800us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::device_ptr<float>, thrust::detail::wrapped_function<thrust::detail::device_generate_functor<thrust::detail::fill_functor<float>>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
+==18492== NVPROF is profiling process 18492, command: ./scharr_filter.o
+==18492== Profiling application: ./scharr_filter.o
+==18492== Profiling result:
+No kernels were profiled.
 
-==5678== API calls:
-Time(%)      Time     Calls       Avg       Min       Max  Name
- 99.59%  282.40ms        16  17.650ms  4.3090us  281.97ms  cudaMalloc
-  0.10%  292.26us        90  3.2470us     103ns  116.96us  cuDeviceGetAttribute
-  0.08%  219.81us         9  24.423us  4.4150us  175.41us  cudaMemcpy
-  0.07%  198.13us         1  198.13us  198.13us  198.13us  cuDeviceTotalMem
-  0.05%  139.55us         8  17.443us  3.0530us  101.22us  cudaFree
-  0.03%  92.570us        13  7.1200us  4.9970us  14.726us  cudaLaunch
-  0.03%  80.424us        52  1.5460us  1.4070us  3.2320us  cudaFuncGetAttributes
-  0.02%  55.131us        19  2.9010us  1.9880us  15.042us  cudaMemcpyAsync
-  0.01%  26.921us         1  26.921us  26.921us  26.921us  cuDeviceGetName
-  0.00%  12.855us        39     329ns     213ns  1.5820us  cudaGetDevice
-  0.00%  10.833us        13     833ns     527ns  2.2880us  cudaEventCreateWithFlags
-  0.00%  8.3860us        13     645ns     460ns  1.2640us  cudaEventRecord
-  0.00%  6.8570us        13     527ns     427ns     911ns  cudaEventDestroy
-  0.00%  5.6840us        13     437ns     166ns  2.9500us  cudaSetupArgument
-  0.00%  3.5060us        13     269ns     167ns     799ns  cudaConfigureCall
-  0.00%  3.0060us        11     273ns     207ns     714ns  cudaDeviceGetAttribute
-  0.00%  1.4170us         2     708ns     164ns  1.2530us  cuDeviceGetCount
-  0.00%     419ns         1     419ns     419ns     419ns  cudaGetLastError
-  0.00%     286ns         2     143ns      99ns     187ns  cuDeviceGet
+==18492== API calls:
+No API activities were profiled.
+==18492== Warning: Some profiling data are not recorded. Make sure cudaProfilerStop() or cuProfilerStop() is called before application exit to flush profile data.
+======== Error: Application received signal 11

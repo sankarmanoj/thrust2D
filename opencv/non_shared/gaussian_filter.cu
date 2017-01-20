@@ -7,7 +7,7 @@ inline float gauss(int x, int y, int mid, float sigma )
   temp= exp(-temp);
   return temp;
 }
-void getGaussianKernelBlock(int dim, float sigma,thrust::block_2d<float> &GaussianKernel )
+void getGaussianKernelBlock(int dim, float sigma,thrust::host_block_2d<float> &GaussianKernel )
 {
   assert(dim%2);
   int mid = (dim-1)/2;
@@ -39,7 +39,7 @@ public:
   convolutionFunctor( thrust::block_2d<float> * kernel,int dim)
   {
     this->dim =dim;
-    this->kernel = kernel;
+    this->kernel = kernel->device_pointer;
   }
   __device__ uchar operator() (const thrust::window_2d<uchar> & input_window,const thrust::window_2d<uchar> & output_window) const
   {
@@ -60,8 +60,10 @@ int main(int argc, char const *argv[]) {
   Mat image;
   int dim = 19;
   image = small;
+  thrust::host_block_2d<float> hkernel(dim,dim);
+  getGaussianKernelBlock(dim,5,hkernel);
   thrust::block_2d<float> kernel(dim,dim);
-  getGaussianKernelBlock(dim,5,kernel);
+  kernel=hkernel;
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
   thrust::block_2d<uchar> zero_image_block (image.cols,image.rows);
@@ -71,13 +73,13 @@ int main(int argc, char const *argv[]) {
   {
     img[i]=(uchar)image.ptr()[i];
   }
-  uchar_image_block.assign(img,img+image.cols*image.rows);
+  uchar_image_block.upload(img);
   thrust::window_vector<uchar> input_wv(&uchar_image_block,dim,dim,1,1);
   thrust::window_vector<uchar> output_wv(&output_image_block,dim,dim,1,1);
-  thrust::transform(input_wv.begin(),input_wv.end(),output_wv.begin(),zero_image_block.begin(),convolutionFunctor(kernel.device_pointer,dim));
+  thrust::transform(input_wv.begin(),input_wv.end(),output_wv.begin(),zero_image_block.begin(),convolutionFunctor(&kernel,dim));
 
   unsigned char * toutputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
-  cudaMemcpy(img,thrust::raw_pointer_cast(output_image_block.data()),sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()),cudaMemcpyDeviceToHost);
+  output_image_block.download(&img);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     toutputFloatImageData[i]=(unsigned char)img[i];

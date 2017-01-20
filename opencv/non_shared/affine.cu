@@ -4,10 +4,10 @@ using namespace cv;
 class AffineTransformFunctor
 {
 public:
-  thrust::block_2d<uchar> *transformMatrix;
+  thrust::block_2d<float> *transformMatrix;
   thrust::block_2d<uchar> *outBlock;
 
-  AffineTransformFunctor(thrust::block_2d<uchar> * tm,thrust::block_2d<uchar> * outBlock)
+  AffineTransformFunctor(thrust::block_2d<float> * tm,thrust::block_2d<uchar> * outBlock)
   {
     this->transformMatrix = tm->device_pointer;
     this->outBlock = outBlock->device_pointer;
@@ -32,7 +32,7 @@ int main(int argc, char const *argv[]) {
   {
     img[i]=(uchar)image.ptr()[i];
   }
-  uchar_image_block.assign(img,img+image.cols*image.rows);
+  uchar_image_block.upload(img);
   Point2f srcTri[3];
   Point2f dstTri[3];
   Mat warp_mat( 2, 3, CV_32FC1 );
@@ -46,13 +46,13 @@ int main(int argc, char const *argv[]) {
   /// Get the Affine Transform
   warp_mat = getAffineTransform( srcTri, dstTri );
   warp_mat.convertTo(warp_mat,CV_32FC1);
-  thrust::host_block_2d<uchar> host_warp_block(warp_mat.cols,warp_mat.rows);
-  thrust::block_2d<uchar> warp_block(warp_mat.cols,warp_mat.rows);
+  thrust::host_block_2d<float> host_warp_block(warp_mat.cols,warp_mat.rows);
+  thrust::block_2d<float> warp_block(warp_mat.cols,warp_mat.rows);
   for(int i = 0; i< warp_mat.rows;i++)
   {
     for(int j = 0; j<warp_mat.cols;j++)
     {
-      warp_block[i][j]=warp_mat.at<uchar>(i,j);
+      host_warp_block[i][j]=warp_mat.at<float>(i,j);
     }
   }
   warp_block = host_warp_block;
@@ -62,7 +62,7 @@ int main(int argc, char const *argv[]) {
   thrust::for_each(inputVector.begin(),inputVector.end(),atf);
   cudaDeviceSynchronize();
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
-  cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()),cudaMemcpyDeviceToHost);
+  outBlock.download(&img);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];

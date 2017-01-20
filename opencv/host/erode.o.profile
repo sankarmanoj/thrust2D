@@ -1,2 +1,1 @@
 ======== Warning: No CUDA application was profiled, exiting
-======== Error: Application received signal 139

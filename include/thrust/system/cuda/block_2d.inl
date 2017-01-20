@@ -119,7 +119,7 @@ namespace thrust
   __host__ void host_block_2d<T,Alloc>::download (T** data)
   {
     *data = (T*) std::malloc(sizeof(T)*this->dim_x*this->dim_y);
-    memcpy(data,this->data_pointer,this->dim_x*sizeof(T)*this->dim_y);
+    memcpy(*data,this->data_pointer,this->dim_x*sizeof(T)*this->dim_y);
   }
 
   template <class T,class Alloc>

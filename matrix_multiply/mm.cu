@@ -55,8 +55,8 @@ int main()
   GPU_fill_rand(d_B.data_pointer, nr_rows_B, nr_cols_B);
 
   // Optionally we can copy the data back on CPU and print the arrays
-  cudaMemcpy2D(h_A,nr_cols_A*sizeof(float),d_A.data_pointer,d_A.pitch,nr_rows_A,nr_cols_A,cudaMemcpyDeviceToHost);
-  cudaMemcpy2D(h_B,nr_cols_B*sizeof(float),d_B.data_pointer,d_B.pitch,nr_rows_B,nr_cols_B,cudaMemcpyDeviceToHost);
+  d_A.upload(h_A);
+  d_B.upload(h_B);
   std::cout << "A =" << std::endl;
   print_matrix(h_A, nr_rows_A, nr_cols_A);
   std::cout << "B =" << std::endl;
@@ -70,7 +70,7 @@ int main()
   gpu_blas_mmul(handle,d_A, d_B, d_C, nr_rows_A, nr_cols_A, nr_cols_B);
 
   // Copy (and print) the result on host memory
-  cudaMemcpy2D(h_C,nr_cols_C*sizeof(float),d_C.data_pointer,d_C.pitch,nr_rows_C,nr_cols_C,cudaMemcpyDeviceToHost);
+  d_C.download(&h_C);
   std::cout << "C =" << std::endl;
   print_matrix(h_C, nr_rows_C, nr_cols_C);
 
