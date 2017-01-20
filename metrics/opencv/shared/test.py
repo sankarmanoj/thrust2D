@@ -8,7 +8,7 @@ print path
 results = []
 execs = [ x for x in  os.listdir(path) if x.partition(".")[2]=="o" ]
 print execs
-dims = [32,64,96,128,256,384,512,1024,2049]
+dims = [32,64,96,128,256,384,512,768,1024,1280,1536,1792,2049]
 for texec in execs:
     times = {".name":texec,"dims":[]}
     print texec,
