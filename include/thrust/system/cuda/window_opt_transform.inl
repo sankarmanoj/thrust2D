@@ -2,10 +2,7 @@
 #include <thrust/system/cuda/window_transform.h>
 namespace thrust
 {
-  int iDivUp(int a, int b)
-  {
-      return (a % b != 0) ? (a / b + 1) : (a / b);
-  }
+
 
   //Binary Shared Transform
   template<typename T, class Func>

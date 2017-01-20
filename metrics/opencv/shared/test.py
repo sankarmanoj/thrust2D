@@ -8,11 +8,13 @@ print path
 results = []
 execs = [ x for x in  os.listdir(path) if x.partition(".")[2]=="o" ]
 print execs
+dims = [32,64,96,128,256,384,512,1024,2049]
 for texec in execs:
-    dim = 8192
-    times = {"a_name":texec,"dims":[]}
-    while dim>32:
-        os.popen("nvprof --csv --log-file log.txt ./%s %d"%(texec,dim))
+    times = {".name":texec,"dims":[]}
+    print texec,
+    for dim in dims:
+        print str(dim)+"  ",
+        os.popen("nvprof -u us --csv --log-file log.txt ./%s %d"%(texec,dim))
         times["dims"].append(dim)
         with open("log.txt","r") as x:
             cr = csv.reader(x)
@@ -25,15 +27,15 @@ for texec in execs:
             values = len(line)
             while values > 0:
                 try:
-                    times[line[6][0:20]]
+                    times[line[6]]
                 except:
-                    times[line[6][0:20]]=[]
-                times[line[6][0:20]].append(line[3])
+                    times[line[6]]=[]
+                times[line[6]].append(line[3])
                 line = cr.next()
                 values = len(line)
-        dim=dim/2
     results.append(times)
+    print "\n"
 
 os.system("rm log.txt")
 os.chdir(original_path)
-json.dump(results,open("result.json","w"),sort_keys=True,indent=4, separators=(',', ': '))
+json.dump(results,open("result.json","w"),indent=4,sort_keys = True, separators=(',', ': '))

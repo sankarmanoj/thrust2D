@@ -1,9 +1,16 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/cudafilters.hpp>
 #include <opencv2/cudaarithm.hpp>
-int main()
+int main( int argc, char** argv )
 {
-  cv::Mat image = cv::imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+  int dim = 512;
+  if(argc ==2)
+  {
+    dim = atoi(argv[1]);
+  }
+  cv::Mat t,image;
+  t = cv::imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+  cv::resize(t,image,cv::Size(dim,dim));
   cv::cuda::GpuMat image_d, grad_x_d,grad_y_d,grad_d;
   cv::imwrite("input.png", image);//displaying image
   image_d.upload(image);
@@ -25,6 +32,12 @@ int main()
 
   /// Total Gradient (approximate)
   cv::addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, grad);
+  #ifdef OWRITE
   cv::imwrite("sobel.png",grad);//displaying image1
+  #endif
 
+  #ifdef SHOW
+  cv::imshow("sobel.png",grad);//displaying image1
+    cv::waitKey(0);
+  #endif
 }

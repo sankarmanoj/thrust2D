@@ -24,10 +24,16 @@ pyrupTransformFunctor(thrust::block_2d<uchar> * inBlock)
   }
 };
 
-int main()
+int main(int argc, char const *argv[])
 {
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
-  Mat image=small;
+  Mat image;
+  int dim = 512;
+  if(argc ==2)
+  {
+    dim = atoi(argv[1]);
+  }
+  resize(small,image,Size(dim,dim));
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
   thrust::block_2d<uchar> outBlock (image.cols*2,image.rows*2,0.0f);
@@ -44,7 +50,7 @@ int main()
   thrust::for_each(thrust::cuda::shared,inputVector.begin(),inputVector.end(),ptf);
   cudaDeviceSynchronize();
   float kernel[3] = {0.25,0.5,0.25};
-  thrust::convolve(thrust::cuda::texture,&outBlock,kernel);
+  thrust::convolve(thrust::cuda::texture,&outBlock,kernel,3);
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(outBlock.end()-outBlock.begin()));
   outBlock.download(&img);
   for(int i = 0; i<image.cols*image.rows*4;i++)

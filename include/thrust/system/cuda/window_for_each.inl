@@ -1,5 +1,6 @@
 namespace thrust
 {
+
   template<typename T, class Func>
   __global__
   // __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)
@@ -62,6 +63,6 @@ namespace thrust
     Iterator * device_begin_1;
     cudaMalloc((void **)&device_begin_1, sizeof(Iterator));
     cudaMemcpy(device_begin_1,&begin1,sizeof(Iterator),cudaMemcpyHostToDevice);
-    for_each_kernel<<<dim3(begin1.block_dim_x/mConfiguration.warp_size,begin1.block_dim_y/mConfiguration.warp_size,1),dim3(mConfiguration.warp_size,mConfiguration.warp_size,1),(size_along_y+mConfiguration.padding)*(mConfiguration.padding+size_along_x)*sizeof(T)>>>(device_begin_1,mConfiguration,f);
+    for_each_kernel<<<dim3(iDivUp(begin1.block_dim_x,mConfiguration.warp_size),iDivUp(begin1.block_dim_y,mConfiguration.warp_size),1),dim3(mConfiguration.warp_size,mConfiguration.warp_size,1),(size_along_y+mConfiguration.padding)*(mConfiguration.padding+size_along_x)*sizeof(T)>>>(device_begin_1,mConfiguration,f);
   }
 }

@@ -11,7 +11,7 @@ int main( int argc, char** argv )
   {
     dim = atoi(argv[1]);
   }
-  resize(timage,image,Size(dim,dim));
+  cv::resize(timage,image,cv::Size(dim,dim));
   image1.upload(image);
   cv::Point2f srcTri[3];
   cv::Point2f dstTri[3];
@@ -34,7 +34,15 @@ int main( int argc, char** argv )
 
   warp_dst1.download(warp_dst);
   image1.download(image);
+  #ifdef OWRITE
   cv::imwrite("ainput.png",image);
   cv::imwrite("aoutput.png",warp_dst);
+  #endif
+  #ifdef SHOW
+  cv::imshow("ainput.png",image);
+  cv::imshow("aoutput.png",warp_dst);
+    cv::waitKey(0);
+  #endif
+
   return 0;
 }

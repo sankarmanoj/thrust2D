@@ -14,7 +14,12 @@ public:
 int main(int argc, char const *argv[]) {
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
-  image = small;
+  int dim = 512;
+  if(argc ==2)
+  {
+    dim = atoi(argv[1]);
+  }
+  resize(small,image,Size(dim,dim));
   float kernelx[3], kernely[3];
   //Scharr Filter
   kernelx[0]=-3;
@@ -35,8 +40,8 @@ int main(int argc, char const *argv[]) {
   uchar_image_block.upload(img);
   convolve1_block.upload(img);
   convolve2_block.upload(img);
-  thrust::convolve(thrust::cuda::texture,&convolve1_block,kernelx);
-  thrust::convolve(thrust::cuda::texture,&convolve2_block,kernely);
+  thrust::convolve(thrust::cuda::texture,&convolve1_block,kernelx,3);
+  thrust::convolve(thrust::cuda::texture,&convolve2_block,kernely,3);
   thrust::transform(convolve1_block.begin(),convolve1_block.end(),convolve2_block.begin(),outBlock.begin(),transFunctor());
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   outBlock.download(&img);

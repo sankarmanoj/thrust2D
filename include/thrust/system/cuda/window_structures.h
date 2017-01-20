@@ -2,6 +2,10 @@
 
 namespace thrust
 {
+  int iDivUp(int a, int b)
+  {
+      return (a % b != 0) ? (a / b + 1) : (a / b);
+  }
   namespace cuda
   {
     struct shared_policy : device_execution_policy<shared_policy> {};
