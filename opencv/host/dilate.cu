@@ -22,7 +22,12 @@ class dilateFunctor //: public thrust::shared_unary_window_transform_functor<uch
 int main(int argc, char const *argv[]) {
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
-  image = small;
+  int dim = 512;
+  if(argc ==2)
+  {
+    dim = atoi(argv[1]);
+  }
+  resize(small,image,Size(dim,dim));
   thrust::host_block_2d<unsigned char > image_block (image.cols,image.rows);
   thrust::host_block_2d<uchar> uchar_image_block (image.cols,image.rows);
   thrust::host_block_2d<uchar> outBlock (image.cols,image.rows);
@@ -43,8 +48,14 @@ int main(int argc, char const *argv[]) {
     outputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
+  #ifdef OWRITE
   imwrite("input.png",image);
   imwrite("output.png",output);
-
+  #endif
+  #ifdef SHOW
+  imshow("input.png",image);
+  imshow("output.png",output);
+  waitKey(0);
+  #endif
   return 0;
 }
