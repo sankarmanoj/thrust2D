@@ -202,7 +202,7 @@ namespace thrust
   __host__ __device__ window_iterator<T,Alloc> window_iterator<T,Alloc>::operator- (long N)
   {
     this->position = this->position - N;
-    if(this->position<0)
+    if(this->position>block_dim_x*block_dim_y)
       this->position = 0;
     return *this;
   }

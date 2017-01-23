@@ -1,30 +1,32 @@
-==7650== NVPROF is profiling process 7650, command: ./gaussian_filter.o
-==7650== Profiling application: ./gaussian_filter.o
-==7650== Profiling result:
+==11036== NVPROF is profiling process 11036, command: ./gaussian_filter.o
+==11036== Profiling application: ./gaussian_filter.o
+==11036== Profiling result:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 32.19%  23.486us         3  7.8280us  1.1840us  21.086us  [CUDA memcpy HtoD]
- 28.77%  20.990us         1  20.990us  20.990us  20.990us  [CUDA memcpy DtoH]
- 14.25%  10.399us         1  10.399us  10.399us  10.399us  void thrust::convolutionRowsKernel<unsigned char>(unsigned char*, int, int, int, int, unsigned __int64)
- 14.04%  10.239us         1  10.239us  10.239us  10.239us  void thrust::convolutionColumnsKernel<unsigned char>(unsigned char*, int, int, int, int, unsigned __int64)
- 10.74%  7.8380us         2  3.9190us  2.8790us  4.9590us  [CUDA memcpy DtoA]
+ 36.01%  25.095us         3  8.3650us  1.1520us  22.727us  [CUDA memcpy HtoD]
+ 30.09%  20.966us         1  20.966us  20.966us  20.966us  [CUDA memcpy DtoH]
+ 11.90%  8.2910us         1  8.2910us  8.2910us  8.2910us  void thrust::convolutionRowsKernel<unsigned char>(unsigned char*, int, int, unsigned __int64)
+ 11.48%  8.0030us         1  8.0030us  8.0030us  8.0030us  void thrust::convolutionColumnsKernel<unsigned char>(unsigned char*, int, int, unsigned __int64)
+  7.35%  5.1220us         1  5.1220us  5.1220us  5.1220us  [CUDA memcpy DtoA]
+  3.17%  2.2090us         1  2.2090us  2.2090us  2.2090us  [CUDA memcpy DtoD]
 
-==7650== API calls:
+==11036== API calls:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 98.70%  121.22ms         1  121.22ms  121.22ms  121.22ms  cudaMallocPitch
-  0.30%  365.31us         1  365.31us  365.31us  365.31us  cudaMallocArray
-  0.30%  364.19us         1  364.19us  364.19us  364.19us  cudaMalloc
-  0.19%  236.22us        90  2.6240us      97ns  92.834us  cuDeviceGetAttribute
-  0.17%  205.45us         1  205.45us  205.45us  205.45us  cudaGetDeviceProperties
-  0.14%  167.81us         1  167.81us  167.81us  167.81us  cuDeviceTotalMem
-  0.11%  135.02us         2  67.511us  17.787us  117.24us  cudaMemcpy2D
-  0.03%  41.758us         2  20.879us  8.3060us  33.452us  cudaMemcpy2DToArray
-  0.03%  35.362us         1  35.362us  35.362us  35.362us  cuDeviceGetName
-  0.01%  14.866us         2  7.4330us  5.1180us  9.7480us  cudaLaunch
-  0.01%  9.5560us         1  9.5560us  9.5560us  9.5560us  cudaMemcpy
-  0.01%  7.6260us         1  7.6260us  7.6260us  7.6260us  cudaMemcpyToSymbol
-  0.01%  6.9780us         2  3.4890us  2.3120us  4.6660us  cudaCreateTextureObject
-  0.00%  1.7870us        12     148ns     112ns     321ns  cudaSetupArgument
-  0.00%  1.3920us         2     696ns     245ns  1.1470us  cuDeviceGetCount
-  0.00%     902ns         2     451ns     222ns     680ns  cudaConfigureCall
-  0.00%     422ns         2     211ns     145ns     277ns  cuDeviceGet
-  0.00%     196ns         1     196ns     196ns     196ns  cudaCreateChannelDesc
+ 91.50%  643.95ms         1  643.95ms  643.95ms  643.95ms  cudaMallocPitch
+  5.59%  39.305ms         1  39.305ms  39.305ms  39.305ms  cuDeviceTotalMem
+  1.63%  11.474ms        90  127.49us     116ns  8.7238ms  cuDeviceGetAttribute
+  0.55%  3.8554ms         1  3.8554ms  3.8554ms  3.8554ms  cudaMallocArray
+  0.41%  2.8827ms         1  2.8827ms  2.8827ms  2.8827ms  cudaGetDeviceProperties
+  0.28%  1.9584ms         2  979.20us  12.008us  1.9464ms  cudaMalloc
+  0.02%  133.30us         3  44.432us  8.0420us  68.152us  cudaMemcpy2D
+  0.01%  56.454us         1  56.454us  56.454us  56.454us  cuDeviceGetName
+  0.01%  42.593us         1  42.593us  42.593us  42.593us  cudaMemcpy2DToArray
+  0.00%  24.981us         1  24.981us  24.981us  24.981us  cudaMemcpyToSymbol
+  0.00%  23.005us         1  23.005us  23.005us  23.005us  cudaMemcpy
+  0.00%  15.962us         2  7.9810us  5.3660us  10.596us  cudaLaunch
+  0.00%  7.5950us         2  3.7970us  2.1380us  5.4570us  cudaCreateTextureObject
+  0.00%  4.0320us         2  2.0160us     393ns  3.6390us  cuDeviceGetCount
+  0.00%  1.6200us         1  1.6200us  1.6200us  1.6200us  cudaMemcpyToArray
+  0.00%  1.4820us         8     185ns     118ns     388ns  cudaSetupArgument
+  0.00%  1.2010us         2     600ns     214ns     987ns  cudaConfigureCall
+  0.00%     505ns         2     252ns     193ns     312ns  cuDeviceGet
+  0.00%     261ns         1     261ns     261ns     261ns  cudaCreateChannelDesc

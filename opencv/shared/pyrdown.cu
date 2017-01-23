@@ -45,7 +45,7 @@ int main(int argc, char const *argv[])
   }
   uchar_image_block.upload(img);
   float kernel[3] = {0.25,0.5,0.25};
-  thrust::convolve(thrust::cuda::texture,&uchar_image_block,kernel,3);
+  thrust::convolve(thrust::cuda::texture,&uchar_image_block,kernel);
   thrust::window_vector<uchar> inputVector(&outBlock,1,1,1,1);
   pyrdownTransformFunctor ptf(&uchar_image_block);
   thrust::for_each(thrust::cuda::shared,inputVector.begin(),inputVector.end(),ptf);

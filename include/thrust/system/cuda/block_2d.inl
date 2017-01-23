@@ -29,7 +29,6 @@ namespace thrust
   template <class T,class Alloc>
   __host__ void host_block_2d<T,Alloc>::operator= (const block_2d<T> &b)
   {
-    printf("Copy from device block to host\n");
     this->dim_x = b.dim_x;
     this->dim_y = b.dim_y;
     this->pitch = b.dim_x*sizeof(T);
@@ -39,7 +38,6 @@ namespace thrust
   template <class T, class Alloc>
   __host__ void block_2d<T,Alloc>::operator= (const host_block_2d<T> &b)
   {
-    printf("Copy from host block to device\n");
     this->dim_x = b.dim_x;
     this->dim_y = b.dim_y;
     cudaMemcpy2D(this->data_pointer,this->pitch,b.data_pointer,b.pitch,this->dim_x*sizeof(T),this->dim_y,cudaMemcpyHostToDevice);
@@ -72,7 +70,6 @@ namespace thrust
     this->dim_y = dim_y;
     if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
     {
-      printf("Device Block\n");
       cudaMallocPitch((void **)&data_pointer,&pitch,dim_x*sizeof(T),dim_y);
       cudaMemset2D((void **)data_pointer,pitch,value,dim_x*sizeof(T),dim_y);
       block_2d<T,Alloc> * temp;

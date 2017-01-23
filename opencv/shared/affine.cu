@@ -21,17 +21,6 @@ public:
     (*outBlock)[y_out][x_out]=inputWindow[0][0];
   }
 };
-class printFunctor
-{
-public:
-
-__device__  void  operator() ( float  &a)
-  {
-    // a=threadIdx.x;
-    printf("%f \n",a);
-    // return 10;
-  }
-};
 int main(int argc, char const *argv[]) {
   cudaDeviceProp dev_prop;
   cudaGetDeviceProperties(&dev_prop,0);
@@ -72,17 +61,14 @@ int main(int argc, char const *argv[]) {
     for(int j = 0; j<warp_mat.cols;j++)
     {
        host_warp_block[i][j]=warp_mat.at<float>(i,j);
-       printf("%f\n",warp_mat.at<float>(i,j));
     }
   }
   warp_block = host_warp_block;
-  thrust::for_each(warp_block.begin(),warp_block.end(),printFunctor());
   //Create Windows For Indexing
   thrust::window_vector<uchar> inputVector(&uchar_image_block,1,1,1,1);
-  printf("%d",warp_block.dim_x);
   AffineTransformFunctor atf(warp_block.device_pointer,outBlock.device_pointer);
   // TODO: Does not work.
-  thrust::for_each(inputVector.begin(),inputVector.end(),atf);
+  thrust::for_each(thrust::cuda::shared,inputVector.begin(),inputVector.end(),atf);
   // cudaDeviceSynchronize();
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   outBlock.download(&img);

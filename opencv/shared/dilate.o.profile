@@ -1,23 +1,23 @@
-==4469== NVPROF is profiling process 4469, command: ./dilate.o
-==4469== Profiling application: ./dilate.o
-==4469== Profiling result:
+==10887== NVPROF is profiling process 10887, command: ./dilate.o
+==10887== Profiling application: ./dilate.o
+==10887== Profiling result:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 98.69%  6.3625ms         1  6.3625ms  6.3625ms  6.3625ms  void thrust::transform_kernel<unsigned char, dilateFunctor>(thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<thrust::window_iterator>>*, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<thrust::window_iterator>>, thrust::warp_launcher_config, dilateFunctor)
-  0.69%  44.574us         6  7.4290us     704ns  40.318us  [CUDA memcpy HtoD]
-  0.62%  40.094us         1  40.094us  40.094us  40.094us  [CUDA memcpy DtoH]
+ 36.62%  37.451us         6  6.2410us  1.1850us  31.401us  [CUDA memcpy HtoD]
+ 32.83%  33.578us         1  33.578us  33.578us  33.578us  [CUDA memcpy DtoH]
+ 30.55%  31.242us         1  31.242us  31.242us  31.242us  void thrust::transform_kernel<unsigned char, dilateFunctor>(thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<thrust::window_iterator>>*, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<thrust::window_iterator>>, thrust::warp_launcher_config, dilateFunctor)
 
-==4469== API calls:
+==10887== API calls:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 97.60%  311.47ms         3  103.82ms  3.3730us  311.46ms  cudaMallocPitch
-  2.04%  6.5172ms         2  3.2586ms  34.128us  6.4830ms  cudaMemcpy2D
-  0.12%  371.62us         2  185.81us  176.56us  195.06us  cudaGetDeviceProperties
-  0.10%  332.65us         5  66.530us  3.3790us  316.15us  cudaMalloc
-  0.07%  216.42us        90  2.4040us      95ns  85.156us  cuDeviceGetAttribute
-  0.05%  166.36us         1  166.36us  166.36us  166.36us  cuDeviceTotalMem
-  0.01%  25.563us         5  5.1120us  2.8820us  11.610us  cudaMemcpy
-  0.01%  23.767us         1  23.767us  23.767us  23.767us  cuDeviceGetName
-  0.00%  12.436us         1  12.436us  12.436us  12.436us  cudaLaunch
-  0.00%  1.7520us         2     876ns     567ns  1.1850us  cuDeviceGetCount
-  0.00%     849ns         1     849ns     849ns     849ns  cudaConfigureCall
-  0.00%     826ns         4     206ns     121ns     297ns  cudaSetupArgument
-  0.00%     413ns         2     206ns     199ns     214ns  cuDeviceGet
+ 99.32%  532.92ms         3  177.64ms  5.4350us  532.90ms  cudaMallocPitch
+  0.24%  1.2745ms         5  254.91us  5.5600us  1.2197ms  cudaMalloc
+  0.22%  1.2029ms         2  601.46us  351.33us  851.59us  cudaGetDeviceProperties
+  0.08%  423.53us        90  4.7050us     120ns  159.13us  cuDeviceGetAttribute
+  0.06%  319.85us         2  159.93us  52.789us  267.06us  cudaMemcpy2D
+  0.04%  208.42us         1  208.42us  208.42us  208.42us  cuDeviceTotalMem
+  0.02%  107.93us         5  21.586us  5.8590us  64.728us  cudaMemcpy
+  0.01%  62.567us         1  62.567us  62.567us  62.567us  cuDeviceGetName
+  0.01%  47.208us         1  47.208us  47.208us  47.208us  cudaLaunch
+  0.00%  2.9970us         2  1.4980us     689ns  2.3080us  cuDeviceGetCount
+  0.00%  1.9820us         1  1.9820us  1.9820us  1.9820us  cudaConfigureCall
+  0.00%  1.2300us         4     307ns     180ns     443ns  cudaSetupArgument
+  0.00%     931ns         2     465ns     425ns     506ns  cuDeviceGet

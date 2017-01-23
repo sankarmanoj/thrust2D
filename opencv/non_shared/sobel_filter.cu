@@ -42,8 +42,10 @@ int main(int argc, char const *argv[]) {
   Mat image;
   int dim = 3;
   image = small;
-  thrust::block_2d<float> kernelx(dim,dim);
-  thrust::block_2d<float> kernely(dim,dim);
+  thrust::host_block_2d<float> kernelx(dim,dim);
+  thrust::host_block_2d<float> kernely(dim,dim);
+  thrust::block_2d<float> dkernelx(dim,dim);
+  thrust::block_2d<float> dkernely(dim,dim);
   //Sobel Filter
   kernelx[0][0]=-1;
   kernelx[0][1]=0;
@@ -63,13 +65,14 @@ int main(int argc, char const *argv[]) {
   kernely[2][0]=+1;
   kernely[2][1]=+2;
   kernely[2][2]=+1;
-  thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
+  dkernelx=kernelx;
+  dkernely=kernely;
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
   thrust::block_2d<uchar> convolve1_block (image.cols,image.rows);
   thrust::block_2d<uchar> convolve2_block (image.cols,image.rows);
   thrust::block_2d<uchar> outBlock (image.cols,image.rows);
   thrust::block_2d<uchar> zero_image_block (image.cols,image.rows);
-  uchar * img = (uchar * )malloc(sizeof(uchar)*(image_block.end()-image_block.begin()));
+  uchar * img = (uchar * )malloc(sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()));
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     img[i]=(uchar)image.ptr()[i];
@@ -81,8 +84,8 @@ int main(int argc, char const *argv[]) {
   thrust::window_vector<uchar> output_wv_x(&convolve1_block,dim,dim,1,1);
   thrust::window_vector<uchar> output_wv_y(&convolve2_block,dim,dim,1,1);
 
-  thrust::transform(input_wv.begin(),input_wv.end(),output_wv_x.begin(),zero_image_block.begin(),convolutionFunctor(kernelx.device_pointer,dim));
-  thrust::transform(input_wv.begin(),input_wv.end(),output_wv_y.begin(),zero_image_block.begin(),convolutionFunctor(kernely.device_pointer,dim));
+  thrust::transform(input_wv.begin(),input_wv.end(),output_wv_x.begin(),zero_image_block.begin(),convolutionFunctor(dkernelx.device_pointer,dim));
+  thrust::transform(input_wv.begin(),input_wv.end(),output_wv_y.begin(),zero_image_block.begin(),convolutionFunctor(dkernely.device_pointer,dim));
   thrust::transform(convolve1_block.begin(),convolve1_block.end(),convolve2_block.begin(),outBlock.begin(),transFunctor());
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   outBlock.download(&img);
