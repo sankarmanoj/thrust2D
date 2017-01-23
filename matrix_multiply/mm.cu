@@ -14,15 +14,15 @@ void GPU_fill_rand(float *A, int nr_rows_A, int nr_cols_A) {
   // Fill the array with random numbers on the device
   curandGenerateUniform(prng, A, nr_rows_A * nr_cols_A);
 }
-void gpu_blas_mmul(cublasHandle_t &handle, const float *A, const float *B, float *C, const int m, const int k, const int n) {
-  int lda=m,ldb=k,ldc=m;
+void gpu_blas_mmul(cublasHandle_t &handle, thrust::block_2d<float> *A, thrust::block_2d<float> *B, thrust::block_2d<float> *C, const int m, const int k, const int n) {
+  int lda=A->pitch/sizeof(float),ldb=B->pitch/sizeof(float),ldc=C->pitch/sizeof(float);
   const float alf = 1;
   const float bet = 0;
   const float *alpha = &alf;
   const float *beta = &bet;
 
   // Do the actual multiplication
-  cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, m, n, k, alpha, A, lda, B, ldb, beta, C, ldc);
+  cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, m, n, k, alpha, A->data_pointer, lda, B->data_pointer, ldb, beta, C->data_pointer, ldc);
 }
 //Print matrix A(nr_rows_A, nr_cols_A) storage in column-major format
 void print_matrix(const float *A, int nr_rows_A, int nr_cols_A) {
@@ -55,8 +55,8 @@ int main()
   GPU_fill_rand(d_B.data_pointer, nr_rows_B, nr_cols_B);
 
   // Optionally we can copy the data back on CPU and print the arrays
-  d_A.upload(h_A);
-  d_B.upload(h_B);
+  d_A.download(&h_A);
+  d_B.download(&h_B);
   std::cout << "A =" << std::endl;
   print_matrix(h_A, nr_rows_A, nr_cols_A);
   std::cout << "B =" << std::endl;
@@ -67,7 +67,7 @@ int main()
   cublasCreate(&handle);
 
   // Multiply A and B on GPU
-  gpu_blas_mmul(handle,d_A, d_B, d_C, nr_rows_A, nr_cols_A, nr_cols_B);
+  gpu_blas_mmul(handle, &d_A, &d_B, &d_C, nr_rows_A, nr_cols_A, nr_cols_B);
 
   // Copy (and print) the result on host memory
   d_C.download(&h_C);
