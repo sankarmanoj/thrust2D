@@ -38,7 +38,6 @@ namespace thrust
     typedef T* pointer;
     __host__ __device__ window_2d_iterator(pointer data, size_t position);
     __host__ __device__ reference operator[] (size_t index) const;
-
   };
 
   template <class T>
