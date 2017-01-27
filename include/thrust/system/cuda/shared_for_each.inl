@@ -7,7 +7,8 @@ namespace thrust
   template <class T,class Func>
   __global__ void for_each_kernel(long number_of_elements,T * data, Func f)
   {
-    extern __shared__ T shared_memory[];
+    extern __shared__ char  byte_shared_memory[];
+    T *shared_memory = (T*)byte_shared_memory;
     long index = blockIdx.x*blockDim.x + threadIdx.x;
     if (index>=number_of_elements)
       return;
@@ -57,8 +58,9 @@ __global__ void conv_Kernel(const T * __restrict__ A, const T * __restrict__ B, 
   template <class T>
   __global__ void conv_shared_Kernel(const T * __restrict__ A, const T * __restrict__ B, T *C, const int N, const int P)
   {
-      extern __shared__ T sA[];//[nTPB+FSIZE];
+      extern __shared__ char byte_sA[];//[nTPB+FSIZE];
       // extern __shared__ T sB[];//[FSIZE];
+      T *sA = (T*)byte_sA;
       int idx = threadIdx.x+blockDim.x*blockIdx.x;
       int radius = (P-1)/2;
       int lidx = threadIdx.x + radius;
@@ -96,7 +98,8 @@ __global__ void conv_Kernel(const T * __restrict__ A, const T * __restrict__ B, 
   template <class T1,class T2,class Func>
   __global__ void unary_transform_kernel(long number_of_elements,T1 * input_data,T2 * output_data, Func f)
   {
-    extern __shared__ T1 shared_memory[];
+    extern __shared__ char byte_shared_memory[];
+    T1 *shared_memory = (T1*)byte_shared_memory;
     long index = blockIdx.x*blockDim.x + threadIdx.x;
     if (index>=number_of_elements)
       return;

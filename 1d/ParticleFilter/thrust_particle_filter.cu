@@ -688,7 +688,7 @@ void particleFilter(unsigned char *I, int IszX, int IszY, int Nfr, int *seed, in
 	    // Difficult to port code
 
 	    ind_calcYOYOYOYO func_3(arrayX_GPU.begin(), arrayY_GPU.begin(), objxy_GPU.begin(), ind_GPU.begin(), countOnes, max_size, IszY, Nfr, k);
-	    thrust::for_each(it_begin, it_end, func_3);
+	    thrust::for_each(thrust::cuda::shared,it_begin, it_end, func_3);
 
 	    // End of difficult bit
 
