@@ -9,7 +9,7 @@
 #include <thrust/replace.h>
 #include <thrust/functional.h>
 #include <thrust/scan.h>
-#include <thrust/shared_vector.h>
+#include <thrust/shared_for_each.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -157,7 +157,7 @@ __device__ double dev_round_double(double value) {
         return newValue++;
 }
 
-/** 
+/**
  * Takes in a double and returns an integer that approximates to that double
  * @return if the mantissa < .5 => return value < input value; else return value > input value
  */
@@ -393,15 +393,15 @@ int findIndex(double * CDF, int lengthCDF, double value) {
  */
 
 
-class randn_transform {
+class randn_transformYOYOYOYO {
 
 public:
 
     double a, b;
     int *seed;
 
-    randn_transform(double a, double b, thrust::device_vector<int>::iterator seed) {
-        
+    randn_transformYOYOYOYO(double a, double b, thrust::device_vector<int>::iterator seed) {
+
         this->a = a;
         this->b = b;
         this->seed = (int *) thrust::raw_pointer_cast(&(*seed));
@@ -413,7 +413,7 @@ public:
     }
 };
 
-class ind_calc {
+class ind_calcYOYOYOYO {
 
 public:
 
@@ -423,7 +423,7 @@ public:
     int *ind;
     int countOnes, max_size, IszY, Nfr, k;
 
-    ind_calc(thrust::device_vector<double>::iterator arrayX,
+    ind_calcYOYOYOYO(thrust::device_vector<double>::iterator arrayX,
              thrust::device_vector<double>::iterator arrayY,
              thrust::device_vector<int>::iterator objxy,
              thrust::device_vector<int>::iterator ind,
@@ -446,12 +446,12 @@ public:
         int y, indX, indY;
 
         for (y = 0; y < countOnes; y++) {
-        
+
             indX = dev_round_double(arrayX[i]) + objxy[y * 2 + 1];
             indY = dev_round_double(arrayY[i]) + objxy[y * 2];
 
             // printf("%d, ", i * countOnes + y);
-            
+
             ind[i * countOnes + y] = abs(indX * IszY * Nfr + indY * Nfr + k);
             if (ind[i * countOnes + y] >= max_size)
                 ind[i * countOnes + y] = 0;
@@ -459,7 +459,7 @@ public:
     }
 };
 
-class calc_likelihood_sum {
+class calc_likelihood_sumYOYOYOYO {
 
 public:
 
@@ -467,7 +467,7 @@ public:
     unsigned char *I;
     int numOnes;
 
-    calc_likelihood_sum(thrust::device_vector<unsigned char>::iterator I, thrust::device_vector<int>::iterator ind, int numOnes){
+    calc_likelihood_sumYOYOYOYO(thrust::device_vector<unsigned char>::iterator I, thrust::device_vector<int>::iterator ind, int numOnes){
 
         this->I = (unsigned char *) raw_pointer_cast(&(*I));
         this->ind = (int *) raw_pointer_cast(&(*ind));
@@ -480,12 +480,12 @@ public:
     }
 };
 
-class normalize_weights {
+class normalize_weightsYOYOYOYO {
 
 public:
     double sumWeights;
 
-    normalize_weights(double sumWeights) {
+    normalize_weightsYOYOYOYO(double sumWeights) {
         this->sumWeights = sumWeights;
     }
 
@@ -494,30 +494,30 @@ public:
     }
 };
 
-class exp_transform {
+class exp_transformYOYOYOYO {
 
 public:
 
     __device__ double operator() (double &l, double &w) {
-        
+
         return w + exp(l);
     }
 };
 
-class update_u {
+class update_uYOYOYOYO {
 
 public:
     int Nparticles;
     double u_0;
-    
-    update_u(int Nparticles, thrust::device_reference<double> u_0, thrust::device_reference<int> seed_0) {
+
+    update_uYOYOYOYO(int Nparticles, thrust::device_reference<double> u_0, thrust::device_reference<int> seed_0) {
 
         this->Nparticles = Nparticles;
 
         int num = A * seed_0 + C;
         seed_0 = num % M;
         u_0 = (1 / ((double) (Nparticles))) * fabs(seed_0 / ((double) M));
-        this->u_0 = u_0;        
+        this->u_0 = u_0;
     }
 
     __device__ void operator() (double &i) {
@@ -529,11 +529,11 @@ public:
 // class find_index {
 
 // public:
-    
+
 //     double *arrayX;
 //     double *arrayY;
 //     double *CDF;
-   
+
 //     int Nparticles;
 
 //     find_index(thrust::device_vector<double>::iterator arrayX,
@@ -544,7 +544,7 @@ public:
 //         this->arrayX = (double *) thrust::raw_pointer_cast(&(*arrayX));
 //         this->arrayY = (double *) thrust::raw_pointer_cast(&(*arrayY));
 //         this->CDF = (double *) thrust::raw_pointer_cast(&(*CDF));
-//         this->Nparticles = Nparticles;        
+//         this->Nparticles = Nparticles;
 //     }
 
 //     void operator() (thrust::tuple<double&, double&, double&> tup) {
@@ -567,13 +567,13 @@ public:
 //     }
 // };
 
-class get_index {
+class get_indexYOYOYOYO {
 
 public:
     double *CDF;
     int Nparticles;
 
-    get_index(thrust::device_vector<double>::iterator CDF, int Nparticles) {
+    get_indexYOYOYOYO(thrust::device_vector<double>::iterator CDF, int Nparticles) {
 
         this->CDF = (double *) thrust::raw_pointer_cast(&(*CDF));
         this->Nparticles = Nparticles;
@@ -592,15 +592,15 @@ public:
         }
 
         return index;
-    } 
+    }
 };
 
-class update_coords {
+class update_coordsYOYOYOYO {
 
 public:
     double *array;
 
-    update_coords(thrust::device_vector<double>::iterator array) {
+    update_coordsYOYOYOYO(thrust::device_vector<double>::iterator array) {
         this->array = thrust::raw_pointer_cast(&(*array));
     }
 
@@ -632,8 +632,8 @@ void particleFilter(unsigned char *I, int IszX, int IszY, int Nfr, int *seed, in
 
     thrust::host_vector<int> objxy(countOnes * 2);
     getneighbors(disk, countOnes, thrust::raw_pointer_cast(&(*objxy.begin())), radius);
-    
-    thrust::host_vector<double> arrayX(Nparticles);        
+
+    thrust::host_vector<double> arrayX(Nparticles);
     thrust::host_vector<double> arrayY(Nparticles);
     thrust::host_vector<double> xj(Nparticles);
     thrust::host_vector<double> yj(Nparticles);
@@ -641,92 +641,93 @@ void particleFilter(unsigned char *I, int IszX, int IszY, int Nfr, int *seed, in
 
     thrust::fill(xj.begin(), xj.end(), xe);
     thrust::fill(yj.begin(), yj.end(), ye);
-    
+
     thrust::device_vector<double> arrayX_GPU(Nparticles);
     thrust::device_vector<double> arrayY_GPU(Nparticles);
     thrust::device_vector<double> CDF_GPU(Nparticles);
-    thrust::device_vector<double> u_GPU(Nparticles);    
+    thrust::device_vector<double> u_GPU(Nparticles);
     thrust::device_vector<double> likelihood_GPU(Nparticles, 0);
 
     // thrust::device_vector<double> weights_GPU(Nparticles);
-    thrust::hybrid::shared_vector<double> weights_GPU(Nparticles);
+    thrust::device_vector<double> weights_GPU(Nparticles);
 
     thrust::device_vector<int> ind_GPU(countOnes * Nparticles);
 
     thrust::device_vector<int> indices(Nparticles);     // to hold intermediate indices in find_index kernel
-    
+
     long long send_start = get_time();
-    
+
     thrust::device_vector<unsigned char> I_GPU(I, I + (IszX * IszY * Nfr));
     thrust::device_vector<int> objxy_GPU = objxy;
     thrust::device_vector<double> xj_GPU = xj;
     thrust::device_vector<double> yj_GPU = yj;
     thrust::device_vector<int> seed_GPU(seed, seed + Nparticles);
-    
-    thrust::counting_iterator<int> it_begin(0);		// used when thread ID is required
-    thrust::counting_iterator<int> it_end = it_begin + Nparticles;
+
+    thrust::device_vector<int> it(Nparticles);		// used when thread ID is required
+    auto it_begin = it.begin();
+    auto it_end = it.end();
+    thrust::sequence(it_begin,it_end);
 
     long long send_end = get_time();
-    printf("TIME TO SEND TO GPU: %f\n", elapsed_time(send_start, send_end));
-    
+
     int k;
     double sumWeights;  //to hold the result of the reduce operation
 
-    for(k = 1; k < Nfr; k++) 
+    for(k = 1; k < Nfr; k++)
     {
 
 	    // Code for likelihood_kernel starts
 	    thrust::fill (weights_GPU.begin(), weights_GPU.end(), 1 / ((double) (Nparticles)));
-	    
-	    randn_transform func_1(1.0, 5.0, seed_GPU.begin());
-	    thrust::transform(xj_GPU.begin(), xj_GPU.end(), it_begin, arrayX_GPU.begin(), func_1);
 
-	    randn_transform func_2(-2.0, 2.0, seed_GPU.begin());
-	    thrust::transform(yj_GPU.begin(), yj_GPU.end(), it_begin, arrayY_GPU.begin(), func_2);
+	    randn_transformYOYOYOYO func_1(1.0, 5.0, seed_GPU.begin());
+	    thrust::transform(thrust::cuda::shared,xj_GPU.begin(), xj_GPU.end(), it_begin, arrayX_GPU.begin(), func_1);
+
+	    randn_transformYOYOYOYO func_2(-2.0, 2.0, seed_GPU.begin());
+	    thrust::transform(thrust::cuda::shared,yj_GPU.begin(), yj_GPU.end(), it_begin, arrayY_GPU.begin(), func_2);
 
 	    // Difficult to port code
 
-	    ind_calc func_3(arrayX_GPU.begin(), arrayY_GPU.begin(), objxy_GPU.begin(), ind_GPU.begin(), countOnes, max_size, IszY, Nfr, k);
+	    ind_calcYOYOYOYO func_3(arrayX_GPU.begin(), arrayY_GPU.begin(), objxy_GPU.begin(), ind_GPU.begin(), countOnes, max_size, IszY, Nfr, k);
 	    thrust::for_each(it_begin, it_end, func_3);
 
 	    // End of difficult bit
 
-	    calc_likelihood_sum func_4(I_GPU.begin(), ind_GPU.begin(), countOnes);
-	    thrust::transform(likelihood_GPU.begin(), likelihood_GPU.end(), it_begin, likelihood_GPU.begin(), func_4);
+	    calc_likelihood_sumYOYOYOYO func_4(I_GPU.begin(), ind_GPU.begin(), countOnes);
+	    thrust::transform(thrust::cuda::shared,likelihood_GPU.begin(), likelihood_GPU.end(), it_begin, likelihood_GPU.begin(), func_4);
 
-        normalize_weights func_5(countOnes);
-	    thrust::for_each(likelihood_GPU.begin(), likelihood_GPU.end(), func_5);
+        normalize_weightsYOYOYOYO func_5(countOnes);
+	    thrust::for_each(thrust::cuda::shared,likelihood_GPU.begin(), likelihood_GPU.end(), func_5);
 
-        exp_transform func_6;
-	    thrust::transform(likelihood_GPU.begin(), likelihood_GPU.end(), weights_GPU.begin(), weights_GPU.begin(), func_6);
+        exp_transformYOYOYOYO func_6;
+	    thrust::transform(thrust::cuda::shared,likelihood_GPU.begin(), likelihood_GPU.end(), weights_GPU.begin(), weights_GPU.begin(), func_6);
 	    // Code for likelihood_kernel ends
 
 
         // Code for sum_kernel starts
-	    sumWeights = thrust::hybrid::reduce(weights_GPU.begin(), weights_GPU.end());
+	    sumWeights = thrust::reduce(weights_GPU.begin(), weights_GPU.end());
 	    // Code for sum_kernel ends
 
-	    // Code for normalize_weights_kernel starts
-	    normalize_weights func_7(sumWeights);
+	    // Code for normalize_weightsYOYOYOYO_kernel starts
+	    normalize_weightsYOYOYOYO func_7(sumWeights);
 
-	    thrust::for_each(weights_GPU.begin(), weights_GPU.end(), func_7);
+	    thrust::for_each(thrust::cuda::shared,weights_GPU.begin(), weights_GPU.end(), func_7);
 
 	    thrust::inclusive_scan (weights_GPU.begin(), weights_GPU.end(), CDF_GPU.begin());
 
-	    update_u func_8(Nparticles, u_GPU[0], seed_GPU[0]);
+	    update_uYOYOYOYO func_8(Nparticles, u_GPU[0], seed_GPU[0]);
 	    thrust::sequence(u_GPU.begin(), u_GPU.end());
-	    thrust::for_each(u_GPU.begin(), u_GPU.end(), func_8); 
-	    // Code for normalize_weights_kernel ends
+	    thrust::for_each(thrust::cuda::shared,u_GPU.begin(), u_GPU.end(), func_8);
+	    // Code for normalize_weightsYOYOYOYO_kernel ends
 
 		// Code for find_index_kernel starts
-        get_index func_9(CDF_GPU.begin(), Nparticles);
-        thrust::transform(u_GPU.begin(), u_GPU.end(), u_GPU.begin(), indices.begin(), func_9);
+        get_indexYOYOYOYO func_9(CDF_GPU.begin(), Nparticles);
+        thrust::transform(thrust::cuda::shared,u_GPU.begin(), u_GPU.end(), u_GPU.begin(), indices.begin(), func_9);
 
-        update_coords func_10(arrayX_GPU.begin());
-        thrust::transform(xj_GPU.begin(), xj_GPU.end(), indices.begin(), xj_GPU.begin(), func_10);
+        update_coordsYOYOYOYO func_10(arrayX_GPU.begin());
+        thrust::transform(thrust::cuda::shared,xj_GPU.begin(), xj_GPU.end(), indices.begin(), xj_GPU.begin(), func_10);
 
-        update_coords func_11(arrayY_GPU.begin());
-        thrust::transform(yj_GPU.begin(), yj_GPU.end(), indices.begin(), yj_GPU.begin(), func_11);
+        update_coordsYOYOYOYO func_11(arrayY_GPU.begin());
+        thrust::transform(thrust::cuda::shared,yj_GPU.begin(), yj_GPU.end(), indices.begin(), yj_GPU.begin(), func_11);
 
 	    // Code for find_index_kernel ends
 	}
@@ -744,13 +745,6 @@ void particleFilter(unsigned char *I, int IszX, int IszY, int Nfr, int *seed, in
 	long long back_end_time = get_time();
 
 
-    printf("GPU Execution: %lf\n", elapsed_time(send_end, back_time));
-    printf("FREE TIME: %lf\n", elapsed_time(back_time, free_time));
-    printf("TIME TO SEND BACK: %lf\n", elapsed_time(back_time, back_end_time));
-    printf("SEND ARRAY X BACK: %lf\n", elapsed_time(free_time, arrayX_time));
-    printf("SEND ARRAY Y BACK: %lf\n", elapsed_time(arrayX_time, arrayY_time));
-    printf("SEND WEIGHTS BACK: %lf\n", elapsed_time(arrayY_time, back_end_time));
-
     xe = 0;
     ye = 0;
     // estimate the object location by expected values
@@ -759,12 +753,9 @@ void particleFilter(unsigned char *I, int IszX, int IszY, int Nfr, int *seed, in
         xe += arrayX[x] * weights[x];
         ye += arrayY[x] * weights[x];
     }
-    printf("XE: %lf\n", xe);
-    printf("YE: %lf\n", ye);
     double distance = sqrt(pow((double) (xe - (int) roundDouble(IszY / 2.0)), 2) + pow((double) (ye - (int) roundDouble(IszX / 2.0)), 2));
-    printf("%lf\n", distance);
 
-	
+
 }
 
 int main(int argc, char * argv[]) {
@@ -837,12 +828,9 @@ int main(int argc, char * argv[]) {
     //call video sequence
     videoSequence(I, IszX, IszY, Nfr, seed);
     long long endVideoSequence = get_time();
-    printf("VIDEO SEQUENCE TOOK %f\n", elapsed_time(start, endVideoSequence));
     //call particle filter
     particleFilter(I, IszX, IszY, Nfr, seed, Nparticles);
     long long endParticleFilter = get_time();
-    printf("PARTICLE FILTER TOOK %f\n", elapsed_time(endVideoSequence, endParticleFilter));
-    printf("ENTIRE PROGRAM TOOK %f\n", elapsed_time(start, endParticleFilter));
 
     free(seed);
     free(I);

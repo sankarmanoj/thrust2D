@@ -659,9 +659,10 @@ void particleFilter(unsigned char *I, int IszX, int IszY, int Nfr, int *seed, in
 
     thrust::block_2d<int> seed_GPU(seed, seed + Nparticles);
 
-    thrust::counting_iterator<int> it_begin(0);		// used when thread ID is required
-    thrust::counting_iterator<int> it_end = it_begin + Nparticles;
-
+    thrust::device_vector<int> it(Nparticles);		// used when thread ID is required
+    auto it_begin = it.begin();
+    auto it_end = it.end();
+    thrust::sequence(it_begin,it_end);
     long long send_end = get_time();
     printf("TIME TO SEND TO GPU: %f\n", elapsed_time(send_start, send_end));
 
