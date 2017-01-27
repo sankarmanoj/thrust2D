@@ -28,7 +28,7 @@ int main()
   b=hb;
   a=ha;
 
-  thrust::convolve(a,b,&c);
+  thrust::convolve(thrust::cuda::shared,a,b,&c);
   hc=c;
 
   conv(ha.data(),hb.data(),C.data(),DSIZE,FSIZE);
