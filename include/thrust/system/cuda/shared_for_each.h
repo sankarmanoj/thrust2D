@@ -40,9 +40,9 @@ namespace thrust
   };
 
   template <class T>
-  void convolve(device_vector<T> a, device_vector<T> b, device_vector<T> c);
+  void convolve(device_vector<T> a, device_vector<T> b, device_vector<T> *c);
 
   template <class T>
-  void convolve(cuda::shared_policy,device_vector<T> a, device_vector<T> b, device_vector<T> c);
+  void convolve(cuda::shared_policy,device_vector<T> a, device_vector<T> b, device_vector<T> *c);
 }
 #include <thrust/system/cuda/shared_for_each.inl>
