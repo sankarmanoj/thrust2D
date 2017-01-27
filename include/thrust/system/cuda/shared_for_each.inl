@@ -28,6 +28,65 @@ namespace thrust
     for_each_kernel<<<number_of_blocks,properties.maxThreadsPerBlock,sizeof(T)*properties.maxThreadsPerBlock>>>(number_of_elements,data_pointer,f);
   }
 
+  template <class T>
+  __global__ void conv_Kernel(const T * __restrict__ A, const T * __restrict__ B, T *C, const int N, const int P)
+  {
+      int idx = threadIdx.x+blockDim.x*blockIdx.x;
+      int radius = (P-1)/2;
+      if ((idx < (N-radius)) && (idx >= radius))
+      {
+        T my_sum = 0;
+        for (int j = -radius; j <= radius; j++)
+          my_sum += A[idx+j]*B[j+radius];
+        C[idx] = my_sum;
+        // printf("%d %f %f\n",idx,A[idx],C[idx]);
+      }
+  }
+
+  template <class T>
+  void convolve(device_vector<T> a, device_vector<T> b, device_vector<T> *c)
+  {
+    int N = a.size();
+    int P = b.size();
+    cudaDeviceProp properties;
+    cudaGetDeviceProperties(&properties,0);
+    conv_Kernel<<<(N+properties.maxThreadsPerBlock-1)/properties.maxThreadsPerBlock,properties.maxThreadsPerBlock>>>(a.data().get(), b.data().get(), c->data().get(), N, P);
+  }
+
+  // template <class T>
+  // __global__ void conv_shared_Kernel(const T * __restrict__ A, const T * __restrict__ B, T *C, const int N, const int P)
+  // {
+  //     extern __shared__ T sA[];//[nTPB+FSIZE];
+  //     // extern __shared__ T sB[];//[FSIZE];
+  //     int idx = threadIdx.x+blockDim.x*blockIdx.x;
+  //     int radius = (P-1)/2;
+  //     int lidx = threadIdx.x + radius;
+  //     if (threadIdx.x < P) sB[threadIdx.x] = B[threadIdx.x];
+  //     if (idx < N)
+  //     {
+  //       sA[lidx] = A[idx];
+  //       if (threadIdx.x < radius)
+  //       {
+  //         if (idx >= radius)   sA[threadIdx.x] = A[idx - radius];
+  //         if ((idx + nTPB)< N) sA[nTPB + lidx] = A[idx + nTPB];
+  //       }
+  //     }
+  //     __syncthreads();
+  //     if ((idx < (N-radius)) && (idx >= radius))
+  //     {
+  //       mytype my_sum = 0;
+  //       for (int j = -radius; j <= radius; j++)
+  //         my_sum += sA[lidx+j] * sB[j+radius];
+  //       C[idx] = my_sum;
+  //     }
+  // }
+
+  template <class T>
+  void convolve(cuda::shared_policy,device_vector<T> a, device_vector<T> b, device_vector<T> c)
+  {
+
+  }
+
   template <class T,class Func>
   __global__ void unary_transform_kernel(long number_of_elements,T * input_data,T * output_data, Func f)
   {
