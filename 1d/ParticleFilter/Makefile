@@ -1,5 +1,5 @@
 # #makefile
-CC=nvcc -std=c++11 -ccbin=g++-5
+CC=nvcc -std=c++11 -ccbin=g++
 IDIR=-I../../include
 
 all: thrust cuda test
