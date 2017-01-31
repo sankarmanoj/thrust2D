@@ -1,14 +1,9 @@
 #pragma once
 
 #include <thrust/device_vector.h>
-#include <thrust/execution_policy.h>
+#include "window_structures.h"
 namespace thrust
 {
-  namespace cuda
-  {
-    struct shared_policy : device_execution_policy<shared_policy> {};
-    shared_policy shared;
-  }
   template <class Iterator1,class Iterator2, class Func>
   void transform(cuda::shared_policy,Iterator1 begin1, Iterator1 end1,Iterator2 begin2, Func f);
 
