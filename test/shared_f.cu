@@ -1,7 +1,9 @@
 #include <thrust/device_vector.h>
+
 // #include <thrust/for_each.h>
 #include <thrust/sequence.h>
 #include <thrust/shared_for_each.h>
+// #include <thrust/shared_reduce.h>
 using namespace thrust;
 class printFunctor
 {
@@ -32,11 +34,14 @@ __device__  int  operator() ( int  &a,int &b)
 };
 int main()
 {
-device_vector<int> a(1250);
+device_vector<int> a(51200);
 device_vector<int> b(1250);
 device_vector<int> c(1250);
-
+//
 sequence(a.begin(),a.end());
 sequence(b.begin(),b.end());
-transform(cuda::shared,a.begin(),a.end(),b.begin(),c.begin(),binaryFunctor());
+printf("%d ",reduce(cuda::shared,a.begin(),a.end()));
+printf("%d ",reduce(a.begin(),a.end()));
+
+// transform(cuda::shared,a.begin(),a.end(),b.begin(),c.begin(),binaryFunctor());
 }
