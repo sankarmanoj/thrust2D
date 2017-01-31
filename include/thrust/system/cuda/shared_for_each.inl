@@ -1,9 +1,5 @@
 namespace thrust
 {
-  int iDivUp(int a, int b)
-  {
-      return (a % b != 0) ? (a / b + 1) : (a / b);
-  }
   template <class T,class Func>
   __global__ void for_each_kernel(long number_of_elements,T * data, Func f)
   {

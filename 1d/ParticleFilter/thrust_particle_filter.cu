@@ -704,7 +704,7 @@ void particleFilter(unsigned char *I, int IszX, int IszY, int Nfr, int *seed, in
 
 
         // Code for sum_kernel starts
-	    sumWeights = thrust::reduce(weights_GPU.begin(), weights_GPU.end());
+	    sumWeights = thrust::reduce(thrust::cuda::shared,weights_GPU.begin(), weights_GPU.end());
 	    // Code for sum_kernel ends
 
 	    // Code for normalize_weightsYOYOYOYO_kernel starts

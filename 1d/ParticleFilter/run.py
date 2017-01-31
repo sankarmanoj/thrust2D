@@ -7,7 +7,7 @@ y = 128
 z = 1000
 np = 10000
 
-cmd = "nvprof --log-file spf.log ./%s -x %d -y %d -z %d -np %d"
+cmd = "nvprof --unified-memory-profiling off --log-file spf.log ./%s -x %d -y %d -z %d -np %d"
 
 if sys.argv[1] == "1":
 	print "Running CUDA code"

@@ -41,7 +41,9 @@ namespace thrust
   void convolve(cuda::shared_policy,device_vector<T> a, device_vector<T> b, device_vector<T> c);
 
   template <class Iterator>
-    typename thrust::iterator_traits<Iterator>::value_type reduce (cuda::shared_policy,Iterator first,Iterator last);
+  typename thrust::iterator_traits<Iterator>::value_type reduce (cuda::shared_policy,Iterator first,Iterator last);
+  template <class Iterator>
+  void exclusive_scan (cuda::shared_policy,Iterator first,Iterator last,Iterator output);
 }
 #include <thrust/system/cuda/shared_for_each.inl>
 #include <thrust/system/cuda/shared_reduce.inl>

@@ -2,6 +2,7 @@
 
 // #include <thrust/for_each.h>
 #include <thrust/sequence.h>
+#include <thrust/scan.h>
 #include <thrust/shared_for_each.h>
 // #include <thrust/shared_reduce.h>
 using namespace thrust;
@@ -11,7 +12,7 @@ public:
 
 __device__  void  operator() ( int  &a)
   {
-    a=a*a;
+    printf("%d ",a);
   }
 };
 class copyFunctor
@@ -34,14 +35,20 @@ __device__  int  operator() ( int  &a,int &b)
 };
 int main()
 {
-device_vector<int> a(51200);
-device_vector<int> b(1250);
-device_vector<int> c(1250);
-//
-sequence(a.begin(),a.end());
-sequence(b.begin(),b.end());
-printf("%d ",reduce(cuda::shared,a.begin(),a.end()));
-printf("%d ",reduce(a.begin(),a.end()));
-
-// transform(cuda::shared,a.begin(),a.end(),b.begin(),c.begin(),binaryFunctor());
+  device_vector<int> a(12);
+  device_vector<int> b(12);
+  // device_vector<int> c(1250);
+  //
+  sequence(a.begin(),a.end());
+  // sequence(b.begin(),b.end());
+  // printf("%d ",reduce(cuda::shared,a.begin(),a.end()));
+  // printf("%d ",reduce(a.begin(),a.end()));
+  exclusive_scan(cuda::shared,a.begin(),a.end(),b.begin());
+  cudaDeviceSynchronize();
+  for_each(a.begin(),a.end(),printFunctor());
+  cudaDeviceSynchronize();
+  printf("\n");
+  for_each(b.begin(),b.end(),printFunctor());
+  cudaDeviceSynchronize();
+  printf("\n");
 }
