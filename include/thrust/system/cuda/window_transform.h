@@ -1,8 +1,6 @@
 #pragma once
 
 #include <thrust/window_2d.h>
-#include <thrust/execution_policy.h>
-
 #include "window_structures.h"
 #define maxThreadsPerBlock1 1024
 #define minBlocksPerMultiprocessor 2
@@ -32,5 +30,5 @@ namespace thrust
   };
 
 }
-#include <thrust/system/cuda/window_opt_transform.inl>
+#include <thrust/system/cuda/window_transform.inl>
 #include <thrust/system/cuda/convolve.inl>

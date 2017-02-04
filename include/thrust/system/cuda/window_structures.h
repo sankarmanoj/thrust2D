@@ -1,5 +1,5 @@
 #pragma once
-
+#include <thrust/execution_policy.h>
 namespace thrust
 {
   int iDivUp(int a, int b)
