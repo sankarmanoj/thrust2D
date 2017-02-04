@@ -14,11 +14,7 @@ namespace thrust
   void transform(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2, Func f);
   template <class Iterator, class Func>
   void transform(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2, Iterator begin3, Func f);
-  #define MATRIX_TILE_WIDTH 2
-  template <class T>
-  block_2d<T> matrix_multiply(block_2d<T> *a, block_2d<T> *b);
-  template <class T>
-  void transpose(block_2d<T> *a);
+
   template <class T>
   void convolve(cuda::texture_policy,block_2d<T> *block, float *kernel);
 
