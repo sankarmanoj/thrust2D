@@ -5,8 +5,8 @@
 #include <thrust/random.h>
 #include <thrust/reduce.h>
 
-#define D 3
-#define N 2
+#define D 20
+#define N 10000
 __constant__ float weights[D];
 struct indexfunctor1
 {
@@ -44,7 +44,7 @@ struct dotFunctor2
     __device__ float operator() (float &input,float &index)
     {
       float returnval = input*index;
-      printf("%f*%f=%f\n",input,index,returnval);
+      // printf("%f*%f=%f\n",input,index,returnval);
       return returnval;
     }
 };
@@ -59,7 +59,7 @@ int main()
   thrust::for_each(tap.begin(),tap.end(),indexfunctor2());
   thrust::device_vector<float>Xinput(D*N);
   thrust::device_vector<float>Y_actual(N);
-  float host_weights[] = {2,3,4,5,2};
+  float host_weights[] = {2,3,4,5,2,2,3,4,5,2,2,3,4,5,2,2,3,4,5,2,2,3,4,5,2,2,3,4,5,2,2,3,4,5,2,2,3,4,5,2,2,3,4,5,2,2,3,4,5,2,2,3,4,5,2};
   cudaMemcpyToSymbol(weights,host_weights,sizeof(float)*D);
   thrust::transform(thrust::make_counting_iterator(0),thrust::make_counting_iterator(D*N),Xinput.begin(),GenRand());
   thrust::transform(thrust::make_counting_iterator(0),thrust::make_counting_iterator(N),Y_actual.begin(),GenRand());
@@ -80,13 +80,13 @@ int main()
   //                                               (float) Xtemp[i*D],(float) Xtemp[i*D+1],(float) Xtemp[i*D+2],(float) Xtemp[i*D+3],(float) Xtemp[i*D+4]);
   // }
   thrust::transform(y_pred.begin(),y_pred.end(),Y_actual.begin(),error.begin(),thrust::minus<float>());
-  for(int i = 0; i<N;i++)
-  {
-    printf("%f-%f=%f\n",(float)y_pred[i],(float)Y_actual[i],(float)error[i]);
-  }
-  thrust::transform(thrust::make_permutation_iterator(Xinput.begin(),tap.begin()),
-                    thrust::make_permutation_iterator(Xinput.end(),tap.end()),
-                    thrust::make_permutation_iterator(error.begin(),map.begin()),Xtemp.begin(),dotFunctor2());
+  // for(int i = 0; i<N;i++)
+  // {
+  //   printf("%f-%f=%f\n",(float)y_pred[i],(float)Y_actual[i],(float)error[i]);
+  // }
+  // thrust::transform(thrust::make_permutation_iterator(Xinput.begin(),tap.begin()),
+  //                   thrust::make_permutation_iterator(Xinput.end(),tap.end()),
+  //                   thrust::make_permutation_iterator(error.begin(),map.begin()),Xtemp.begin(),dotFunctor2());
   // for(int i = 0; i<D;i++)
   // {
   //   for(int j = 0;j<N;j++)
