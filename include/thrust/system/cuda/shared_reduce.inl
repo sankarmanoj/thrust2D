@@ -118,7 +118,7 @@ namespace thrust
     dim3 dimBlock(BLOCK_SIZE, 1, 1);
     scan<<<dimGrid, dimBlock, BLOCK_SIZE*2*sizeof(T)>>>(deviceInput, deviceOutput, deviceAuxArray, number_of_elements);
     cudaDeviceSynchronize();
-    scan<<<dim3(1,1,1), dimBlock,BLOCK_SIZE*2*sizeof(T)>>>(deviceAuxArray, deviceAuxScannedArray, (T*)nullptr, BLOCK_SIZE << 1);
+    // scan<<<dim3(1,1,1), dimBlock,BLOCK_SIZE*2*sizeof(T)>>>(deviceAuxArray, deviceAuxScannedArray, (T*)nullptr, BLOCK_SIZE << 1);
     cudaDeviceSynchronize();
     fixup<<<dimGrid, dimBlock>>>(deviceOutput, deviceAuxScannedArray, number_of_elements);
     cudaDeviceSynchronize();

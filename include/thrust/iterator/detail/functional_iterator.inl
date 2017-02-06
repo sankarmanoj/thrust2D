@@ -40,6 +40,11 @@ namespace thrust
   {
     return this->position - it.position;
   }
+  template<typename functional_operator>
+  __host__ __device__ functional_iterator<functional_operator>::difference_type functional_iterator<functional_operator>::operator- ( functional_iterator& it) const
+  {
+    return this->position - it.position;
+  }
   // __host__ __device__ difference_type operator- (functional_iterator& it) const;
   template<typename functional_operator>
   __host__ __device__ functional_iterator<functional_operator> functional_iterator<functional_operator>::operator-- ()
