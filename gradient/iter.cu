@@ -5,8 +5,8 @@
 #include <thrust/random.h>
 #include <cstdlib>
 #include <ctime>
-#define D 32
-#define N 10000
+#define D 2
+#define N 10
 __constant__ float weights[D];
 struct GenRand
 {
@@ -40,6 +40,14 @@ public:
   __host__ __device__ long operator() (long index) const
   {
     return index/N;
+  }
+};
+class squareOp
+{
+public:
+  __host__ __device__ float operator() (float index) const
+  {
+    return index*index;
   }
 };
 struct floatsD
@@ -89,11 +97,12 @@ int main()
   thrust::device_vector<float>Xtemp2(D*N);
   thrust::device_vector<float> y_pred(N),error(N);
   thrust::device_vector<float> gradient(D);
+  thrust::device_vector<float>errSquare(N);
   cudaMemcpy(Xinput.data().get(),hostRandomArray,sizeof(float)*D*N,cudaMemcpyHostToDevice);
-  cudaMemcpy(Xtemp.data().get(),Xinput.data().get(),sizeof(float)*D*N,cudaMemcpyDeviceToDevice);
+  cudaMemcpy(Xtemp.data().get(),hostRandomArray,sizeof(float)*D*N,cudaMemcpyHostToDevice);
   thrust::transform(thrust::make_counting_iterator(0),thrust::make_counting_iterator(N),Y_actual.begin(),GenRand());
   int count = 0;
-  while(count<1000)
+  while(count<1)
   {
   cudaMemcpyToSymbol(weights,host_weights.data(),sizeof(float)*D);
   thrust::transform(Xinput.begin(),Xinput.end(),y_pred.begin(),dotProductFunctor());
@@ -101,12 +110,11 @@ int main()
   // {
   //   printf("%f\n",((floatD)Xinput[i])[0]);
   // }
-  for(int i = 0; i< 10;i++)
-  {
-    printf("%f-%f\n",(float)Y_actual[i],(float)y_pred[i]);
-  }
-  printf("-----\n");
+
   thrust::transform(y_pred.begin(),y_pred.end(),Y_actual.begin(),error.begin(),thrust::minus<float>());
+  thrust::transform(error.begin(),error.end(),errSquare.begin(),squareOp());
+  float errorVal = thrust::reduce(errSquare.begin(),errSquare.end());
+  printf("@ %d Error = %f\n",count,errorVal);
   auto xtb =   thrust::make_permutation_iterator(Xtemp2.begin(),thrust::functional_iterator<funcOp2>(funcOp2()));
   auto erb = thrust::make_permutation_iterator(error.begin(),thrust::functional_iterator<funcOp>(funcOp()));
 
@@ -115,7 +123,33 @@ int main()
                                        thrust::functional_iterator<funcOp3>(funcOp3(),D*N),
                                        Xtemp2.begin(),Xtemp.begin(),gradient.begin());
   // printf("Size of gradient = %d\n",new_end.second-gradient.begin());
+
   host_gradient = gradient;
+  printf("Gradient\n");
+  for(int i = 0; i<N;i++)
+  {
+    printf("%f\n",(float)host_gradient[i]);
+  }
+  printf("Error\n");
+  for(int i = 0; i<N;i++)
+  {
+    printf("%f\n",(float)error[i]);
+  }
+  printf("X values\n");
+  for(int i = 0; i<N;i++)
+  {
+    for(int j = 0; j<D;j++)
+    {
+      printf("%f ",(float)Xtemp2[i*D + j]);
+    }
+    printf("---------");
+    for(int j = 0; j<D;j++)
+    {
+      printf("%f ",host_weights.data()[D]);
+    }
+    printf("\n");
+  }
+
   thrust::transform(thrust::host,host_weights.begin(),host_weights.end(),host_gradient.begin(),host_weights.begin(),gradSub());
   // printf("alkdsf");
   count++;
