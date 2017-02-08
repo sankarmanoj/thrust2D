@@ -5,19 +5,10 @@
 #include <thrust/random.h>
 #include <cstdlib>
 #include <ctime>
-#define D 2
-#define N 3
+#define D 500
+#define N 10
 __constant__ float weights[D];
-struct GenRand
-{
-    __host__ __device__ float operator() (float idx)
-    {
-        thrust::default_random_engine randEng;
-        thrust::uniform_real_distribution<float> uniDist;
-        randEng.discard(idx);
-        return uniDist(randEng)*5;
-    }
-};
+
 class funcOp
 {
 public:
@@ -84,13 +75,14 @@ struct gradSub
 {
   float operator() (float &weight, float&gradient)
   {
-    return weight - 0.01*gradient/N;
+    return weight - 0.001*gradient/N;
   }
 };
 int main()
 {
-  srand (static_cast <unsigned> (time(0)));
+ srand (time(NULL));
   float hostRandomArray[D*N];
+  float hostYval[N];
   printf("Begin\n");
   for(int i = 0; i<D*N;i++)
   {
@@ -100,7 +92,12 @@ int main()
   thrust::host_vector<float> host_gradient(D),host_weights(D);
   for(int i = 0; i<D;i++)
   {
-    host_weights[i]=0.1*(static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
+    host_weights[i]=-0.1*(static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
+    // printf("%f\n",host_weights[i]);
+  }
+  for(int i = 0; i<N;i++)
+  {
+    hostYval[i]=5.0*(static_cast <float> (rand()) / static_cast <float> (RAND_MAX));
     // printf("%f\n",host_weights[i]);
   }
   thrust::device_vector<floatsD>Xinput(N);
@@ -113,7 +110,7 @@ int main()
   thrust::device_vector<float>errSquare(N);
   cudaMemcpy(Xinput.data().get(),hostRandomArray,sizeof(float)*D*N,cudaMemcpyHostToDevice);
   cudaMemcpy(Xtemp.data().get(),hostRandomArray,sizeof(float)*D*N,cudaMemcpyHostToDevice);
-  thrust::transform(thrust::make_counting_iterator(0),thrust::make_counting_iterator(N),Y_actual.begin(),GenRand());
+  cudaMemcpy(Y_actual.data().get(),hostYval,sizeof(float)*N,cudaMemcpyHostToDevice);
   int count = 0;
   while(count<10000)
   {
@@ -130,22 +127,22 @@ int main()
   printf("@ %d Error = %f\n",count,errorVal);
 
 
-  auto xtb =   thrust::make_permutation_iterator(Xtemp2.begin(),thrust::functional_iterator<funcOp2>(funcOp2()));
-  auto erb = thrust::make_permutation_iterator(error.begin(),thrust::functional_iterator<funcOp>(funcOp()));
-
-  thrust::transform(Xtemp.begin(),Xtemp.end(),erb,xtb, thrust::multiplies<float>());
-  thrust::transform(thrust::functional_iterator<funcOp3>(funcOp3()),thrust::functional_iterator<funcOp3>(funcOp3(),D*N),emptyVector.begin(),thrust::identity<long>());
-  // printf("Keys\n");
-  // for(int i = 0; i<3;i++)
-  // {
-  //   printf("%d\n",(int)emptyVector[i]);
-  // }
-  auto new_end = thrust::reduce_by_key(emptyVector.begin(),emptyVector.end(),
-                                       Xtemp2.begin(),y_pred.begin(),gradient.begin());
+  // auto xtb =   thrust::make_permutation_iterator(Xtemp2.begin(),thrust::functional_iterator<funcOp2>(funcOp2()));
+  // auto erb = thrust::make_permutation_iterator(error.begin(),thrust::functional_iterator<funcOp>(funcOp()));
+  //
+  // thrust::transform(Xtemp.begin(),Xtemp.end(),erb,xtb, thrust::multiplies<float>());
+  // thrust::transform(thrust::functional_iterator<funcOp3>(funcOp3()),thrust::functional_iterator<funcOp3>(funcOp3(),D*N),emptyVector.begin(),thrust::identity<long>());
+  // // printf("Keys\n");
+  // // for(int i = 0; i<3;i++)
+  // // {
+  // //   printf("%d\n",(int)emptyVector[i]);
+  // // }
+  // auto new_end = thrust::reduce_by_key(emptyVector.begin(),emptyVector.end(),
+  //                                      Xtemp2.begin(),y_pred.begin(),gradient.begin());
 
   // printf("Size of gradient = %d\n",new_end.second-gradient.begin());
 
-  host_gradient = gradient;
+  // host_gradient = gradient;
   // printf("Gradient\n");
   // for(int i = 0; i<D;i++)
   // {
@@ -171,7 +168,7 @@ int main()
   //   printf("\n");
   // }
 
-  thrust::transform(thrust::host,host_weights.begin(),host_weights.end(),host_gradient.begin(),host_weights.begin(),gradSub());
+  // thrust::transform(thrust::host,host_weights.begin(),host_weights.end(),host_gradient.begin(),host_weights.begin(),gradSub());
   // printf("alkdsf");
   count++;
   }
