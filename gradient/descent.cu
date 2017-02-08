@@ -6,14 +6,22 @@
 #include "descent-struct.h"
 #include <fstream>
 
-int main()
+int main(int argc, char **argv)
 {
   std::ifstream values;
-  values.open("values.txt");
+  values.open("/dev/shm/values.txt");
+  float learning;
+  int iterations;
+  if(argc!=3)
+  {
+    exit(0);
+  }
+  iterations = atoi(argv[2]);
+  learning = atof(argv[1]);
   int D,N;
   float *xvalues,*y_actual,*real_weights,*weights;
   values>>D>>N;
-  printf("D=%d N=%d\n",D,N);
+  printf("D=%d N=%d LR=%F Iter=%d\n",D,N,learning,iterations);
   xvalues = new float [D*N];
   for(int i = 0 ; i<N;i++)
   {
@@ -52,12 +60,12 @@ int main()
   thrust::device_vector<floatD> d_XD;
   d_XD = h_XD;
   int count = 0;
-  while(count<10)
+  while(count<iterations)
   {
     cudaMemcpyToSymbol(c_weights,weights,sizeof(float)*D);
     thrust::transform(d_XD.begin(),d_XD.end(),d_Ypredict.begin(),dotProductFunctor(D));
     thrust::transform(d_Ypredict.begin(),d_Ypredict.end(),d_Yactual.begin(),d_error.begin(),thrust::minus<float>());
-    printf("%d Error = %f\n",count,sqrt(thrust::transform_reduce(d_error.begin(),d_error.end(),squareOp(),0,thrust::plus<float>())/N));
+    printf("%d Error = %f\n",count,sqrt(thrust::transform_reduce(d_error.begin(),d_error.end(),squareOp(),0,thrust::plus<float>())));
     for(int i = 0; i<D;i++)
     {
       thrust::transform(d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),d_Ypredict.begin(),thrust::multiplies<float>());
@@ -65,15 +73,13 @@ int main()
     }
     for(int i = 0; i<D;i++)
     {
-      weights[i] = weights[i] -0.001*h_gradient[i];
+      weights[i] = weights[i] -learning*h_gradient[i];
     }
     count++;
   }
-  float sdiff=0.0;
   for (int i=0; i<D; i++)
   {
-    sdiff += (weights[i]-real_weights[i])*(weights[i]-real_weights[i]);
+    printf("%f - %f = %f\n",weights[i],real_weights[i],(weights[i]-real_weights[i]));
   }
-  sdiff = sqrt(sdiff/D);
-  printf("Final Error = %f\n",sdiff);
+
 }
