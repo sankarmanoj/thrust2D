@@ -20,8 +20,7 @@ learning = 0.5
 try:
     for i in range(count):
         ypred = np.dot(xval,weights)
-        # for y in  ypred[0:10]:
-        #     print y
+
         error = ypred - yactual
         # ersq = np.square(error)
         # print "Error = ",np.mean(ersq)
