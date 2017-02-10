@@ -43,7 +43,7 @@ namespace thrust
   template <class Iterator>
   typename thrust::iterator_traits<Iterator>::value_type reduce (cuda::shared_policy,Iterator first,Iterator last);
   template <class Iterator>
-  void exclusive_scan (cuda::shared_policy,Iterator first,Iterator last,Iterator output);
+  void inclusive_scan (cuda::shared_policy,Iterator first,Iterator last,Iterator output);
 }
 #include <thrust/system/cuda/shared_for_each.inl>
 #include <thrust/system/cuda/shared_reduce.inl>

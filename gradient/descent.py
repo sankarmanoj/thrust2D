@@ -20,8 +20,10 @@ learning = 0.5
 try:
     for i in range(count):
         ypred = np.dot(xval,weights)
+
         error = ypred - yactual
-        ersq = np.square(error)
+        # ersq = np.square(error)
+        # print "Error = ",np.mean(ersq)
         gradient = np.dot(np.transpose(xval),error)
         weights = weights - learning*gradient/n
 except:
