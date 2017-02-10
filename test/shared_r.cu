@@ -17,22 +17,22 @@ __device__  void  operator() ( int  &a)
 };
 int main()
 {
-  device_vector<int> a(1024*1024*32);
-  device_vector<int> b(1024*1024*32);
+  device_vector<int> a(2048);
+  // device_vector<int> b(1024);
   //
   sequence(a.begin(),a.end());
-  // printf("Shared = %d \n",reduce(cuda::shared,a.begin(),a.end()));
-  // cudaDeviceSynchronize();
-  // printf("Thrust = %d \n",reduce(a.begin(),a.end()));
+  printf("Shared = %d \n",reduce(cuda::shared,a.begin(),a.end()));
+  cudaDeviceSynchronize();
+  printf("Thrust = %d \n",reduce(a.begin(),a.end()));
   cudaDeviceSynchronize();
   // printf("\n");
   // for_each(cuda::shared,a.begin(),a.end(),printFunctor());
-  inclusive_scan(a.begin(),a.end(),b.begin());
-  cudaDeviceSynchronize();
+  // inclusive_scan(a.begin(),a.end(),b.begin());
+  // cudaDeviceSynchronize();
   // printf("\n");
   // for_each(cuda::shared,b.begin(),b.end(),printFunctor());
-  inclusive_scan(cuda::shared,a.begin(),a.end(),b.begin());
-  cudaDeviceSynchronize();
+  // inclusive_scan(cuda::shared,a.begin(),a.end(),b.begin());
+  // cudaDeviceSynchronize();
   // printf("\n");
   // for_each(cuda::shared,b.begin(),b.end(),printFunctor());
   // cudaDeviceSynchronize();
