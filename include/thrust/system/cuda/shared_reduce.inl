@@ -1,7 +1,7 @@
 namespace thrust
 {
   template <class T>
-  __global__ void reduce_kernel (T *start,T* output,int N) // TODO: Implement better tree based reduce function.
+  __global__ void reduce_kernel (T *start,T *output,int N) // TODO: Implement better tree based reduce function.
   {
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
     int num_threads = gridDim.x * blockDim.x;
@@ -27,8 +27,10 @@ namespace thrust
   typename thrust::iterator_traits<Iterator>::value_type reduce (cuda::shared_policy,Iterator first,Iterator last)
   {
     // TODO: To be replaced by cuda Occupancy calculator or cuda properties.
-    const int numBlocks = 26;
-    const int numThreads = 1024;
+    cudaDeviceProp properties;
+    cudaGetDeviceProperties(&properties,0);
+    const int numBlocks = properties.multiProcessorCount*2;
+    const int numThreads = properties.maxThreadsPerBlock;
     typedef typename Iterator::value_type T;
     const int sharedSize = numThreads*sizeof (T);
     int number_of_elements = last-first;
@@ -72,7 +74,6 @@ namespace thrust
     else
       scan_array[blockDim.x + t] = 0;
     __syncthreads();
-
     // Reduction
     int stride;
     for (stride = 1; stride <= blockDim.x; stride <<= 1)
@@ -102,26 +103,37 @@ namespace thrust
   }
 
   template <class Iterator>
-  void exclusive_scan (cuda::shared_policy,Iterator first,Iterator last,Iterator output)
+  void inclusive_scan (cuda::shared_policy,Iterator first,Iterator last,Iterator output)
   {
-    int BLOCK_SIZE = 256; // TODO: Update with better values
+    int number_of_elements = last - first;
+    int BLOCK_SIZE;
+    if (number_of_elements>1024)
+      BLOCK_SIZE = 512;
+    else if (number_of_elements>512)
+      BLOCK_SIZE = 256;
+    else if (number_of_elements>128)
+      BLOCK_SIZE = 64;
+    else if (number_of_elements>64)
+      BLOCK_SIZE = 32;
+    else
+      BLOCK_SIZE = pow(2, floor(log(number_of_elements)/log(2))-2);
     typedef typename Iterator::value_type T;
     T *deviceInput = raw_pointer_cast(&(first[0]));
-    T *deviceOutput = raw_pointer_cast(&(output[0]));
-    T *deviceAuxArray, *deviceAuxScannedArray;
-    int number_of_elements = last - first;
+    T *deviceAuxArray, *deviceAuxScannedArray, *deviceOutput;
     cudaMalloc(&deviceAuxArray, (BLOCK_SIZE << 1) * sizeof(T));
     cudaMalloc(&deviceAuxScannedArray, (BLOCK_SIZE << 1) * sizeof(T));
-    // cudaMemset(deviceOutput, 0, number_of_elements*sizeof(T));
+    cudaMalloc(&deviceOutput,number_of_elements*sizeof(T));
+    cudaMemset(deviceOutput, 0, number_of_elements*sizeof(T));
     int numBlocks = ceil((T)number_of_elements/(BLOCK_SIZE<<1));
     dim3 dimGrid(numBlocks, 1, 1);
     dim3 dimBlock(BLOCK_SIZE, 1, 1);
     scan<<<dimGrid, dimBlock, BLOCK_SIZE*2*sizeof(T)>>>(deviceInput, deviceOutput, deviceAuxArray, number_of_elements);
     cudaDeviceSynchronize();
-    // scan<<<dim3(1,1,1), dimBlock,BLOCK_SIZE*2*sizeof(T)>>>(deviceAuxArray, deviceAuxScannedArray, (T*)nullptr, BLOCK_SIZE << 1);
+    scan<<<dim3(1,1,1), dimBlock,BLOCK_SIZE*2*sizeof(T)>>>(deviceAuxArray, deviceAuxScannedArray, (T*)nullptr, BLOCK_SIZE << 1);
     cudaDeviceSynchronize();
     fixup<<<dimGrid, dimBlock>>>(deviceOutput, deviceAuxScannedArray, number_of_elements);
     cudaDeviceSynchronize();
+    cudaMemcpy(raw_pointer_cast(&(output[0])),deviceOutput,number_of_elements*sizeof(T),cudaMemcpyDeviceToDevice);
     cudaFree(deviceAuxArray);
     cudaFree(deviceAuxScannedArray);
   }
