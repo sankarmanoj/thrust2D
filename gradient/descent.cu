@@ -15,7 +15,6 @@ int main(int argc, char **argv)
   float learn = atof(argv[2]);
   float *xvalues,*y_actual,*real_weights,*weights;
   values>>D>>N;
-  printf("D=%d N=%d LR=%F Iter=%d\n",D,N,learning,iterations);
   xvalues = new float [D*N];
   for(int i = 0 ; i<N;i++)
   {
@@ -39,6 +38,7 @@ int main(int argc, char **argv)
   {
     values>>weights[i];
   }
+  printf("Done Reading Data\n");
   thrust::device_vector<float> d_Xvalues(xvalues,xvalues+D*N);
   thrust::device_vector<float> d_Yactual(y_actual,y_actual+N);
   thrust::device_vector<float> d_Ypredict(N);

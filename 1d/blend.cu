@@ -41,6 +41,7 @@ for(int i = 0; i<input1.cols*input1.rows;i++)
   thrust::device_vector<uchar>input_vector1(input1.ptr(),input1.ptr()+input1.cols*input1.rows);
   thrust::device_vector<float>input_vector2(imgd,imgd+input2.cols*input2.rows);
   thrust::device_vector<uchar>output_vector(input1.cols*input1.rows);
+  for(int i = 0; i<1000;i++)
   thrust::transform(input_vector1.begin(),input_vector1.end(),input_vector2.begin(),output_vector.begin(),blendFunctor(0.3));
   thrust::host_vector<uchar>host_output_vector(input1.cols*input1.rows);
   host_output_vector = output_vector;
