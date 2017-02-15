@@ -17,8 +17,8 @@ __device__  void  operator() ( int  &a)
 };
 int main()
 {
-  device_vector<int> a(2048);
-  // device_vector<int> b(1024);
+  device_vector<int> a(65);
+  // device_vector<int> b(63);
   //
   sequence(a.begin(),a.end());
   printf("Shared = %d \n",reduce(cuda::shared,a.begin(),a.end()));
