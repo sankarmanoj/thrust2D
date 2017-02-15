@@ -67,7 +67,7 @@ int main(int argc, char **argv)
     for(int i = 0; i<D;i++)
     {
       thrust::transform(d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),d_Ypredict.begin(),thrust::multiplies<float>());
-      h_gradient[i]=thrust::reduce(d_Ypredict.begin(),d_Ypredict.end())/N;
+      h_gradient[i]=thrust::reduce(thrust::cuda::shared,d_Ypredict.begin(),d_Ypredict.end())/N;
       // printf("%f\n",h_gradient[i]);
     }
     for(int i = 0; i<D;i++)
