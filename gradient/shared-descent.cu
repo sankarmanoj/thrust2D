@@ -1,8 +1,6 @@
 #include <thrust/iterator/functional_iterator.h>
 #include <thrust/device_vector.h>
 #include <thrust/shared_for_each.h>
-#include <thrust/execution_policy.h>
-#include <thrust/random.h>
 #include "descent-struct.h"
 #include <fstream>
 
@@ -57,8 +55,8 @@ int main(int argc, char **argv)
   while(count<niter)
   {
     cudaMemcpyToSymbol(c_weights,weights,sizeof(float)*D);
-    thrust::transform(d_XD.begin(),d_XD.end(),d_Ypredict.begin(),dotProductFunctor(D));
-    thrust::transform(d_Ypredict.begin(),d_Ypredict.end(),d_Yactual.begin(),d_error.begin(),thrust::minus<float>());
+    thrust::transform(thrust::cuda::shared,d_XD.begin(),d_XD.end(),d_Ypredict.begin(),dotProductFunctor(D));
+    thrust::transform(thrust::cuda::shared,d_Ypredict.begin(),d_Ypredict.end(),d_Yactual.begin(),d_error.begin(),thrust::minus<float>());
     // for (size_t i = 0; i < 10; i++)
     // {
     //   printf("%f\n",(float) d_Ypredict[i]);
@@ -66,8 +64,8 @@ int main(int argc, char **argv)
     // printf("%d Error = %.9f\n",count,(float)thrust::transform_reduce(d_error.begin(),d_error.end(),squareOp(),0,thrust::plus<float>())/N);
     for(int i = 0; i<D;i++)
     {
-      thrust::transform(d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),d_Ypredict.begin(),thrust::multiplies<float>());
-      h_gradient[i]=thrust::reduce(d_Ypredict.begin(),d_Ypredict.end())/N;
+      h_gradient[i]=thrust::transform_reduce(thrust::cuda::shared,d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),thrust::multiplies<float>())/N;
+      // h_gradient[i]=thrust::reduce(thrust::cuda::shared,d_Ypredict.begin(),d_Ypredict.end())/N;
       // printf("%f\n",h_gradient[i]);
     }
     for(int i = 0; i<D;i++)

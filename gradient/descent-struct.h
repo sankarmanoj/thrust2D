@@ -26,6 +26,26 @@ public:
     return temp;
   }
 };
+class dotProductFunctorNC
+{
+public:
+  int D;
+  float * weights;
+  dotProductFunctorNC(int D,float * weights)
+  {
+    this->D = D;
+    this->weights = weights;
+  }
+  __device__ float operator() (floatD &vector)
+  {
+    float temp = 0;
+    for(int i = 0; i<D;i++)
+    {
+      temp+=vector[i]*weights[i];
+    }
+    return temp;
+  }
+};
 class squareOp
 {
 public:

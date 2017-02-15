@@ -20,7 +20,7 @@ class copyFunctor
 {
 public:
 
-__device__  int  operator() ( int  &a)
+__device__  float  operator() ( float  &a)
   {
     return a*a;
   }
@@ -29,15 +29,17 @@ class binaryFunctor
 {
 public:
 
-__device__  int  operator() ( int  &a,int &b)
+__device__  float  operator() ( float  &a,float &b)
   {
     return a*b;
   }
 };
-int main()
+int main(int argc, char ** argv)
 {
-  device_vector<int> a(32);
-  device_vector<int> b(32);
+  if(argc!=2)
+    exit(0);
+  device_vector<float> a(atoi(argv[1]));
+  device_vector<float> b(atoi(argv[1]));
   // device_vector<int> c(1200);
   //
   sequence(a.begin(),a.end());
@@ -53,6 +55,7 @@ int main()
   // for_each(cuda::shared,c.begin(),c.end(),printFunctor());
   // cudaDeviceSynchronize();
   // printf("\n");
-  printf("Thrust = %d\n",transform_reduce(a.begin(),a.end(),copyFunctor(),0, thrust::plus<int>()));
-  printf("Shared = %d\n",transform_reduce(cuda::shared,a.begin(),a.end(),b.begin(),binaryFunctor()));
+  printf("Thrust = %f\n",transform_reduce(a.begin(),a.end(),copyFunctor(),0.0f, thrust::plus<float>()));
+  printf("Shared = %f\n",transform_reduce(cuda::shared,a.begin(),a.end(),b.begin(),binaryFunctor()));
+    printf("Shared = %f \n",reduce(cuda::shared,a.begin(),a.end()-10));
 }

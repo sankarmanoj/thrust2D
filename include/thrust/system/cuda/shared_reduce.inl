@@ -32,7 +32,10 @@ namespace thrust
     sdata[tid]=0;
     while (i<n)
     {
-      sdata[tid] += (g_idata[i] + g_idata[i+block_size]);
+
+      sdata[tid] += g_idata[i];
+      if(i+block_size<n)
+        sdata[tid] += g_idata[i+block_size];
       // printf("%d+=(%d+%d)\n", sdata[tid], g_idata[i],g_idata[i+block_size]);
       i+=grid_size;
     }
@@ -117,7 +120,7 @@ namespace thrust
     unsigned int number_of_elements = last-first;
     numThreads = min(numThreads, previous_power_of_two(number_of_elements/2));
     numBlocks = min(numBlocks, ((number_of_elements%(2*numThreads))?((number_of_elements/(2*numThreads))+1):(number_of_elements/(2*numThreads))));
-    // printf("%d %d\n",numThreads,numBlocks);
+    printf("Num Threads = %d Num Blocks = %d\n",numThreads,numBlocks);
     T *partial,*first_pointer, *h_partial;
     first_pointer = raw_pointer_cast(&(first[0]));
     cudaMalloc (&partial,numBlocks*sizeof(T));
@@ -271,10 +274,14 @@ namespace thrust
     sdata[tid]=0;
     while (i<n)
     {
-      sdata[tid] += (f(g_idata[i]) + f(g_idata[i+block_size]));
-      printf("%d+=(%d+%d)\n", sdata[tid], f(g_idata[i]),f(g_idata[i+block_size]));
+
+      sdata[tid] += f(g_idata[i]);
+      if(i+block_size<n)
+        sdata[tid] += f(g_idata[i+block_size]);
+      // printf("%d+=(%d+%d)\n", sdata[tid], g_idata[i],g_idata[i+block_size]);
       i+=grid_size;
     }
+
     __syncthreads();
 
     if (block_size >= 1024)
@@ -407,10 +414,14 @@ namespace thrust
     sdata[tid]=0;
     while (i<n)
     {
-      sdata[tid] += (f(g_idata1[i],g_idata2[i]) + f(g_idata1[i+block_size],g_idata2[i+block_size]));
+
+      sdata[tid] += f(g_idata1[i],g_idata2[i]);
+      if(i+block_size<n)
+        sdata[tid] +=f(g_idata1[i+block_size],g_idata2[i+block_size]);
       // printf("%d+=(%d+%d)\n", sdata[tid], g_idata[i],g_idata[i+block_size]);
       i+=grid_size;
     }
+  
     __syncthreads();
 
     if (block_size >= 1024)
