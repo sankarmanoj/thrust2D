@@ -17,7 +17,7 @@ __device__  void  operator() ( int  &a)
 };
 int main()
 {
-  device_vector<int> a(65);
+  device_vector<int> a(12);
   // device_vector<int> b(63);
   //
   sequence(a.begin(),a.end());

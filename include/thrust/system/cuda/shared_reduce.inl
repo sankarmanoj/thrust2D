@@ -117,7 +117,7 @@ namespace thrust
     unsigned int number_of_elements = last-first;
     numThreads = min(numThreads, previous_power_of_two(number_of_elements/2));
     numBlocks = min(numBlocks, ((number_of_elements%(2*numThreads))?((number_of_elements/(2*numThreads))+1):(number_of_elements/(2*numThreads))));
-    printf("%d %d\n",numThreads,numBlocks);
+    // printf("%d %d\n",numThreads,numBlocks);
     T *partial,*first_pointer, *h_partial;
     first_pointer = raw_pointer_cast(&(first[0]));
     cudaMalloc (&partial,numBlocks*sizeof(T));
@@ -260,5 +260,277 @@ namespace thrust
     cudaFree(deviceAuxArray);
     cudaFree(deviceAuxScannedArray);
     cudaFree(deviceOutput);
+  }
+  template <class T,class Func,unsigned int block_size>
+  __global__ void unary_reduce_kernel (T *g_idata, T *g_odata, unsigned int n, Func f)
+  {
+    extern volatile __shared__ T sdata[];
+    unsigned int tid=threadIdx.x;
+    unsigned int i=blockIdx.x*block_size*2 + tid;
+    unsigned int grid_size = block_size*2*gridDim.x;
+    sdata[tid]=0;
+    while (i<n)
+    {
+      sdata[tid] += (f(g_idata[i]) + f(g_idata[i+block_size]));
+      printf("%d+=(%d+%d)\n", sdata[tid], f(g_idata[i]),f(g_idata[i+block_size]));
+      i+=grid_size;
+    }
+    __syncthreads();
+
+    if (block_size >= 1024)
+    {
+      if (tid < 512)
+      {
+        sdata[tid] += sdata[tid + 512];
+      }
+      __syncthreads();
+    }
+    if (block_size >= 512)
+    {
+      if (tid < 256)
+      {
+        sdata[tid] += sdata[tid + 256];
+      }
+      __syncthreads();
+    }
+    if (block_size >= 256)
+    {
+      if (tid < 128)
+      {
+        sdata[tid] += sdata[tid + 128];
+      }
+      __syncthreads();
+    }
+    if (block_size >= 128)
+    {
+      if (tid < 64)
+      {
+        sdata[tid] += sdata[tid + 64];
+      }
+      __syncthreads();
+    }
+    if (tid<32)
+    {
+      if (block_size >= 64)
+        sdata[tid] += sdata[tid + 32];
+      if (block_size >= 32)
+        sdata[tid] += sdata[tid + 16];
+      if (block_size >= 16)
+        sdata[tid] += sdata[tid + 8];
+      if (block_size >= 8)
+        sdata[tid] += sdata[tid + 4];
+      if (block_size >= 4)
+        sdata[tid] += sdata[tid + 2];
+      if (block_size >= 2)
+        sdata[tid] += sdata[tid + 1];
+    }
+    __syncthreads();
+    if(tid == 0)
+    {
+      g_odata[blockIdx.x] = sdata[0];
+    }
+  }
+
+  template <class Iterator, class Func>
+  typename thrust::iterator_traits<Iterator>::value_type transform_reduce(cuda::shared_policy,Iterator begin, Iterator end, Func f)
+  {
+    cudaDeviceProp properties;
+    cudaGetDeviceProperties(&properties,0);
+    unsigned int numBlocks = properties.multiProcessorCount*2;
+    unsigned int numThreads = properties.maxThreadsPerBlock;
+    typedef typename Iterator::value_type T;
+    const int sharedSize = numThreads*sizeof (T);
+    unsigned int number_of_elements = end-begin;
+    numThreads = min(numThreads, previous_power_of_two(number_of_elements/2));
+    numBlocks = min(numBlocks, ((number_of_elements%(2*numThreads))?((number_of_elements/(2*numThreads))+1):(number_of_elements/(2*numThreads))));
+    // printf("%d %d\n",numThreads,numBlocks);
+    T *partial,*first_pointer, *h_partial;
+    first_pointer = raw_pointer_cast(&(begin[0]));
+    cudaMalloc (&partial,numBlocks*sizeof(T));
+    h_partial = (T*) std::malloc(numBlocks*sizeof(T));
+    // reduce_kernel<<<numBlocks,numThreads,sharedSize>>> (first_pointer,partial,number_of_elements);
+    // reduce_kernel<<<1,numThreads,sharedSize>>> (partial,answer_device,numBlocks);
+    switch(numThreads)
+    {
+      case 1024:
+        unary_reduce_kernel<T,Func,1024><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f);
+        break;
+      case 512:
+        unary_reduce_kernel<T,Func,512><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f);
+        break;
+      case 256:
+        unary_reduce_kernel<T,Func,256><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f);
+        break;
+      case 128:
+        unary_reduce_kernel<T,Func,128><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f);
+        break;
+      case 64:
+        unary_reduce_kernel<T,Func,64><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f);
+        break;
+      case 32:
+        unary_reduce_kernel<T,Func,32><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f);
+        break;
+      case 16:
+        unary_reduce_kernel<T,Func,16><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f);
+        break;
+      case 8:
+        unary_reduce_kernel<T,Func,8><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f);
+        break;
+      case 4:
+        unary_reduce_kernel<T,Func,4><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f);
+        break;
+      case 2:
+        unary_reduce_kernel<T,Func,2><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f);
+        break;
+      case 1:
+        unary_reduce_kernel<T,Func,1><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f);
+        break;
+    }
+    T answer = 0;
+    cudaMemcpy (h_partial,partial,numBlocks*sizeof(T),cudaMemcpyDeviceToHost);
+    for (int i = 0; i < numBlocks; i++)
+    {
+      answer += h_partial[i];
+    }
+    cudaFree(partial);
+    std::free(h_partial);
+    return answer;
+  }
+
+  template <class T,class Func,unsigned int block_size>
+  __global__ void binary_reduce_kernel (T *g_idata1, T *g_idata2, T *g_odata, unsigned int n, Func f)
+  {
+    extern volatile __shared__ T sdata[];
+    unsigned int tid=threadIdx.x;
+    unsigned int i=blockIdx.x*block_size*2 + tid;
+    unsigned int grid_size = block_size*2*gridDim.x;
+    sdata[tid]=0;
+    while (i<n)
+    {
+      sdata[tid] += (f(g_idata1[i],g_idata2[i]) + f(g_idata1[i+block_size],g_idata2[i+block_size]));
+      // printf("%d+=(%d+%d)\n", sdata[tid], g_idata[i],g_idata[i+block_size]);
+      i+=grid_size;
+    }
+    __syncthreads();
+
+    if (block_size >= 1024)
+    {
+      if (tid < 512)
+      {
+        sdata[tid] += sdata[tid + 512];
+      }
+      __syncthreads();
+    }
+    if (block_size >= 512)
+    {
+      if (tid < 256)
+      {
+        sdata[tid] += sdata[tid + 256];
+      }
+      __syncthreads();
+    }
+    if (block_size >= 256)
+    {
+      if (tid < 128)
+      {
+        sdata[tid] += sdata[tid + 128];
+      }
+      __syncthreads();
+    }
+    if (block_size >= 128)
+    {
+      if (tid < 64)
+      {
+        sdata[tid] += sdata[tid + 64];
+      }
+      __syncthreads();
+    }
+    if (tid<32)
+    {
+      if (block_size >= 64)
+        sdata[tid] += sdata[tid + 32];
+      if (block_size >= 32)
+        sdata[tid] += sdata[tid + 16];
+      if (block_size >= 16)
+        sdata[tid] += sdata[tid + 8];
+      if (block_size >= 8)
+        sdata[tid] += sdata[tid + 4];
+      if (block_size >= 4)
+        sdata[tid] += sdata[tid + 2];
+      if (block_size >= 2)
+        sdata[tid] += sdata[tid + 1];
+    }
+    __syncthreads();
+    if(tid == 0)
+    {
+      g_odata[blockIdx.x] = sdata[0];
+    }
+  }
+
+  template <class Iterator1,class Iterator2, class Func>
+  typename thrust::iterator_traits<Iterator1>::value_type transform_reduce(cuda::shared_policy,Iterator1 begin1, Iterator1 end1,Iterator2 begin2,Func f)
+  {
+    cudaDeviceProp properties;
+    cudaGetDeviceProperties(&properties,0);
+    unsigned int numBlocks = properties.multiProcessorCount*2;
+    unsigned int numThreads = properties.maxThreadsPerBlock;
+    typedef typename Iterator1::value_type T;
+    const int sharedSize = numThreads*sizeof (T);
+    unsigned int number_of_elements = end1-begin1;
+    numThreads = min(numThreads, previous_power_of_two(number_of_elements/2));
+    numBlocks = min(numBlocks, ((number_of_elements%(2*numThreads))?((number_of_elements/(2*numThreads))+1):(number_of_elements/(2*numThreads))));
+    // printf("%d %d\n",numThreads,numBlocks);
+    T *partial,*first_pointer, *h_partial, *second_pointer;
+    first_pointer = raw_pointer_cast(&(begin1[0]));
+    second_pointer = raw_pointer_cast(&(begin2[0]));
+    cudaMalloc (&partial,numBlocks*sizeof(T));
+    h_partial = (T*) std::malloc(numBlocks*sizeof(T));
+    // reduce_kernel<<<numBlocks,numThreads,sharedSize>>> (first_pointer,partial,number_of_elements);
+    // reduce_kernel<<<1,numThreads,sharedSize>>> (partial,answer_device,numBlocks);
+    switch(numThreads)
+    {
+      case 1024:
+        binary_reduce_kernel<T,Func,1024><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f);
+        break;
+      case 512:
+        binary_reduce_kernel<T,Func,512><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f);
+        break;
+      case 256:
+        binary_reduce_kernel<T,Func,256><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f);
+        break;
+      case 128:
+        binary_reduce_kernel<T,Func,128><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f);
+        break;
+      case 64:
+        binary_reduce_kernel<T,Func,64><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f);
+        break;
+      case 32:
+        binary_reduce_kernel<T,Func,32><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f);
+        break;
+      case 16:
+        binary_reduce_kernel<T,Func,16><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f);
+        break;
+      case 8:
+        binary_reduce_kernel<T,Func,8><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f);
+        break;
+      case 4:
+        binary_reduce_kernel<T,Func,4><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f);
+        break;
+      case 2:
+        binary_reduce_kernel<T,Func,2><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f);
+        break;
+      case 1:
+        binary_reduce_kernel<T,Func,1><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f);
+        break;
+    }
+    T answer = 0;
+    cudaMemcpy (h_partial,partial,numBlocks*sizeof(T),cudaMemcpyDeviceToHost);
+    for (int i = 0; i < numBlocks; i++)
+    {
+      answer += h_partial[i];
+    }
+    cudaFree(partial);
+    std::free(h_partial);
+    return answer;
   }
 };
