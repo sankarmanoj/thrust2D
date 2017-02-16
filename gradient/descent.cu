@@ -84,4 +84,9 @@ int main(int argc, char **argv)
   }
   // sdiff = sqrt(sdiff/D);
   // printf("Final Error = %f\n",sdiff);
+  delete xvalues;
+  delete real_weights;
+  delete y_actual;
+  delete weights;
+  return 0;
 }
