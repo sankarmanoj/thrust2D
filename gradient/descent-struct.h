@@ -1,4 +1,4 @@
-__constant__ float c_weights[2048];
+
 struct floatD
 {
   int N;
@@ -8,30 +8,13 @@ struct floatD
     return data[index*N];
   }
 };
+
 class dotProductFunctor
 {
 public:
   int D;
-  dotProductFunctor(int D)
-  {
-    this->D = D;
-  }
-  __device__ float operator() (floatD &vector)
-  {
-    float temp = 0;
-    for(int i = 0; i<D;i++)
-    {
-      temp+=vector[i]*c_weights[i];
-    }
-    return temp;
-  }
-};
-class dotProductFunctorNC
-{
-public:
-  int D;
   float * weights;
-  dotProductFunctorNC(int D,float * weights)
+  dotProductFunctor(int D,float * weights)
   {
     this->D = D;
     this->weights = weights;

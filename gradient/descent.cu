@@ -1,6 +1,7 @@
 #include <thrust/iterator/functional_iterator.h>
 #include <thrust/device_vector.h>
 #include <thrust/shared_for_each.h>
+#include <thrust/constant_memory.h>
 #include <thrust/execution_policy.h>
 #include <thrust/random.h>
 #include "descent-struct.h"
@@ -56,8 +57,8 @@ int main(int argc, char **argv)
   int count = 0;
   while(count<niter)
   {
-    cudaMemcpyToSymbol(c_weights,weights,sizeof(float)*D);
-    thrust::transform(d_XD.begin(),d_XD.end(),d_Ypredict.begin(),dotProductFunctor(D));
+    float * c_weights = thrust::get_constant_memory_pointer(d_weights.begin(),d_weights.end());
+    thrust::transform(d_XD.begin(),d_XD.end(),d_Ypredict.begin(),dotProductFunctor(D,c_weights));
     thrust::transform(d_Ypredict.begin(),d_Ypredict.end(),d_Yactual.begin(),d_error.begin(),thrust::minus<float>());
     // for (size_t i = 0; i < 10; i++)
     // {

@@ -9,7 +9,7 @@ all: $(OBJS)
 
 %.o:%.cu
 
-	$(CC) $(CFLAGS)   $< -o $@
+	$(CC) $(CFLAGS) $(DFLAGS)   $< -o $@
 
 clean:
 	rm *.o
