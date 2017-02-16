@@ -9,7 +9,7 @@ all: $(OBJS)
 
 %.o:%.cu
 
-	$(CC) $(CFLAGS)   $< -o $@
+	$(CC) $(CFLAGS) $< -o $@
 	nvprof --unified-memory-profiling  off --log-file $@.profile ./$@ 100 0.05
 
 clean:
