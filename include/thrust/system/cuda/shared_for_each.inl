@@ -18,8 +18,10 @@ namespace thrust
   {
     long number_of_elements = end1 - begin1;
     typedef typename Iterator::value_type T;
-    cudaDeviceProp properties;
-    cudaGetDeviceProperties(&properties,0);
+    static cudaDeviceProp properties;
+    if(properties.maxThreadsPerBlock==0)
+      cudaGetDeviceProperties(&properties,0);
+
     int min_grid_size,block_size,grid_size;
     cudaOccupancyMaxPotentialBlockSize(&min_grid_size,&block_size,for_each_kernel<Iterator,Func>,sizeof(T)*properties.maxThreadsPerBlock);
     grid_size = (number_of_elements + block_size - 1) / block_size;
@@ -44,8 +46,10 @@ namespace thrust
     long number_of_elements = end1 - begin1;
     typedef typename Iterator1::value_type T1;
     typedef typename Iterator2::value_type T2;
-    cudaDeviceProp properties;
-    cudaGetDeviceProperties(&properties,0);
+    static cudaDeviceProp properties;
+    if(properties.maxThreadsPerBlock==0)
+      cudaGetDeviceProperties(&properties,0);
+
     int min_grid_size,block_size,grid_size;
     cudaOccupancyMaxPotentialBlockSize(&min_grid_size,&block_size,unary_transform_kernel<Iterator1,Iterator2,Func>,sizeof(T1)*properties.maxThreadsPerBlock);
     grid_size = (number_of_elements + block_size - 1) / block_size;
@@ -73,8 +77,10 @@ namespace thrust
     typedef typename Iterator1::value_type T1;
     typedef typename Iterator2::value_type T2;
     typedef typename Iterator3::value_type T3;
-    cudaDeviceProp properties;
-    cudaGetDeviceProperties(&properties,0);
+    static cudaDeviceProp properties;
+    if(properties.maxThreadsPerBlock==0)
+      cudaGetDeviceProperties(&properties,0);
+
     int min_grid_size,block_size,grid_size;
     cudaOccupancyMaxPotentialBlockSize(&min_grid_size,&block_size,binary_transform_kernel<Iterator1,Iterator2,Iterator3,Func>,(sizeof(T1)+ sizeof(T2))*properties.maxThreadsPerBlock);
     grid_size = (number_of_elements + block_size - 1) / block_size;
@@ -101,8 +107,10 @@ namespace thrust
   {
     int N = a.size();
     int P = b.size();
-    cudaDeviceProp properties;
-    cudaGetDeviceProperties(&properties,0);
+    static cudaDeviceProp properties;
+    if(properties.maxThreadsPerBlock==0)
+      cudaGetDeviceProperties(&properties,0);
+
     conv_Kernel<<<(N+properties.maxThreadsPerBlock-1)/properties.maxThreadsPerBlock,properties.maxThreadsPerBlock>>>(a.data().get(), b.data().get(), c->data().get(), N, P);
   }
 
@@ -142,8 +150,10 @@ namespace thrust
   {
     int N = a.size();
     int P = b.size();
-    cudaDeviceProp properties;
-    cudaGetDeviceProperties(&properties,0);
+    static cudaDeviceProp properties;
+    if(properties.maxThreadsPerBlock==0)
+      cudaGetDeviceProperties(&properties,0);
+
     conv_shared_Kernel<<<(N+properties.maxThreadsPerBlock-1)/properties.maxThreadsPerBlock,properties.maxThreadsPerBlock,(properties.maxThreadsPerBlock + 2*P)*sizeof(T)>>>(a.data().get(), b.data().get(), c->data().get(), N, P);
   }
 }

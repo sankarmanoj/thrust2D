@@ -111,9 +111,10 @@ namespace thrust
   typename thrust::iterator_traits<Iterator>::value_type reduce (cuda::shared_policy,Iterator first,Iterator last)
   {
     // TODO: To be replaced by cuda Occupancy calculator or cuda properties.
-    cudaDeviceProp properties;
-    cudaGetDeviceProperties(&properties,0);
-    unsigned int numBlocks = properties.multiProcessorCount*2;
+    static cudaDeviceProp properties;
+    if(properties.maxThreadsPerBlock==0)
+      cudaGetDeviceProperties(&properties,0);
+    unsigned int numBlocks = (properties.multiProcessorCount)*2;
     unsigned int numThreads = properties.maxThreadsPerBlock;
     typedef typename Iterator::value_type T;
     const int sharedSize = numThreads*sizeof (T);
@@ -121,10 +122,13 @@ namespace thrust
     numThreads = min(numThreads, previous_power_of_two(number_of_elements/2));
     numBlocks = min(numBlocks, ((number_of_elements%(2*numThreads))?((number_of_elements/(2*numThreads))+1):(number_of_elements/(2*numThreads))));
     printf("Num Threads = %d Num Blocks = %d\n",numThreads,numBlocks);
-    T *partial,*first_pointer, *h_partial;
+    static T *partial = 0 , *h_partial=0;
+    T *first_pointer;
     first_pointer = raw_pointer_cast(&(first[0]));
-    cudaMalloc (&partial,numBlocks*sizeof(T));
-    h_partial = (T*) std::malloc(numBlocks*sizeof(T));
+    if(partial==0)
+      cudaMalloc (&partial,numBlocks*sizeof(T));
+    if (h_partial==0)
+      h_partial = (T*) std::malloc(numBlocks*sizeof(T));
     // reduce_kernel<<<numBlocks,numThreads,sharedSize>>> (first_pointer,partial,number_of_elements);
     // reduce_kernel<<<1,numThreads,sharedSize>>> (partial,answer_device,numBlocks);
     switch(numThreads)
@@ -169,8 +173,7 @@ namespace thrust
     {
       answer += h_partial[i];
     }
-    cudaFree(partial);
-    std::free(h_partial);
+
     return answer;
   }
   template <class T>
@@ -341,9 +344,10 @@ namespace thrust
   template <class Iterator, class Func>
   typename thrust::iterator_traits<Iterator>::value_type transform_reduce(cuda::shared_policy,Iterator begin, Iterator end, Func f)
   {
-    cudaDeviceProp properties;
-    cudaGetDeviceProperties(&properties,0);
-    unsigned int numBlocks = properties.multiProcessorCount*2;
+    static cudaDeviceProp properties;
+    if(properties.maxThreadsPerBlock==0)
+      cudaGetDeviceProperties(&properties,0);
+    unsigned int numBlocks = (properties.multiProcessorCount)*2;
     unsigned int numThreads = properties.maxThreadsPerBlock;
     typedef typename Iterator::value_type T;
     const int sharedSize = numThreads*sizeof (T);
@@ -351,10 +355,13 @@ namespace thrust
     numThreads = min(numThreads, previous_power_of_two(number_of_elements/2));
     numBlocks = min(numBlocks, ((number_of_elements%(2*numThreads))?((number_of_elements/(2*numThreads))+1):(number_of_elements/(2*numThreads))));
     // printf("%d %d\n",numThreads,numBlocks);
-    T *partial,*first_pointer, *h_partial;
+    static T *partial = 0 , *h_partial=0;
+    T *first_pointer;
     first_pointer = raw_pointer_cast(&(begin[0]));
-    cudaMalloc (&partial,numBlocks*sizeof(T));
-    h_partial = (T*) std::malloc(numBlocks*sizeof(T));
+    if(partial==0)
+      cudaMalloc (&partial,numBlocks*sizeof(T));
+    if (h_partial==0)
+      h_partial = (T*) std::malloc(numBlocks*sizeof(T));
     // reduce_kernel<<<numBlocks,numThreads,sharedSize>>> (first_pointer,partial,number_of_elements);
     // reduce_kernel<<<1,numThreads,sharedSize>>> (partial,answer_device,numBlocks);
     switch(numThreads)
@@ -399,8 +406,7 @@ namespace thrust
     {
       answer += h_partial[i];
     }
-    cudaFree(partial);
-    std::free(h_partial);
+
     return answer;
   }
 
@@ -421,7 +427,7 @@ namespace thrust
       // printf("%d+=(%d+%d)\n", sdata[tid], g_idata[i],g_idata[i+block_size]);
       i+=grid_size;
     }
-  
+
     __syncthreads();
 
     if (block_size >= 1024)
@@ -481,9 +487,10 @@ namespace thrust
   template <class Iterator1,class Iterator2, class Func>
   typename thrust::iterator_traits<Iterator1>::value_type transform_reduce(cuda::shared_policy,Iterator1 begin1, Iterator1 end1,Iterator2 begin2,Func f)
   {
-    cudaDeviceProp properties;
-    cudaGetDeviceProperties(&properties,0);
-    unsigned int numBlocks = properties.multiProcessorCount*2;
+    static cudaDeviceProp properties;
+    if(properties.maxThreadsPerBlock==0)
+      cudaGetDeviceProperties(&properties,0);
+    unsigned int numBlocks = (properties.multiProcessorCount)*2;
     unsigned int numThreads = properties.maxThreadsPerBlock;
     typedef typename Iterator1::value_type T;
     const int sharedSize = numThreads*sizeof (T);
@@ -491,11 +498,18 @@ namespace thrust
     numThreads = min(numThreads, previous_power_of_two(number_of_elements/2));
     numBlocks = min(numBlocks, ((number_of_elements%(2*numThreads))?((number_of_elements/(2*numThreads))+1):(number_of_elements/(2*numThreads))));
     // printf("%d %d\n",numThreads,numBlocks);
-    T *partial,*first_pointer, *h_partial, *second_pointer;
+    static T *partial = 0 , *h_partial=0;
+
+    if(partial==0)
+      cudaMalloc (&partial,numBlocks*sizeof(T));
+    if (h_partial==0)
+      h_partial = (T*) std::malloc(numBlocks*sizeof(T));
+
+    T *first_pointer;
     first_pointer = raw_pointer_cast(&(begin1[0]));
+    T  *second_pointer;
     second_pointer = raw_pointer_cast(&(begin2[0]));
-    cudaMalloc (&partial,numBlocks*sizeof(T));
-    h_partial = (T*) std::malloc(numBlocks*sizeof(T));
+
     // reduce_kernel<<<numBlocks,numThreads,sharedSize>>> (first_pointer,partial,number_of_elements);
     // reduce_kernel<<<1,numThreads,sharedSize>>> (partial,answer_device,numBlocks);
     switch(numThreads)
@@ -540,8 +554,7 @@ namespace thrust
     {
       answer += h_partial[i];
     }
-    cudaFree(partial);
-    std::free(h_partial);
+
     return answer;
   }
 };
