@@ -57,14 +57,14 @@ int main(int argc, char **argv)
   int count = 0;
   while(count<niter)
   {
-    float * c_weights = thrust::get_constant_memory_pointer(d_weights.begin(),d_weights.end());
+    float * c_weights = thrust::get_constant_memory_pointer(weights,weights+D,cudaMemoryTypeHost);
     thrust::transform(d_XD.begin(),d_XD.end(),d_Ypredict.begin(),dotProductFunctor(D,c_weights));
     thrust::transform(d_Ypredict.begin(),d_Ypredict.end(),d_Yactual.begin(),d_error.begin(),thrust::minus<float>());
     // for (size_t i = 0; i < 10; i++)
     // {
     //   printf("%f\n",(float) d_Ypredict[i]);
     // }
-    // printf("%d Error = %.9f\n",count,(float)thrust::transform_reduce(d_error.begin(),d_error.end(),squareOp(),0,thrust::plus<float>())/N);
+    printf("%d Error = %.9f\n",count,(float)thrust::transform_reduce(d_error.begin(),d_error.end(),squareOp(),0,thrust::plus<float>())/N);
     for(int i = 0; i<D;i++)
     {
       thrust::transform(d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),d_Ypredict.begin(),thrust::multiplies<float>());
@@ -77,14 +77,6 @@ int main(int argc, char **argv)
     }
     count++;
   }
-  // float sdiff=0.0;
-  for (int i=0; i<D; i++)
-  {
-    printf("%f %f\n", weights[i],real_weights[i]);
-    // sdiff += (weights[i]-real_weights[i])*(weights[i]-real_weights[i]);
-  }
-  // sdiff = sqrt(sdiff/D);
-  // printf("Final Error = %f\n",sdiff);
   delete xvalues;
   delete real_weights;
   delete y_actual;

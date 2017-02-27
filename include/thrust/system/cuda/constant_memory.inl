@@ -21,10 +21,53 @@ namespace thrust
                 __FILE__, __LINE__, cudaGetErrorString( err ) );
        exit( -1 );
      }
-    printf("%p-%p\n",return_pointer,&size);
     c_position+=mem_size;
     return (T*)return_pointer;
+  }
 
 
+  template<class T>
+  T* get_constant_memory_pointer(const T* begin,const T* end,cudaMemoryType memType)
+  {
+    int size = end - begin;
+    int mem_size = sizeof(T)*size;
+    cudaError_t err;
+    if(mem_size+c_position>65536)
+    {
+      c_position = 0;
+    }
+    assert(mem_size+c_position<=65536);
+    unsigned char * return_pointer;
+    // printf("Size - %d MemSize = %d Starting Position = %d ",size,mem_size,c_position);
+    if(memType==cudaMemoryTypeDevice)
+    {
+      err = cudaMemcpyToSymbol(c_memory,begin,mem_size,c_position,cudaMemcpyDeviceToDevice);
+      if ( cudaSuccess != err )
+      {
+         fprintf( stderr, "cudaCheckError() failed at %s:%i : %s\n",
+                  __FILE__, __LINE__, cudaGetErrorString( err ) );
+         exit( -1 );
+       }
+    }
+    else if(memType==cudaMemoryTypeHost)
+    {
+      err = cudaMemcpyToSymbol(c_memory, begin,mem_size,c_position,cudaMemcpyHostToDevice);
+      if ( cudaSuccess != err )
+      {
+         fprintf( stderr, "cudaCheckError() failed at %s:%i : %s\n",
+                  __FILE__, __LINE__, cudaGetErrorString( err ) );
+         exit( -1 );
+       }
+    }
+     err  = cudaGetSymbolAddress((void **)&return_pointer,c_memory);
+    return_pointer+=c_position;
+    if ( cudaSuccess != err )
+    {
+       fprintf( stderr, "cudaCheckError() failed at %s:%i : %s\n",
+                __FILE__, __LINE__, cudaGetErrorString( err ) );
+       exit( -1 );
+     }
+    c_position+=mem_size;
+    return (T*)return_pointer;
   }
 };
