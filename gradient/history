@@ -1,0 +1,288 @@
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ make descent.o
+nvcc -I../include -ccbin=g++-5 -std=c++11 -arch=sm_60 -O3  descent.cu -o descent.o
+# nvprof --unified-memory-profiling  off --log-file descent.o.profile ./descent.o 100 0.05
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ time ./descent.o 1 0.01
+Done Reading Data
+-42.913944
+-72.874489 6.625200 -86.690300 -84.963730 45.621300 68.557327 -30.822769 -24.747719 85.591667 32.415855
+-21.333981 36.646004 -33.659157 23.812485 19.335426 34.795658 29.083374 -32.644573 -28.441002 -32.415943
+-15.477352 -3.131191 9.468481 -9.691608 -45.648300 14.535347 20.763885 19.921194 5.988304 -63.695385
+29.569866 -62.721443 41.635586 -40.259140 21.141422 -33.128933 -11.085777 41.087677 53.230385 23.446907
+48.739151 -17.538031 -29.881042 36.582100 -23.593515 -13.275982 -10.155057 52.801918 16.727371 13.913864
+44.640118 -2.237839 27.664452 42.882023 -54.304005 40.841785 -76.021118 -1.104599 -40.052235 -50.558746
+56.754322 45.405411 -14.074718 -37.694080 -22.214560 -23.280039 0.550751 47.460175 58.157036 37.229759
+4.622616 -43.378296 -68.897865 -62.542519 -23.008484 3.500847 -56.169140 7.247086 -17.355333 5.123871
+-91.972641 36.586338 24.873512 20.740719 -25.241241 -2.830322 73.961395 -24.537735 1.898453 -54.610222
+-41.175026 0.336920 -63.344105 4.731354 41.279263 6.545921 33.061722 -14.256273 -30.241104
+real	0m6.544s
+user	0m3.088s
+sys	0m3.320s
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ time ./descent.o 10 0.01
+Done Reading Data
+-17.950747
+-21.125767 -3.153856 -36.386776 -31.289085 8.544470 20.989685 -8.735779 -9.725830 33.520401 17.676561
+-12.314831 14.822886 -17.589901 9.472344 8.513687 14.480633 15.592384 -15.841165 -12.592987 -5.651970
+-0.707802 -3.779745 -0.522705 -8.219238 -13.008514 6.801872 16.722130 23.180525 3.871994 -29.416565
+13.486856 -15.088455 13.828899 -18.491764 5.096622 -14.165333 -9.058174 17.670708 32.157753 2.090218
+19.821930 -7.543650 -6.090250 8.295250 -14.884890 -6.149956 -5.000049 15.530975 -1.357124 7.045609
+11.187850 1.048950 5.749329 14.019814 -20.840586 10.412369 -19.120575 -3.850555 -6.704264 -21.415062
+24.996864 24.571625 3.143914 -14.137486 -11.987993 -12.745205 1.074486 16.972271 24.192932 13.987967
+-2.106583 -14.347729 -25.013668 -21.601025 -13.245598 -4.709505 -15.929323 5.146477 -2.880415 -3.638691
+-36.357224 12.073690 12.213120 0.275562 -4.567482 4.034653 25.113873 -12.695610 -3.822922 -19.343868
+-24.099834 -0.145111 -28.530567 6.460930 7.861995 -1.936707 11.264210 -3.942953 -4.859360
+real	0m39.747s
+user	0m9.700s
+sys	0m29.684s
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ time ./descent.o 10 0.1
+Done Reading Data
+-0.171621
+0.364159 0.062620 -0.037066 -0.142708 -0.202850 -0.061684 0.468132 0.011269 0.062790 0.120551
+0.231911 -0.105736 0.160019 0.297995 -0.173027 -0.046810 -0.409210 0.107881 0.073349 0.000725
+0.253181 -0.100044 0.033909 -0.033089 0.174286 0.325127 -0.061096 0.210816 -0.133942 0.087280
+0.103340 -0.164924 -0.130676 0.010706 0.056179 0.465771 -0.222778 -0.042488 0.344818 0.142502
+0.125206 0.228693 0.609416 -0.088692 -0.365877 -0.205788 0.038636 -0.103645 -0.233932 -0.091499
+-0.290243 0.134430 -0.299561 0.357296 0.094460 -0.087177 0.295700 0.156544 0.336879 0.273838
+0.370827 -0.202072 0.109411 -0.168981 0.139275 0.094501 0.416660 0.068053 -0.183695 -0.026066
+0.088657 0.071960 0.048851 0.071854 0.128685 -0.039080 0.586715 0.089935 0.215935 -0.069471
+0.206207 -0.299081 -0.158390 -0.420307 0.397484 -0.150146 -0.231546 0.139820 -0.083073 0.007301
+-0.232464 0.189306 -0.209118 0.270363 -0.082097 -0.176483 0.187038 0.012720 -0.402191
+real	0m40.676s
+user	0m9.724s
+sys	0m30.560s
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ time ./^Cscent.o 10 0.1
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ make shared-descent.o
+nvcc -I../include -ccbin=g++-5 -std=c++11 -arch=sm_60 -O3  shared-descent.cu -o shared-descent.o
+# nvprof --unified-memory-profiling  off --log-file shared-descent.o.profile ./shared-descent.o 100 0.05
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ time ./shared-descent.o 10 0.1
+Done Reading Data
+-0.171577
+0.364113 0.062651 -0.037116 -0.142757 -0.202900 -0.061615 0.468307 0.011360 0.062843 0.120565
+0.231812 -0.105808 0.159993 0.297991 -0.173096 -0.046848 -0.409348 0.107730 0.073196 0.000854
+0.253212 -0.100027 0.033894 -0.033165 0.174301 0.325127 -0.061165 0.210845 -0.133865 0.087318
+0.103333 -0.165066 -0.130615 0.010729 0.056080 0.465755 -0.222664 -0.042465 0.344788 0.142368
+0.125252 0.228817 0.609609 -0.088711 -0.365828 -0.205780 0.038621 -0.103630 -0.233978 -0.091503
+-0.290251 0.134262 -0.299606 0.357353 0.094410 -0.087104 0.295570 0.156620 0.336842 0.273739
+0.370857 -0.202156 0.109424 -0.169028 0.139189 0.094433 0.416656 0.068007 -0.183760 -0.026075
+0.088669 0.072006 0.048744 0.071777 0.128807 -0.038998 0.586757 0.089935 0.215837 -0.069464
+0.206146 -0.298988 -0.158375 -0.420345 0.397614 -0.150101 -0.231830 0.139767 -0.083267 0.007256
+-0.232361 0.189438 -0.208988 0.270279 -0.082019 -0.176361 0.186977 0.012753 -0.402313
+real	0m3.884s
+user	0m3.604s
+sys	0m0.276s
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ rm *.o
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ make shared-descent.o
+nvcc -I../include -ccbin=g++-5 -std=c++11 -arch=sm_60 -O3  shared-descent.cu -o shared-descent.o
+# nvprof --unified-memory-profiling  off --log-file shared-descent.o.profile ./shared-descent.o 100 0.05
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ time ./shared-descent.o 10 0.1
+Done Reading Data
+-0.171577
+0.364113 0.062651 -0.037116 -0.142757 -0.202900 -0.061615 0.468307 0.011360 0.062843 0.120565
+0.231812 -0.105808 0.159993 0.297991 -0.173096 -0.046848 -0.409348 0.107730 0.073196 0.000854
+0.253212 -0.100027 0.033894 -0.033165 0.174301 0.325127 -0.061165 0.210845 -0.133865 0.087318
+0.103333 -0.165066 -0.130615 0.010729 0.056080 0.465755 -0.222664 -0.042465 0.344788 0.142368
+0.125252 0.228817 0.609609 -0.088711 -0.365828 -0.205780 0.038621 -0.103630 -0.233978 -0.091503
+-0.290251 0.134262 -0.299606 0.357353 0.094410 -0.087104 0.295570 0.156620 0.336842 0.273739
+0.370857 -0.202156 0.109424 -0.169028 0.139189 0.094433 0.416656 0.068007 -0.183760 -0.026075
+0.088669 0.072006 0.048744 0.071777 0.128807 -0.038998 0.586757 0.089935 0.215837 -0.069464
+0.206146 -0.298988 -0.158375 -0.420345 0.397614 -0.150101 -0.231830 0.139767 -0.083267 0.007256
+-0.232361 0.189438 -0.208988 0.270279 -0.082019 -0.176361 0.186977 0.012753 -0.402313 Compute Time = 1243.358276
+
+real	0m3.824s
+user	0m3.524s
+sys	0m0.296s
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ time ./descent.o 10 0.1
+bash: ./descent.o: No such file or directory
+
+real	0m0.000s
+user	0m0.000s
+sys	0m0.000s
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ make descent.o
+nvcc -I../include -ccbin=g++-5 -std=c++11 -arch=sm_60 -O3  descent.cu -o descent.o
+# nvprof --unified-memory-profiling  off --log-file descent.o.profile ./descent.o 100 0.05
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ time ./descent.o 10 0.1
+Done Reading Data
+-0.171621
+0.364159 0.062620 -0.037066 -0.142708 -0.202850 -0.061684 0.468132 0.011269 0.062790 0.120551
+0.231911 -0.105736 0.160019 0.297995 -0.173027 -0.046810 -0.409210 0.107881 0.073349 0.000725
+0.253181 -0.100044 0.033909 -0.033089 0.174286 0.325127 -0.061096 0.210816 -0.133942 0.087280
+0.103340 -0.164924 -0.130676 0.010706 0.056179 0.465771 -0.222778 -0.042488 0.344818 0.142502
+0.125206 0.228693 0.609416 -0.088692 -0.365877 -0.205788 0.038636 -0.103645 -0.233932 -0.091499
+-0.290243 0.134430 -0.299561 0.357296 0.094460 -0.087177 0.295700 0.156544 0.336879 0.273838
+0.370827 -0.202072 0.109411 -0.168981 0.139275 0.094501 0.416660 0.068053 -0.183695 -0.026066
+0.088657 0.071960 0.048851 0.071854 0.128685 -0.039080 0.586715 0.089935 0.215935 -0.069471
+0.206207 -0.299081 -0.158390 -0.420307 0.397484 -0.150146 -0.231546 0.139820 -0.083073 0.007301
+-0.232464 0.189306 -0.209118 0.270363 -0.082097 -0.176483 0.187038 0.012720 -0.402191 Compute Time = 36586.886719
+
+real	0m39.185s
+user	0m9.400s
+sys	0m29.440s
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ time ./shared-descent.o 100 0.1
+Done Reading Data
+-0.000071
+-0.000065 0.000011 -0.000042 -0.000031 0.000118 0.000015 0.000008 0.000015 0.000023 -0.000011
+-0.000084 -0.000008 -0.000011 -0.000008 0.000183 -0.000008 0.000092 -0.000003 0.000015 0.000019
+-0.000153 0.000075 0.000034 0.000053 0.000259 0.000122 -0.000084 0.000026 -0.000031 -0.000004
+0.000029 0.000034 -0.000031 0.000101 -0.000042 0.000008 0.000000 0.000046 -0.000008 0.000000
+0.000046 0.000004 -0.000072 0.000050 -0.000029 0.000011 -0.000058 0.000019 -0.000183 -0.000011
+0.000029 -0.000084 -0.000031 0.000019 -0.000027 -0.000023 0.000038 0.000000 0.000078 -0.000038
+0.000061 0.000023 -0.000040 0.000080 -0.000050 0.000072 0.000057 0.000057 0.000095 0.000013
+0.000000 0.000046 0.000145 0.000008 0.000046 -0.000021 -0.000011 0.000130 0.000008 0.000107
+0.000122 -0.000103 -0.000008 -0.000011 -0.000122 -0.000038 0.000104 0.000031 0.000027 -0.000004
+-0.000027 0.000053 0.000046 -0.000015 -0.000009 0.000053 -0.000093 -0.000153 -0.000038 Compute Time = 12291.847656
+
+real	0m14.863s
+user	0m13.540s
+sys	0m1.308s
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ time ./shared-descent.o 100 0.011
+Done Reading Data
+-0.039043
+0.014332 -0.002541 -0.013812 -0.022060 -0.015787 -0.002960 0.002663 -0.013992 0.014961 0.014516
+-0.021507 0.024781 -0.017147 0.019017 0.042114 0.002659 0.017982 -0.023190 0.002945 0.030853
+-0.003052 -0.046620 -0.013252 -0.006149 -0.006805 0.015953 0.013573 0.060941 0.010277 -0.077442
+0.020540 0.014719 -0.007828 -0.014933 -0.023590 -0.011623 -0.017097 0.038982 0.025063 -0.035007
+0.006676 -0.007364 0.003260 -0.015007 -0.018118 0.019226 -0.004869 -0.019730 -0.014442 0.013416
+-0.022190 0.001686 -0.007706 -0.008915 0.012974 -0.030258 0.020424 -0.026600 0.022096 0.001785
+0.005829 0.022964 0.044167 0.031435 -0.050484 -0.043621 0.005692 -0.005887 0.022354 -0.024199
+-0.022446 0.011616 0.009354 0.029579 0.002899 -0.001081 -0.011593 -0.010696 -0.021482 -0.003647
+-0.032608 -0.030051 0.058079 -0.040688 0.010468 0.038498 -0.009729 -0.017593 -0.039425 -0.012699
+-0.046860 0.028465 -0.008125 -0.017784 0.015625 -0.016754 -0.021303 -0.005468 0.033455 Compute Time = 12538.078125
+
+real	0m15.117s
+user	0m13.624s
+sys	0m1.476s
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ time ./shared-descent.o 100 0.1
+Done Reading Data
+-0.000071
+-0.000065 0.000011 -0.000042 -0.000031 0.000118 0.000015 0.000008 0.000015 0.000023 -0.000011
+-0.000084 -0.000008 -0.000011 -0.000008 0.000183 -0.000008 0.000092 -0.000003 0.000015 0.000019
+-0.000153 0.000075 0.000034 0.000053 0.000259 0.000122 -0.000084 0.000026 -0.000031 -0.000004
+0.000029 0.000034 -0.000031 0.000101 -0.000042 0.000008 0.000000 0.000046 -0.000008 0.000000
+0.000046 0.000004 -0.000072 0.000050 -0.000029 0.000011 -0.000058 0.000019 -0.000183 -0.000011
+0.000029 -0.000084 -0.000031 0.000019 -0.000027 -0.000023 0.000038 0.000000 0.000078 -0.000038
+0.000061 0.000023 -0.000040 0.000080 -0.000050 0.000072 0.000057 0.000057 0.000095 0.000013
+0.000000 0.000046 0.000145 0.000008 0.000046 -0.000021 -0.000011 0.000130 0.000008 0.000107
+0.000122 -0.000103 -0.000008 -0.000011 -0.000122 -0.000038 0.000104 0.000031 0.000027 -0.000004
+-0.000027 0.000053 0.000046 -0.000015 -0.000009 0.000053 -0.000093 -0.000153 -0.000038 Compute Time = 12570.644531
+
+real	0m15.189s
+user	0m13.680s
+sys	0m1.484s
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ time ./descent.o 100 0.1
+Done Reading Data
+0.000072
+0.000023 0.000078 0.000175 -0.000065 -0.000067 0.000076 -0.000015 0.000198 0.000130 -0.000005
+0.000011 -0.000049 -0.000002 0.000039 0.000069 0.000076 -0.000099 -0.000121 0.000000 0.000019
+0.000114 -0.000048 -0.000042 0.000084 -0.000153 0.000000 0.000114 -0.000003 -0.000023 -0.000038
+0.000071 -0.000183 -0.000137 -0.000040 0.000008 -0.000065 0.000000 -0.000072 0.000099 0.000004
+0.000053 -0.000031 0.000036 0.000027 0.000059 0.000019 0.000002 0.000011 0.000145 -0.000107
+-0.000063 0.000046 0.000015 0.000027 0.000034 -0.000067 -0.000053 0.000023 0.000049 0.000019
+-0.000046 0.000023 -0.000025 0.000041 -0.000051 0.000000 0.000042 0.000019 0.000067 -0.000124
+0.000023 0.000103 -0.000107 -0.000046 0.000069 0.000086 -0.000051 -0.000031 -0.000069 -0.000013
+0.000183 0.000093 -0.000042 -0.000008 0.000107 0.000008 -0.000009 0.000008 -0.000027 0.000027
+0.000019 0.000023 -0.000038 0.000027 -0.000113 -0.000046 -0.000004 0.000013 0.000015 Compute Time = 367614.375000
+
+real	6m10.157s
+user	1m15.116s
+sys	4m51.260s
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ nvprof  ./descent.o 10 0.1
+Done Reading Data
+==17166== NVPROF is profiling process 17166, command: ./descent.o 10 0.1
+-0.171621
+0.364159 0.062620 -0.037066 -0.142708 -0.202850 -0.061684 0.468132 0.011269 0.062790 0.120551
+0.231911 -0.105736 0.160019 0.297995 -0.173027 -0.046810 -0.409210 0.107881 0.073349 0.000725
+0.253181 -0.100044 0.033909 -0.033089 0.174286 0.325127 -0.061096 0.210816 -0.133942 0.087280
+0.103340 -0.164924 -0.130676 0.010706 0.056179 0.465771 -0.222778 -0.042488 0.344818 0.142502
+0.125206 0.228693 0.609416 -0.088692 -0.365877 -0.205788 0.038636 -0.103645 -0.233932 -0.091499
+-0.290243 0.134430 -0.299561 0.357296 0.094460 -0.087177 0.295700 0.156544 0.336879 0.273838
+0.370827 -0.202072 0.109411 -0.168981 0.139275 0.094501 0.416660 0.068053 -0.183695 -0.026066
+0.088657 0.071960 0.048851 0.071854 0.128685 -0.039080 0.586715 0.089935 0.215935 -0.069471
+0.206207 -0.299081 -0.158390 -0.420307 0.397484 -0.150146 -0.231546 0.139820 -0.083073 0.007301
+-0.232464 0.189306 -0.209118 0.270363 -0.082097 -0.176483 0.187038 0.012720 -0.402191 Compute Time = 42150.980469
+==17166== Profiling application: ./descent.o 10 0.1
+==17166== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 39.22%  409.03ms    100000  4.0900us  3.8400us  17.087us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=128, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=7>, unsigned long=128>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::reduce_detail::reduce_partitions, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=1>, thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::system::cuda::detail::aligned_decomposition<long>, thrust::detail::normal_iterator<thrust::pointer<float, thrust::system::cuda::detail::tag, thrust::use_default, thrust::use_default>>, float, thrust::plus<float>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=7)
+ 28.09%  292.94ms    100000  2.9290us  2.6880us  13.568us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=128, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=7>, unsigned long=128>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::reduce_detail::reduce_partitions, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=1>, thrust::detail::normal_iterator<thrust::pointer<float, thrust::system::cuda::detail::tag, thrust::use_default, thrust::use_default>>, thrust::detail::normal_iterator<thrust::pointer<float, thrust::system::cuda::detail::tag, thrust::use_default, thrust::use_default>>, thrust::detail::normal_iterator<thrust::pointer<float, thrust::system::cuda::detail::tag, thrust::use_default, thrust::use_default>>, thrust::plus<float>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=7)
+ 25.64%  267.41ms    100000  2.6740us  2.3030us  7.8400us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<thrust::multiplies<float>>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
+  3.34%  34.879ms    100001     348ns     319ns  2.4320us  [CUDA memcpy DtoH]
+  2.59%  26.978ms        10  2.6978ms  2.6496ms  2.7651ms  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::detail::normal_iterator<thrust::device_ptr<floatD>>, thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::unary_transform_functor<dotProductFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
+  1.13%  11.752ms        14  839.42us  1.4080us  11.700ms  [CUDA memcpy HtoD]
+  0.00%  37.406us        10  3.7400us  3.5520us  4.0320us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<thrust::minus<float>>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
+  0.00%  3.7120us         2  1.8560us  1.0560us  2.6560us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::device_ptr<float>, thrust::detail::wrapped_function<thrust::detail::device_generate_functor<thrust::detail::fill_functor<float>>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
+
+==17166== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 69.26%  28.8479s    100006  288.46us  4.3800us  118.39ms  cudaMalloc
+ 14.01%  5.83440s    100006  58.340us  3.3110us  488.78us  cudaFree
+  5.79%  2.41273s    300022  8.0410us  4.8220us  3.0149ms  cudaLaunch
+  3.07%  1.27973s    100005  12.796us  7.3230us  14.439ms  cudaMemcpyAsync
+  2.97%  1.23908s    800088  1.5480us  1.2950us  220.71us  cudaFuncGetAttributes
+  2.32%  964.33ms    100001  9.6430us  1.5920us  2.4762ms  cudaEventSynchronize
+  0.74%  309.29ms    300022  1.0300us     758ns  192.84us  cudaEventCreateWithFlags
+  0.59%  245.29ms    800066     306ns     194ns  274.67us  cudaGetDevice
+  0.50%  209.91ms    300024     699ns     498ns  211.40us  cudaEventRecord
+  0.40%  167.51ms    300022     558ns     375ns  2.9559ms  cudaEventDestroy
+  0.18%  75.714ms    300022     252ns     147ns  203.01us  cudaConfigureCall
+  0.16%  67.342ms    300022     224ns     135ns  214.70us  cudaSetupArgument
+  0.00%  216.59us        91  2.3800us      98ns  85.076us  cuDeviceGetAttribute
+  0.00%  163.76us         1  163.76us  163.76us  163.76us  cuDeviceTotalMem
+  0.00%  143.33us        10  14.333us  12.814us  23.635us  cudaMemcpyToSymbol
+  0.00%  20.971us         1  20.971us  20.971us  20.971us  cuDeviceGetName
+  0.00%  4.8260us        10     482ns     387ns  1.1330us  cudaGetSymbolAddress
+  0.00%  3.7830us        11     343ns     200ns     989ns  cudaDeviceGetAttribute
+  0.00%  2.6810us         2  1.3400us     420ns  2.2610us  cudaEventCreate
+  0.00%  1.5730us         1  1.5730us  1.5730us  1.5730us  cudaEventElapsedTime
+  0.00%  1.3770us         3     459ns     113ns  1.0560us  cuDeviceGetCount
+  0.00%     704ns         3     234ns     110ns     341ns  cuDeviceGet
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$ nvprof  ./shared-descent.o 10 0.1
+Done Reading Data
+==17246== NVPROF is profiling process 17246, command: ./shared-descent.o 10 0.1
+-0.171577
+0.364113 0.062651 -0.037116 -0.142757 -0.202900 -0.061615 0.468307 0.011360 0.062843 0.120565
+0.231812 -0.105808 0.159993 0.297991 -0.173096 -0.046848 -0.409348 0.107730 0.073196 0.000854
+0.253212 -0.100027 0.033894 -0.033165 0.174301 0.325127 -0.061165 0.210845 -0.133865 0.087318
+0.103333 -0.165066 -0.130615 0.010729 0.056080 0.465755 -0.222664 -0.042465 0.344788 0.142368
+0.125252 0.228817 0.609609 -0.088711 -0.365828 -0.205780 0.038621 -0.103630 -0.233978 -0.091503
+-0.290251 0.134262 -0.299606 0.357353 0.094410 -0.087104 0.295570 0.156620 0.336842 0.273739
+0.370857 -0.202156 0.109424 -0.169028 0.139189 0.094433 0.416656 0.068007 -0.183760 -0.026075
+0.088669 0.072006 0.048744 0.071777 0.128807 -0.038998 0.586757 0.089935 0.215837 -0.069464
+0.206146 -0.298988 -0.158375 -0.420345 0.397614 -0.150101 -0.231830 0.139767 -0.083267 0.007256
+-0.232361 0.189438 -0.208988 0.270279 -0.082019 -0.176361 0.186977 0.012753 -0.402313 Compute Time = 1697.329346
+==17246== Profiling application: ./shared-descent.o 10 0.1
+==17246== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 80.50%  280.01ms    100000  2.8000us  2.4630us  5.8240us  void thrust::binary_reduce_kernel<float, thrust::multiplies<float>, unsigned int=256>(float*, float, float, unsigned int, float)
+  9.53%  33.137ms    100001     331ns     288ns  2.7840us  [CUDA memcpy DtoH]
+  7.65%  26.608ms        10  2.6608ms  2.6086ms  2.7337ms  void thrust::unary_transform_kernel<thrust::detail::normal_iterator<thrust::device_ptr<floatD>>, thrust::detail::normal_iterator<thrust::device_ptr<float>>, dotProductFunctor>(long, floatD, thrust::device_ptr<floatD>, thrust::detail::normal_iterator<thrust::device_ptr<floatD>>)
+  2.31%  8.0288ms        13  617.60us  1.4070us  7.9839ms  [CUDA memcpy HtoD]
+  0.01%  34.400us        10  3.4400us  3.2960us  3.5840us  void thrust::binary_transform_kernel<thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::minus<float>>(long, float, thrust::device_ptr<float>, thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::detail::normal_iterator<thrust::device_ptr<float>>)
+  0.00%  3.7760us         2  1.8880us  1.0560us  2.7200us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::device_ptr<float>, thrust::detail::wrapped_function<thrust::detail::device_generate_functor<thrust::detail::fill_functor<float>>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
+
+==17246== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 66.43%  1.15807s    100000  11.580us  8.9320us  14.560ms  cudaMemcpy
+ 21.90%  381.74ms    100022  3.8160us  3.0560us  1.2935ms  cudaLaunch
+  6.74%  117.43ms         6  19.572ms  4.6870us  116.43ms  cudaMalloc
+  3.40%  59.227ms    500092     118ns      99ns  260.28us  cudaSetupArgument
+  0.98%  17.046ms    100022     170ns     127ns  10.439us  cudaConfigureCall
+  0.47%  8.1161ms         4  2.0290ms  8.1390us  8.0856ms  cudaMemcpyAsync
+  0.03%  501.13us         3  167.04us  159.43us  174.15us  cudaGetDeviceProperties
+  0.02%  270.24us        91  2.9690us     162ns  102.77us  cuDeviceGetAttribute
+  0.01%  255.33us         1  255.33us  255.33us  255.33us  cuDeviceTotalMem
+  0.01%  248.48us         5  49.696us  3.4810us  106.41us  cudaFree
+  0.01%  102.58us        10  10.257us  8.7720us  17.804us  cudaMemcpyToSymbol
+  0.00%  68.557us        28  2.4480us  1.3280us  4.0220us  cudaFuncGetAttributes
+  0.00%  30.551us        91     335ns     198ns  1.3450us  cudaDeviceGetAttribute
+  0.00%  27.742us         1  27.742us  27.742us  27.742us  cuDeviceGetName
+  0.00%  20.391us        26     784ns     201ns  1.8550us  cudaGetDevice
+  0.00%  15.941us        20     797ns     465ns  1.3850us  cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags
+  0.00%  7.5490us         4  1.8870us     637ns  3.5570us  cudaEventRecord
+  0.00%  4.4550us         1  4.4550us  4.4550us  4.4550us  cudaEventSynchronize
+  0.00%  3.8250us         2  1.9120us  1.8730us  1.9520us  cudaEventCreateWithFlags
+  0.00%  3.2120us        10     321ns     263ns     351ns  cudaGetSymbolAddress
+  0.00%  1.9620us         2     981ns     422ns  1.5400us  cudaEventCreate
+  0.00%  1.9310us         3     643ns     218ns  1.3300us  cuDeviceGetCount
+  0.00%  1.5570us         1  1.5570us  1.5570us  1.5570us  cudaEventElapsedTime
+  0.00%  1.3980us         2     699ns     445ns     953ns  cudaEventDestroy
+  0.00%  1.1700us         3     390ns     200ns     625ns  cuDeviceGet
+sankarmanoj@LINUX-PRO:~/project/thrust2D/gradient$

@@ -47,6 +47,7 @@ int main(int argc, char **argv)
   thrust::device_vector<float> d_weights(weights,weights+D);
   thrust::host_vector<floatD> h_XD(N);
   thrust::host_vector<float> h_gradient(D);
+  thrust::host_vector<float> h_error(N);
   for(int i = 0; i<N;i++)
   {
     h_XD[i].data = d_Xvalues.data().get() + i;
@@ -55,6 +56,10 @@ int main(int argc, char **argv)
   thrust::device_vector<floatD> d_XD;
   d_XD = h_XD;
   int count = 0;
+  cudaEvent_t start, stop;
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+  cudaEventRecord(start);
   while(count<niter)
   {
     float * c_weights = thrust::get_constant_memory_pointer(weights,weights+D,cudaMemoryTypeHost);
@@ -65,7 +70,7 @@ int main(int argc, char **argv)
     //   printf("%f\n",(float) d_Ypredict[i]);
     // }
     // printf("%d Error = %.9f\n",count,(float)thrust::transform_reduce(d_error.begin(),d_error.end(),squareOp(),0,thrust::plus<float>())/N);
-    for(int i = 0; i<20;i++)
+    for(int i = 0; i<30;i++)
     {
       thrust::transform(d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),d_Ypredict.begin(),thrust::multiplies<float>());
       h_gradient[i]=thrust::reduce(d_Ypredict.begin(),d_Ypredict.end())/N;
@@ -77,6 +82,19 @@ int main(int argc, char **argv)
     }
     count++;
   }
+  cudaEventRecord(stop);
+  cudaEventSynchronize(stop);
+  float time_in_ms;
+  cudaEventElapsedTime(&time_in_ms,start,stop);
+
+  h_error = d_error;
+  for(int i = 0; i<100;i++)
+  {
+    printf("%f ",h_error[i]);
+    if(i%10==0)
+      printf("\n");
+  }
+  printf("Compute Time = %f\n",time_in_ms);
   delete xvalues;
   delete real_weights;
   delete y_actual;
