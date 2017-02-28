@@ -1,4 +1,3 @@
-#include <curand.h>
 #include <cublas_v2.h>
 #include <iostream>
 #include <thrust/block_2d.h>
