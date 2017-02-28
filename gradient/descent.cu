@@ -65,7 +65,7 @@ int main(int argc, char **argv)
     //   printf("%f\n",(float) d_Ypredict[i]);
     // }
     // printf("%d Error = %.9f\n",count,(float)thrust::transform_reduce(d_error.begin(),d_error.end(),squareOp(),0,thrust::plus<float>())/N);
-    for(int i = 0; i<D;i++)
+    for(int i = 0; i<20;i++)
     {
       thrust::transform(d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),d_Ypredict.begin(),thrust::multiplies<float>());
       h_gradient[i]=thrust::reduce(d_Ypredict.begin(),d_Ypredict.end())/N;

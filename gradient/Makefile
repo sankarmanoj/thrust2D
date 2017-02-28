@@ -21,7 +21,7 @@ all: $(OBJS)
 	# nvprof --unified-memory-profiling  off --log-file $@.profile ./$@ 100 0.05
 %.profile:%.o
 		nvprof  --log-file $@.time ./$^ 1 0.01
-		nvprof -m branch_efficiency -m gld_efficiency -m gst_efficiency -m shared_efficiency -m shared_utilization --log-file $@ ./$^ 1 0.01
+		nvprof -m branch_efficiency -m gld_efficiency -m gst_efficiency -m shared_efficiency -m shared_utilization --log-file $@ ./$^ 10 0.01
 .PHONY: profile-all
 profile-all: $(PROFILES)
 
