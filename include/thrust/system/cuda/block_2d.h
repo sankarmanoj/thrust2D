@@ -16,8 +16,8 @@ namespace thrust
 	public:
 		block_2d<T,Alloc> *parent_block;
 		block_2d<T,Alloc> *parent_block_host;
-		size_t position;
-		size_t dim_x,dim_y;
+		int position;
+		int dim_x,dim_y;
 		typedef typename block_2d<T,Alloc>::value_type value_type;
 		typedef typename block_2d<T,Alloc>::reference reference;
 		typedef typename block_2d<T,Alloc>::pointer pointer;
@@ -25,9 +25,9 @@ namespace thrust
     typedef typename iterator::iterator_category iterator_category;
 		typedef long difference_type;
 		__host__ __device__ reference	operator* () const;
-		__host__ __device__ reference	operator[] (const size_t index) const;
+		__host__ __device__ reference	operator[] (const int index) const;
 		__host__ __device__ block_iterator (const block_iterator<T,Alloc> &pb);
-		__host__ __device__ block_iterator (block_2d<T,Alloc> *pB, size_t position);
+		__host__ __device__ block_iterator (block_2d<T,Alloc> *pB, int position);
 		__host__ __device__ block_iterator<T,Alloc> operator+ (long value);
 		__host__ __device__ difference_type operator- (const block_iterator<T,Alloc>& it) const;
 		__host__ __device__ difference_type operator- (block_iterator<T,Alloc>& it) const;
@@ -47,13 +47,13 @@ namespace thrust
 	template<class T,class Alloc>
 	class block_2d_iterator
 	{
-		size_t index_y;
+		int index_y;
 		block_2d<T,Alloc> *b;
 	public:
 		typedef T& reference;
 		typedef T* pointer;
-		__host__ __device__ block_2d_iterator (block_2d<T,Alloc> *b, size_t index);
-		__host__ __device__ reference operator[] (size_t index) const;
+		__host__ __device__ block_2d_iterator (block_2d<T,Alloc> *b, int index);
+		__host__ __device__ reference operator[] (int index) const;
 	};
 
 	template <class T,class Alloc>
@@ -67,20 +67,20 @@ namespace thrust
 		typedef T& reference;
 		typedef T* pointer;
 		typedef T value_type;
-		size_t dim_x,dim_y;
+		int dim_x,dim_y;
 		size_t pitch;
 		pointer data_pointer;
 		// iterator_base device_iterator;
 		block_2d *device_pointer;
 		block_2d ();
-		block_2d (size_t dim_x,size_t dim_y);
-		block_2d (size_t dim_x,size_t dim_y,T value);
+		block_2d (int dim_x,int dim_y);
+		block_2d (int dim_x,int dim_y,T value);
 		block_2d (block_2d<T> &other);
 		__host__ void operator=(const host_block_2d<T> &b);
 		__host__ void upload (T* data);
 		__host__ void download (T** data);
-		__host__ __device__ int2 index_to_int2(size_t index) const;
-		__host__ __device__ block_2d_iterator<T,Alloc> operator[] (size_t index);
+		__host__ __device__ int2 index_to_int2(int index) const;
+		__host__ __device__ block_2d_iterator<T,Alloc> operator[] (int index);
 		__host__ __device__ reference operator[] (int2 index) const;
 		iterator begin();
 		iterator end();
@@ -92,8 +92,8 @@ namespace thrust
 	class host_block_2d : public block_2d<T,Alloc>
 	{
 	public:
-		host_block_2d (size_t dim_x,size_t dim_y);
-		host_block_2d (size_t dim_x,size_t dim_y,T value);
+		host_block_2d (int dim_x,int dim_y);
+		host_block_2d (int dim_x,int dim_y,T value);
 		// host_block_2d (host_block_2d<T> &other);
 		host_block_2d (block_2d<T> &b);
 		__host__ void upload (T* data);

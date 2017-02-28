@@ -81,7 +81,7 @@ namespace thrust
   // __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)
   void transform_kernel (window_iterator<T> input, window_iterator<T>  output, warp_launcher_config mConfiguration, Func f)
   {
-    extern __shared__ T shared_memory [];
+    extern  __shared__ T shared_memory [];
     shared_memory[threadIdx.y*mConfiguration.shared_size_x+threadIdx.x]=(*(input.b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y)];
     if(threadIdx.y>=mConfiguration.warp_size-mConfiguration.padding)
     {
@@ -100,6 +100,7 @@ namespace thrust
     __syncthreads();
     window_2d<T> shared_window(input.b,shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,input.window_dim_x,input.window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+mConfiguration.padding,input.pitch);
     window_2d<T> output_window(output.b,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,output.window_dim_x,output.window_dim_y);
+
     f(shared_window,output_window);
   }
 
@@ -110,10 +111,11 @@ namespace thrust
     static cudaDeviceProp properties;
     if(properties.maxThreadsPerBlock==0)
       cudaGetDeviceProperties(&properties,0);
+    printf("%d , %d Properties\n",properties.maxThreadsPerBlock,properties.sharedMemPerBlock);
     warp_launcher_config mConfiguration;
     int size_along_x = (properties.warpSize-1)*begin1.stride_x + begin1.window_dim_x;
     int size_along_y = (properties.warpSize-1)*begin1.stride_y + begin1.window_dim_y;
-    // printf("%d %d\n",size_along_x,size_along_y);
+    printf("%d %d\n",size_along_x,size_along_y);
     mConfiguration.size_along_x = size_along_x;
     mConfiguration.size_along_y = size_along_y;
     mConfiguration.stride_x = begin1.stride_x;
@@ -137,7 +139,8 @@ namespace thrust
     assert(begin1.stride_x == begin2.stride_x);
     assert(begin1.stride_y == begin2.stride_y);
     assert(size_along_y*size_along_x*sizeof(T)<properties.sharedMemPerBlock);
-    // printf("%ld\n",(size_along_y+mConfiguration.padding)*(mConfiguration.padding+size_along_x)*sizeof(T));
+    printf("%ld\n",(size_along_y+mConfiguration.padding)*(mConfiguration.padding+size_along_x)*sizeof(T));
+    printf("%d %d",iDivUp(begin1.block_dim_x,mConfiguration.warp_size),iDivUp(begin1.block_dim_y,mConfiguration.warp_size));
     transform_kernel<<<dim3(iDivUp(begin1.block_dim_x,mConfiguration.warp_size),iDivUp(begin1.block_dim_y,mConfiguration.warp_size),1),dim3(mConfiguration.warp_size,mConfiguration.warp_size,1),(size_along_y+mConfiguration.padding)*(mConfiguration.padding+size_along_x)*sizeof(T)>>>(begin1,begin2,mConfiguration,f);
   }
   //Binary Texture Transform

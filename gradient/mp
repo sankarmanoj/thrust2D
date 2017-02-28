@@ -1,0 +1,547 @@
+nvcc -I../include -ccbin=g++-5 -std=c++11 -arch=sm_60 -O3  shared-descent.cu -o shared-descent.o
+# nvprof --unified-memory-profiling  off --log-file shared-descent.o.profile ./shared-descent.o 100 0.05
+nvcc -I../include -ccbin=g++-5 -std=c++11 -arch=sm_60 -O3  descent.cu -o descent.o
+# nvprof --unified-memory-profiling  off --log-file descent.o.profile ./descent.o 100 0.05
+# GNU Make 4.1
+# Built for x86_64-pc-linux-gnu
+# Copyright (C) 1988-2014 Free Software Foundation, Inc.
+# License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+# This is free software: you are free to change and redistribute it.
+# There is NO WARRANTY, to the extent permitted by law.
+
+# Make data base, printed on Tue Feb 28 22:52:26 2017
+
+# Variables
+
+# automatic
+<D = $(patsubst %/,%,$(dir $<))
+# automatic
+?F = $(notdir $?)
+# environment
+DESKTOP_SESSION = /usr/share/xsessions/plasma
+# default
+.SHELLFLAGS := -c
+# environment
+XDG_SESSION_CLASS = user
+# environment
+XDG_SESSION_TYPE = x11
+# default
+CWEAVE = cweave
+# automatic
+?D = $(patsubst %/,%,$(dir $?))
+# environment
+GTK_RC_FILES = /etc/gtk/gtkrc:/home/sankarmanoj/.gtkrc:/home/sankarmanoj/.config/gtkrc
+# automatic
+@D = $(patsubst %/,%,$(dir $@))
+# environment
+XAUTHORITY = /tmp/xauth-1000-_0
+# environment
+ARMGCC_VERSION = 4.8.1
+# default
+MAKE_VERSION := 4.1
+# makefile
+CURDIR := /home/sankarmanoj/project/thrust2D/gradient
+# makefile
+SHELL = /bin/sh
+# default
+RM = rm -f
+# default
+CO = co
+# environment
+FX3_INSTALL_PATH = /usr/local/cyfx3sdk
+# environment
+QT_AUTO_SCREEN_SCALE_FACTOR = 0
+# default
+PREPROCESS.F = $(FC) $(FFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -F
+# default
+LINK.m = $(OBJC) $(OBJCFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)
+# environment
+XDG_CONFIG_DIRS = /etc/xdg/xdg-/usr/share/xsessions/plasma:/etc/xdg:/usr/share/kubuntu-default-settings/kf5-settings
+# default
+OUTPUT_OPTION = -o $@
+# environment
+LESSOPEN = | /usr/bin/lesspipe %s
+# default
+COMPILE.cpp = $(COMPILE.cc)
+# makefile (from 'Makefile', line 1)
+MAKEFILE_LIST :=  Makefile
+# automatic
+@F = $(notdir $@)
+# 'override' directive
+GNUMAKEFLAGS := 
+# default
+LINK.p = $(PC) $(PFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)
+# makefile (from 'Makefile', line 7)
+DFLAGS = -DDEBUG -g -G -lineinfo
+# environment
+MANDATORY_PATH = /usr/share/gconf//usr/share/xsessions/plasma.mandatory.path
+# environment
+XDG_DATA_DIRS = /usr/share//usr/share/xsessions/plasma:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop
+# environment
+DBUS_SESSION_BUS_ADDRESS = unix:abstract=/tmp/dbus-Vw5BDLtpr1,guid=6ce7bee720ff87b1595a373158b5a6de
+# makefile (from 'Makefile', line 5)
+CC = nvcc
+# environment
+_ = /usr/bin/make
+# environment
+QT_SCREEN_SCALE_FACTORS = DVI-D-0=1;HDMI-0=1;DP-0=1;DP-1=1;DP-2=1;DP-3=1;DP-4=1;DP-5=1;
+# makefile (from 'Makefile', line 11)
+OBJS = $(SRCS:.cu=.o)
+# default
+CHECKOUT,v = +$(if $(wildcard $@),,$(CO) $(COFLAGS) $< $@)
+# environment
+TERMINATOR_UUID = urn:uuid:ebce2489-7279-42ae-aa53-b30ecd2c58f2
+# environment
+USER = sankarmanoj
+# default
+CPP = $(CC) -E
+# environment
+ORBIT_SOCKETDIR = /tmp/orbit-sankarmanoj
+# default
+LINK.cc = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)
+# environment
+PAM_KWALLET5_LOGIN = /tmp/kwallet5_sankarmanoj.socket
+# environment
+XDG_SESSION_PATH = /org/freedesktop/DisplayManager/Session1
+# default
+MAKE_HOST := x86_64-pc-linux-gnu
+# environment
+PATH = /opt/intel/:/home/sankarmanoj/bin:/home/sankarmanoj/.local/bin:/usr/local/cuda-8.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/local/arm/bin
+# makefile (from 'Makefile', line 12)
+PROFILES = $(OBJS:.o=.profile)
+# default
+LD = ld
+# default
+TEXI2DVI = texi2dvi
+# environment
+GPG_AGENT_INFO = /home/sankarmanoj/.gnupg/S.gpg-agent:0:1
+# environment
+XCURSOR_THEME = breeze_cursors
+# environment
+SESSION_MANAGER = local/LINUX-PRO:@/tmp/.ICE-unix/2128,unix/LINUX-PRO:/tmp/.ICE-unix/2128
+# default
+COMPILE.mod = $(M2C) $(M2FLAGS) $(MODFLAGS) $(TARGET_ARCH)
+# environment
+XDG_RUNTIME_DIR = /run/user/1000
+# makefile (from 'Makefile', line 6)
+CFLAGS = -I$(IDIR) -ccbin=g++-5 -std=c++11 -arch=sm_60 -O3
+# default
+ARFLAGS = rv
+# default
+LINK.r = $(FC) $(FFLAGS) $(RFLAGS) $(LDFLAGS) $(TARGET_ARCH)
+# environment
+WINDOWID = 20971524
+# default
+COMPILE.f = $(FC) $(FFLAGS) $(TARGET_ARCH) -c
+# default
+LINT.c = $(LINT) $(LINTFLAGS) $(CPPFLAGS) $(TARGET_ARCH)
+# default
+YACC.m = $(YACC) $(YFLAGS)
+# default
+LINT = lint
+# default
+YACC.y = $(YACC) $(YFLAGS)
+# default
+AR = ar
+# environment
+GTK2_RC_FILES = /etc/gtk-2.0/gtkrc:/home/sankarmanoj/.gtkrc-2.0:/home/sankarmanoj/.config/gtkrc-2.0
+# default
+.FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
+# default
+TANGLE = tangle
+# environment
+LS_COLORS = rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:
+# environment
+XDG_SESSION_DESKTOP = KDE
+# environment
+SSH_AUTH_SOCK = /tmp/ssh-EHevEORcy3bG/agent.2000
+# default
+GET = get
+# automatic
+%F = $(notdir $%)
+# environment
+DISPLAY = :0
+# default
+COMPILE.F = $(FC) $(FFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+# default
+CTANGLE = ctangle
+# default
+.LIBPATTERNS = lib%.so lib%.a
+# default
+LINK.C = $(LINK.cc)
+# environment
+PWD = /home/sankarmanoj/project/thrust2D/gradient
+# environment
+KDE_SESSION_VERSION = 5
+# default
+LINK.S = $(CC) $(ASFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_MACH)
+# environment
+XDG_SEAT = seat0
+# default
+PREPROCESS.r = $(FC) $(FFLAGS) $(RFLAGS) $(TARGET_ARCH) -F
+# environment
+SSH_AGENT_PID = 2055
+# default
+LINK.c = $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)
+# environment
+GTK_MODULES = gail:atk-bridge
+# default
+LINK.s = $(CC) $(ASFLAGS) $(LDFLAGS) $(TARGET_MACH)
+# environment
+HOME = /home/sankarmanoj
+# environment
+LD_LIBRARY_PATH = /usr/local/lib:/usr/local/cuda/lib64/
+# environment
+LESSCLOSE = /usr/bin/lesspipe %s %s
+# environment
+PAM_KWALLET_LOGIN = /tmp/kwallet_sankarmanoj.socket
+# environment
+LOGNAME = sankarmanoj
+# environment
+QT_LINUX_ACCESSIBILITY_ALWAYS_ON = 1
+# makefile (from 'Makefile', line 4)
+IDIR = ../include
+# environment
+KDE_FULL_SESSION = true
+# environment
+IBUS_DISABLE_SNOOPER = 1
+# automatic
+^D = $(patsubst %/,%,$(dir $^))
+# environment
+XDG_VTNR = 7
+# environment
+MAKELEVEL := 0
+# default
+COMPILE.m = $(OBJC) $(OBJCFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+# environment
+COLORTERM = gnome-terminal
+# default
+MAKE = $(MAKE_COMMAND)
+# makefile (from 'Makefile', line 8)
+SRCS = $(wildcard *.cu)
+# environment
+SHLVL = 1
+# default
+AS = as
+# default
+PREPROCESS.S = $(CC) -E $(CPPFLAGS)
+# default
+COMPILE.p = $(PC) $(PFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+# environment
+XDG_SESSION_ID = 2
+# environment
+KDE_MULTIHEAD = false
+# default
+FC = f77
+# makefile
+.DEFAULT_GOAL := all
+# environment
+XDG_CURRENT_DESKTOP = KDE
+# automatic
+%D = $(patsubst %/,%,$(dir $%))
+# default
+WEAVE = weave
+# default
+MAKE_COMMAND := make
+# default
+LINK.cpp = $(LINK.cc)
+# default
+F77 = $(FC)
+# environment
+OLDPWD = /home/sankarmanoj
+# default
+.VARIABLES := 
+# default
+PC = pc
+# automatic
+*F = $(notdir $*)
+# environment
+LANGUAGE = en_IN:en
+# environment
+XDG_SEAT_PATH = /org/freedesktop/DisplayManager/Seat0
+# default
+COMPILE.def = $(M2C) $(M2FLAGS) $(DEFFLAGS) $(TARGET_ARCH)
+# default
+LEX = lex
+# makefile
+MAKEFLAGS = npr
+# environment
+MFLAGS = -npr
+# automatic
+*D = $(patsubst %/,%,$(dir $*))
+# default
+LEX.l = $(LEX) $(LFLAGS) -t
+# default
+LEX.m = $(LEX) $(LFLAGS) -t
+# automatic
++D = $(patsubst %/,%,$(dir $+))
+# default
+COMPILE.r = $(FC) $(FFLAGS) $(RFLAGS) $(TARGET_ARCH) -c
+# automatic
++F = $(notdir $+)
+# default
+M2C = m2c
+# environment
+QT_ACCESSIBILITY = 1
+# environment
+DEFAULTS_PATH = /usr/share/gconf//usr/share/xsessions/plasma.default.path
+# default
+MAKEFILES := 
+# default
+YACC = yacc
+# default
+COMPILE.cc = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+# automatic
+<F = $(notdir $<)
+# default
+CXX = g++
+# default
+COFLAGS = 
+# environment
+ARMGCC_INSTALL_PATH = /usr/local/arm
+# default
+COMPILE.C = $(COMPILE.cc)
+# automatic
+^F = $(notdir $^)
+# default
+COMPILE.S = $(CC) $(ASFLAGS) $(CPPFLAGS) $(TARGET_MACH) -c
+# default
+LINK.F = $(FC) $(FFLAGS) $(CPPFLAGS) $(LDFLAGS) $(TARGET_ARCH)
+# default
+SUFFIXES := 
+# environment
+GS_LIB = /home/sankarmanoj/.fonts
+# default
+COMPILE.c = $(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+# default
+COMPILE.s = $(AS) $(ASFLAGS) $(TARGET_MACH)
+# default
+.INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
+# default
+.RECIPEPREFIX := 
+# default
+MAKEINFO = makeinfo
+# default
+MAKE_TERMERR := /dev/pts/4
+# default
+OBJC = cc
+# environment
+CYUSB_ROOT = /home/sankarmanoj/project/FX3_SDK_Linux_v1.3.3/cyusb_linux_1.0.4
+# default
+LINK.f = $(FC) $(FFLAGS) $(LDFLAGS) $(TARGET_ARCH)
+# default
+TEX = tex
+# environment
+LANG = en_IN.UTF-8
+# environment
+TERM = xterm-256color
+# default
+F77FLAGS = $(FFLAGS)
+# default
+LINK.o = $(CC) $(LDFLAGS) $(TARGET_ARCH)
+# environment
+KDE_SESSION_UID = 1000
+# variable set hash-table stats:
+# Load=164/1024=16%, Rehash=0, Collisions=31/216=14%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# . (device 2066, inode 3810495): 15 files, no impossibilities.
+
+# 15 files, no impossibilities in 1 directories.
+
+# Implicit Rules
+
+%.o: %.cu
+#  recipe to execute (from 'Makefile', line 20):
+	$(CC) $(CFLAGS)  $< -o $@
+	# nvprof --unified-memory-profiling  off --log-file $@.profile ./$@ 100 0.05
+
+%.profile: %.o
+#  recipe to execute (from 'Makefile', line 23):
+		nvprof -m all --log-file $@ ./$^ 2 0.01
+
+%.cu:
+
+%.o:
+
+%.profile:
+
+# 5 implicit rules, 0 (0.0%) terminal.
+
+# Files
+
+all: shared-descent.o descent.o
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/18=0%
+
+# Not a target:
+.o:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+.PHONY: clean all profile-all
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+.PRECIOUS: shared-descent.o descent.o
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+descent.cu:
+#  Implicit rule search has been done.
+#  Last modified 2017-02-28 21:52:42.324176038
+#  File has been updated.
+#  Successfully updated.
+
+.SUFFIXES: .cu .o .profile
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+Makefile:
+#  Implicit rule search has been done.
+#  Last modified 2017-02-28 22:51:19.03413659
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+shared-descent.cu:
+#  Implicit rule search has been done.
+#  Last modified 2017-02-28 20:15:17.251736697
+#  File has been updated.
+#  Successfully updated.
+
+# Not a target:
+descent.profile:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.cu:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+clean:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  recipe to execute (from 'Makefile', line 28):
+	rm *.o
+	rm *.profile
+
+# Not a target:
+shared-descent.profile:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+descent.o: descent.cu
+#  Precious file (prerequisite of .PRECIOUS).
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'descent'
+#  Last modified 2514-05-30 07:23:03.107374182
+#  File has been updated.
+#  Successfully updated.
+# automatic
+# @ := descent.o
+# automatic
+# % := 
+# automatic
+# * := descent
+# automatic
+# + := descent.cu
+# automatic
+# | := 
+# automatic
+# < := descent.cu
+# automatic
+# ^ := descent.cu
+# automatic
+# ? := descent.cu
+# variable set hash-table stats:
+# Load=8/32=25%, Rehash=0, Collisions=1/21=5%
+#  recipe to execute (from 'Makefile', line 20):
+	$(CC) $(CFLAGS)  $< -o $@
+	# nvprof --unified-memory-profiling  off --log-file $@.profile ./$@ 100 0.05
+
+# Not a target:
+.profile:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+shared-descent.o: shared-descent.cu
+#  Precious file (prerequisite of .PRECIOUS).
+#  Implicit rule search has been done.
+#  Implicit/static pattern stem: 'shared-descent'
+#  Last modified 2514-05-30 07:23:03.107374182
+#  File has been updated.
+#  Successfully updated.
+# automatic
+# @ := shared-descent.o
+# automatic
+# % := 
+# automatic
+# * := shared-descent
+# automatic
+# + := shared-descent.cu
+# automatic
+# | := 
+# automatic
+# < := shared-descent.cu
+# automatic
+# ^ := shared-descent.cu
+# automatic
+# ? := shared-descent.cu
+# variable set hash-table stats:
+# Load=8/32=25%, Rehash=0, Collisions=1/21=5%
+#  recipe to execute (from 'Makefile', line 20):
+	$(CC) $(CFLAGS)  $< -o $@
+	# nvprof --unified-memory-profiling  off --log-file $@.profile ./$@ 100 0.05
+
+profile-all: shared-descent.profile descent.profile
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+
+# files hash-table stats:
+# Load=17/1024=2%, Rehash=0, Collisions=4/58=7%
+# VPATH Search Paths
+
+# No 'vpath' search paths.
+
+# No general ('VPATH' variable) search path.
+
+# strcache buffers: 1 (0) / strings = 36 / storage = 441 B / avg = 12 B
+# current buf: size = 8162 B / used = 441 B / count = 36 / avg = 12 B
+
+# strcache performance: lookups = 65 / hit rate = 44%
+# hash-table stats:
+# Load=36/8192=0%, Rehash=0, Collisions=8/65=12%
+# Finished Make data base on Tue Feb 28 22:52:26 2017
+

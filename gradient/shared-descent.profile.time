@@ -1,0 +1,35 @@
+==9758== NVPROF is profiling process 9758, command: ./shared-descent.o 1 0.01
+==9758== Profiling application: ./shared-descent.o 1 0.01
+==9758== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 60.94%  28.224ms     10000  2.8220us  2.4640us  4.8010us  void thrust::binary_reduce_kernel<float, thrust::multiplies<float>, unsigned int=256>(float*, float, float, unsigned int, float)
+ 26.00%  12.044ms         4  3.0111ms  1.6010us  12.037ms  [CUDA memcpy HtoD]
+  7.19%  3.3319ms     10000     333ns     288ns  1.1200us  [CUDA memcpy DtoH]
+  5.85%  2.7093ms         1  2.7093ms  2.7093ms  2.7093ms  void thrust::unary_transform_kernel<thrust::detail::normal_iterator<thrust::device_ptr<floatD>>, thrust::detail::normal_iterator<thrust::device_ptr<float>>, dotProductFunctor>(long, floatD, thrust::device_ptr<floatD>, thrust::detail::normal_iterator<thrust::device_ptr<floatD>>)
+  0.01%  3.7130us         2  1.8560us  1.0560us  2.6570us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::device_ptr<float>, thrust::detail::wrapped_function<thrust::detail::device_generate_functor<thrust::detail::fill_functor<float>>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
+  0.01%  3.6170us         1  3.6170us  3.6170us  3.6170us  void thrust::binary_transform_kernel<thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::minus<float>>(long, float, thrust::device_ptr<float>, thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::detail::normal_iterator<thrust::device_ptr<float>>)
+
+==9758== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 41.10%  118.00ms         6  19.667ms  5.0680us  116.97ms  cudaMalloc
+ 39.14%  112.38ms     10000  11.237us  8.9600us  2.0992ms  cudaMemcpy
+ 12.43%  35.679ms     10004  3.5660us  3.2920us  223.24us  cudaLaunch
+  4.26%  12.237ms         3  4.0791ms  7.8560us  12.217ms  cudaMemcpyAsync
+  2.04%  5.8679ms     50011     117ns     100ns  208.57us  cudaSetupArgument
+  0.63%  1.8007ms     10004     179ns     141ns  208.38us  cudaConfigureCall
+  0.17%  489.81us         3  163.27us  158.98us  170.91us  cudaGetDeviceProperties
+  0.08%  222.26us         5  44.451us  3.5550us  101.02us  cudaFree
+  0.08%  216.66us        91  2.3800us      95ns  85.353us  cuDeviceGetAttribute
+  0.06%  164.25us         1  164.25us  164.25us  164.25us  cuDeviceTotalMem
+  0.01%  30.641us         1  30.641us  30.641us  30.641us  cuDeviceGetName
+  0.01%  17.947us        10  1.7940us  1.3210us  3.7410us  cudaFuncGetAttributes
+  0.01%  16.961us         1  16.961us  16.961us  16.961us  cudaMemcpyToSymbol
+  0.00%  5.3150us        19     279ns     200ns     993ns  cudaDeviceGetAttribute
+  0.00%  2.9980us         8     374ns     201ns  1.1400us  cudaGetDevice
+  0.00%  2.5900us         2  1.2950us     711ns  1.8790us  cudaEventCreateWithFlags
+  0.00%  2.1820us         2  1.0910us     570ns  1.6120us  cudaEventRecord
+  0.00%  1.6840us         3     561ns     126ns  1.3170us  cuDeviceGetCount
+  0.00%  1.6290us         2     814ns     581ns  1.0480us  cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags
+  0.00%  1.5020us         2     751ns     462ns  1.0400us  cudaEventDestroy
+  0.00%     652ns         3     217ns     111ns     345ns  cuDeviceGet
+  0.00%     393ns         1     393ns     393ns     393ns  cudaGetSymbolAddress
