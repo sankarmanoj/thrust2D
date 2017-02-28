@@ -2,6 +2,7 @@
 
 #include <thrust/window_2d.h>
 #include "window_structures.h"
+#include <thrust/constant_memory.h>
 #define maxThreadsPerBlock1 1024
 #define minBlocksPerMultiprocessor 2
 
@@ -15,6 +16,8 @@ namespace thrust
 
   template <class T, class U>
   void convolve(cuda::shared_policy,block_2d<T> *input, U *kernel,int dim,block_2d<T> *output);
+  template <class T, class U>
+  void convolve(cuda::texture_policy,block_2d<T> *input, U *kernel,int dim,block_2d<T> *output);
 
   template <class T>
   class shared_binary_window_transform_functor

@@ -2,6 +2,37 @@
 #include <thrust/window_2d.h>
 #include <thrust/window_transform.h>
 using namespace cv;
+
+inline float gauss(int x, int y, int mid, float sigma )
+{
+  float temp = (pow(x-mid,2)+pow(y-mid,2))/sigma;
+  temp= exp(-temp);
+  return temp;
+}
+void getGaussianKernelBlock(int dim, float sigma,float *GaussianKernel )
+{
+  assert(dim%2);
+  int mid = (dim-1)/2;
+  float total = 0;
+  for(int i = 0; i<dim;i++)
+  {
+    for(int j = 0; j<dim;j++)
+    {
+      total+=gauss(i,j,mid,sigma);
+      (GaussianKernel)[i*dim + j]=gauss(i,j,mid,sigma);
+    }
+  }
+  float newTotal=0;
+  for(int i = 0; i<dim;i++)
+  {
+    for(int j = 0; j<dim;j++)
+    {
+      (GaussianKernel)[i*dim + j]/=total;
+      newTotal +=  (GaussianKernel)[i*dim + j];
+    }
+  }
+}
+
 int main(int argc, char const *argv[]) {
   cudaDeviceProp dev_prop;
   cudaGetDeviceProperties(&dev_prop,0);
@@ -22,8 +53,9 @@ int main(int argc, char const *argv[]) {
     img[i]=(uchar)image.ptr()[i];
   }
   uchar_image_block.upload(img);
-  uchar kernel[9] = {1,1,1,1,1,1,1,1,1};
-  thrust::convolve(thrust::cuda::shared,&uchar_image_block,kernel,3,&output_image_block);
+  float kernel[9];
+  getGaussianKernelBlock(3,5,kernel);
+  thrust::convolve(thrust::cuda::texture,&uchar_image_block,kernel,3,&output_image_block);
 
   unsigned char * outputucharImageData = (unsigned char *)malloc(sizeof(unsigned char)*(output_image_block.end()-output_image_block.begin()));
   output_image_block.download(&img);
