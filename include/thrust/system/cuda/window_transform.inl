@@ -72,8 +72,6 @@ namespace thrust
     assert(begin1.stride_x == begin2.stride_x);
     assert(begin1.stride_y == begin2.stride_y);
     assert(size_along_y*size_along_x*sizeof(T)<properties.sharedMemPerBlock);
-
-
     binary_transform_kernel<<<dim3(iDivUp(begin1.block_dim_x,mConfiguration.warp_size),iDivUp(begin1.block_dim_y,mConfiguration.warp_size),1),dim3(mConfiguration.warp_size,mConfiguration.warp_size,1),2*mConfiguration.shared_total_size*sizeof(T)>>>(begin1,begin2,begin3,mConfiguration,f);
   }
 
@@ -115,6 +113,7 @@ namespace thrust
     warp_launcher_config mConfiguration;
     int size_along_x = (properties.warpSize-1)*begin1.stride_x + begin1.window_dim_x;
     int size_along_y = (properties.warpSize-1)*begin1.stride_y + begin1.window_dim_y;
+    // printf("%d %d\n",size_along_x,size_along_y);
     mConfiguration.size_along_x = size_along_x;
     mConfiguration.size_along_y = size_along_y;
     mConfiguration.stride_x = begin1.stride_x;
@@ -126,6 +125,7 @@ namespace thrust
     mConfiguration.window_dim_y = begin1.window_dim_y;
     mConfiguration.padding = begin1.window_dim_x - begin1.stride_x;
     mConfiguration.shared_size_x = mConfiguration.warp_size+mConfiguration.padding;
+    // printf("%d\n",mConfiguration.shared_size_x);
     // assert(!(begin1.block_dim_y%mConfiguration.warp_size));
     // assert(!(begin1.block_dim_x%mConfiguration.warp_size));
     assert(begin1.window_dim_x>=begin1.stride_x);
@@ -137,7 +137,7 @@ namespace thrust
     assert(begin1.stride_x == begin2.stride_x);
     assert(begin1.stride_y == begin2.stride_y);
     assert(size_along_y*size_along_x*sizeof(T)<properties.sharedMemPerBlock);
-
+    // printf("%ld\n",(size_along_y+mConfiguration.padding)*(mConfiguration.padding+size_along_x)*sizeof(T));
     transform_kernel<<<dim3(iDivUp(begin1.block_dim_x,mConfiguration.warp_size),iDivUp(begin1.block_dim_y,mConfiguration.warp_size),1),dim3(mConfiguration.warp_size,mConfiguration.warp_size,1),(size_along_y+mConfiguration.padding)*(mConfiguration.padding+size_along_x)*sizeof(T)>>>(begin1,begin2,mConfiguration,f);
   }
   //Binary Texture Transform

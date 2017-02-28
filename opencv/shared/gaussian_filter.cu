@@ -13,26 +13,35 @@ int main(int argc, char const *argv[]) {
     dim1 = atoi(argv[1]);
   }
   resize(small,image,Size(dim1,dim1));
+  // printf("%d\n",dim1);
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
+  thrust::block_2d<uchar> output_image_block (image.cols,image.rows);
   uchar * img = (uchar * )malloc(sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()));
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     img[i]=(uchar)image.ptr()[i];
   }
   uchar_image_block.upload(img);
-  float kernel[3] = {1,1,1};
-  thrust::convolve(thrust::cuda::texture,&uchar_image_block,kernel);
+  uchar kernel[9] = {1,1,1,1,1,1,1,1,1};
+  thrust::convolve(thrust::cuda::shared,&uchar_image_block,kernel,3,&output_image_block);
 
-  unsigned char * outputucharImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
-  uchar_image_block.download(&img);
+  unsigned char * outputucharImageData = (unsigned char *)malloc(sizeof(unsigned char)*(output_image_block.end()-output_image_block.begin()));
+  output_image_block.download(&img);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputucharImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputucharImageData);
   // cudaCheckError();
+  #ifdef OWRITE
   imwrite("input.png",image);
   imwrite("output.png",output);
+  #endif
+  #ifdef SHOW
+  imshow("input.png",image);
+  imshow("output.png",output);
+  waitKey(0);
+  #endif
 
   return 0;
 }

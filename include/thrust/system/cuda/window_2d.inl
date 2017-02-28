@@ -293,6 +293,8 @@ namespace thrust
     this->window_dim_y = window_dim_y;
     this->stride_x = stride_x;
     this->stride_y = stride_y;
+    this->block_dim_x = b->dim_x;
+    this->block_dim_y = b->dim_y;
   }
   template <class T,class Alloc>
   window_iterator<T,Alloc> window_vector<T,Alloc>::begin()

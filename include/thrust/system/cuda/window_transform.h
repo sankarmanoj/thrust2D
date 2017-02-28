@@ -13,8 +13,8 @@ namespace thrust
   template <class Iterator, class Func>
   void transform(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2, Iterator begin3, Func f);
 
-  template <class T>
-  void convolve(cuda::texture_policy,block_2d<T> *block, float *kernel);
+  template <class T, class U>
+  void convolve(cuda::shared_policy,block_2d<T> *input, U *kernel,int dim,block_2d<T> *output);
 
   template <class T>
   class shared_binary_window_transform_functor

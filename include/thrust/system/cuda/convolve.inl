@@ -1,249 +1,41 @@
 #pragma once
 #include <thrust/system/cuda/window_transform.h>
+#define MAX_KERNEL_SIZE 51*51*4
+__constant__ char c_memory[MAX_KERNEL_SIZE];
 namespace thrust
 {
-
-  ////////////////////////////////////////////////////////////////////////////////
-  // Convolution kernel size (the only parameter inlined in the code)
-  ////////////////////////////////////////////////////////////////////////////////
-  #define KERNEL_RADIUS 1
-  #define KERNEL_LENGTH (2 * KERNEL_RADIUS + 1)
-  ////////////////////////////////////////////////////////////////////////////////
-  // GPU-specific defines
-  ////////////////////////////////////////////////////////////////////////////////
-  //Maps to a single instruction on G8x / G9x / G10x
-  #define IMAD(a, b, c) ( __mul24((a), (b)) + (c) )
-
-  //Use unrolled innermost convolution loop
-  #define UNROLL_INNER 0
-
-  // //Round a / b to nearest higher integer value
-  // inline int iDivUp(int a, int b)
-  // {
-  //     return (a % b != 0) ? (a / b + 1) : (a / b);
-  // }
-
-  //Align a to nearest higher multiple of b
-  inline int iAlignUp(int a, int b)
+  template <class T,class U>
+  class convolutionFunctor //:public thrust::shared_unary_window_transform_functor<uchar>
   {
-      return (a % b != 0) ? (a - a % b + b) : a;
-  }
+  public:
+    int dim;
+    U *c_kernel;
+    convolutionFunctor(int dim, U *kernel)
+    {
+      this->dim =dim;
+      cudaMemcpyToSymbol(c_memory, kernel,dim*dim*sizeof(U));
+      c_kernel = (U*) c_memory;
+    }
+    __device__ void operator() (const thrust::window_2d<T> &input_window,const thrust::window_2d<T> &output_window) const
+    {
+      // T temp = 0;
+      // for(int i = 0; i< dim; i++)
+      // {
+      //   for(int j = 0; j<dim; j++)
+      //   {
+      //     // temp += (input_window[make_int2(j,i)]) * (c_kernel[i*dim + j]);
+      //   }
+      // }
+      // output_window[dim/2][dim/2]=temp;
+    }
+  };
 
-  ////////////////////////////////////////////////////////////////////////////////
-  // Convolution kernel and input array storage
-  ////////////////////////////////////////////////////////////////////////////////
-  __constant__ float c_Kernel[KERNEL_LENGTH];
-
-  void setConvolutionKernel(float *h_Kernel)
+  template <class T,class U>
+  void convolve(cuda::shared_policy,block_2d<T> *input, U *kernel,int dim,block_2d<T> *output)
   {
-      cudaMemcpyToSymbol(c_Kernel, h_Kernel, KERNEL_LENGTH * sizeof(float));
-  }
-
-  // texture<T, 2, cudaReadModeElementType> texSrc;
-
-
-  void setInputArray(cudaArray *a_Src)
-  {
-  }
-
-  void detachInputArray(void)
-  {
-  }
-
-
-  ////////////////////////////////////////////////////////////////////////////////
-  // Loop unrolling templates, needed for best performance
-  ////////////////////////////////////////////////////////////////////////////////
-  template<int i,typename T> __device__ T  convolutionRow(float x, float y,cudaTextureObject_t texObjSrc)
-  {
-      return
-          tex2D<T>(texObjSrc, x + (T )(KERNEL_RADIUS - i), y) * c_Kernel[i]
-          + convolutionRow<i - 1,T>(x, y,texObjSrc);
-  }
-
-  template<> __device__ float  convolutionRow<-1>(float x, float y,cudaTextureObject_t texObjSrc)
-  {
-      return 0;
-  }
-
-  template<int i,typename T> __device__ T  convolutionColumn(float x, float y,cudaTextureObject_t texObjSrc)
-  {
-      return
-          tex2D<T >(texObjSrc, x, y + (float)(KERNEL_RADIUS - i)) * c_Kernel[i]
-          + convolutionColumn<i - 1,T>(x, y,texObjSrc);
-  }
-
-  template<> __device__ float convolutionColumn<-1>(float x, float y,cudaTextureObject_t texObjSrc)
-  {
-      return 0;
-  }
-
-
-
-  ////////////////////////////////////////////////////////////////////////////////
-  // Row convolution filter
-  ////////////////////////////////////////////////////////////////////////////////
-  template<class T>
-  __global__ void convolutionRowsKernel(
-      T *d_Dst,
-      int imageW,
-      int imageH,
-      cudaTextureObject_t texObjSrc
-  )
-  {
-      const   int ix = IMAD(blockDim.x, blockIdx.x, threadIdx.x);
-      const   int iy = IMAD(blockDim.y, blockIdx.y, threadIdx.y);
-      const float  x = (float)ix + 0.5f;
-      const float  y = (float)iy + 0.5f;
-
-      if (ix >= imageW || iy >= imageH)
-      {
-          return;
-      }
-
-      T sum = 0;
-
-  #if(UNROLL_INNER)
-      sum = convolutionRow<2 *KERNEL_RADIUS,T>(x, y,texObjSrc);
-  #else
-
-      for (int k = -KERNEL_RADIUS; k <= KERNEL_RADIUS; k++)
-      {
-          sum += tex2D<T>(texObjSrc, x + (T)k, y) * c_Kernel[KERNEL_RADIUS - k];
-      }
-
-  #endif
-
-      d_Dst[IMAD(iy, imageW, ix)] = sum;
-  }
-
-template <typename T>
-void convolutionRowsGPU(
-      T *d_Dst,
-      cudaArray *a_Src,
-      int imageW,
-      int imageH
-  )
-  {
-      dim3 threads(16, 12);
-      dim3 blocks(iDivUp(imageW, threads.x), iDivUp(imageH, threads.y));
-
-      cudaTextureObject_t texObjSrc;
-      cudaResourceDesc resDesc;
-      cudaTextureDesc texDesc;
-
-      memset(&texDesc, 0, sizeof(texDesc));
-      memset(&resDesc, 0, sizeof(resDesc));
-
-      resDesc.resType=cudaResourceTypeArray;
-      resDesc.res.array.array=(a_Src);
-      cudaCreateTextureObject(&texObjSrc,&resDesc,&texDesc,NULL);
-      // cudaBindTextureToArray(texSrc, a_Src);
-      convolutionRowsKernel<<<blocks, threads>>>(
-          d_Dst,
-          imageW,
-          imageH,
-          texObjSrc
-      );
-
-  }
-
-
-
-  ////////////////////////////////////////////////////////////////////////////////
-  // Column convolution filter
-  ////////////////////////////////////////////////////////////////////////////////
-  template <typename T>
-  __global__ void convolutionColumnsKernel(
-      T *d_Dst,
-      int imageW,
-      int imageH,
-      cudaTextureObject_t texObjSrc
-  )
-  {
-      const   int ix = IMAD(blockDim.x, blockIdx.x, threadIdx.x);
-      const   int iy = IMAD(blockDim.y, blockIdx.y, threadIdx.y);
-      const float  x = (float)ix + 0.5f;
-      const float  y = (float)iy + 0.5f;
-
-      if (ix >= imageW || iy >= imageH)
-      {
-          return;
-      }
-
-      T sum = 0;
-
-  #if(UNROLL_INNER)
-      sum = convolutionColumn<2 *KERNEL_RADIUS,T>(x, y,texObjSrc);
-  #else
-
-      for (int k = -KERNEL_RADIUS; k <= KERNEL_RADIUS; k++)
-      {
-          sum += tex2D<T>(texObjSrc, x, y + (T)k) * c_Kernel[KERNEL_RADIUS - k];
-      }
-
-  #endif
-
-      d_Dst[IMAD(iy, imageW, ix)] = sum;
-  }
-
-  template<class T>
- void convolutionColumnsGPU(
-      T *d_Dst,
-      cudaArray *a_Src,
-      int imageW,
-      int imageH
-  )
-  {
-      dim3 threads(16, 12);
-      dim3 blocks(iDivUp(imageW, threads.x), iDivUp(imageH, threads.y));
-      cudaTextureObject_t texObjSrc;
-      cudaResourceDesc resDesc;
-      cudaTextureDesc texDesc;
-
-      memset(&texDesc, 0, sizeof(texDesc));
-      memset(&resDesc, 0, sizeof(resDesc));
-
-      resDesc.resType=cudaResourceTypeArray;
-      resDesc.res.array.array=(a_Src);
-      cudaCreateTextureObject(&texObjSrc,&resDesc,&texDesc,NULL);
-      // cudaBindTextureToArray(texSrc, a_Src);
-      convolutionColumnsKernel<<<blocks, threads>>>(
-          d_Dst,
-          imageW,
-          imageH,
-          texObjSrc
-      );
-
-
-  }
-
-
-  template <class T>
-  void convolve(cuda::texture_policy,block_2d<T> *block, float *kernel)
-  {
-    cudaArray *a_Src;
-    T *d_Output;
-    const int imageW = block->dim_x;
-    const int imageH = block->dim_y;
-    cudaChannelFormatDesc TTex = cudaCreateChannelDesc<T>();
-    cudaMallocArray(&a_Src, &TTex, imageW, imageH);
-    cudaMalloc((void **)&d_Output, imageW * imageH * sizeof(T));
-    setConvolutionKernel(kernel);
-    cudaMemcpy2DToArray(a_Src, 0, 0, block->data_pointer,block->pitch, imageW*sizeof(T), imageH, cudaMemcpyDeviceToDevice);
-    convolutionRowsGPU<T>(
-        d_Output,
-        a_Src,
-        imageW,
-        imageH
-    );
-    cudaMemcpyToArray(a_Src,0,0, d_Output, imageW * imageH * sizeof(float), cudaMemcpyDeviceToDevice);
-    convolutionColumnsGPU<T>(
-        d_Output,
-        a_Src,
-        imageW,
-        imageH
-    );
-    cudaMemcpy2D(block->data_pointer,block->pitch, d_Output,imageW*sizeof(T), imageW*sizeof(T), imageH, cudaMemcpyDeviceToDevice);
+    window_vector<T> input_wv(input,dim,dim,1,1);
+    window_vector<T> output_wv(output,dim,dim,1,1);
+    convolutionFunctor<T,U> f(dim,kernel);
+    transform(cuda::shared,input_wv.begin(),input_wv.end(),output_wv.begin(),f);
   }
 }
