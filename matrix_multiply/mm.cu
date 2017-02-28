@@ -2,18 +2,7 @@
 #include <cublas_v2.h>
 #include <iostream>
 #include <thrust/block_2d.h>
-// Fill the array A(nr_rows_A, nr_cols_A) with random numbers on GPU
-void GPU_fill_rand(float *A, int nr_rows_A, int nr_cols_A) {
-  // Create a pseudo-random number generator
-  curandGenerator_t prng;
-  curandCreateGenerator(&prng, CURAND_RNG_PSEUDO_DEFAULT);
-
-  // Set the seed for the random number generator using the system clock
-  curandSetPseudoRandomGeneratorSeed(prng, (unsigned long long) clock());
-
-  // Fill the array with random numbers on the device
-  curandGenerateUniform(prng, A, nr_rows_A * nr_cols_A);
-}
+#include <thrust/sequence.h>
 void gpu_blas_mmul(cublasHandle_t &handle, thrust::block_2d<float> *A, thrust::block_2d<float> *B, thrust::block_2d<float> *C, const int m, const int k, const int n) {
   int lda=A->pitch/sizeof(float),ldb=B->pitch/sizeof(float),ldc=C->pitch/sizeof(float);
   const float alf = 1;
@@ -41,7 +30,7 @@ int main()
   int nr_rows_A, nr_cols_A, nr_rows_B, nr_cols_B, nr_rows_C, nr_cols_C;
 
   // for simplicity we are going to use square arrays
-  nr_rows_A = nr_cols_A = nr_rows_B = nr_cols_B = nr_rows_C = nr_cols_C = 3;
+  nr_rows_A = nr_cols_A = nr_rows_B = nr_cols_B = nr_rows_C = nr_cols_C = 100;
 
   float *h_A = (float *)malloc(nr_rows_A * nr_cols_A * sizeof(float));
   float *h_B = (float *)malloc(nr_rows_B * nr_cols_B * sizeof(float));
@@ -50,9 +39,8 @@ int main()
   // Allocate 3 arrays on GPU
   thrust::block_2d<float> d_A(nr_rows_A,nr_cols_A),d_B(nr_rows_B,nr_cols_B),d_C(nr_rows_C,nr_cols_C);
 
-  // Fill the arrays A and B on GPU with random numbers
-  GPU_fill_rand(d_A.data_pointer, nr_rows_A, nr_cols_A);
-  GPU_fill_rand(d_B.data_pointer, nr_rows_B, nr_cols_B);
+  thrust::sequence(d_A.begin(),d_A.end());
+  thrust::sequence(d_B.begin(),d_B.end());
 
   // Optionally we can copy the data back on CPU and print the arrays
   d_A.download(&h_A);
