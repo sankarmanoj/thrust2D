@@ -1,8 +1,8 @@
-==26960== NVPROF is profiling process 26960, command: ./sblend.o
-==26960== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==26960== Profiling application: ./sblend.o
-==26960== Profiling result:
-==26960== Metric result:
+==10395== NVPROF is profiling process 10395, command: ./sblend.o
+==10395== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==10395== Profiling application: ./sblend.o
+==10395== Profiling result:
+==10395== Metric result:
 Invocations                               Metric Name                        Metric Description         Min         Max         Avg
 Device "GeForce GTX 1070 (0)"
     Kernel: void thrust::binary_transform_kernel<thrust::detail::normal_iterator<thrust::device_ptr<unsigned char>>, thrust::detail::normal_iterator<thrust::device_ptr<float>>, thrust::detail::normal_iterator<thrust::device_ptr<unsigned char>>, blendFunctor>(long, unsigned char, thrust::device_ptr<unsigned char>, thrust::detail::normal_iterator<thrust::device_ptr<unsigned char>>, float)

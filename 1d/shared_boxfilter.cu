@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <thrust/shared_for_each.h>
 #define RG 10
-#define DSIZE 321024
+#define DSIZE (32768*1024)
 #define FSIZE 17
 
 void conv(const float *A, const float *B, float *out, int N, int P)

@@ -1,8 +1,8 @@
-==25822== NVPROF is profiling process 25822, command: ./boxfilter.o
-==25822== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==25822== Profiling application: ./boxfilter.o
-==25822== Profiling result:
-==25822== Metric result:
+==10579== NVPROF is profiling process 10579, command: ./boxfilter.o
+==10579== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==10579== Profiling application: ./boxfilter.o
+==10579== Profiling result:
+==10579== Metric result:
 Invocations                               Metric Name                        Metric Description         Min         Max         Avg
 Device "GeForce GTX 1070 (0)"
     Kernel: void thrust::conv_Kernel<float>(float const *, float const , thrust::conv_Kernel<float>*, int, int)

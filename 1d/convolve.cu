@@ -121,4 +121,4 @@ int main(int argc, char *argv[]){
   printf("Speedup: cpu/gpu = %f\n", cpu_time/(float)gpu_time);
 //all host and device allocated data will be implicitly freed at program termination
   return 0;
-} 
+}
