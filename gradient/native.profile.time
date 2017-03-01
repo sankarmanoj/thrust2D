@@ -1,0 +1,24 @@
+==689== NVPROF is profiling process 689, command: ./native.o 10 0.01
+==689== Profiling application: ./native.o 10 0.01
+==689== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 35.44%  4.4438ms        10  444.38us  442.23us  447.51us  multiply(int, int, float*, float*, float*)
+ 33.80%  4.2375ms         3  1.4125ms  1.1840us  4.2315ms  [CUDA memcpy HtoD]
+ 15.38%  1.9288ms        10  192.88us  191.87us  193.60us  void better_reduce_kernel<unsigned int=1024>(float*, float*, unsigned int, unsigned int)
+ 15.08%  1.8914ms        10  189.14us  186.52us  191.48us  getError(int, int, float*, float*, float*)
+  0.18%  22.560us        11  2.0500us  1.3440us  4.8000us  [CUDA memcpy DtoH]
+  0.12%  14.656us        10  1.4650us  1.2160us  2.0800us  [CUDA memcpy DtoD]
+
+==689== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 90.02%  123.05ms         5  24.611ms  4.5650us  121.96ms  cudaMalloc
+  9.29%  12.703ms        14  907.32us  14.358us  4.2593ms  cudaMemcpy
+  0.34%  470.12us        91  5.1660us     106ns  193.17us  cuDeviceGetAttribute
+  0.13%  181.94us         1  181.94us  181.94us  181.94us  cuDeviceTotalMem
+  0.11%  150.53us        30  5.0170us  4.2070us  11.506us  cudaLaunch
+  0.06%  75.936us        10  7.5930us  6.3330us  14.955us  cudaMemcpyToSymbol
+  0.03%  37.871us         1  37.871us  37.871us  37.871us  cuDeviceGetName
+  0.01%  17.394us       140     124ns     107ns     266ns  cudaSetupArgument
+  0.00%  6.2760us        30     209ns     164ns     704ns  cudaConfigureCall
+  0.00%  1.8610us         3     620ns     154ns  1.4020us  cuDeviceGetCount
+  0.00%     766ns         3     255ns     120ns     434ns  cuDeviceGet

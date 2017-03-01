@@ -1,9 +1,5 @@
-#include <thrust/iterator/functional_iterator.h>
 #include <thrust/device_vector.h>
-#include <thrust/shared_for_each.h>
 #include <thrust/constant_memory.h>
-#include <thrust/execution_policy.h>
-#include <thrust/random.h>
 #include "descent-struct.h"
 #include <fstream>
 
@@ -39,12 +35,11 @@ int main(int argc, char **argv)
   {
     values>>weights[i];
   }
-  printf("Done Reading Data\n");
+  // printf("Done Reading Data\n");
   thrust::device_vector<float> d_Xvalues(xvalues,xvalues+D*N);
   thrust::device_vector<float> d_Yactual(y_actual,y_actual+N);
   thrust::device_vector<float> d_Ypredict(N);
   thrust::device_vector<float> d_error(N);
-  thrust::device_vector<float> d_weights(weights,weights+D);
   thrust::host_vector<floatD> h_XD(N);
   thrust::host_vector<float> h_gradient(D);
   thrust::host_vector<float> h_error(N);
@@ -56,10 +51,6 @@ int main(int argc, char **argv)
   thrust::device_vector<floatD> d_XD;
   d_XD = h_XD;
   int count = 0;
-  cudaEvent_t start, stop;
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
-  cudaEventRecord(start);
   while(count<niter)
   {
     float * c_weights = thrust::get_constant_memory_pointer(weights,weights+D,cudaMemoryTypeHost);
@@ -82,22 +73,17 @@ int main(int argc, char **argv)
     }
     count++;
   }
-  cudaEventRecord(stop);
-  cudaEventSynchronize(stop);
-  float time_in_ms;
-  cudaEventElapsedTime(&time_in_ms,start,stop);
 
   h_error = d_error;
-  for(int i = 0; i<100;i++)
-  {
-    printf("%f ",h_error[i]);
-    if(i%10==0)
-      printf("\n");
-  }
-  printf("Compute Time = %f\n",time_in_ms);
-  delete xvalues;
-  delete real_weights;
-  delete y_actual;
-  delete weights;
+  // for(int i = 0; i<100;i++)
+  // {
+  //   printf("%f ",h_error[i]);
+  //   if(i%10==0)
+  //     printf("\n");
+  // }
+  // delete xvalues;
+  // delete real_weights;
+  // delete y_actual;
+  // delete weights;
   return 0;
 }

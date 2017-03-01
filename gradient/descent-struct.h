@@ -1,4 +1,3 @@
-
 struct floatD
 {
   int N;

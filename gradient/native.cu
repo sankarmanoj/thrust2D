@@ -32,9 +32,11 @@ int main(int argc, char **argv)
   {
     values>>weights[i];
   }
-  printf("Done Reading Data\n");
-  float * d_xval, *d_yval,* d_weights, *d_error,*h_error;
+  // printf("Done Reading Data\n");
+  float *d_xval, *d_yval,* d_weights, *d_error,*h_error,*tempa,*gradient;
+  gradient = (float *) std::malloc(sizeof(float)*D);
   cudaMalloc((void**)&d_xval,sizeof(float)*D*N);
+  cudaMalloc((void**)&tempa,sizeof(float)*D*N);
   cudaMalloc((void**)&d_weights,sizeof(float)*D);
   cudaMalloc((void**)&d_yval,sizeof(float)*N);
   cudaMalloc((void**)&d_error,sizeof(float)*N);
@@ -42,31 +44,37 @@ int main(int argc, char **argv)
   cudaMemcpy(d_yval,(void *)y_actual,sizeof(float)*N,cudaMemcpyHostToDevice);
   cudaMemcpy(d_weights,(void *)weights,sizeof(float)*D,cudaMemcpyHostToDevice);
   int count = 0;
-  cudaEvent_t start, stop;
-  cudaEventCreate(&start);
-  cudaEventCreate(&stop);
-  cudaEventRecord(start);
-  printf("Loop Start\n");
+  // cudaEvent_t start, stop;
+  // cudaEventCreate(&start);
+  // cudaEventCreate(&stop);
+  // cudaEventRecord(start);
+  // printf("Loop Start\n");
   while(count<niter)
   {
     cudaMemcpyToSymbol(c_weights,d_weights,sizeof(float)*D,0,cudaMemcpyDeviceToDevice);
     getError<<<iDivUp(N,1024),1024>>>(N,D,d_xval,d_yval,d_error);
-    updateWeight<<<iDivUp(D,1024),1024>>>(N,D,learn,d_xval,d_error,d_weights);
+    multiply<<<iDivUp(N*D,1024),1024>>>(N,D,d_xval,d_error,tempa);
+    better_reduce_kernel<1024><<<D,1024,1024*sizeof(float)>>>(tempa,d_weights,N,D);
+    cudaMemcpy(gradient,d_weights,sizeof(float)*D,cudaMemcpyDeviceToHost);
+    for(int i = 0; i<D;i++)
+    {
+      weights[i] = weights[i] - learn*gradient[i];
+    }
     count++;
   }
-  cudaEventRecord(stop);
-  cudaEventSynchronize(stop);
-  float time_in_ms;
-  cudaEventElapsedTime(&time_in_ms,start,stop);
+  // cudaEventRecord(stop);
+  // cudaEventSynchronize(stop);
+  // float time_in_ms;
+  // cudaEventElapsedTime(&time_in_ms,start,stop);
   h_error = new float[N];
   cudaMemcpy(h_error,d_error,sizeof(float)*N,cudaMemcpyDeviceToHost);
-  for(int i = 0; i<100;i++)
-  {
-    printf("%f ",h_error[i]);
-    if(i%10==0)
-      printf("\n");
-  }
-  printf("Compute Time = %f\n",time_in_ms);
+  // for(int i = 0; i<100;i++)
+  // {
+  //   printf("%f ",h_error[i]);
+  //   if(i%10==0)
+  //     printf("\n");
+  // }
+  // printf("Compute Time = %f\n",time_in_ms);
   // sdiff = sqrt(sdiff/D);
   // printf("Final Error = %f\n",sdiff);
 
