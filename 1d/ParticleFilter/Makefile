@@ -1,19 +1,23 @@
-# #makefile
-CC=nvcc -std=c++11 -ccbin=g++
-IDIR=-I../../include
+IDIR =../../include
+CC=nvcc
+CFLAGS=-I$(IDIR) -ccbin=g++-5 -arch=sm_60 -std=c++11  -D_MWAITXINTRIN_H_INCLUDED -O3
+DFLAGS =-DDEBUG -g -G -lineinfo
+SRCS = $(wildcard *.cu)
 
-all: thrust cuda test
+OBJS=$(SRCS:.cu=.o)
+PROFILES=$(OBJS:.o=.profile)
+all: $(OBJS)
 
-cuda: ex_particle_CUDA_float_seq.cu
-	$(CC) $(IDIR)  -O3  ex_particle_CUDA_float_seq.cu -o particlefilter_float
+%.o:%.cu
 
-thrust: thrust_particle_filter.cu
-#	/usr/local/cuda/bin/nvcc -I /home/rohith/include -std=c++11 -g -lm -O3 -use_fast_math -arch sm_35 thrust_particle_filter.cu -o thrust_particle_filter
+	$(CC) $(CFLAGS)    $< -o $@
 
-	$(CC) $(IDIR)  -O3 thrust_particle_filter.cu -o thrust_particle_filter
+%.profile:%.o
+		nvprof  --log-file $@.time ./$^ -x  128	-y 128 -z 1000 -np 100
+		nvprof -m branch_efficiency -m gld_efficiency -m gst_efficiency -m shared_efficiency -m shared_utilization --log-file $@ ./$^ -x  128	-y 128 -z 1000 -np 100
 
-test: test.cu
-	$(CC) $(IDIR)  -O3  test.cu -o test
+.PHONY: profile-all
+profile-all: $(PROFILES)
 
 clean:
-	rm particlefilter_float thrust_particle_filter
+	rm *.o

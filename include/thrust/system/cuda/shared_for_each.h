@@ -1,5 +1,5 @@
 #pragma once
-
+#include <thrust/constant_memory.h>
 #include <thrust/device_vector.h>
 #include "window_structures.h"
 namespace thrust

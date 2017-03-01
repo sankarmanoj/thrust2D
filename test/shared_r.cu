@@ -3,7 +3,9 @@
 // #include <thrust/for_each.h>
 #include <thrust/sequence.h>
 #include <thrust/scan.h>
-#include <thrust/shared_for_each.h>
+#include <thrust/device_vector.h>
+#include <thrust/system/cuda/window_structures.h>
+// #include <thrust/shared_for_each.h>
 // #include <thrust/shared_reduce.h>
 using namespace thrust;
 class printFunctor

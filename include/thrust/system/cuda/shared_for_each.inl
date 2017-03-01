@@ -154,6 +154,6 @@ namespace thrust
     if(properties.maxThreadsPerBlock==0)
       cudaGetDeviceProperties(&properties,0);
 
-    conv_shared_Kernel<<<(N+properties.maxThreadsPerBlock-1)/properties.maxThreadsPerBlock,properties.maxThreadsPerBlock,(properties.maxThreadsPerBlock + 2*P)*sizeof(T)>>>(a.data().get(), b.data().get(), c->data().get(), N, P);
+    conv_shared_Kernel<<<(N+properties.maxThreadsPerBlock-1)/properties.maxThreadsPerBlock,properties.maxThreadsPerBlock,(properties.maxThreadsPerBlock + 2*P)*sizeof(T)>>>(a.data().get(),get_constant_memory_pointer(b.begin(),b.end()), c->data().get(), N, P);
   }
 }
