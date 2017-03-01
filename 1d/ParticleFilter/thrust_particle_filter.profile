@@ -23,7 +23,7 @@ LK    Kernel: void thrust::for_each_kernel<thrust::detail::normal_iterator<thrus
           3                            gst_efficiency            Global Memory Store Efficiency      96.15%      99.94%      97.42%
           3                         shared_efficiency                  Shared Memory Efficiency       3.12%       3.12%       3.12%
           3                        shared_utilization                 Shared Memory Utilization     Low (1)     Low (1)     Low (1) -->
-FI   Kernel: void thrust::binary_transform_kernel<thrust::detail::normal_iterator<thrust::device_ptr<double>>, thrust::detail::normal_iterator<thrust::device_ptr<double>>, thrust::detail::normal_iterator<thrust::device_ptr<int>>, get_indexYOYOYOYO>(long, double, thrust::device_ptr<double>, thrust::detail::normal_iterator<thrust::device_ptr<double>>, thrust::detail::normal_iterator<thrust::device_ptr<double>>)
+FI   Kernel: void thrust::binary_transform_kernel  get_indexYOYOYOYO>(long, double, thrust::device_ptr<double>, thrust::detail::normal_iterator<thrust::device_ptr<double>>, thrust::detail::normal_iterator<thrust::device_ptr<double>>)
         999                         branch_efficiency                         Branch Efficiency     100.00%     100.00%     100.00%
         999                            gld_efficiency             Global Memory Load Efficiency      33.33%      94.44%      36.47%
         999                            gst_efficiency            Global Memory Store Efficiency      96.15%      96.15%      96.15%
@@ -47,7 +47,7 @@ LK/NW    Kernel: void thrust::for_each_kernel<thrust::detail::normal_iterator<th
        1998                            gst_efficiency            Global Memory Store Efficiency     100.00%     100.00%     100.00%
        1998                         shared_efficiency                  Shared Memory Efficiency      78.12%      78.12%      78.12%
        1998                        shared_utilization                 Shared Memory Utilization     Low (1)     Low (1)     Low (1)
-LK   Kernel: void thrust::binary_transform_kernel<thrust::detail::normal_iterator<thrust::device_ptr<double>>, thrust::detail::normal_iterator<thrust::device_ptr<int>>, thrust::detail::normal_iterator<thrust::device_ptr<double>>, calc_likelihood_sumYOYOYOYO>(long, double, thrust::device_ptr<double>, thrust::detail::normal_iterator<thrust::device_ptr<double>>, int)
+LK   Kernel: void thrust::binary_transform_kernel calc_likelihood_sumYOYOYOYO>(long, double, thrust::device_ptr<double>, thrust::detail::normal_iterator<thrust::device_ptr<double>>, int)
         999                         branch_efficiency                         Branch Efficiency      91.75%     100.00%      99.39%
         999                            gld_efficiency             Global Memory Load Efficiency       8.06%      12.60%      12.18%
         999                            gst_efficiency            Global Memory Store Efficiency     100.00%     100.00%     100.00%
@@ -59,13 +59,13 @@ LK   Kernel: void thrust::binary_transform_kernel<thrust::detail::normal_iterato
         999                            gst_efficiency            Global Memory Store Efficiency     100.00%     100.00%     100.00%
         999                         shared_efficiency                  Shared Memory Efficiency       3.12%       3.12%       3.12%
         999                        shared_utilization                 Shared Memory Utilization     Low (1)     Low (1)     Low (1) -->
-LK   Kernel: void thrust::binary_transform_kernel<thrust::detail::normal_iterator<thrust::device_ptr<double>>, thrust::detail::normal_iterator<thrust::device_ptr<double>>, thrust::detail::normal_iterator<thrust::device_ptr<double>>, exp_transformYOYOYOYO>(long, double, thrust::device_ptr<double>, thrust::detail::normal_iterator<thrust::device_ptr<double>>, thrust::detail::normal_iterator<thrust::device_ptr<double>>)
+LK   Kernel: void thrust::binary_transform_kernel  exp_transformYOYOYOYO>(long, double, thrust::device_ptr<double>, thrust::detail::normal_iterator<thrust::device_ptr<double>>, thrust::detail::normal_iterator<thrust::device_ptr<double>>)
         999                         branch_efficiency                         Branch Efficiency     100.00%     100.00%     100.00%
         999                            gld_efficiency             Global Memory Load Efficiency     100.00%     100.00%     100.00%
         999                            gst_efficiency            Global Memory Store Efficiency     100.00%     100.00%     100.00%
         999                         shared_efficiency                  Shared Memory Efficiency      78.12%      78.12%      78.12%
         999                        shared_utilization                 Shared Memory Utilization     Low (1)     Low (1)     Low (1)
-LK  Kernel: void thrust::binary_transform_kernel<thrust::detail::normal_iterator<thrust::device_ptr<double>>, thrust::detail::normal_iterator<thrust::device_ptr<int>>, thrust::detail::normal_iterator<thrust::device_ptr<double>>, randn_transformYOYOYOYO>(long, double, thrust::device_ptr<double>, thrust::detail::normal_iterator<thrust::device_ptr<double>>, int)
+LK  Kernel: void thrust::binary_transform_kernel  randn_transformYOYOYOYO>(long, double, thrust::device_ptr<double>, thrust::detail::normal_iterator<thrust::device_ptr<double>>, int)
        1998                         branch_efficiency                         Branch Efficiency     100.00%     100.00%     100.00%
        1998                            gld_efficiency             Global Memory Load Efficiency      98.04%      98.04%      98.04%
        1998                            gst_efficiency            Global Memory Store Efficiency      98.68%      98.68%      98.68%
