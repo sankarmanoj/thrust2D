@@ -55,7 +55,7 @@ int main(int argc, char const *argv[]) {
   uchar_image_block.upload(img);
   float kernel[9];
   getGaussianKernelBlock(3,5,kernel);
-  thrust::convolve(thrust::cuda::texture,&uchar_image_block,kernel,3,&output_image_block);
+  thrust::convolve(thrust::cuda::shared,&uchar_image_block,kernel,3,&output_image_block);
 
   unsigned char * outputucharImageData = (unsigned char *)malloc(sizeof(unsigned char)*(output_image_block.end()-output_image_block.begin()));
   output_image_block.download(&img);
