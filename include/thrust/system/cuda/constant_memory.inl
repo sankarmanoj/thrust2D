@@ -5,11 +5,11 @@ namespace thrust
   {
     int size = end - begin;
     int mem_size = sizeof(T)*size;
-    if(mem_size+c_position>65536)
+    if(mem_size+c_position>CSIZE)
     {
       c_position = 0;
     }
-    assert(mem_size+c_position<=65536);
+    assert(mem_size+c_position<=CSIZE);
     unsigned char * return_pointer;
     // printf("Size - %d MemSize = %d Starting Position = %d ",size,mem_size,c_position);
     cudaMemcpyToSymbol(c_memory, (&(begin[0])).get(),mem_size,c_position,cudaMemcpyDeviceToDevice);
@@ -32,11 +32,11 @@ namespace thrust
     int size = end - begin;
     int mem_size = sizeof(T)*size;
     cudaError_t err;
-    if(mem_size+c_position>65536)
+    if(mem_size+c_position>CSIZE)
     {
       c_position = 0;
     }
-    assert(mem_size+c_position<=65536);
+    assert(mem_size+c_position<=CSIZE);
     unsigned char * return_pointer;
     // printf("Size - %d MemSize = %d Starting Position = %d ",size,mem_size,c_position);
     if(memType==cudaMemoryTypeDevice)

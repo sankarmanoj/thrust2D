@@ -62,7 +62,7 @@ int main(int argc, char **argv)
     // {
     //   printf("%f\n",(float) d_Ypredict[i]);
     // }
-    // printf("%d Error = %.9f\n",count,(float)thrust::transform_reduce(thrust::cuda::shared,d_error.begin(),d_error.end(),squareOp(),0,thrust::plus<float>())/N);
+    printf("%d Error = %.9f\n",count,(float)thrust::transform_reduce(thrust::cuda::shared,d_error.begin(),d_error.end(),squareOp(),0,thrust::plus<float>())/N);
     for(int i = 0; i<30;i++)
     {
       h_gradient[i]=thrust::transform_reduce(thrust::cuda::shared,d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),thrust::multiplies<float>())/N;
@@ -76,6 +76,12 @@ int main(int argc, char **argv)
     count++;
   }
   h_error = d_error;
+  for(int i = 0; i<100;i++)
+  {
+    printf("%f ",h_error[i]);
+    if(i%10==0)
+      printf("\n");
+  }
   // printf("Compute Time = %f\n",time_in_ms);
   // sdiff = sqrt(sdiff/D);
   // printf("Final Error = %f\n",sdiff);

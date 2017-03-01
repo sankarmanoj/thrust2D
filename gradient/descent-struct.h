@@ -25,7 +25,7 @@ public:
     {
       temp+=vector[i]*weights[i];
     }
-    return temp;
+    return temp;//y;
   }
 };
 class squareOp
