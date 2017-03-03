@@ -10,7 +10,7 @@ keys = data.keys()
 f1 = plt.figure().add_subplot(111)
 f2 = plt.figure().add_subplot(111)
 f3 = plt.figure().add_subplot(111)
-for key in keys:
+for key in keys[0:3]:
     dims = []
     dot = []
     grad = []
