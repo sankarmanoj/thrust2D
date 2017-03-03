@@ -17,7 +17,7 @@ all: $(OBJS)
 .PRECIOUS:$(OBJS)
 %.o:%.cu
 
-	$(CC) $(CFLAGS)  $< -o $@
+	$(CC) $(DFLAGS) $(CFLAGS)  $< -o $@
 	# nvprof --unified-memory-profiling  off --log-file $@.profile ./$@ 100 0.05
 %.profile:%.o
 		nvprof  --log-file $@.time ./$^ 10 0.01

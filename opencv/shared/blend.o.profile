@@ -1,24 +1,20 @@
-==7400== NVPROF is profiling process 7400, command: ./blend.o
-==7400== Profiling application: ./blend.o
-==7400== Warning: Found 1 invalid records in the result.
-==7400== Warning: This can happen if device ran out of memory or if a device kernel was stopped due to an assertion.
-==7400== Profiling result:
-Time(%)      Time     Calls       Avg       Min       Max  Name
- 72.76%  106.98us         5  21.395us     703ns  63.854us  [CUDA memcpy HtoD]
- 27.24%  40.052us         1  40.052us  40.052us  40.052us  [CUDA memcpy DtoH]
+==16633== NVPROF is profiling process 16633, command: ./blend.o
+==16633== Profiling application: ./blend.o
+==16633== Profiling result:
+No kernels were profiled.
 
-==7400== API calls:
+==16633== API calls:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 99.45%  242.65ms         3  80.883ms  3.3480us  242.64ms  cudaMallocPitch
-  0.16%  386.14us         2  193.07us  186.38us  199.76us  cudaGetDeviceProperties
-  0.13%  326.06us         3  108.69us  3.5080us  318.79us  cudaMalloc
-  0.09%  214.63us        90  2.3840us      94ns  84.004us  cuDeviceGetAttribute
-  0.08%  193.68us         3  64.558us  30.015us  129.50us  cudaMemcpy2D
-  0.07%  162.44us         1  162.44us  162.44us  162.44us  cuDeviceTotalMem
-  0.01%  19.235us         1  19.235us  19.235us  19.235us  cuDeviceGetName
-  0.01%  17.412us         3  5.8040us  2.9090us  11.117us  cudaMemcpy
-  0.00%  8.5700us         1  8.5700us  8.5700us  8.5700us  cudaLaunch
-  0.00%  1.1550us         5     231ns     115ns     439ns  cudaSetupArgument
-  0.00%  1.0920us         1  1.0920us  1.0920us  1.0920us  cudaConfigureCall
-  0.00%  1.0740us         2     537ns     134ns     940ns  cuDeviceGetCount
-  0.00%     301ns         2     150ns     109ns     192ns  cuDeviceGet
+ 32.69%  127.73ms         6  21.289ms  17.855ms  33.050ms  cudaMalloc
+ 30.62%  119.64ms         6  19.940ms  18.009ms  25.803ms  cudaMemcpy
+ 17.21%  67.230ms         3  22.410ms  21.418ms  23.503ms  cudaMallocPitch
+ 14.59%  56.995ms         3  18.998ms  18.381ms  19.649ms  cudaMemcpy2D
+  4.70%  18.375ms         1  18.375ms  18.375ms  18.375ms  cudaLaunch
+  0.10%  389.74us         2  194.87us  163.29us  226.45us  cudaGetDeviceProperties
+  0.05%  192.81us        90  2.1420us     100ns  73.304us  cuDeviceGetAttribute
+  0.04%  136.86us         1  136.86us  136.86us  136.86us  cuDeviceTotalMem
+  0.01%  20.408us         1  20.408us  20.408us  20.408us  cuDeviceGetName
+  0.00%  3.3040us         2  1.6520us     176ns  3.1280us  cuDeviceGetCount
+  0.00%  2.1810us         5     436ns     136ns     860ns  cudaSetupArgument
+  0.00%  1.3450us         1  1.3450us  1.3450us  1.3450us  cudaConfigureCall
+  0.00%     310ns         2     155ns     109ns     201ns  cuDeviceGet
