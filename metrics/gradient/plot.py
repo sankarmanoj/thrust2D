@@ -2,38 +2,33 @@ import matplotlib.pyplot as plt
 import sys
 import json
 data = json.load(open("result.json","r"))
-names = []
-for entry in data:
-    names.append(entry[".name"])
-print "Choose Application to plot"
-for x in range(len(names)):
-    print "%d : %s"%(x,names[x])
-try:
-    sel_num = int(raw_input())
-except:
-    print "Invalid Input"
-    sys.exit()
-if sel_num not in range(len(names)):
-    print "Invalid Input"
-    sys.exit()
 
-print "Selected Appliction is %s"%(names[sel_num])
-app_data = data[sel_num]
-dims = app_data['dims']
+
 plt.xlabel("Dimension")
 plt.ylabel("Time in microseconds")
-plt.title("%s"%app_data[".name"])
-keys = app_data.keys()
-keys.remove("dims")
-keys.remove(".name")
+keys = data.keys()
+f1 = plt.figure().add_subplot(111)
+f2 = plt.figure().add_subplot(111)
+f3 = plt.figure().add_subplot(111)
 for key in keys:
-    # try:
-    plt.plot(dims,app_data[key],label=key[0:100])
-    # except:
-    #     print "ERROR!!"
-    #     print key
-    #     print dims
-    #     print app_data[key]
-# print keys
-plt.legend()
+    dims = []
+    dot = []
+    grad = []
+    total = []
+    for val in data[key]:
+        dims.append(val[0])
+        dot.append(val[1][0])
+        grad.append(val[1][1])
+        total.append(val[1][1]+val[1][0])
+    f1.plot(dims,total,label=key[:-2]+" Total")
+    f2.plot(dims,dot,label=key+" Dot")
+    f3.plot(dims,grad,label=key+" Grad")
+    f1
+    # plt.plot(dims,total,label=key[:-2]+" Total")
+    # plt.plot(dims,dot,label=key+" Dot")
+    # plt.plot(dims,grad,label=key+" Grad")
+plt.legend(loc=2)
+f1.legend(loc=2)
+f2.legend(loc=2)
+f3.legend(loc=2)
 plt.show()

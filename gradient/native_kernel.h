@@ -3,7 +3,7 @@ int iDivUp(int a, int b)
 {
     return (a % b != 0) ? (a / b + 1) : (a / b);
 }
-__global__ void getError(int N,int D,float *x,float *y,float *e)
+__global__ void getdotError(int N,int D,float *x,float *y,float *e)
 {
   int index = threadIdx.x + blockIdx.x*blockDim.x;
   float sum=0;

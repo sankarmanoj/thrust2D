@@ -52,7 +52,7 @@ int main(int argc, char **argv)
   while(count<niter)
   {
     cudaMemcpyToSymbol(c_weights,weights,sizeof(float)*D,0,cudaMemcpyHostToDevice);
-    getError<<<iDivUp(N,1024),1024>>>(N,D,d_xval,d_yval,d_error);
+    getdotError<<<iDivUp(N,1024),1024>>>(N,D,d_xval,d_yval,d_error);
     multiply<<<iDivUp(N*D,1024),1024>>>(N,D,d_xval,d_error,tempa);
     for(int i = 0; i<D;i++)
       better_reduce_kernel<1024><<<1,1024,1024*sizeof(float)>>>(tempa + i*N,d_weights+i,N,D);
