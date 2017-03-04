@@ -2,6 +2,17 @@
 #include <thrust/device_vector.h>
 #include <thrust/shared_for_each.h>
 using namespace cv;
+int iDivUp(int a, int b)
+{
+    return (a % b != 0) ? (a / b + 1) : (a / b);
+}
+__global__ void blendKernel(uchar * input1,uchar * input2, uchar * output,float alpha, int size)
+{
+  int index = threadIdx.x + blockIdx.x*blockDim.x;
+  if(index>=size)
+    return;
+  output[index] = input1[index]*alpha + input2[index]*(1-alpha);
+}
 class blendFunctor
 {
   float alpha;
@@ -11,7 +22,7 @@ public:
   {
     this->alpha = alpha;
   }
-  __device__ uchar operator() (uchar &input1,uchar &input2) const
+  __device__ uchar operator() (uchar &input1,float &input2) const
   {
     return alpha * input1+ (1-alpha) *  input2;
   }
@@ -34,14 +45,17 @@ int main(int argc, char const *argv[]) {
   resize(input2,temp2,Size(dim,dim));
   input2 = temp2;
 
-  thrust::device_vector<uchar>input_vector1(input1.ptr(),input1.ptr()+input1.cols*input1.rows);
-  thrust::device_vector<uchar>input_vector2(input2.ptr(),input2.ptr()+input2.cols*input2.rows);
-  thrust::device_vector<uchar>output_vector(input1.cols*input1.rows);
+  uchar * d_input1, *d_input2,*d_output;
+  cudaMalloc((void **)&d_input1,sizeof(uchar)*dim*dim);
+  cudaMalloc((void **)&d_input2,sizeof(uchar)*dim*dim);
+  cudaMalloc((void **)&d_output,sizeof(uchar)*dim*dim);
+  cudaMemcpy(d_input1,input1.ptr(),sizeof(uchar)*dim*dim,cudaMemcpyHostToDevice);
+  cudaMemcpy(d_input2,input2.ptr(),sizeof(uchar)*dim*dim,cudaMemcpyHostToDevice);
   for(int i = 0; i<100;i++)
-  thrust::transform(thrust::cuda::shared,input_vector1.begin(),input_vector1.end(),input_vector2.begin(),output_vector.begin(),blendFunctor(0.3));
-  thrust::host_vector<uchar>host_output_vector(input1.cols*input1.rows);
-  host_output_vector = output_vector;
-  Mat output (Size(input1.cols,input1.rows),CV_8UC1,host_output_vector.data());
+  blendKernel<<<iDivUp(dim*dim,1024),1024>>>(d_input1,d_input2,d_output,0.3,dim*dim);
+  uchar * h_output = new uchar[dim*dim];
+  cudaMemcpy(h_output,d_output,sizeof(uchar)*dim*dim,cudaMemcpyDeviceToHost);
+  Mat output (Size(input1.cols,input1.rows),CV_8UC1,h_output);
   #ifdef OWRITE
   imwrite("blend-input1.png",input1);
   imwrite("blend-input2.png",input2);

@@ -11,7 +11,7 @@ public:
   {
     this->alpha = alpha;
   }
-  __device__ uchar operator() (uchar &input1,float &input2) const
+  __device__ uchar operator() (uchar &input1,uchar &input2) const
   {
     return alpha * input1+ (1-alpha) *  input2;
   }
@@ -33,14 +33,11 @@ int main(int argc, char const *argv[]) {
   Mat temp2;
   resize(input2,temp2,Size(dim,dim));
   input2 = temp2;
-float * imgd = (float *)malloc(sizeof(float)*dim*dim);
-for(int i = 0; i<input1.cols*input1.rows;i++)
-{
-  imgd[i]=(float)input2.ptr()[i];
-}
+
   thrust::device_vector<uchar>input_vector1(input1.ptr(),input1.ptr()+input1.cols*input1.rows);
-  thrust::device_vector<float>input_vector2(imgd,imgd+input2.cols*input2.rows);
+  thrust::device_vector<uchar>input_vector2(input2.ptr(),input2.ptr()+input2.cols*input2.rows);
   thrust::device_vector<uchar>output_vector(input1.cols*input1.rows);
+  for(int i = 0; i<100;i++)
   thrust::transform(input_vector1.begin(),input_vector1.end(),input_vector2.begin(),output_vector.begin(),blendFunctor(0.3));
   thrust::host_vector<uchar>host_output_vector(input1.cols*input1.rows);
   host_output_vector = output_vector;
