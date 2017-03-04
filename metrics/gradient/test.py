@@ -10,8 +10,8 @@ execs = [ x for x in  os.listdir(path) if x.partition(".")[2]=="o" ]
 print execs
 for texec in execs:
     results[texec]=[]
-N = [1100,1300,1500,1800,2000,2500,3000,4500,5000,6000,7500,8000,9000,10000,12000,13000,14500,15000,16000,17000,18000,19000,20000,21000,22000,24000,25000,26000,27000,28000,29000,30000,32000]
-D = [x/10 for x in N]
+N = range(100,2000,100) + range(2000,1000,500) + range(10000,25000,1000)
+D = [x**0.5 for x in N]
 for i in range(len(N)):
     comm = "python genfiles.py %d %d"%(D[i],N[i])
     print comm
@@ -20,7 +20,7 @@ for i in range(len(N)):
     for texec in execs:
         times = {".name":texec,"dims":[]}
         print texec,
-        os.popen("nvprof -u us --csv --log-file log.txt ./%s 3 0.01"%(texec))
+        os.popen("nvprof --unified-memory-profiling off -u us --csv --log-file log.txt ./%s 3 0.01"%(texec))
         times["dims"].append((N[i],D[i]))
         with open("log.txt","r") as x:
             cr = csv.reader(x)
@@ -35,9 +35,9 @@ for i in range(len(N)):
             gt = 0
             while values >= 6 :
                 if "dot" in line[6]:
-                    dt+=float(line[3])
+                    dt+=float(line[1])
                 if "reduce" or "multiplies" in line[6]:
-                    gt+=float(line[3])
+                    gt+=float(line[1])
                 line = cr.next()
                 values = len(line)
             print "DOT = ",dt

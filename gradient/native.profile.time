@@ -1,24 +1,23 @@
-==19109== NVPROF is profiling process 19109, command: ./native.o 10 0.01
-==19109== Profiling application: ./native.o 10 0.01
-==19109== Profiling result:
+==8176== NVPROF is profiling process 8176, command: ./native.o 10 0.01
+==8176== Profiling application: ./native.o 10 0.01
+==8176== Profiling result:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 65.33%  73.499ms     10000  7.3490us  6.5930us  10.208us  void better_reduce_kernel<unsigned int=1024>(float*, float*, unsigned int, unsigned int)
- 16.42%  18.474ms        10  1.8474ms  1.8446ms  1.8506ms  multiply(int, int, float*, float*, float*)
- 10.36%  11.651ms         3  3.8835ms  1.0560us  11.640ms  [CUDA memcpy HtoD]
-  7.85%  8.8368ms        10  883.68us  872.86us  885.92us  getError(int, int, float*, float*, float*)
-  0.02%  22.755us        10  2.2750us  2.1120us  3.0730us  [CUDA memcpy DtoD]
-  0.02%  21.985us        11  1.9980us  1.3120us  7.0730us  [CUDA memcpy DtoH]
+ 77.16%  37.096ms     10000  3.7090us  3.5520us  4.4800us  void better_reduce_kernel<unsigned int=1024>(float*, float*, unsigned int, unsigned int)
+  9.66%  4.6423ms        13  357.10us  1.1840us  4.6241ms  [CUDA memcpy HtoD]
+  9.22%  4.4326ms        10  443.26us  440.93us  445.12us  multiply(int, int, float*, float*, float*)
+  3.92%  1.8857ms        10  188.57us  186.52us  191.32us  getdotError(int, int, float*, float*, float*)
+  0.05%  23.299us        11  2.1180us  1.7280us  4.8010us  [CUDA memcpy DtoH]
 
-==19109== API calls:
+==8176== API calls:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 51.11%  122.59ms         5  24.518ms  4.3400us  121.72ms  cudaMalloc
- 22.32%  53.548ms        14  3.8249ms  19.623us  11.807ms  cudaMemcpy
- 22.31%  53.523ms     10020  5.3410us  2.9400us  255.59us  cudaLaunch
-  3.09%  7.4163ms     40100     184ns     100ns  269.64us  cudaSetupArgument
-  0.93%  2.2195ms     10020     221ns     132ns  10.209us  cudaConfigureCall
-  0.09%  216.98us        91  2.3840us      95ns  85.207us  cuDeviceGetAttribute
-  0.07%  170.75us         1  170.75us  170.75us  170.75us  cuDeviceTotalMem
-  0.07%  159.03us        10  15.903us  8.5600us  33.961us  cudaMemcpyToSymbol
-  0.01%  23.822us         1  23.822us  23.822us  23.822us  cuDeviceGetName
-  0.00%  1.5970us         3     532ns      96ns     916ns  cuDeviceGetCount
-  0.00%     763ns         3     254ns     178ns     358ns  cuDeviceGet
+ 68.84%  135.51ms         5  27.102ms  7.5020us  134.05ms  cudaMalloc
+ 24.65%  48.523ms     10020  4.8420us  4.0810us  227.01us  cudaLaunch
+  2.67%  5.2564ms     40100     131ns     111ns  213.17us  cudaSetupArgument
+  2.54%  5.0093ms        14  357.81us  13.705us  4.6659ms  cudaMemcpy
+  0.87%  1.7221ms     10020     171ns     143ns  2.1580us  cudaConfigureCall
+  0.24%  472.84us        91  5.1960us     175ns  183.05us  cuDeviceGetAttribute
+  0.12%  241.52us         1  241.52us  241.52us  241.52us  cuDeviceTotalMem
+  0.03%  59.403us        10  5.9400us  3.8880us  10.612us  cudaMemcpyToSymbol
+  0.02%  47.066us         1  47.066us  47.066us  47.066us  cuDeviceGetName
+  0.00%  2.1670us         3     722ns     184ns  1.5570us  cuDeviceGetCount
+  0.00%     998ns         3     332ns     202ns     495ns  cuDeviceGet
