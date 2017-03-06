@@ -6,6 +6,7 @@ data = json.load(open("result.json","r"))
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in microseconds")
+names = {"blend.o":"Thrust","sblend.o":"Thrust++","native.o":"CUDA"}
 keys = data.keys()
 for key in keys:
     dims = []
@@ -13,7 +14,7 @@ for key in keys:
     for val in data[key]:
         dims.append(val[0])
         total.append(val[1])
-    plt.plot(dims,total,label=key[:-2])
+    plt.plot(dims,total,label=names[key])
 
 plt.legend(loc=2)
 

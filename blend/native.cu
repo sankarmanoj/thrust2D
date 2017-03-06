@@ -9,24 +9,9 @@ int iDivUp(int a, int b)
 __global__ void blendKernel(uchar * input1,uchar * input2, uchar * output,float alpha, int size)
 {
   int index = threadIdx.x + blockIdx.x*blockDim.x;
-  if(index>=size)
-    return;
+  if(index>=size)    return;
   output[index] = input1[index]*alpha + input2[index]*(1-alpha);
 }
-class blendFunctor
-{
-  float alpha;
-
-public:
-  blendFunctor(float alpha)
-  {
-    this->alpha = alpha;
-  }
-  __device__ uchar operator() (uchar &input1,float &input2) const
-  {
-    return alpha * input1+ (1-alpha) *  input2;
-  }
-};
 
 int main(int argc, char const *argv[]) {
   int dim = 4096;
@@ -51,7 +36,6 @@ int main(int argc, char const *argv[]) {
   cudaMalloc((void **)&d_output,sizeof(uchar)*dim*dim);
   cudaMemcpy(d_input1,input1.ptr(),sizeof(uchar)*dim*dim,cudaMemcpyHostToDevice);
   cudaMemcpy(d_input2,input2.ptr(),sizeof(uchar)*dim*dim,cudaMemcpyHostToDevice);
-  for(int i = 0; i<100;i++)
   blendKernel<<<iDivUp(dim*dim,1024),1024>>>(d_input1,d_input2,d_output,0.3,dim*dim);
   uchar * h_output = new uchar[dim*dim];
   cudaMemcpy(h_output,d_output,sizeof(uchar)*dim*dim,cudaMemcpyDeviceToHost);
