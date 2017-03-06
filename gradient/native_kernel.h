@@ -15,27 +15,27 @@ __global__ void getdotError(int N,int D,float *x,float *y,float *e)
   }
   e[index]=y[index]-sum;
 };
-__global__ void multiply(int N, int D, float *x, float *e,float *y)
-{
-  int index = threadIdx.x + blockIdx.x*blockDim.x;
-  if(index>=D*N)
-    return;
-  y[index]=x[index]*e[index/D];
-}
+// __global__ void multiply(int N, int D, float *x, float *e,float *y)
+// {
+//   int index = threadIdx.x + blockIdx.x*blockDim.x;
+//   if(index>=D*N)
+//     return;
+//   y[index]=x[index]*e[index%N];
+// }
 template <unsigned int block_size>
-__global__ void better_reduce_kernel (float *g_idata, float *g_odata, unsigned int n, unsigned int d)
+__global__ void better_reduce_kernel (float *g_idata, float *e, float *g_odata, unsigned int n, unsigned int d)
 {
   extern volatile __shared__ float sdata[];
   unsigned int tid=threadIdx.x;
   unsigned int i=blockIdx.x;
   unsigned int grid_size = block_size*2;
   sdata[tid]=0;
-  int index = tid;
-  while (index<n)
+  int index = tid + i*blockDim.x*2;
+  if (index<n)
   {
-    sdata[tid] += g_idata[i*n + index];
+    sdata[tid] += (g_idata[index] * e[(index)%n]);
     if(index+block_size<n)
-      sdata[tid] += g_idata[i*n +index + block_size];
+      sdata[tid] += (g_idata[index + block_size] * e[(index + block_size)%n]);
     // printf("%d+=(%d+%d)\n", sdata[tid], g_idata[i],g_idata[i+block_size]);
     index+=grid_size;
   }

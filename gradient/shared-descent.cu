@@ -76,12 +76,12 @@ int main(int argc, char **argv)
     count++;
   }
   h_error = d_error;
-  for(int i = 0; i<100;i++)
-  {
-    printf("%f ",h_error[i]);
-    if(i%10==0)
-      printf("\n");
-  }
+  // for(int i = 0; i<100;i++)
+  // {
+  //   printf("%f ",h_error[i]);
+  //   if(i%10==0)
+  //     printf("\n");
+  // }
   // printf("Compute Time = %f\n",time_in_ms);
   // sdiff = sqrt(sdiff/D);
   // printf("Final Error = %f\n",sdiff);

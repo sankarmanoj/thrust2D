@@ -13,8 +13,8 @@ all: $(OBJS)
 	$(CC) $(CFLAGS) `pkg-config --static --libs opencv`   $< -o $@
 
 %.profile:%.o
-		nvprof  --log-file $@.time ./$^ 20000
-		# nvprof -m branch_efficiency -m gld_efficiency -m gst_efficiency -m shared_efficiency -m shared_utilization --log-file $@ ./$^
+		nvprof  --log-file $@.time ./$^
+		nvprof -m branch_efficiency -m gld_transactions_per_request -m gst_transactions_per_request -m shared_efficiency --log-file $@ ./$^
 
 .PHONY: profile-all
 profile-all: $(PROFILES)

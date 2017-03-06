@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <thrust/shared_for_each.h>
 #define RG 10
-#define DSIZE 321024
+// #define DSIZE 321024
 #define FSIZE 17
 
 void conv(const float *A, const float *B, float *out, int N, int P)
@@ -14,8 +14,13 @@ void conv(const float *A, const float *B, float *out, int N, int P)
             out[i] += A[i+j] * B[j+rb];
 }
 
-int main()
+int main(int argc, char const *argv[])
 {
+  int DSIZE=321024;
+  if(argc ==2)
+  {
+    DSIZE = atoi(argv[1]);
+  }
   thrust::device_vector<float> a(DSIZE),b(FSIZE),c(DSIZE,0.0);
   thrust::host_vector<float> ha(DSIZE),hb(FSIZE),hc(DSIZE,0.0),C(DSIZE,0.0);
 
