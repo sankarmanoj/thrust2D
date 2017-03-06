@@ -10,14 +10,13 @@ execs = [ x for x in  os.listdir(path) if x.partition(".")[2]=="o" ]
 print execs
 for texec in execs:
     results[texec]=[]
-dims = range(100,2000,100) + range(2000,10000,500) + range(10000,25000,1000)
-print dims
+dims = range(100,2000,100) + range(2000,10000,100)
 for texec in execs:
     times = {".name":texec,"dims":[]}
     print texec,
     for dim in dims:
         print str(dim)+"  ",
-        os.popen("nvprof -u us --csv --log-file log.txt ./%s %d"%(texec,dim))
+        os.popen("nvprof --unified-memory-profiling off -u us --csv --log-file log.txt ./%s %d"%(texec,dim))
         times["dims"].append(dim)
         with open("log.txt","r") as x:
             cr = csv.reader(x)

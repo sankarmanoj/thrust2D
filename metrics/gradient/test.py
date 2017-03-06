@@ -10,7 +10,7 @@ execs = [ x for x in  os.listdir(path) if x.partition(".")[2]=="o" ]
 print execs
 for texec in execs:
     results[texec]=[]
-N = range(100,2000,100) + range(2000,10000,500) + range(10000,25000,1000)
+N = range(100,2000,100) + range(2000,10000,100)
 D = [x**0.5 for x in N]
 for i in range(len(N)):
     comm = "python genfiles.py %d %d"%(D[i],N[i])
