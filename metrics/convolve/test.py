@@ -10,7 +10,7 @@ execs = [ x for x in  os.listdir(path) if x.partition(".")[2]=="o" ]
 print execs
 for texec in execs:
     results[texec]=[]
-dims = range(100,2000,100) + range(2000,10000,100)
+dims = range(100,2000,100) + range(2000,20000,100)
 print dims
 for texec in execs:
     times = {".name":texec,"dims":[]}
