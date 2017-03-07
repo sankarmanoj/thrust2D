@@ -10,6 +10,8 @@ namespace thrust
   {
     struct shared_policy : device_execution_policy<shared_policy> {};
     shared_policy shared;
+    struct shared_first_policy : device_execution_policy<shared_first_policy> {};
+    shared_first_policy shared_first;
     struct texture_policy : device_execution_policy<texture_policy> {};
     texture_policy texture;
   }

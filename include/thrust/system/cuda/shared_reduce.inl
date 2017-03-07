@@ -94,19 +94,6 @@ namespace thrust
       g_odata[blockIdx.x] = sdata[0];
     }
   }
-  unsigned int previous_power_of_two(unsigned int x )
-  {
-    if (x == 0) {
-        return 0;
-    }
-    x--; //Uncomment this, if you want a strictly less than 'x' result.
-    x |= (x >> 1);
-    x |= (x >> 2);
-    x |= (x >> 4);
-    x |= (x >> 8);
-    x |= (x >> 16);
-    return x - (x >> 1);
-  }
   template <class Iterator>
   typename thrust::iterator_traits<Iterator>::value_type reduce (cuda::shared_policy,Iterator first,Iterator last)
   {
@@ -176,97 +163,97 @@ namespace thrust
 
     return answer;
   }
-  template <class T>
-  __global__ void fixup(T *input, T *aux, int len)
-  {
-    unsigned int t = threadIdx.x, start = 2 * blockIdx.x * blockDim.x;
-    if (blockIdx.x)
-    {
-      if (start + t < len)
-        input[start + t] += aux[blockIdx.x - 1];
-      if (start + blockDim.x + t < len)
-        input[start + blockDim.x + t] += aux[blockIdx.x - 1];
-    }
-  }
-  template <class T>
-  __global__ void scan(T * input, T * output, T *aux, int len)
-  {
-    // Load a segment of the input vector into shared memory
-    extern volatile __shared__ T scan_array[];
-    unsigned int t = threadIdx.x, start = 2 * blockIdx.x * blockDim.x;
-    if (start + t < len)
-      scan_array[t] = input[start + t];
-    else
-      scan_array[t] = 0;
-    if (start + blockDim.x + t < len)
-      scan_array[blockDim.x + t] = input[start + blockDim.x + t];
-    else
-      scan_array[blockDim.x + t] = 0;
-    __syncthreads();
-    // Reduction
-    int stride;
-    for (stride = 1; stride <= blockDim.x; stride <<= 1)
-    {
-      int index = (t + 1) * stride * 2 - 1;
-      if (index < 2 * blockDim.x)
-        scan_array[index] += scan_array[index - stride];
-      __syncthreads();
-    }
-
-    // Post reduction
-    for (stride = blockDim.x >> 1; stride; stride >>= 1)
-    {
-      int index = (t + 1) * stride * 2 - 1;
-      if (index + stride < 2 * blockDim.x)
-        scan_array[index + stride] += scan_array[index];
-      __syncthreads();
-    }
-
-    if (start + t < len)
-      output[start + t] = scan_array[t];
-    if (start + blockDim.x + t < len)
-      output[start + blockDim.x + t] = scan_array[blockDim.x + t];
-
-    if (aux && t == 0)
-      aux[blockIdx.x] = scan_array[2 * blockDim.x - 1];
-  }
-
-  template <class Iterator>
-  void inclusive_scan (cuda::shared_policy,Iterator first,Iterator last,Iterator output)
-  {
-    int number_of_elements = last - first;
-    int BLOCK_SIZE;
-    if (number_of_elements>1024)
-      BLOCK_SIZE = 512;
-    else if (number_of_elements>512)
-      BLOCK_SIZE = 256;
-    else if (number_of_elements>128)
-      BLOCK_SIZE = 64;
-    else if (number_of_elements>64)
-      BLOCK_SIZE = 32;
-    else
-      BLOCK_SIZE = pow(2, floor(log(number_of_elements)/log(2))-2);
-    typedef typename Iterator::value_type T;
-    T *deviceInput = raw_pointer_cast(&(first[0]));
-    T *deviceAuxArray, *deviceAuxScannedArray, *deviceOutput;
-    cudaMalloc(&deviceAuxArray, (BLOCK_SIZE << 1) * sizeof(T));
-    cudaMalloc(&deviceAuxScannedArray, (BLOCK_SIZE << 1) * sizeof(T));
-    cudaMalloc(&deviceOutput,number_of_elements*sizeof(T));
-    cudaMemset(deviceOutput, 0, number_of_elements*sizeof(T));
-    int numBlocks = ceil((T)number_of_elements/(BLOCK_SIZE<<1));
-    dim3 dimGrid(numBlocks, 1, 1);
-    dim3 dimBlock(BLOCK_SIZE, 1, 1);
-    scan<<<dimGrid, dimBlock, BLOCK_SIZE*2*sizeof(T)>>>(deviceInput, deviceOutput, deviceAuxArray, number_of_elements);
-    cudaDeviceSynchronize();
-    scan<<<dim3(1,1,1), dimBlock,BLOCK_SIZE*2*sizeof(T)>>>(deviceAuxArray, deviceAuxScannedArray, (T*)nullptr, BLOCK_SIZE << 1);
-    cudaDeviceSynchronize();
-    fixup<<<dimGrid, dimBlock>>>(deviceOutput, deviceAuxScannedArray, number_of_elements);
-    cudaDeviceSynchronize();
-    cudaMemcpy(raw_pointer_cast(&(output[0])),deviceOutput,number_of_elements*sizeof(T),cudaMemcpyDeviceToDevice);
-    cudaFree(deviceAuxArray);
-    cudaFree(deviceAuxScannedArray);
-    cudaFree(deviceOutput);
-  }
+  // template <class T>
+  // __global__ void fixup(T *input, T *aux, int len)
+  // {
+  //   unsigned int t = threadIdx.x, start = 2 * blockIdx.x * blockDim.x;
+  //   if (blockIdx.x)
+  //   {
+  //     if (start + t < len)
+  //       input[start + t] += aux[blockIdx.x - 1];
+  //     if (start + blockDim.x + t < len)
+  //       input[start + blockDim.x + t] += aux[blockIdx.x - 1];
+  //   }
+  // }
+  // template <class T>
+  // __global__ void scan(T * input, T * output, T *aux, int len)
+  // {
+  //   // Load a segment of the input vector into shared memory
+  //   extern volatile __shared__ T scan_array[];
+  //   unsigned int t = threadIdx.x, start = 2 * blockIdx.x * blockDim.x;
+  //   if (start + t < len)
+  //     scan_array[t] = input[start + t];
+  //   else
+  //     scan_array[t] = 0;
+  //   if (start + blockDim.x + t < len)
+  //     scan_array[blockDim.x + t] = input[start + blockDim.x + t];
+  //   else
+  //     scan_array[blockDim.x + t] = 0;
+  //   __syncthreads();
+  //   // Reduction
+  //   int stride;
+  //   for (stride = 1; stride <= blockDim.x; stride <<= 1)
+  //   {
+  //     int index = (t + 1) * stride * 2 - 1;
+  //     if (index < 2 * blockDim.x)
+  //       scan_array[index] += scan_array[index - stride];
+  //     __syncthreads();
+  //   }
+  //
+  //   // Post reduction
+  //   for (stride = blockDim.x >> 1; stride; stride >>= 1)
+  //   {
+  //     int index = (t + 1) * stride * 2 - 1;
+  //     if (index + stride < 2 * blockDim.x)
+  //       scan_array[index + stride] += scan_array[index];
+  //     __syncthreads();
+  //   }
+  //
+  //   if (start + t < len)
+  //     output[start + t] = scan_array[t];
+  //   if (start + blockDim.x + t < len)
+  //     output[start + blockDim.x + t] = scan_array[blockDim.x + t];
+  //
+  //   if (aux && t == 0)
+  //     aux[blockIdx.x] = scan_array[2 * blockDim.x - 1];
+  // }
+  //
+  // template <class Iterator>
+  // void inclusive_scan (cuda::shared_policy,Iterator first,Iterator last,Iterator output)
+  // {
+  //   int number_of_elements = last - first;
+  //   int BLOCK_SIZE;
+  //   if (number_of_elements>1024)
+  //     BLOCK_SIZE = 512;
+  //   else if (number_of_elements>512)
+  //     BLOCK_SIZE = 256;
+  //   else if (number_of_elements>128)
+  //     BLOCK_SIZE = 64;
+  //   else if (number_of_elements>64)
+  //     BLOCK_SIZE = 32;
+  //   else
+  //     BLOCK_SIZE = pow(2, floor(log(number_of_elements)/log(2))-2);
+  //   typedef typename Iterator::value_type T;
+  //   T *deviceInput = raw_pointer_cast(&(first[0]));
+  //   T *deviceAuxArray, *deviceAuxScannedArray, *deviceOutput;
+  //   cudaMalloc(&deviceAuxArray, (BLOCK_SIZE << 1) * sizeof(T));
+  //   cudaMalloc(&deviceAuxScannedArray, (BLOCK_SIZE << 1) * sizeof(T));
+  //   cudaMalloc(&deviceOutput,number_of_elements*sizeof(T));
+  //   cudaMemset(deviceOutput, 0, number_of_elements*sizeof(T));
+  //   int numBlocks = ceil((T)number_of_elements/(BLOCK_SIZE<<1));
+  //   dim3 dimGrid(numBlocks, 1, 1);
+  //   dim3 dimBlock(BLOCK_SIZE, 1, 1);
+  //   scan<<<dimGrid, dimBlock, BLOCK_SIZE*2*sizeof(T)>>>(deviceInput, deviceOutput, deviceAuxArray, number_of_elements);
+  //   cudaDeviceSynchronize();
+  //   scan<<<dim3(1,1,1), dimBlock,BLOCK_SIZE*2*sizeof(T)>>>(deviceAuxArray, deviceAuxScannedArray, (T*)nullptr, BLOCK_SIZE << 1);
+  //   cudaDeviceSynchronize();
+  //   fixup<<<dimGrid, dimBlock>>>(deviceOutput, deviceAuxScannedArray, number_of_elements);
+  //   cudaDeviceSynchronize();
+  //   cudaMemcpy(raw_pointer_cast(&(output[0])),deviceOutput,number_of_elements*sizeof(T),cudaMemcpyDeviceToDevice);
+  //   cudaFree(deviceAuxArray);
+  //   cudaFree(deviceAuxScannedArray);
+  //   cudaFree(deviceOutput);
+  // }
   template <class T,class Func,unsigned int block_size>
   __global__ void unary_reduce_kernel (T *g_idata, T *g_odata, unsigned int n, Func f)
   {

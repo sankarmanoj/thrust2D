@@ -11,14 +11,9 @@ using namespace thrust;
 class printFunctor
 {
 public:
-  float * data;
-printFunctor(float * data)
-{
-  this->data = data;
-}
 __device__  void  operator() ( float &a)
   {
-    printf("%f\n",data[(int)a]);
+    printf("%f\n",a);
   }
 };
 class copyFunctor
@@ -51,19 +46,15 @@ int main(int argc, char ** argv)
   sequence(a.begin(),a.end());
   sequence(b.begin(),b.end());
 
-  float * c_a = get_constant_memory_pointer(a.begin(),a.end());
   // printf("%d ",reduce(cuda::shared,a.begin(),a.end()));
   // printf("%d ",reduce(a.begin(),a.end()));
   // exclusive_scan(cuda::shared,a.begin(),a.end(),b.begin());
   // cudaDeviceSynchronize();
-  transform(cuda::shared,a.begin(),a.end(),b.begin(),copyFunctor());
-  float * c_b = get_constant_memory_pointer(b.begin(),b.end());
-  for_each(cuda::shared,a.begin(),a.end(),printFunctor(c_b));
-  for_each(cuda::shared,a.begin(),a.end(),printFunctor(c_a));
+  transform(cuda::shared_first,a.begin(),a.end(),b.begin(),c.begin(),binaryFunctor());
 
   // cudaDeviceSynchronize();
   // printf("\n");
-  // for_each(cuda::shared,c.begin(),c.end(),printFunctor());
+  for_each(cuda::shared,c.begin(),c.end(),printFunctor());
   // cudaDeviceSynchronize();
   // printf("\n");
 

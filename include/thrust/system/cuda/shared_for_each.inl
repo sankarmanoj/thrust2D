@@ -87,6 +87,36 @@ namespace thrust
     binary_transform_kernel<<<grid_size,block_size,(sizeof(T1)+ sizeof(T2))*properties.maxThreadsPerBlock>>>(number_of_elements,begin1,begin2,begin3,f);
   }
 
+  template  <class Iterator1,class Iterator2,class Iterator3, class Func>
+  __global__ void first_transform_kernel(long number_of_elements,Iterator1 input_data1,Iterator2 input_data2,Iterator3 output_data, Func f)
+  {
+    extern __shared__ char byte_shared_memory[];
+    typedef typename Iterator1::value_type T1;
+    typedef typename Iterator2::value_type T2;
+    T1 * shared_memory_1 = (T1*)byte_shared_memory;
+    long index = blockIdx.x*blockDim.x + threadIdx.x;
+    if (index>=number_of_elements)
+      return;
+    shared_memory_1[threadIdx.x] = input_data1[index];
+    output_data[index]=f(shared_memory_1[threadIdx.x],*((&input_data2[index]).get()));
+  }
+
+  template <class Iterator1,class Iterator2,class Iterator3, class Func>
+  void transform(cuda::shared_first_policy,Iterator1 begin1, Iterator1 end1,Iterator2 begin2, Iterator3 begin3,Func f)
+  {
+    long number_of_elements = end1 - begin1;
+    typedef typename Iterator1::value_type T1;
+    typedef typename Iterator2::value_type T2;
+    typedef typename Iterator3::value_type T3;
+    static cudaDeviceProp properties;
+    if(properties.maxThreadsPerBlock==0)
+      cudaGetDeviceProperties(&properties,0);
+    int min_grid_size,block_size,grid_size;
+    cudaOccupancyMaxPotentialBlockSize(&min_grid_size,&block_size,binary_transform_kernel<Iterator1,Iterator2,Iterator3,Func>,(sizeof(T1))*properties.maxThreadsPerBlock);
+    grid_size = (number_of_elements + block_size - 1) / block_size;
+    first_transform_kernel<<<grid_size,block_size,(sizeof(T1))*properties.maxThreadsPerBlock>>>(number_of_elements,begin1,begin2,begin3,f);
+  }
+
   template <class T>
   __global__ void conv_Kernel(const T * __restrict__ A, const T * __restrict__ B, T *C, const int N, const int P)
   {
