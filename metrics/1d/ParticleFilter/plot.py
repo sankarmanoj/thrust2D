@@ -6,7 +6,7 @@ data = json.load(open("result.json","r"))
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in microseconds")
-names = {"blend.o":"Thrust","sblend.o":"Thrust++","native.o":"CUDA"}
+names = {"ns_thrust_p_f.o":"Thrust","thrust_particle_filter.o":"Thrust++","ex_particle_CUDA_float_seq.o":"CUDA"}
 keys = data.keys()
 for key in keys:
     dims = []

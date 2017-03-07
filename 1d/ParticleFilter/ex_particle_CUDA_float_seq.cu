@@ -725,7 +725,7 @@ void particleFilter(unsigned char * I, int IszX, int IszY, int Nfr, int * seed, 
     check_error(cudaMemcpy(yj_GPU, yj, sizeof (double) *Nparticles, cudaMemcpyHostToDevice));
     check_error(cudaMemcpy(seed_GPU, seed, sizeof (int) *Nparticles, cudaMemcpyHostToDevice));
     long long send_end = get_time();
-    printf("TIME TO SEND TO GPU: %f\n", elapsed_time(send_start, send_end));
+    // printf("TIME TO SEND TO GPU: %f\n", elapsed_time(send_start, send_end));
     int num_blocks = ceil((double) Nparticles / (double) threads_per_block);
 
     for (k = 1; k < Nfr; k++) {
@@ -734,7 +734,7 @@ void particleFilter(unsigned char * I, int IszX, int IszY, int Nfr, int * seed, 
 
         sum_kernel << < num_blocks, threads_per_block >> > (partial_sums, Nparticles);
 
-        normalize_weights_kernel << < num_blocks, threads_per_block >> > (weights_GPU, Nparticles, partial_sums,f CDF_GPU, u_GPU, seed_GPU);
+        normalize_weights_kernel << < num_blocks, threads_per_block >> > (weights_GPU, Nparticles, partial_sums, CDF_GPU, u_GPU, seed_GPU);
 
         find_index_kernel << < num_blocks, threads_per_block >> > (arrayX_GPU, arrayY_GPU, CDF_GPU, u_GPU, xj_GPU, yj_GPU, weights_GPU, Nparticles);
 
@@ -762,12 +762,12 @@ void particleFilter(unsigned char * I, int IszX, int IszY, int Nfr, int * seed, 
     long long arrayY_time = get_time();
     check_error(cudaMemcpy(weights, weights_GPU, sizeof (double) *Nparticles, cudaMemcpyDeviceToHost));
     long long back_end_time = get_time();
-    printf("GPU Execution: %lf\n", elapsed_time(send_end, back_time));
-    printf("FREE TIME: %lf\n", elapsed_time(back_time, free_time));
-    printf("TIME TO SEND BACK: %lf\n", elapsed_time(back_time, back_end_time));
-    printf("SEND ARRAY X BACK: %lf\n", elapsed_time(free_time, arrayX_time));
-    printf("SEND ARRAY Y BACK: %lf\n", elapsed_time(arrayX_time, arrayY_time));
-    printf("SEND WEIGHTS BACK: %lf\n", elapsed_time(arrayY_time, back_end_time));
+    // printf("GPU Execution: %lf\n", elapsed_time(send_end, back_time));
+    // printf("FREE TIME: %lf\n", elapsed_time(back_time, free_time));
+    // printf("TIME TO SEND BACK: %lf\n", elapsed_time(back_time, back_end_time));
+    // printf("SEND ARRAY X BACK: %lf\n", elapsed_time(free_time, arrayX_time));
+    // printf("SEND ARRAY Y BACK: %lf\n", elapsed_time(arrayX_time, arrayY_time));
+    // printf("SEND WEIGHTS BACK: %lf\n", elapsed_time(arrayY_time, back_end_time));
 
     xe = 0;
     ye = 0;
@@ -869,12 +869,12 @@ int main(int argc, char * argv[]) {
     //call video sequence
     videoSequence(I, IszX, IszY, Nfr, seed);
     long long endVideoSequence = get_time();
-    printf("VIDEO SEQUENCE TOOK %f\n", elapsed_time(start, endVideoSequence));
+    // printf("VIDEO SEQUENCE TOOK %f\n", elapsed_time(start, endVideoSequence));
     //call particle filter
     particleFilter(I, IszX, IszY, Nfr, seed, Nparticles);
     long long endParticleFilter = get_time();
-    printf("PARTICLE FILTER TOOK %f\n", elapsed_time(endVideoSequence, endParticleFilter));
-    printf("ENTIRE PROGRAM TOOK %f\n", elapsed_time(start, endParticleFilter));
+    // printf("PARTICLE FILTER TOOK %f\n", elapsed_time(endVideoSequence, endParticleFilter));
+    // printf("ENTIRE PROGRAM TOOK %f\n", elapsed_time(start, endParticleFilter));
 
     free(seed);
     free(I);

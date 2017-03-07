@@ -14,10 +14,11 @@ all: $(OBJS)
 
 %.profile:%.o
 		nvprof  --log-file $@.time ./$^ -x  128	-y 128 -z 1000 -np 100
-		nvprof -m branch_efficiency -m gld_efficiency -m gst_efficiency -m shared_efficiency -m shared_utilization --log-file $@ ./$^ -x  128	-y 128 -z 1000 -np 100
+		# nvprof -m branch_efficiency -m gld_efficiency -m gst_efficiency -m shared_efficiency -m shared_utilization --log-file $@ ./$^ -x  128	-y 128 -z 1000 -np 100
 
 .PHONY: profile-all
 profile-all: $(PROFILES)
 
 clean:
-	rm *.o
+		rm -f *.o
+		rm -f *.profile*

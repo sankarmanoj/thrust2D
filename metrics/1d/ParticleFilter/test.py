@@ -6,17 +6,18 @@ path = os.getcwd().replace("metrics/","")
 os.chdir(path)
 print path
 results = {}
+p_names = ["likelihood_kernel","normalize_weights_kernel","find_index_kernel","sum_kernel","YOYOYO","scan_","reduce"]
 execs = [ x for x in  os.listdir(path) if x.partition(".")[2]=="o" ]
 print execs
 for texec in execs:
     results[texec]=[]
-dims = range(100,2000,100) + range(2000,10000,100)
+dims = range(100,2000,100) + range(2000,10000,200)
 for texec in execs:
     times = {".name":texec,"dims":[]}
     print texec,
     for dim in dims:
         print str(dim)+"  ",
-        os.popen("nvprof --unified-memory-profiling off -u us --csv --log-file log.txt ./%s %d"%(texec,dim))
+        os.system("nvprof --unified-memory-profiling off -u us --csv --log-file log.txt ./%s -x  128	-y 128 -z 10 -np %d"%(texec,dim))
         times["dims"].append(dim)
         with open("log.txt","r") as x:
             cr = csv.reader(x)
@@ -27,11 +28,15 @@ for texec in execs:
             cr.next()
             line = cr.next()
             values = len(line)
+            tval=0
             while values >= 6 :
-                if "blend" in line[6]:
-                    results[texec].append((dim,float(line[3])))
+                for n in p_names:
+                    if n in line[6]:
+                        tval+=float(line[1])
                 line = cr.next()
                 values = len(line)
+            if tval!=0:
+                results[texec].append((dim,tval))
     print "\n"
 
 os.system("rm log.txt")
