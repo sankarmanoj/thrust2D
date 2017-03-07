@@ -108,7 +108,7 @@ namespace thrust
     unsigned int number_of_elements = last-first;
     numThreads = min(numThreads, previous_power_of_two(number_of_elements/2));
     numBlocks = min(numBlocks, ((number_of_elements%(2*numThreads))?((number_of_elements/(2*numThreads))+1):(number_of_elements/(2*numThreads))));
-    printf("Num Threads = %d Num Blocks = %d\n",numThreads,numBlocks);
+    // printf("Num Threads = %d Num Blocks = %d\n",numThreads,numBlocks);
     static T *partial = 0 , *h_partial=0;
     T *first_pointer;
     first_pointer = raw_pointer_cast(&(first[0]));
