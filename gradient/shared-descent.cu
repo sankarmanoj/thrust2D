@@ -41,6 +41,9 @@ int main(int argc, char **argv)
   thrust::device_vector<float> d_Yactual(y_actual,y_actual+N);
   thrust::device_vector<float> d_Ypredict(N);
   thrust::device_vector<float> d_error(N);
+  thrust::device_vector<float> d_weights(D);
+  d_weights.assign(weights, weights + D);
+  thrust::device_vector<float> d_gradient(D);
   thrust::host_vector<floatD> h_XD(N);
   thrust::host_vector<float> h_gradient(D);
   thrust::host_vector<float> h_error(N);
@@ -54,7 +57,7 @@ int main(int argc, char **argv)
   int count = 0;
   while(count<niter)
   {
-    int ca_weights = thrust::get_constant_memory_pointer(weights,weights+D,cudaMemoryTypeHost);
+    int ca_weights = thrust::get_constant_memory_pointer(d_weights.begin(), d_weights.end());
     // float *ca_weights = d_weights.data().get();
     thrust::transform(thrust::cuda::shared,d_XD.begin(),d_XD.end(),d_Yactual.begin(),d_error.begin(),dotProductFunctor(D,ca_weights));
     // thrust::transform(thrust::cuda::shared,d_Ypredict.begin(),d_Ypredict.end(),d_Yactual.begin(),d_error.begin(),thrust::minus<float>());
@@ -69,19 +72,21 @@ int main(int argc, char **argv)
       // h_gradient[i]=thrust::reduce(thrust::cuda::shared,d_Ypredict.begin(),d_Ypredict.end())/N;
       // printf("%f\n",h_gradient[i]);
     }
-    for(int i = 0; i<D;i++)
-    {
-      weights[i] = weights[i] - learn*h_gradient[i];
-    }
+    d_gradient = h_gradient;
+    // for(int i = 0; i<D;i++)
+    // {
+    //   weights[i] = weights[i] - learn*h_gradient[i];
+    // }
+    thrust::transform(thrust::cuda::shared, d_weights.begin(),d_weights.end(),d_gradient.begin(),d_weights.begin(),update_weights(learn));
     count++;
   }
   h_error = d_error;
-  for(int i = 0; i<100;i++)
-  {
-    printf("%f ",h_error[i]);
-    if(i%10==0)
-      printf("\n");
-  }
+  // for(int i = 0; i<100;i++)
+  // {
+  //   printf("%f ",h_error[i]);
+  //   if(i%10==0)
+  //     printf("\n");
+  // }
   // printf("Compute Time = %f\n",time_in_ms);
   // sdiff = sqrt(sdiff/D);
   // printf("Final Error = %f\n",sdiff);

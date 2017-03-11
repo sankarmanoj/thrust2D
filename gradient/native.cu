@@ -33,11 +33,11 @@ int main(int argc, char **argv)
     values>>weights[i];
   }
   // printf("Done Reading Data\n");
-  float *d_xval, *d_yval,* d_weights, *d_error,*h_error,*tempa,*gradient;
-  gradient = (float *) std::malloc(sizeof(float)*D);
+  float *d_xval, *d_yval,* d_weights, *d_error,*h_error,*tempa,*d_gradient;
   cudaMalloc((void**)&d_xval,sizeof(float)*D*N);
   cudaMalloc((void**)&tempa,sizeof(float)*D*N);
   cudaMalloc((void**)&d_weights,sizeof(float)*D);
+  cudaMalloc((void**)&d_gradient,sizeof(float)*D);
   cudaMalloc((void**)&d_yval,sizeof(float)*N);
   cudaMalloc((void**)&d_error,sizeof(float)*N);
   cudaMemcpy(d_xval,xvalues,sizeof(float)*D*N,cudaMemcpyHostToDevice);
@@ -55,12 +55,9 @@ int main(int argc, char **argv)
     getdotError<<<iDivUp(N,1024),1024>>>(N,D,d_xval,d_yval,d_error);
     // multiply<<<iDivUp(N*D,1024),1024>>>(N,D,d_xval,d_error,tempa);
     for(int i = 0; i<D;i++)
-      better_reduce_kernel<256><<<20,256,256*sizeof(float)>>>(d_xval + i*N,d_error,d_weights+i,N,D);
-    cudaMemcpy(gradient,d_weights,sizeof(float)*D,cudaMemcpyDeviceToHost);
-    for(int i = 0; i<D;i++)
-    {
-      weights[i] = weights[i] - learn*gradient[i];
-    }
+      better_reduce_kernel<256><<<20,256,256*sizeof(float)>>>(d_xval + i*N,d_error,d_gradient+i,N,D);
+    // cudaMemcpy(gradient,d_weights,sizeof(float)*D,cudaMemcpyDeviceToHost);
+    update_weights<<<iDivUp(D,128),128>>> (d_weights,d_gradient,learn);
     count++;
   }
   // cudaEventRecord(stop);

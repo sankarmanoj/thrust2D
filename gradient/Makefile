@@ -3,7 +3,7 @@
 
 IDIR =../include
 CC=nvcc
-CFLAGS=-I$(IDIR) -ccbin=g++-5 -std=c++11 -arch=sm_60 -O3
+CFLAGS=-I$(IDIR) -ccbin=g++-5 -std=c++11 -arch=sm_60
 DFLAGS =-DDEBUG -g -G -lineinfo
 SRCS = $(wildcard *.cu)
 
@@ -20,8 +20,8 @@ all: $(OBJS)
 	$(CC) $(CFLAGS)  $< -o $@
 	# nvprof --unified-memory-profiling  off --log-file $@.profile ./$@ 100 0.05
 %.profile:%.o
-		nvprof  --log-file $@.time ./$^ 10 0.01
-		# nvprof -m branch_efficiency -m gld_efficiency -m gst_efficiency -m shared_efficiency --log-file $@ ./$^ 1 0.01
+		nvprof --unified-memory-profiling  off --log-file $@.time ./$^ 10 0.01
+		nvprof -m branch_efficiency -m gld_efficiency -m gst_efficiency -m shared_efficiency --log-file $@ ./$^ 1 0.01
 .PHONY: profile-all
 profile-all: $(PROFILES)
 
