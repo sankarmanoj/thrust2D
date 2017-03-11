@@ -8,12 +8,13 @@ struct floatD
   }
 };
 
+template<class W>
 class dotProductFunctor
 {
 public:
   int D;
-  int weights;
-  dotProductFunctor(int D,int weights)
+  W weights;
+  dotProductFunctor(int D,W weights)
   {
     this->D = D;
     this->weights = weights;
@@ -23,7 +24,7 @@ public:
     float temp = 0;
     for(int i = 0; i<D;i++)
     {
-      temp+=vector[i]*((float *)thrust::c_memory)[weights+i];
+      temp+=vector[i]*weights[i];
     }
     return temp - y;
   }
