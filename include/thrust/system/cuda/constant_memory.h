@@ -5,7 +5,6 @@ namespace thrust
   #define CSIZE 60536
   __constant__ unsigned char c_memory[CSIZE];
   static int c_position = 0;
-
   template<class T>
   class constant_vector
   {

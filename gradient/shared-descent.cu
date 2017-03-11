@@ -41,6 +41,9 @@ int main(int argc, char **argv)
   thrust::device_vector<float> d_Yactual(y_actual,y_actual+N);
   thrust::device_vector<float> d_Ypredict(N);
   thrust::device_vector<float> d_error(N);
+  thrust::device_vector<float> d_weights(D);
+  d_weights.assign(weights, weights + D);
+  thrust::device_vector<float> d_gradient(D);
   thrust::host_vector<floatD> h_XD(N);
   thrust::host_vector<float> h_gradient(D);
   thrust::host_vector<float> h_error(N);
@@ -56,31 +59,25 @@ int main(int argc, char **argv)
   {
     thrust::constant_vector<float> ca_weights(weights,weights+D,cudaMemoryTypeHost);
     thrust::transform(thrust::cuda::shared,d_XD.begin(),d_XD.end(),d_Yactual.begin(),d_error.begin(),dotProductFunctor<thrust::constant_vector<float>>(D,ca_weights));
-    // thrust::transform(thrust::cuda::shared,d_Ypredict.begin(),d_Ypredict.end(),d_Yactual.begin(),d_error.begin(),thrust::minus<float>());
-    // for (size_t i = 0; i < 10; i++)
-    // {
-    //   printf("%f\n",(float) d_Ypredict[i]);
-    // }
+
     // printf("%d Error = %.9f\n",count,(float)thrust::transform_reduce(thrust::cuda::shared,d_error.begin(),d_error.end(),squareOp(),0,thrust::plus<float>())/N);
     for(int i = 0; i<D;i++)
     {
       h_gradient[i]=thrust::transform_reduce(thrust::cuda::shared,d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),thrust::multiplies<float>())/N;
-      // h_gradient[i]=thrust::reduce(thrust::cuda::shared,d_Ypredict.begin(),d_Ypredict.end())/N;
-      // printf("%f\n",h_gradient[i]);
+
     }
-    for(int i = 0; i<D;i++)
-    {
-      weights[i] = weights[i] - learn*h_gradient[i];
-    }
+    d_gradient = h_gradient;
+
+    thrust::transform(thrust::cuda::shared, d_weights.begin(),d_weights.end(),d_gradient.begin(),d_weights.begin(),update_weights(learn));
     count++;
   }
   h_error = d_error;
-  for(int i = 0; i<100;i++)
-  {
-    printf("%f ",h_error[i]);
-    if(i%10==0)
-      printf("\n");
-  }
+  // for(int i = 0; i<100;i++)
+  // {
+  //   printf("%f ",h_error[i]);
+  //   if(i%10==0)
+  //     printf("\n");
+  // }
   // printf("Compute Time = %f\n",time_in_ms);
   // sdiff = sqrt(sdiff/D);
   // printf("Final Error = %f\n",sdiff);

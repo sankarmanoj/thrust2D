@@ -18,7 +18,7 @@ for key in keys:
         dot.append(val[1][0])
         grad.append(val[1][1])
         total.append(val[1][1]+val[1][0])
-    plt.plot(dims,dot,label=names[key])
+    plt.plot(dims,total,label=names[key])
     # plt.plot(dims,total,label=key[:-2]+" Total")
     # plt.plot(dims,dot,label=key+" Dot")
     # plt.plot(dims,grad,label=key+" Grad")

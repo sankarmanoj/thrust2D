@@ -15,6 +15,12 @@ __global__ void getdotError(int N,int D,float *x,float *y,float *e)
   }
   e[index]=y[index]-sum;
 };
+
+__global__ void update_weights(float *weights, float *gradient,float learn)
+{
+  int index = threadIdx.x + blockIdx.x*blockDim.x;
+  weights[index] = weights[index] - learn * gradient[index];
+}
 // __global__ void multiply(int N, int D, float *x, float *e,float *y)
 // {
 //   int index = threadIdx.x + blockIdx.x*blockDim.x;

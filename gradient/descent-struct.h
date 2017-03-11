@@ -59,3 +59,17 @@ public:
     return index*index;
   }
 };
+
+class update_weights
+{
+  float learn;
+public:
+  update_weights(float learn)
+  {
+    this->learn=learn;
+  }
+  __device__ float operator() (float &w, float &g)
+  {
+    return w - learn*g;
+  }
+};
