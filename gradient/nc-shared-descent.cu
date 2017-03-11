@@ -11,7 +11,7 @@ int main(int argc, char **argv)
   int D,N;
   int niter = atoi(argv[1]);
   float learn = atof(argv[2]);
-  float *xvalues,*y_actual,*real_weights,*weights;
+  float *xvalues,*y_actual,*real_weights, *weights;
   values>>D>>N;
   xvalues = new float [D*N];
   for(int i = 0 ; i<N;i++)
@@ -41,9 +41,12 @@ int main(int argc, char **argv)
   thrust::device_vector<float> d_Yactual(y_actual,y_actual+N);
   thrust::device_vector<float> d_Ypredict(N);
   thrust::device_vector<float> d_error(N);
-  thrust::host_vector<floatD> h_XD(N);
+  thrust::device_vector<float> d_weights(D);
+    thrust::host_vector<floatD> h_XD(N);
   thrust::host_vector<float> h_gradient(D);
   thrust::host_vector<float> h_error(N);
+  thrust::host_vector<float> h_weights(weights,weights+D);
+
   for(int i = 0; i<N;i++)
   {
     h_XD[i].data = d_Xvalues.data().get() + i;
@@ -56,7 +59,8 @@ int main(int argc, char **argv)
   {
     int ca_weights = thrust::get_constant_memory_pointer(weights,weights+D,cudaMemoryTypeHost);
     // float *ca_weights = d_weights.data().get();
-    thrust::transform(thrust::cuda::shared,d_XD.begin(),d_XD.end(),d_Yactual.begin(),d_error.begin(),dotProductFunctor(D,ca_weights));
+    d_weights = h_weights;
+    thrust::transform(thrust::cuda::shared,d_XD.begin(),d_XD.end(),d_Yactual.begin(),d_error.begin(),ncdotProductFunctor(D,d_weights.data().get()));
     // thrust::transform(thrust::cuda::shared,d_Ypredict.begin(),d_Ypredict.end(),d_Yactual.begin(),d_error.begin(),thrust::minus<float>());
     // for (size_t i = 0; i < 10; i++)
     // {
@@ -71,7 +75,7 @@ int main(int argc, char **argv)
     }
     for(int i = 0; i<D;i++)
     {
-      weights[i] = weights[i] - learn*h_gradient[i];
+      h_weights[i] = h_weights[i] - learn*h_gradient[i];
     }
     count++;
   }

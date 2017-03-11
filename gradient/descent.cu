@@ -54,7 +54,7 @@ int main(int argc, char **argv)
   int count = 0;
   while(count<niter)
   {
-    float * c_weights = thrust::get_constant_memory_pointer(weights,weights+D,cudaMemoryTypeHost);
+    int c_weights = thrust::get_constant_memory_pointer(weights,weights+D,cudaMemoryTypeHost);
     thrust::transform(d_XD.begin(),d_XD.end(),d_Yactual.begin(),d_error.begin(),dotProductFunctor(D,c_weights));
     // for (size_t i = 0; i < 10; i++)
     // {

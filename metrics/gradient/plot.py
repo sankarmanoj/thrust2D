@@ -7,8 +7,8 @@ data = json.load(open("result.json","r"))
 plt.xlabel("Dimension")
 plt.ylabel("Time in microseconds")
 keys = data.keys()
-names={"descent.o":"Thrust","shared-descent.o":"Thrust++","native.o":"CUDA"}
-for key in keys[0:3]:
+names={"descent.o":"Thrust","shared-descent.o":"Thrust++","native.o":"CUDA","nc-shared-descent.o":"NC"}
+for key in keys:
     dims = []
     dot = []
     grad = []
@@ -18,7 +18,7 @@ for key in keys[0:3]:
         dot.append(val[1][0])
         grad.append(val[1][1])
         total.append(val[1][1]+val[1][0])
-    plt.plot(dims,total,label=names[key])
+    plt.plot(dims,dot,label=names[key])
     # plt.plot(dims,total,label=key[:-2]+" Total")
     # plt.plot(dims,dot,label=key+" Dot")
     # plt.plot(dims,grad,label=key+" Grad")

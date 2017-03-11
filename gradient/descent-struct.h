@@ -12,8 +12,29 @@ class dotProductFunctor
 {
 public:
   int D;
+  int weights;
+  dotProductFunctor(int D,int weights)
+  {
+    this->D = D;
+    this->weights = weights;
+  }
+  __device__ float operator() (floatD &vector,float y)
+  {
+    float temp = 0;
+    for(int i = 0; i<D;i++)
+    {
+      temp+=vector[i]*((float *)thrust::c_memory)[weights+i];
+    }
+    return temp - y;
+  }
+};
+
+class ncdotProductFunctor
+{
+public:
+  int D;
   float * weights;
-  dotProductFunctor(int D,float * weights)
+  ncdotProductFunctor(int D,float * weights)
   {
     this->D = D;
     this->weights = weights;
@@ -28,6 +49,7 @@ public:
     return temp - y;
   }
 };
+
 class squareOp
 {
 public:

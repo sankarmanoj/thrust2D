@@ -26,5 +26,5 @@ all: $(OBJS)
 profile-all: $(PROFILES)
 
 clean:
-	rm *.o
-	rm *.profile
+	rm -f *.o
+	rm -f *.profile
