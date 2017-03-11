@@ -59,9 +59,8 @@ int main(int argc, char **argv)
   int count = 0;
   while(count<niter)
   {
-    int ca_weights = thrust::get_constant_memory_pointer(d_weights.begin(), d_weights.end());
-    // float *ca_weights = d_weights.data().get();
-    thrust::transform(d_XD.begin(),d_XD.end(),d_Yactual.begin(),d_error.begin(),dotProductFunctor(D,ca_weights));
+    float *ca_weights = d_weights.data().get();
+    thrust::transform(d_XD.begin(),d_XD.end(),d_Yactual.begin(),d_error.begin(),dotProductFunctor<float *>(D,ca_weights));
     // thrust::transform(thrust::cuda::shared,d_Ypredict.begin(),d_Ypredict.end(),d_Yactual.begin(),d_error.begin(),thrust::minus<float>());
     // for (size_t i = 0; i < 10; i++)
     // {

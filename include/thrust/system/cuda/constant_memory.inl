@@ -64,5 +64,27 @@ namespace thrust
      }
     c_position+=mem_size;
   }
+  template<class T>
+  constant_vector<T>::constant_vector(thrust::detail::normal_iterator<T *> begin, thrust::detail::normal_iterator<T*> end)
+  {
+    int size = end - begin;
+    int mem_size = sizeof(T)*size;
+    cudaError_t err;
+    if(mem_size+c_position>CSIZE)
+    {
+      c_position = 0;
+    }
+    assert(mem_size+c_position<=CSIZE);
+    // printf("Size - %d MemSize = %d Starting Position = %d ",size,mem_size,c_position);
+    err = cudaMemcpyToSymbol(c_memory, (&(begin[0])).get(),mem_size,c_position,cudaMemcpyHostToDevice);
+    this->offset=c_position/sizeof(T);
+    if ( cudaSuccess != err )
+    {
+       fprintf( stderr, "cudaCheckError() failed at %s:%i : %s\n",
+                __FILE__, __LINE__, cudaGetErrorString( err ) );
+       exit( -1 );
+     }
+    c_position+=mem_size;
+  }
 
 };
