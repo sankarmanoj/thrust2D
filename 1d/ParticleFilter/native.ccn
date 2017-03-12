@@ -1,0 +1,48 @@
+================================================
+  NLOC    CCN   token  PARAM  length  location  
+------------------------------------------------
+       5      1     30      0       4 get_time@33-37@ex_particle_CUDA_float_seq.cu
+       3      1     28      2       2 elapsed_time@40-42@ex_particle_CUDA_float_seq.cu
+       6      2     30      1       5 check_error@49-54@ex_particle_CUDA_float_seq.cu
+      11      2     92      2      18 cuda_print_double_array@56-74@ex_particle_CUDA_float_seq.cu
+       7      2    101      4       6 calcLikelihoodSum@84-90@ex_particle_CUDA_float_seq.cu
+       7      2     60      3       6 cdfCalc@99-105@ex_particle_CUDA_float_seq.cu
+       8      1     63      2       9 d_randu@112-121@ex_particle_CUDA_float_seq.cu
+       5      1     48      2       4 randu@130-134@ex_particle_CUDA_float_seq.cu
+       7      1     62      2       7 randn@144-151@ex_particle_CUDA_float_seq.cu
+       8      1     69      2       8 test_randn@153-161@ex_particle_CUDA_float_seq.cu
+       8      1     69      2       8 d_randn@163-171@ex_particle_CUDA_float_seq.cu
+       9      2     66      3       8 updateWeights@180-188@ex_particle_CUDA_float_seq.cu
+      25     10    149      4      24 findIndexBin@190-214@ex_particle_CUDA_float_seq.cu
+       7      2     34      1       6 dev_round_double@220-226@ex_particle_CUDA_float_seq.cu
+      20      5    146      8      26 find_index_kernel@239-265@ex_particle_CUDA_float_seq.cu
+      23      6    187      6      31 normalize_weights_kernel@267-298@ex_particle_CUDA_float_seq.cu
+      13      3     94      2      13 sum_kernel@300-313@ex_particle_CUDA_float_seq.cu
+      43      9    479     19      67 likelihood_kernel@333-400@ex_particle_CUDA_float_seq.cu
+       7      2     34      1       6 roundDouble@406-412@ex_particle_CUDA_float_seq.cu
+      11      5    124      6      10 setIf@423-433@ex_particle_CUDA_float_seq.cu
+      10      4    131      5       9 addNoise@443-452@ex_particle_CUDA_float_seq.cu
+      11      4    110      2      10 strelDisk@459-469@ex_particle_CUDA_float_seq.cu
+      22      8    186      8      21 dilate_matrix@482-503@ex_particle_CUDA_float_seq.cu
+      12      5    118      6      11 imdilate_disk@514-525@ex_particle_CUDA_float_seq.cu
+      15      4    124      4      14 getneighbors@534-548@ex_particle_CUDA_float_seq.cu
+      30      6    339      5      38 videoSequence@562-600@ex_particle_CUDA_float_seq.cu
+      14      4     72      3      13 findIndex@610-623@ex_particle_CUDA_float_seq.cu
+     119      8   1375      6     163 particleFilter@636-799@ex_particle_CUDA_float_seq.cu
+      57     15    408      2      81 main@801-882@ex_particle_CUDA_float_seq.cu
+--------------------------------------------------------------
+1 file analyzed.
+==============================================================
+NLOC    Avg.NLOC AvgCCN Avg.ttoken  function_cnt    file
+--------------------------------------------------------------
+    536     18    4.0       166        29     ex_particle_CUDA_float_seq.cu
+
+=========================================================================================
+!!!! Warnings (length > 1000 or cyclomatic_complexity > 15 or parameter_count > 100) !!!!
+================================================
+  NLOC    CCN   token  PARAM  length  location  
+------------------------------------------------
+==========================================================================================
+Total nloc  Avg.nloc  Avg CCN  Avg token  Fun Cnt  Warning cnt   Fun Rt   nloc Rt  
+------------------------------------------------------------------------------------------
+       536        18     4.03     166.48       29            0      0.00    0.00
