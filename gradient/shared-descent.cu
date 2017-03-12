@@ -57,26 +57,15 @@ int main(int argc, char **argv)
   int count = 0;
   while(count<niter)
   {
-    int ca_weights = thrust::get_constant_memory_pointer(d_weights.begin(), d_weights.end());
-    // float *ca_weights = d_weights.data().get();
-    thrust::transform(thrust::cuda::shared,d_XD.begin(),d_XD.end(),d_Yactual.begin(),d_error.begin(),dotProductFunctor(D,ca_weights));
-    // thrust::transform(thrust::cuda::shared,d_Ypredict.begin(),d_Ypredict.end(),d_Yactual.begin(),d_error.begin(),thrust::minus<float>());
-    // for (size_t i = 0; i < 10; i++)
-    // {
-    //   printf("%f\n",(float) d_Ypredict[i]);
-    // }
-    // printf("%d Error = %.9f\n",count,(float)thrust::transform_reduce(thrust::cuda::shared,d_error.begin(),d_error.end(),squareOp(),0,thrust::plus<float>())/N);
+    thrust::constant_vector<float> ca_weights(weights,weights+D,cudaMemoryTypeHost);
+    thrust::transform(thrust::cuda::shared,d_XD.begin(),d_XD.end(),d_Yactual.begin(),d_error.begin(),dotProductFunctor<thrust::constant_vector<float>>(D,ca_weights));
     for(int i = 0; i<D;i++)
     {
       h_gradient[i]=thrust::transform_reduce(thrust::cuda::shared,d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),thrust::multiplies<float>())/N;
-      // h_gradient[i]=thrust::reduce(thrust::cuda::shared,d_Ypredict.begin(),d_Ypredict.end())/N;
-      // printf("%f\n",h_gradient[i]);
+
     }
     d_gradient = h_gradient;
-    // for(int i = 0; i<D;i++)
-    // {
-    //   weights[i] = weights[i] - learn*h_gradient[i];
-    // }
+
     thrust::transform(thrust::cuda::shared, d_weights.begin(),d_weights.end(),d_gradient.begin(),d_weights.begin(),update_weights(learn));
     count++;
   }
