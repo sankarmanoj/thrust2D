@@ -20,7 +20,7 @@ namespace thrust
     constant_vector(thrust::detail::normal_iterator<T *>, thrust::detail::normal_iterator<T*> );
     constant_vector(const T* ,const T* ,cudaMemoryType );
     __device__ const T operator[] (unsigned long index);
-    
+    __device__ const T operator[] (unsigned long index) const;
 
   };
 

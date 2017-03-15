@@ -241,7 +241,7 @@ namespace thrust
       {
         for(int j = 0; j<dim; j++)
         {
-          temp += (input_window[make_int2(j,i)]) * c_kernel[i*dim + j];
+          temp += (input_window[make_int2(j,i)]) * (c_kernel[i*this->dim + j]);
         }
       }
       output_window[dim/2][dim/2]=temp;
