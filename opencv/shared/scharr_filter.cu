@@ -40,8 +40,8 @@ int main(int argc, char const *argv[]) {
   uchar_image_block.upload(img);
   convolve1_block.upload(img);
   convolve2_block.upload(img);
-  thrust::convolve(thrust::cuda::texture,&convolve1_block,kernelx);
-  thrust::convolve(thrust::cuda::texture,&convolve2_block,kernely);
+  thrust::convolve(thrust::cuda::texture,&convolve1_block,kernelx,3,&convolve1_block);
+  thrust::convolve(thrust::cuda::texture,&convolve2_block,kernely,3,&convolve2_block);
   thrust::transform(convolve1_block.begin(),convolve1_block.end(),convolve2_block.begin(),outBlock.begin(),transFunctor());
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   outBlock.download(&img);

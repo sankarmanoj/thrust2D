@@ -6,8 +6,8 @@ data = json.load(open("result.json","r"))
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in microseconds")
-names = {"non_shared_convolve.o":"Non Shared","shared_boxfilter.o":"Thrust++","convolve.o":"CUDA"}
-colors = {"Non Shared" :"r","Thrust++":"g","CUDA":"b"}
+names = {"blend.o":"Thrust","sblend.o":"Thrust++","anative.o":"CUDA"}
+colors = {"Thrust":"r","Thrust++":"g","CUDA":"b"}
 keys = data.keys()
 keys.sort()
 for key in keys:

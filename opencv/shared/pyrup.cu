@@ -50,7 +50,7 @@ int main(int argc, char const *argv[])
   thrust::for_each(thrust::cuda::shared,inputVector.begin(),inputVector.end(),ptf);
   cudaDeviceSynchronize();
   float kernel[3] = {0.25,0.5,0.25};
-  thrust::convolve(thrust::cuda::texture,&outBlock,kernel);
+  thrust::convolve(thrust::cuda::shared,&outBlock,kernel,3,&outBlock);
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(outBlock.end()-outBlock.begin()));
   outBlock.download(&img);
   for(int i = 0; i<image.cols*image.rows*4;i++)

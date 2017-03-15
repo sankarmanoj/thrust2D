@@ -11,7 +11,7 @@ all: $(OBJS)
 
 %.o:%.cu
 	$(CC) $(CFLAGS) $(OPENCVFLAGS) $< -o $@
-	nvprof --unified-memory-profiling off --log-file $@.profile ./$@
+	# nvprof --unified-memory-profiling off --log-file $@.profile ./$@
 
 clean:
-	rm *.o
+	rm -f  *.o

@@ -1,20 +1,23 @@
-==16633== NVPROF is profiling process 16633, command: ./blend.o
-==16633== Profiling application: ./blend.o
-==16633== Profiling result:
-No kernels were profiled.
-
-==16633== API calls:
+==4049== NVPROF is profiling process 4049, command: ./blend.o
+==4049== Profiling application: ./blend.o
+==4049== Profiling result:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 32.69%  127.73ms         6  21.289ms  17.855ms  33.050ms  cudaMalloc
- 30.62%  119.64ms         6  19.940ms  18.009ms  25.803ms  cudaMemcpy
- 17.21%  67.230ms         3  22.410ms  21.418ms  23.503ms  cudaMallocPitch
- 14.59%  56.995ms         3  18.998ms  18.381ms  19.649ms  cudaMemcpy2D
-  4.70%  18.375ms         1  18.375ms  18.375ms  18.375ms  cudaLaunch
-  0.10%  389.74us         2  194.87us  163.29us  226.45us  cudaGetDeviceProperties
-  0.05%  192.81us        90  2.1420us     100ns  73.304us  cuDeviceGetAttribute
-  0.04%  136.86us         1  136.86us  136.86us  136.86us  cuDeviceTotalMem
-  0.01%  20.408us         1  20.408us  20.408us  20.408us  cuDeviceGetName
-  0.00%  3.3040us         2  1.6520us     176ns  3.1280us  cuDeviceGetCount
-  0.00%  2.1810us         5     436ns     136ns     860ns  cudaSetupArgument
-  0.00%  1.3450us         1  1.3450us  1.3450us  1.3450us  cudaConfigureCall
-  0.00%     310ns         2     155ns     109ns     201ns  cuDeviceGet
+ 56.99%  66.947us         8  8.3680us     544ns  36.482us  [CUDA memcpy HtoD]
+ 25.09%  29.473us         1  29.473us  29.473us  29.473us  void thrust::binary_transform_kernel<unsigned char, blendFunctor>(thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<thrust::window_iterator>>*, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<thrust::window_iterator>>, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<thrust::window_iterator>>, thrust::warp_launcher_config, blendFunctor)
+ 17.92%  21.057us         1  21.057us  21.057us  21.057us  [CUDA memcpy DtoH]
+
+==4049== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 98.70%  129.46ms         3  43.152ms  3.3250us  129.45ms  cudaMallocPitch
+  0.44%  574.06us         2  287.03us  249.43us  324.64us  cudaGetDeviceProperties
+  0.27%  354.04us         6  59.007us  3.4520us  332.54us  cudaMalloc
+  0.26%  338.26us        90  3.7580us     100ns  133.75us  cuDeviceGetAttribute
+  0.15%  191.63us         3  63.875us  35.519us  115.83us  cudaMemcpy2D
+  0.13%  166.57us         1  166.57us  166.57us  166.57us  cuDeviceTotalMem
+  0.02%  32.768us         6  5.4610us  3.0120us  13.234us  cudaMemcpy
+  0.02%  29.700us         1  29.700us  29.700us  29.700us  cuDeviceGetName
+  0.01%  15.474us         1  15.474us  15.474us  15.474us  cudaLaunch
+  0.00%  1.2890us         2     644ns     149ns  1.1400us  cuDeviceGetCount
+  0.00%  1.1450us         5     229ns     124ns     406ns  cudaSetupArgument
+  0.00%  1.0890us         1  1.0890us  1.0890us  1.0890us  cudaConfigureCall
+  0.00%     298ns         2     149ns      98ns     200ns  cuDeviceGet

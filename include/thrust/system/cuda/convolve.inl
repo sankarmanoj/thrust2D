@@ -18,7 +18,7 @@ namespace thrust
     int imageH,
     int pitch,
     int dim,
-    U *c_kernel
+    constant_vector<U> c_kernel
   )
   {
     __shared__ T s_Data[ROWS_BLOCKDIM_Y][(ROWS_RESULT_STEPS + 2 * ROWS_HALO_STEPS) * ROWS_BLOCKDIM_X];
@@ -80,7 +80,7 @@ namespace thrust
     int imageW,
     int imageH,
     int dim,
-    U *c_kernel
+    constant_vector<U> c_kernel
   )
   {
     assert(ROWS_BLOCKDIM_X * ROWS_HALO_STEPS >= (dim-1)/2);
@@ -119,7 +119,7 @@ namespace thrust
     int imageH,
     int pitch,
     int dim,
-    U *c_kernel
+    constant_vector<U> c_kernel
   )
   {
     __shared__ T s_Data[COLUMNS_BLOCKDIM_X][(COLUMNS_RESULT_STEPS + 2 * COLUMNS_HALO_STEPS) * COLUMNS_BLOCKDIM_Y + 1];
@@ -178,7 +178,7 @@ namespace thrust
     int imageW,
     int imageH,
     int dim,
-    U *c_kernel
+    constant_vector<U> c_kernel
   )
   {
     assert(COLUMNS_BLOCKDIM_Y * COLUMNS_HALO_STEPS >= (dim-1)/2);
@@ -203,21 +203,14 @@ namespace thrust
   template <class T,class U>
   void convolve(cuda::shared_policy,block_2d<T> *input, U *kernel,int dim,block_2d<T> *output)
   {
-    U *c_kernel = get_constant_memory_pointer(kernel, kernel+dim*dim, cudaMemoryTypeHost);
+    constant_vector<U >c_kernel(kernel, kernel+dim*dim, cudaMemoryTypeHost);
     T *d_Output, *d_Buffer;
     const int imageW = input->dim_x;
     const int imageH = input->dim_y;
     cudaMalloc((void **)&d_Output, imageW * imageH * sizeof(T));
     cudaMalloc((void **)&d_Buffer, imageW * imageH * sizeof(T));
-    convolutionRowsGPU<T>(
-        d_Buffer,
-        input,
-        imageW,
-        imageH,
-        dim,
-        c_kernel
-    );
-    convolutionColumnsGPU<T>(
+    convolutionRowsGPU ( d_Buffer , input , imageW , imageH , dim , c_kernel );
+    convolutionColumnsGPU(
         d_Output,
         d_Buffer,
         imageW,
@@ -233,11 +226,11 @@ namespace thrust
   {
   public:
     int dim;
-    U *c_kernel;
-    convolutionFunctor(int dim, U *kernel)
+    thrust::constant_vector<U> c_kernel;
+    convolutionFunctor(int dim, thrust::constant_vector<U> kernel)
     {
       this->dim =dim;
-      c_kernel = get_constant_memory_pointer(kernel, kernel+dim*dim, cudaMemoryTypeHost);
+      this->c_kernel = kernel;
       // cudaMalloc((void **)&c_kernel, dim*dim*sizeof(U));
       // cudaMemcpy(c_kernel, kernel, dim*dim*sizeof(U),cudaMemcpyHostToDevice);
     }
@@ -248,7 +241,7 @@ namespace thrust
       {
         for(int j = 0; j<dim; j++)
         {
-          temp += (input_window[make_int2(j,i)]) * (c_kernel[i*dim + j]);
+          temp += (input_window[make_int2(j,i)]) * c_kernel[i*dim + j];
         }
       }
       output_window[dim/2][dim/2]=temp;
@@ -260,7 +253,8 @@ namespace thrust
   {
     window_vector<T> input_wv(input,dim,dim,1,1);
     window_vector<T> output_wv(output,dim,dim,1,1);
-    convolutionFunctor<T,U> f(dim,kernel);
+    constant_vector<U> c_kernel(kernel, kernel+dim*dim, cudaMemoryTypeHost);
+    convolutionFunctor<T,U> f(dim,c_kernel);
     transform(cuda::texture,input_wv.begin(),input_wv.end(),output_wv.begin(),f);
   }
 }
