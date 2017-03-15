@@ -1,30 +1,30 @@
-==11704== NVPROF is profiling process 11704, command: ./gaussian_blur.o
-==11704== Profiling application: ./gaussian_blur.o
-==11704== Profiling result:
+==13755== NVPROF is profiling process 13755, command: ./gaussian_blur.o
+==13755== Profiling application: ./gaussian_blur.o
+==13755== Profiling result:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 34.19%  43.020us         3  14.340us     544ns  41.260us  [CUDA memcpy HtoD]
- 32.94%  41.452us         1  41.452us  41.452us  41.452us  [CUDA memcpy DtoH]
- 17.40%  21.894us         1  21.894us  21.894us  21.894us  void column_filter::linearColumnFilter<int=5, float, unsigned char, cv::cuda::device::BrdColReflect101<float>>(cv::cuda::PtrStepSz<float>, cv::cuda::PtrStep<unsigned char>, int, float)
- 13.20%  16.613us         1  16.613us  16.613us  16.613us  void row_filter::linearRowFilter<int=5, unsigned char, float, cv::cuda::device::BrdRowReflect101<unsigned char>>(cv::cuda::PtrStepSz<unsigned char>, cv::cuda::PtrStep<float>, int, unsigned char)
-  2.26%  2.8480us         2  1.4240us  1.3440us  1.5040us  [CUDA memcpy DtoD]
+ 57.35%  331.33us         1  331.33us  331.33us  331.33us  [CUDA memcpy DtoH]
+ 35.34%  204.20us         3  68.065us     544ns  202.98us  [CUDA memcpy HtoD]
+  3.90%  22.528us         1  22.528us  22.528us  22.528us  void column_filter::linearColumnFilter<int=5, float, unsigned char, cv::cuda::device::BrdColReflect101<float>>(cv::cuda::PtrStepSz<float>, cv::cuda::PtrStep<unsigned char>, int, float)
+  2.89%  16.704us         1  16.704us  16.704us  16.704us  void row_filter::linearRowFilter<int=5, unsigned char, float, cv::cuda::device::BrdRowReflect101<unsigned char>>(cv::cuda::PtrStepSz<unsigned char>, cv::cuda::PtrStep<float>, int, unsigned char)
+  0.52%  3.0080us         2  1.5040us  1.3440us  1.6640us  [CUDA memcpy DtoD]
 
-==11704== API calls:
+==13755== API calls:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 99.23%  2.22863s         3  742.88ms  10.441us  2.22815s  cudaMallocPitch
-  0.61%  13.624ms        90  151.37us     113ns  5.0232ms  cuDeviceGetAttribute
-  0.06%  1.3626ms         3  454.19us  11.086us  812.85us  cudaMalloc
-  0.03%  690.00us         1  690.00us  690.00us  690.00us  cuDeviceTotalMem
-  0.02%  487.95us         4  121.99us  16.143us  288.12us  cudaMemcpy2D
-  0.02%  461.88us         5  92.376us  8.1730us  184.28us  cudaFree
-  0.01%  270.55us         1  270.55us  270.55us  270.55us  cudaGetDeviceProperties
-  0.01%  230.53us         1  230.53us  230.53us  230.53us  cuDeviceGetName
-  0.01%  129.52us         2  64.758us  34.950us  94.567us  cudaDeviceSynchronize
-  0.00%  43.820us         2  21.910us  13.460us  30.360us  cudaMemcpyToSymbol
-  0.00%  23.295us         2  11.647us  8.3080us  14.987us  cudaLaunch
-  0.00%  2.9770us         3     992ns     425ns  1.3610us  cudaGetDevice
-  0.00%  2.2470us         8     280ns     178ns     720ns  cudaSetupArgument
-  0.00%  1.8300us         2     915ns     406ns  1.4240us  cuDeviceGetCount
-  0.00%  1.7580us         2     879ns     365ns  1.3930us  cudaConfigureCall
-  0.00%     760ns         4     190ns     117ns     262ns  cudaGetDeviceCount
-  0.00%     689ns         2     344ns     282ns     407ns  cudaGetLastError
-  0.00%     450ns         2     225ns     167ns     283ns  cuDeviceGet
+ 99.93%  38.0341s         3  12.6780s  13.571us  38.0336s  cudaMallocPitch
+  0.04%  16.688ms        90  185.42us      95ns  7.5746ms  cuDeviceGetAttribute
+  0.01%  4.4949ms         5  898.99us  76.994us  2.4503ms  cudaFree
+  0.00%  1.5321ms         3  510.69us  12.572us  1.0108ms  cudaMalloc
+  0.00%  1.1393ms         4  284.82us  26.436us  714.57us  cudaMemcpy2D
+  0.00%  826.40us         1  826.40us  826.40us  826.40us  cuDeviceGetName
+  0.00%  566.45us         1  566.45us  566.45us  566.45us  cuDeviceTotalMem
+  0.00%  331.65us         1  331.65us  331.65us  331.65us  cudaGetDeviceProperties
+  0.00%  113.32us         2  56.659us  40.482us  72.836us  cudaMemcpyToSymbol
+  0.00%  53.640us         2  26.820us  20.556us  33.084us  cudaDeviceSynchronize
+  0.00%  43.132us         2  21.566us  18.617us  24.515us  cudaLaunch
+  0.00%  3.7370us         3  1.2450us     418ns  1.8550us  cudaGetDevice
+  0.00%  2.7530us         2  1.3760us  1.1190us  1.6340us  cudaConfigureCall
+  0.00%  2.5720us         8     321ns     179ns     739ns  cudaSetupArgument
+  0.00%  2.0710us         2  1.0350us     265ns  1.8060us  cuDeviceGetCount
+  0.00%  1.0780us         2     539ns     451ns     627ns  cudaGetLastError
+  0.00%     857ns         4     214ns     162ns     319ns  cudaGetDeviceCount
+  0.00%     379ns         2     189ns     108ns     271ns  cuDeviceGet

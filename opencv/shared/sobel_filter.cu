@@ -20,14 +20,14 @@ int main(int argc, char const *argv[]) {
     dim = atoi(argv[1]);
   }
   resize(small,image,Size(dim,dim));
-  float kernelx[3], kernely[3];
+  float kernelx[9], kernely[9];
   //Sobel Filter
   kernelx[0]=-1;
   kernelx[1]=0;
   kernelx[2]=+1;
-  kernely[0]=+1;
-  kernely[1]=+2;
-  kernely[2]=+1;
+  kernely[0]=+(1/4);
+  kernely[1]=+(2/4);
+  kernely[2]=+(1/4);
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
   thrust::block_2d<uchar> convolve1_block (image.cols,image.rows);
   thrust::block_2d<uchar> convolve2_block (image.cols,image.rows);

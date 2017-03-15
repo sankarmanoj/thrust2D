@@ -22,12 +22,12 @@ int main(int argc, char const *argv[]) {
   resize(small,image,Size(dim,dim));
   float kernelx[3], kernely[3];
   //Scharr Filter
-  kernelx[0]=-3;
+  kernelx[0]=-1;
   kernelx[1]=0;
-  kernelx[2]=+3;
-  kernely[0]=+3;
-  kernely[1]=+10;
-  kernely[2]=+3;
+  kernelx[2]=+1;
+  kernely[0]=+(3/16);
+  kernely[1]=+(10/16);
+  kernely[2]=+(3/16);
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
   thrust::block_2d<uchar> convolve1_block (image.cols,image.rows);
   thrust::block_2d<uchar> convolve2_block (image.cols,image.rows);

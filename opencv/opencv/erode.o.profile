@@ -1,30 +1,30 @@
-==11714== NVPROF is profiling process 11714, command: ./erode.o
-==11714== Profiling application: ./erode.o
-==11714== Profiling result:
+==13704== NVPROF is profiling process 13704, command: ./erode.o
+==13704== Profiling application: ./erode.o
+==13704== Profiling result:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 30.34%  24.998us         2  12.499us  2.5600us  22.438us  [CUDA memcpy HtoD]
- 25.41%  20.934us         1  20.934us  20.934us  20.934us  [CUDA memcpy DtoH]
- 24.36%  20.070us         1  20.070us  20.070us  20.070us  void ForEachTupleByteQuad<unsigned char, int=1, TupleByteQuadFunctor<unsigned char, int=1, ErodeReplicateBorderQuadNewFunctor<unsigned char, int=1>>>(Tuple8<unsigned char, int=1>*, int, NppiSize, unsigned char)
- 19.89%  16.389us         1  16.389us  16.389us  16.389us  void cv::cudev::grid_copy_detail::copy<cv::cudev::RemapPtr1<cv::cudev::BrdBase<cv::cudev::BrdReflect101, cv::cudev::GlobPtr<unsigned char>>, _GLOBAL__N__62_tmpxft_00003911_00000000_9_copy_make_border_compute_61_cpp1_ii_71482d89::ShiftMap>, unsigned char, cv::cudev::WithOutMask>(cv::cudev::BrdReflect101, cv::cudev::GlobPtr<unsigned char>, cv::cudev::GlobPtr<unsigned char>, int, int)
+ 45.19%  52.481us         2  26.240us  1.3120us  51.169us  [CUDA memcpy HtoD]
+ 21.16%  24.577us         1  24.577us  24.577us  24.577us  [CUDA memcpy DtoH]
+ 16.97%  19.712us         1  19.712us  19.712us  19.712us  void ForEachTupleByteQuad<unsigned char, int=1, TupleByteQuadFunctor<unsigned char, int=1, ErodeReplicateBorderQuadNewFunctor<unsigned char, int=1>>>(Tuple8<unsigned char, int=1>*, int, NppiSize, unsigned char)
+ 16.67%  19.360us         1  19.360us  19.360us  19.360us  void cv::cudev::grid_copy_detail::copy<cv::cudev::RemapPtr1<cv::cudev::BrdBase<cv::cudev::BrdReflect101, cv::cudev::GlobPtr<unsigned char>>, _GLOBAL__N__63_tmpxft_00002814_00000000_11_copy_make_border_compute_35_cpp1_ii_71482d89::ShiftMap>, unsigned char, cv::cudev::WithOutMask>(cv::cudev::BrdReflect101, cv::cudev::GlobPtr<unsigned char>, cv::cudev::GlobPtr<unsigned char>, int, int)
 
-==11714== API calls:
+==13704== API calls:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 75.89%  2.47264s         3  824.21ms  8.9530us  2.47219s  cudaMallocPitch
- 23.76%  774.06ms         2  387.03ms  29.093us  774.03ms  cudaLaunch
-  0.24%  7.9143ms       264  29.978us     102ns  3.3861ms  cuDeviceGetAttribute
-  0.04%  1.2422ms         2  621.12us  529.19us  713.04us  cudaMalloc
-  0.03%  883.07us         3  294.36us  187.90us  505.29us  cuDeviceTotalMem
-  0.02%  540.32us         2  270.16us  236.36us  303.96us  cudaGetDeviceProperties
-  0.01%  382.30us         3  127.43us  25.001us  325.73us  cuDeviceGetName
-  0.01%  331.10us         4  82.775us  6.9370us  144.48us  cudaFree
-  0.01%  185.44us         3  61.812us  17.041us  115.92us  cudaMemcpy2D
-  0.00%  66.760us         2  33.380us  18.454us  48.306us  cudaDeviceSynchronize
-  0.00%  10.350us         2  5.1750us  1.5390us  8.8110us  cudaConfigureCall
-  0.00%  6.5390us         3  2.1790us     466ns  4.7150us  cudaGetDevice
-  0.00%  4.0020us         9     444ns     184ns  1.7660us  cudaSetupArgument
-  0.00%  2.2340us         4     558ns     209ns  1.4010us  cuDeviceGetCount
-  0.00%  1.2420us         2     621ns     454ns     788ns  cudaGetLastError
-  0.00%     980ns         2     490ns     361ns     619ns  cuInit
-  0.00%     839ns         4     209ns     118ns     310ns  cuDeviceGet
-  0.00%     733ns         2     366ns     272ns     461ns  cuDriverGetVersion
-  0.00%     703ns         4     175ns     143ns     231ns  cudaGetDeviceCount
+ 97.71%  38.5525s         3  12.8508s  6.5230us  38.5514s  cudaMallocPitch
+  2.17%  854.44ms         2  427.22ms  31.087us  854.41ms  cudaLaunch
+  0.06%  23.531ms       264  89.130us      96ns  9.1617ms  cuDeviceGetAttribute
+  0.02%  8.6759ms         2  4.3380ms  4.1784ms  4.4976ms  cudaMalloc
+  0.02%  7.9315ms         2  3.9657ms  1.4291ms  6.5024ms  cudaGetDeviceProperties
+  0.01%  5.1749ms         4  1.2937ms  28.753us  4.4880ms  cudaFree
+  0.00%  1.3208ms         3  440.28us  262.84us  685.49us  cuDeviceTotalMem
+  0.00%  791.75us         3  263.92us  73.357us  592.42us  cuDeviceGetName
+  0.00%  357.66us         3  119.22us  46.943us  191.95us  cudaMemcpy2D
+  0.00%  58.437us         2  29.218us  11.793us  46.644us  cudaDeviceSynchronize
+  0.00%  16.165us         2  8.0820us  1.7870us  14.378us  cudaConfigureCall
+  0.00%  6.8650us         3  2.2880us     427ns  4.7010us  cudaGetDevice
+  0.00%  4.7320us         9     525ns     111ns  2.8440us  cudaSetupArgument
+  0.00%  2.5700us         4     642ns     240ns  1.2920us  cuDeviceGetCount
+  0.00%  1.1890us         2     594ns     460ns     729ns  cudaGetLastError
+  0.00%  1.0330us         2     516ns     494ns     539ns  cuInit
+  0.00%  1.0100us         4     252ns     141ns     399ns  cuDeviceGet
+  0.00%     767ns         4     191ns      85ns     290ns  cudaGetDeviceCount
+  0.00%     701ns         2     350ns     301ns     400ns  cuDriverGetVersion
