@@ -1,10 +1,12 @@
 #include <thrust/sequence.h>
+#include <thrust/device_vector.h>
 #include <thrust/execution_policy.h>
 #include <iostream>
 #include <thrust/block_2d.h>
+#include <thrust/shared_2d_reduce.h>
 using namespace thrust;
-#define X 6
-#define Y 6
+#define X 1
+#define Y 100
 class printFunctor
 {
 public:
@@ -25,6 +27,15 @@ __device__  __host__ int operator() (int  &a)
     return 2*a;
   }
 };
+
+class sum
+{
+public:
+  __device__ int operator() (int &a, int &b)
+  {
+    return a + b;
+  }
+};
 int main()
 {
   block_2d<int> a(X,Y,99);
@@ -33,7 +44,7 @@ int main()
   sequence(a.begin(),a.end());
 
   // transform(a.begin(),a.end(),b.begin(),printFunctor2());
-  for_each(a.begin(),a.end(),printFunctor());
+  // for_each(a.begin(),a.end(),printFunctor());
   // host_block_2d<int> b(5,5);
   // sequence(b.begin(),b.end());
   // for_each(thrust::host,b.begin(),b.end(),printFunctor2());
@@ -44,16 +55,23 @@ int main()
   //   printf("%f\n",a[i/5][i%5]);
   // }
   cudaDeviceSynchronize();
-  int *b = (int *) malloc(X*Y);
-  cudaMemcpy2D(b,X*sizeof(int),a.data_pointer,a.pitch,X,Y,cudaMemcpyDeviceToHost);
-  for (int i=0; i<Y;i++)
-  {
-    for (int j=0;j<X;j++)
-    {
-      std::cout<<b[i*X+j]<< " ";
-    }
-    std::cout<<"\n";
-  }
+
+  device_vector<int> output(X);
+  col_reduce(cuda::shared, a.begin(),a.end(), output.begin(),plus<int>());
+  cudaDeviceSynchronize();
+  printf("Output Now\n");
+  for_each(output.begin(),output.end(),printFunctor());
+  cudaDeviceSynchronize();
+  // int *b = (int *) malloc(X*Y);
+  // cudaMemcpy2D(b,X*sizeof(int),a.data_pointer,a.pitch,X,Y,cudaMemcpyDeviceToHost);
+  // for (int i=0; i<Y;i++)
+  // {
+  //   for (int j=0;j<X;j++)
+  //   {
+  //     std::cout<<b[i*X+j]<< " ";
+  //   }
+  //   std::cout<<"\n";
+  // }
 
   // thrust::window_vector<int> wv = window_vector<int>(&(b),3,3,1,1);
   // printf("Start\n");
