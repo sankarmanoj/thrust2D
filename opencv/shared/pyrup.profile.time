@@ -1,0 +1,30 @@
+==10501== NVPROF is profiling process 10501, command: ./pyrup.o 10 0.01
+==10501== Profiling application: ./pyrup.o 10 0.01
+==10501== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 35.99%  100.28us         1  100.28us  100.28us  100.28us  void thrust::for_each_kernel<unsigned char, pyrupTransformFunctor>(thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<thrust::window_iterator>>*, thrust::warp_launcher_config, pyrupTransformFunctor)
+ 29.52%  82.231us         1  82.231us  82.231us  82.231us  [CUDA memcpy DtoH]
+ 11.51%  32.060us         1  32.060us  32.060us  32.060us  void thrust::convolutionColumnsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)
+ 10.57%  29.438us         7  4.2050us     576ns  25.854us  [CUDA memcpy HtoD]
+  9.79%  27.261us         1  27.261us  27.261us  27.261us  void thrust::convolutionRowsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)
+  2.45%  6.8160us         1  6.8160us  6.8160us  6.8160us  [CUDA memcpy DtoD]
+  0.18%     512ns         1     512ns     512ns     512ns  [CUDA memset]
+
+==10501== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 98.67%  149.00ms         3  49.666ms  4.1800us  148.68ms  cudaMallocPitch
+  0.43%  651.02us         7  93.003us  3.8310us  314.27us  cudaMalloc
+  0.34%  519.21us         3  173.07us  13.037us  471.36us  cudaMemcpy2D
+  0.15%  232.11us        90  2.5780us     102ns  89.864us  cuDeviceGetAttribute
+  0.14%  216.61us         1  216.61us  216.61us  216.61us  cudaGetDeviceProperties
+  0.10%  152.25us         1  152.25us  152.25us  152.25us  cuDeviceTotalMem
+  0.07%  101.13us         1  101.13us  101.13us  101.13us  cudaDeviceSynchronize
+  0.03%  52.746us         5  10.549us  3.0900us  24.378us  cudaMemcpy
+  0.02%  33.750us         3  11.250us  6.9070us  14.897us  cudaLaunch
+  0.01%  20.919us         1  20.919us  20.919us  20.919us  cuDeviceGetName
+  0.01%  17.738us         1  17.738us  17.738us  17.738us  cudaMemset2D
+  0.00%  6.0670us         1  6.0670us  6.0670us  6.0670us  cudaMemcpyToSymbol
+  0.00%  2.5270us        17     148ns     107ns     367ns  cudaSetupArgument
+  0.00%  1.4580us         3     486ns     237ns     798ns  cudaConfigureCall
+  0.00%  1.4570us         2     728ns     221ns  1.2360us  cuDeviceGetCount
+  0.00%     311ns         2     155ns     114ns     197ns  cuDeviceGet

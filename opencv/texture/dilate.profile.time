@@ -1,0 +1,25 @@
+==8198== NVPROF is profiling process 8198, command: ./dilate.o 10 0.01
+==8198== Profiling application: ./dilate.o 10 0.01
+==8198== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 35.09%  29.235us         7  4.1760us     544ns  25.749us  [CUDA memcpy HtoD]
+ 34.86%  29.044us         1  29.044us  29.044us  29.044us  void thrust::transform_texture_kernel<unsigned char, dilateFunctor>(unsigned __int64, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<thrust::window_iterator>>*, thrust::warp_launcher_config, dilateFunctor)
+ 30.06%  25.046us         1  25.046us  25.046us  25.046us  [CUDA memcpy DtoH]
+
+==8198== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 98.85%  155.08ms         3  51.693ms  4.4210us  155.07ms  cudaMallocPitch
+  0.34%  535.99us         2  267.99us  266.28us  269.70us  cudaGetDeviceProperties
+  0.28%  444.92us         6  74.154us  4.6610us  418.55us  cudaMalloc
+  0.22%  341.27us        90  3.7910us     147ns  131.03us  cuDeviceGetAttribute
+  0.12%  188.64us         1  188.64us  188.64us  188.64us  cuDeviceTotalMem
+  0.11%  173.23us         2  86.615us  37.764us  135.47us  cudaMemcpy2D
+  0.04%  58.333us         6  9.7220us  4.3190us  25.344us  cudaMemcpy
+  0.02%  30.257us         1  30.257us  30.257us  30.257us  cuDeviceGetName
+  0.01%  17.041us         1  17.041us  17.041us  17.041us  cudaLaunch
+  0.01%  13.057us         1  13.057us  13.057us  13.057us  cudaCreateTextureObject
+  0.00%  1.9010us         2     950ns     534ns  1.3670us  cuDeviceGetCount
+  0.00%  1.3080us         4     327ns     209ns     533ns  cudaSetupArgument
+  0.00%  1.2100us         1  1.2100us  1.2100us  1.2100us  cudaConfigureCall
+  0.00%     669ns         2     334ns     258ns     411ns  cuDeviceGet
+  0.00%     173ns         1     173ns     173ns     173ns  cudaCreateChannelDesc
