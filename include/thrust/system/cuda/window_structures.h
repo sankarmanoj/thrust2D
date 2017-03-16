@@ -6,6 +6,21 @@ namespace thrust
   {
       return (a % b != 0) ? (a / b + 1) : (a / b);
   }
+
+  unsigned int previous_power_of_two(unsigned int x )
+  {
+    if (x == 0) {
+        return 0;
+    }
+    x--; //Uncomment this, if you want a strictly less than 'x' result.
+    x |= (x >> 1);
+    x |= (x >> 2);
+    x |= (x >> 4);
+    x |= (x >> 8);
+    x |= (x >> 16);
+    return x - (x >> 1);
+  }
+
   namespace cuda
   {
     struct shared_policy : device_execution_policy<shared_policy> {};
@@ -15,17 +30,6 @@ namespace thrust
     struct texture_policy : device_execution_policy<texture_policy> {};
     texture_policy texture;
   }
-  struct launcher_config
-  {
-    int shared_block_dim_y , shared_block_dim_x ;
-    int rows_per_block_by_windows ;
-    int operations_per_block , operations_per_thread;
-    int shared_memory_size;
-    int blocks; // Total blocks
-    int blocks_per_row;
-    int total_operations;
-
-  };
   struct warp_launcher_config
   {
     int size_along_x, size_along_y;

@@ -4,20 +4,6 @@
 #include "window_structures.h"
 namespace thrust
 {
-  unsigned int previous_power_of_two(unsigned int x )
-  {
-    if (x == 0) {
-        return 0;
-    }
-    x--; //Uncomment this, if you want a strictly less than 'x' result.
-    x |= (x >> 1);
-    x |= (x >> 2);
-    x |= (x >> 4);
-    x |= (x >> 8);
-    x |= (x >> 16);
-    return x - (x >> 1);
-  }
-
   template <class Iterator1,class Iterator2, class Func>
   void transform(cuda::shared_policy,Iterator1 begin1, Iterator1 end1,Iterator2 begin2, Func f);
 

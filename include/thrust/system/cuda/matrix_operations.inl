@@ -29,7 +29,7 @@ namespace thrust
     dim3 dimGrid (a->dim_y/MATRIX_TILE_WIDTH, a->dim_x/MATRIX_TILE_WIDTH, 1);
     dim3 dimBlock(MATRIX_TILE_WIDTH, MATRIX_TILE_WIDTH, 1);
     MatrixTranspose<<<dimGrid,dimBlock>>>(a->device_pointer,temp.device_pointer);
-    cudaMemcpy(temp1,thrust::raw_pointer_cast(temp.data()),sizeof(T)*a->dim_y*a->dim_x,cudaMemcpyDeviceToHost);
+    // cudaMemcpy(temp1,thrust::raw_pointer_cast(temp.data()),sizeof(T)*a->dim_y*a->dim_x,cudaMemcpyDeviceToHost);
     // a->assign(temp1, temp1 + (a->dim_y*a->dim_x));
     (*a) = temp;
   }
