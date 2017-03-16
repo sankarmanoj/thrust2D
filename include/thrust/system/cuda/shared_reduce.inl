@@ -29,13 +29,14 @@ namespace thrust
     unsigned int tid=threadIdx.x;
     unsigned int i=blockIdx.x*block_size*2 + tid;
     unsigned int grid_size = block_size*2*gridDim.x;
-    sdata[tid]=0;
+    sdata[tid] = 0;
+    T my_sum = 0;
     while (i<n)
     {
 
-      sdata[tid] += g_idata[i];
+      sdata[tid] = my_sum = my_sum + g_idata[i];
       if(i+block_size<n)
-        sdata[tid] += g_idata[i+block_size];
+        sdata[tid] = my_sum = my_sum + g_idata[i+block_size];
       // printf("%d+=(%d+%d)\n", sdata[tid], g_idata[i],g_idata[i+block_size]);
       i+=grid_size;
     }
@@ -45,7 +46,7 @@ namespace thrust
     {
       if (tid < 512)
       {
-        sdata[tid] += sdata[tid + 512];
+        sdata[tid] = my_sum = my_sum + sdata[tid + 512];
       }
       __syncthreads();
     }
@@ -53,7 +54,7 @@ namespace thrust
     {
       if (tid < 256)
       {
-        sdata[tid] += sdata[tid + 256];
+        sdata[tid] = my_sum = my_sum + sdata[tid + 256];
       }
       __syncthreads();
     }
@@ -61,7 +62,7 @@ namespace thrust
     {
       if (tid < 128)
       {
-        sdata[tid] += sdata[tid + 128];
+        sdata[tid] = my_sum = my_sum + sdata[tid + 128];
       }
       __syncthreads();
     }
@@ -69,29 +70,29 @@ namespace thrust
     {
       if (tid < 64)
       {
-        sdata[tid] += sdata[tid + 64];
+        sdata[tid] = my_sum = my_sum + sdata[tid + 64];
       }
       __syncthreads();
     }
     if (tid<32)
     {
       if (block_size >= 64)
-        sdata[tid] += sdata[tid + 32];
+        sdata[tid] = my_sum = my_sum + sdata[tid + 32];
       if (block_size >= 32)
-        sdata[tid] += sdata[tid + 16];
+        my_sum += __shfl_down(my_sum,16);
       if (block_size >= 16)
-        sdata[tid] += sdata[tid + 8];
+        my_sum += __shfl_down(my_sum,8);
       if (block_size >= 8)
-        sdata[tid] += sdata[tid + 4];
+        my_sum += __shfl_down(my_sum,4);
       if (block_size >= 4)
-        sdata[tid] += sdata[tid + 2];
+        my_sum += __shfl_down(my_sum,2);
       if (block_size >= 2)
-        sdata[tid] += sdata[tid + 1];
+        my_sum += __shfl_down(my_sum,1);
     }
     __syncthreads();
     if(tid == 0)
     {
-      g_odata[blockIdx.x] = sdata[0];
+      g_odata[blockIdx.x] = my_sum;
     }
   }
   template <class Iterator>
