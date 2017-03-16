@@ -145,7 +145,7 @@ namespace thrust
   }
 
   template <class T>
-  __global__ void conv_shared_Kernel(const T * __restrict__ A, const T * __restrict__ B, T *C, const int N, const int P)
+  __global__ void conv_shared_Kernel(const T * __restrict__ A, constant_vector<T> B, T *C, const int N, const int P)
   {
     extern __shared__ char byte_sA[];//[nTPB+FSIZE];
     // extern __shared__ T sB[];//[FSIZE];
@@ -184,6 +184,6 @@ namespace thrust
     if(properties.maxThreadsPerBlock==0)
       cudaGetDeviceProperties(&properties,0);
 
-    conv_shared_Kernel<<<(N+256-1)/256,256,(256 + 2*P)*sizeof(T)>>>(a.data().get(),get_constant_memory_pointer(b.begin(),b.end()), c->data().get(), N, P);
+    conv_shared_Kernel<<<(N+256-1)/256,256,(256 + 2*P)*sizeof(T)>>>(a.data().get(),constant_vector<T>(b.begin(),b.end()), c->data().get(), N, P);
   }
 }

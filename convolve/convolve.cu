@@ -120,19 +120,31 @@ int main(int argc, char *argv[])
 //begin timing for device function
   unsigned long long gpu_time = dtime_usec(0);
 //copy host input data to device
+cudaEvent_t start, stop;
+cudaEventCreate(&start);
+cudaEventCreate(&stop);
+cudaEventRecord(start);
+for(int i = 0; i<100; i++ )
+  {
   CUDA_CALL(cudaMemcpy(d_A, A, my_N*sizeof(mytype), cudaMemcpyHostToDevice));
   CUDA_CALL(cudaMemcpy(d_B, B, my_P*sizeof(mytype), cudaMemcpyHostToDevice));
 //run convolution kernel on GPU
   conv_shared_Kernel<<<(my_N+nTPB-1)/nTPB,nTPB,(nTPB + 2*FSIZE)*sizeof(mytype)>>>(d_A, d_B, d_C, my_N, my_P);
-  CUDA_CHECK();
+  // CUDA_CHECK();
 //copy results from device to host
   CUDA_CALL(cudaMemcpy(h_C, d_C, my_N*sizeof(mytype), cudaMemcpyDeviceToHost));
+  }
+  cudaEventRecord(stop);
+  cudaEventSynchronize(stop);
+  float time_in_ms;
+  cudaEventElapsedTime(&time_in_ms,start,stop);
+  printf("Native Convolve = %f\n",time_in_ms);
   gpu_time = dtime_usec(gpu_time);
 //check validity of results
   for (int i = 0; i < my_N; i++) if (C[i] != h_C[i]) {printf("FAIL at %d, cpu: %f, gpu %f\n", i, C[i], h_C[i]); return 1;}
 //print timing and speed comparison
-  printf("PASS.  cpu time: %ldus, gpu time: %ldus\n", cpu_time, gpu_time);
-  printf("Speedup: cpu/gpu = %f\n", cpu_time/(float)gpu_time);
+  // printf("PASS.  cpu time: %ldus, gpu time: %ldus\n", cpu_time, gpu_time);
+  // printf("Speedup: cpu/gpu = %f\n", cpu_time/(float)gpu_time);
 //all host and device allocated data will be implicitly freed at program termination
   return 0;
 }

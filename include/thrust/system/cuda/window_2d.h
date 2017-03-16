@@ -65,6 +65,7 @@ namespace thrust
     int windows_along_x, windows_along_y;
     int pitch;
     T * data_pointer;
+    window_iterator *device_pointer;
     __host__ window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y);
     __host__ window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y,int position);
     __host__ __device__ reference operator* () const;

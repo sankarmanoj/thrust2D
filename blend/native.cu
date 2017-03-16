@@ -9,8 +9,12 @@ int iDivUp(int a, int b)
 __global__ void blendKernel(uchar * input1,uchar * input2, uchar * output,float alpha, int size)
 {
   int index = threadIdx.x + blockIdx.x*blockDim.x;
-  if(index>=size)    return;
+  int stride = blockDim.x*gridDim.x;
+  while(index<size)
+  {
   output[index] = input1[index]*alpha + input2[index]*(1-alpha);
+  index+=stride;
+  }
 }
 
 int main(int argc, char const *argv[]) {
@@ -34,11 +38,23 @@ int main(int argc, char const *argv[]) {
   cudaMalloc((void **)&d_input1,sizeof(uchar)*dim*dim);
   cudaMalloc((void **)&d_input2,sizeof(uchar)*dim*dim);
   cudaMalloc((void **)&d_output,sizeof(uchar)*dim*dim);
+  uchar * h_output = new uchar[dim*dim];
+  cudaEvent_t start, stop;
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+  cudaEventRecord(start);
+  for(int i = 0; i<10;i++)
+  {
   cudaMemcpy(d_input1,input1.ptr(),sizeof(uchar)*dim*dim,cudaMemcpyHostToDevice);
   cudaMemcpy(d_input2,input2.ptr(),sizeof(uchar)*dim*dim,cudaMemcpyHostToDevice);
-  blendKernel<<<iDivUp(dim*dim,1024),1024>>>(d_input1,d_input2,d_output,0.3,dim*dim);
-  uchar * h_output = new uchar[dim*dim];
+  blendKernel<<<30,1024>>>(d_input1,d_input2,d_output,0.3,dim*dim);
   cudaMemcpy(h_output,d_output,sizeof(uchar)*dim*dim,cudaMemcpyDeviceToHost);
+  }
+  cudaEventRecord(stop);
+  cudaEventSynchronize(stop);
+  float time_in_ms;
+  cudaEventElapsedTime(&time_in_ms,start,stop);
+  printf("Native Blend = %f\n",time_in_ms);
   Mat output (Size(input1.cols,input1.rows),CV_8UC1,h_output);
   #ifdef OWRITE
   imwrite("blend-input1.png",input1);
@@ -46,9 +62,13 @@ int main(int argc, char const *argv[]) {
   imwrite("blend-output.png",output);
   #endif
   #ifdef SHOW
-  imshow("blend-input1.png",input1);
-  imshow("blend-input2.png",input2);
-  imshow("blend-output.png",output);
+  Mat out;
+  resize(input1,temp1,Size(512,512));
+  imshow("blend-input1.png",temp1);
+  resize(input2,temp2,Size(512,512));
+  imshow("blend-input2.png",temp2);
+  resize(output,out,Size(512,512));
+  imshow("blend-output.png",out);
   waitKey(0);
   #endif
   return 0;

@@ -8,7 +8,7 @@ OBJS=$(SRCS:.cu=.o)
 PROFILES=$(OBJS:.o=.profile)
 all: $(OBJS)
 
-%.o:%.cu
+%.o:%.cu Makefile
 
 	$(CC) $(CFLAGS) `pkg-config --static --libs opencv`   $< -o $@
 

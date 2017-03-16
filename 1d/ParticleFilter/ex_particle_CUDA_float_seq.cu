@@ -718,6 +718,7 @@ void particleFilter(unsigned char * I, int IszX, int IszY, int Nfr, int * seed, 
     int indX, indY;
     //start send
     long long send_start = get_time();
+
     check_error(cudaMemcpy(I_GPU, I, sizeof (unsigned char) *IszX * IszY*Nfr, cudaMemcpyHostToDevice));
     check_error(cudaMemcpy(objxy_GPU, objxy, sizeof (int) *2 * countOnes, cudaMemcpyHostToDevice));
     check_error(cudaMemcpy(weights_GPU, weights, sizeof (double) *Nparticles, cudaMemcpyHostToDevice));
@@ -727,7 +728,10 @@ void particleFilter(unsigned char * I, int IszX, int IszY, int Nfr, int * seed, 
     long long send_end = get_time();
     // printf("TIME TO SEND TO GPU: %f\n", elapsed_time(send_start, send_end));
     int num_blocks = ceil((double) Nparticles / (double) threads_per_block);
-
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start);
     for (k = 1; k < Nfr; k++) {
 
         likelihood_kernel << < num_blocks, threads_per_block >> > (arrayX_GPU, arrayY_GPU, xj_GPU, yj_GPU, CDF_GPU, ind_GPU, objxy_GPU, likelihood_GPU, I_GPU, u_GPU, weights_GPU, Nparticles, countOnes, max_size, k, IszY, Nfr, seed_GPU, partial_sums);
@@ -740,6 +744,11 @@ void particleFilter(unsigned char * I, int IszX, int IszY, int Nfr, int * seed, 
 
     }//end loop
 
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    float time_in_ms;
+    cudaEventElapsedTime(&time_in_ms,start,stop);
+    printf("Native PF = %f\n",time_in_ms);
     //block till kernels are finished
     cudaThreadSynchronize();
     long long back_time = get_time();

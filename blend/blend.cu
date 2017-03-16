@@ -33,12 +33,30 @@ int main(int argc, char const *argv[]) {
   resize(input2,temp2,Size(dim,dim));
   input2 = temp2;
 
+  thrust::host_vector<uchar>host_input_vector1(input1.ptr(),input1.ptr()+input1.cols*input1.rows);
+  thrust::host_vector<uchar>host_input_vector2(input2.ptr(),input2.ptr()+input2.cols*input2.rows);
+
   thrust::device_vector<uchar>input_vector1(input1.ptr(),input1.ptr()+input1.cols*input1.rows);
   thrust::device_vector<uchar>input_vector2(input2.ptr(),input2.ptr()+input2.cols*input2.rows);
   thrust::device_vector<uchar>output_vector(input1.cols*input1.rows);
-  thrust::transform(input_vector1.begin(),input_vector1.end(),input_vector2.begin(),output_vector.begin(),blendFunctor(0.3));
   thrust::host_vector<uchar>host_output_vector(input1.cols*input1.rows);
-  host_output_vector = output_vector;
+
+  cudaEvent_t start, stop;
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+  cudaEventRecord(start);
+  for(int i = 0; i<10;i++)
+  {
+    input_vector1 = host_input_vector1;
+    input_vector2 = host_input_vector2;
+    thrust::transform(input_vector1.begin(),input_vector1.end(),input_vector2.begin(),output_vector.begin(),blendFunctor(0.3));
+    host_output_vector = output_vector;
+  }
+  cudaEventRecord(stop);
+  cudaEventSynchronize(stop);
+  float time_in_ms;
+  cudaEventElapsedTime(&time_in_ms,start,stop);
+  printf("Non Shared Blend = %f\n",time_in_ms);
   Mat output (Size(input1.cols,input1.rows),CV_8UC1,host_output_vector.data());
   #ifdef OWRITE
   imwrite("blend-input1.png",input1);

@@ -30,12 +30,23 @@ int main(int argc, char const *argv[])
   for (int i=0; i < FSIZE; i++)
     hb[i] = 1;
 
-  b=hb;
-  a=ha;
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start);
+    for(int i = 0; i<100;i++)
+    {
+      b=hb;
+      a=ha;
 
-  thrust::convolve(a,b,&c);
-  hc=c;
-
+      thrust::convolve(a,b,&c);
+      hc=c;
+    }
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    float time_in_ms;
+    cudaEventElapsedTime(&time_in_ms,start,stop);
+    printf("Non Shared Convolve = %f\n",time_in_ms);
   conv(ha.data(),hb.data(),C.data(),DSIZE,FSIZE);
 
   for (int i = 0; i < DSIZE; i++) if (C[i] != hc[i]) {printf("FAIL at %d, cpu: %f, gpu %f\n", i, C[i], hc[i]); return 1;}

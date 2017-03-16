@@ -672,33 +672,42 @@ void particleFilter(unsigned char *I, int IszX, int IszY, int Nfr, int *seed, in
 
     int k;
     double sumWeights;  //to hold the result of the reduce operation
-
+    randn_transformYOYOYOYO func_1(1.0, 5.0, seed_GPU.begin());
+    randn_transformYOYOYOYO func_2(-2.0, 2.0, seed_GPU.begin());
+    ind_calcYOYOYOYO func_3(arrayX_GPU.begin(), arrayY_GPU.begin(), objxy_GPU.begin(), ind_GPU.begin(), countOnes, max_size, IszY, Nfr, k);
+    calc_likelihood_sumYOYOYOYO func_4(I_GPU.begin(), ind_GPU.begin(), countOnes);
+    normalize_weightsYOYOYOYO func_5(countOnes);
+    exp_transformYOYOYOYO func_6;
+    normalize_weightsYOYOYOYO func_7(sumWeights);
+    update_coordsYOYOYOYO func_10(arrayX_GPU.begin());
+    update_uYOYOYOYO func_8(Nparticles, u_GPU[0], seed_GPU[0]);
+    get_indexYOYOYOYO func_9(CDF_GPU.begin(), Nparticles);
+    update_coordsYOYOYOYO func_11(arrayY_GPU.begin());
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start);
     for(k = 1; k < Nfr; k++)
     {
 
-	    // Code for likelihood_kernel starts
+
+      // Code for likelihood_kernel starts
 	    thrust::fill (weights_GPU.begin(), weights_GPU.end(), 1 / ((double) (Nparticles)));
 
-	    randn_transformYOYOYOYO func_1(1.0, 5.0, seed_GPU.begin());
 	    thrust::transform(xj_GPU.begin(), xj_GPU.end(), it_begin, arrayX_GPU.begin(), func_1);
 
-	    randn_transformYOYOYOYO func_2(-2.0, 2.0, seed_GPU.begin());
 	    thrust::transform(yj_GPU.begin(), yj_GPU.end(), it_begin, arrayY_GPU.begin(), func_2);
 
 	    // Difficult to port code
 
-	    ind_calcYOYOYOYO func_3(arrayX_GPU.begin(), arrayY_GPU.begin(), objxy_GPU.begin(), ind_GPU.begin(), countOnes, max_size, IszY, Nfr, k);
 	    thrust::for_each(it_begin, it_end, func_3);
 
 	    // End of difficult bit
 
-	    calc_likelihood_sumYOYOYOYO func_4(I_GPU.begin(), ind_GPU.begin(), countOnes);
 	    thrust::transform(likelihood_GPU.begin(), likelihood_GPU.end(), it_begin, likelihood_GPU.begin(), func_4);
 
-        normalize_weightsYOYOYOYO func_5(countOnes);
 	    thrust::for_each(likelihood_GPU.begin(), likelihood_GPU.end(), func_5);
 
-        exp_transformYOYOYOYO func_6;
 	    thrust::transform(likelihood_GPU.begin(), likelihood_GPU.end(), weights_GPU.begin(), weights_GPU.begin(), func_6);
 	    // Code for likelihood_kernel ends
 
@@ -708,30 +717,29 @@ void particleFilter(unsigned char *I, int IszX, int IszY, int Nfr, int *seed, in
 	    // Code for sum_kernel ends
 
 	    // Code for normalize_weightsYOYOYOYO_kernel starts
-	    normalize_weightsYOYOYOYO func_7(sumWeights);
 
 	    thrust::for_each(weights_GPU.begin(), weights_GPU.end(), func_7);
 
 	    thrust::inclusive_scan (weights_GPU.begin(), weights_GPU.end(), CDF_GPU.begin());
 
-	    update_uYOYOYOYO func_8(Nparticles, u_GPU[0], seed_GPU[0]);
 	    thrust::sequence(u_GPU.begin(), u_GPU.end());
 	    thrust::for_each(u_GPU.begin(), u_GPU.end(), func_8);
 	    // Code for normalize_weightsYOYOYOYO_kernel ends
 
 		// Code for find_index_kernel starts
-        get_indexYOYOYOYO func_9(CDF_GPU.begin(), Nparticles);
         thrust::transform(u_GPU.begin(), u_GPU.end(), u_GPU.begin(), indices.begin(), func_9);
 
-        update_coordsYOYOYOYO func_10(arrayX_GPU.begin());
         thrust::transform(xj_GPU.begin(), xj_GPU.end(), indices.begin(), xj_GPU.begin(), func_10);
 
-        update_coordsYOYOYOYO func_11(arrayY_GPU.begin());
         thrust::transform(yj_GPU.begin(), yj_GPU.end(), indices.begin(), yj_GPU.begin(), func_11);
 
 	    // Code for find_index_kernel ends
 	}
-
+  cudaEventRecord(stop);
+  cudaEventSynchronize(stop);
+  float time_in_ms;
+  cudaEventElapsedTime(&time_in_ms,start,stop);
+  printf("thrust PF = %f\n",time_in_ms);
 	long long back_time = get_time();
 	long long free_time = get_time();
 

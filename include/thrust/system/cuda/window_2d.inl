@@ -140,6 +140,10 @@ namespace thrust
     this->position =0;
     this->windows_along_x= int((this->block_dim_x-window_dim_x)/stride_x) +1;
     this->windows_along_y = int((this->block_dim_y-window_dim_y)/stride_y)+1;
+    window_iterator<T,Alloc> *temp;
+    cudaMalloc((void **)&temp,sizeof(window_iterator));
+    cudaMemcpy(temp,this,sizeof(window_iterator),cudaMemcpyHostToDevice);
+    this->device_pointer = temp;
   }
 
   template <class T,class Alloc>
@@ -157,6 +161,10 @@ namespace thrust
     this->position =position;
     this->windows_along_x= int((this->block_dim_x-window_dim_x)/stride_x) +1;
     this->windows_along_y = int((this->block_dim_y-window_dim_y)/stride_y)+1;
+    window_iterator<T,Alloc> *temp;
+    cudaMalloc((void **)&temp,sizeof(window_iterator));
+    cudaMemcpy(temp,this,sizeof(window_iterator),cudaMemcpyHostToDevice);
+    this->device_pointer = temp;
   }
 
   template <class T,class Alloc>
@@ -221,6 +229,7 @@ namespace thrust
     this->position = other.position;
     this->windows_along_x = other.windows_along_x;
     this->windows_along_y = other.windows_along_y;
+    this->device_pointer = other.device_pointer;
   }
 
   template <class T,class Alloc>
@@ -238,6 +247,7 @@ namespace thrust
     this->position = it.position;
     this->windows_along_x = it.windows_along_x;
     this->windows_along_y = it.windows_along_y;
+    this->device_pointer = it.device_pointer;
     return this;
   }
 

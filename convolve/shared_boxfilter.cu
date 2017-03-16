@@ -29,12 +29,23 @@ int main(int argc, char const *argv[])
     ha[i] = rand()%RG;
   for (int i=0; i < FSIZE; i++)
     hb[i] = 1;
+  cudaEvent_t start, stop;
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+  cudaEventRecord(start);
+  for(int i = 0; i<100;i++)
+  {
+    b=hb;
+    a=ha;
 
-  b=hb;
-  a=ha;
-
-  thrust::convolve(thrust::cuda::shared,a,b,&c);
-  hc=c;
+    thrust::convolve(thrust::cuda::shared,a,b,&c);
+    hc=c;
+  }
+  cudaEventRecord(stop);
+  cudaEventSynchronize(stop);
+  float time_in_ms;
+  cudaEventElapsedTime(&time_in_ms,start,stop);
+  printf("Shared Convolve = %f\n",time_in_ms);
 
   conv(ha.data(),hb.data(),C.data(),DSIZE,FSIZE);
 
