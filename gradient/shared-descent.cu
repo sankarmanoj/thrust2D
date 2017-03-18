@@ -54,11 +54,13 @@ int main(int argc, char **argv)
   }
   thrust::device_vector<floatD> d_XD;
   d_XD = h_XD;
-  int count = 0;
-  while(count<niter)
+  float threshold_error = 1.0f;
+  float error;
+  do
   {
-    thrust::constant_vector<float> ca_weights(weights,weights+D,cudaMemoryTypeHost);
+    thrust::constant_vector<float> ca_weights(d_weights.begin(),d_weights.end());
     thrust::transform(thrust::cuda::shared,d_XD.begin(),d_XD.end(),d_Yactual.begin(),d_error.begin(),dotProductFunctor<thrust::constant_vector<float>>(D,ca_weights));
+    error = (thrust::transform_reduce(thrust::cuda::shared,d_error.begin(),d_error.end(),squareOp()))/N;
     for(int i = 0; i<D;i++)
     {
       h_gradient[i]=thrust::transform_reduce(thrust::cuda::shared,d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),thrust::multiplies<float>())/N;
@@ -67,8 +69,8 @@ int main(int argc, char **argv)
     d_gradient = h_gradient;
 
     thrust::transform(thrust::cuda::shared, d_weights.begin(),d_weights.end(),d_gradient.begin(),d_weights.begin(),update_weights(learn));
-    count++;
   }
+  while(error > threshold_error);
   h_error = d_error;
   // for(int i = 0; i<100;i++)
   // {

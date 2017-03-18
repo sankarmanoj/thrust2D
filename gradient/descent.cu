@@ -2,6 +2,7 @@
 #include <thrust/constant_memory.h>
 #include <thrust/for_each.h>
 #include <thrust/transform.h>
+#include <thrust/transform_reduce.h>
 #include <thrust/reduce.h>
 #include "descent-struct.h"
 #include <fstream>
@@ -39,6 +40,7 @@ int main(int argc, char **argv)
     values>>weights[i];
   }
   // printf("Done Reading Data\n");
+  float threshold_error = 1;
   thrust::device_vector<float> d_Xvalues(xvalues,xvalues+D*N);
   thrust::device_vector<float> d_Yactual(y_actual,y_actual+N);
   thrust::device_vector<float> d_Ypredict(N);
@@ -56,31 +58,24 @@ int main(int argc, char **argv)
   }
   thrust::device_vector<floatD> d_XD;
   d_XD = h_XD;
-  int count = 0;
-  while(count<niter)
+  float error;
+  do
   {
     float *ca_weights = d_weights.data().get();
     thrust::transform(d_XD.begin(),d_XD.end(),d_Yactual.begin(),d_error.begin(),dotProductFunctor<float *>(D,ca_weights));
-    // thrust::transform(thrust::cuda::shared,d_Ypredict.begin(),d_Ypredict.end(),d_Yactual.begin(),d_error.begin(),thrust::minus<float>());
-    // for (size_t i = 0; i < 10; i++)
-    // {
-    //   printf("%f\n",(float) d_Ypredict[i]);
-    // }
-    // printf("%d Error = %.9f\n",count,(float)thrust::transform_reduce(thrust::cuda::shared,d_error.begin(),d_error.end(),squareOp(),0,thrust::plus<float>())/N);
+    error = thrust::transform_reduce(d_error.begin(),d_error.end(),squareOp(),0,thrust::plus<float>())/N;
+    printf("Error = %f\n",error);
     for(int i = 0; i<D;i++)
     {
       thrust::transform(d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),d_Ypredict.begin(),thrust::multiplies<float>());
       h_gradient[i]=thrust::reduce(d_Ypredict.begin(),d_Ypredict.end())/N;
-      // printf("%f\n",h_gradient[i]);
     }
     d_gradient = h_gradient;
-    // for(int i = 0; i<D;i++)
-    // {
-    //   weights[i] = weights[i] - learn*h_gradient[i];
-    // }
     thrust::transform(d_weights.begin(),d_weights.end(),d_gradient.begin(),d_weights.begin(),update_weights(learn));
-    count++;
   }
+  while(error>threshold_error);
+
+
   h_error = d_error;
   // printf("Compute Time = %f\n",time_in_ms);
   // sdiff = sqrt(sdiff/D);
