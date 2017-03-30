@@ -25,16 +25,17 @@ int main()
   cudaEventCreate (&start);
   cudaEventCreate (&stop);
   cudaEventRecord(start);
-  device_vector<long int> a(1024*1024*100);
-  // device_vector<int> b(63);
+  device_vector<long int> a(1024*1024);
+  device_vector<int> b(63);
   //
   sequence(a.begin(),a.end());
-  // for (int i =0;i<1;i++)
-  // {
-    printf("Shared = %ld \n",reduce(cuda::shared,a.begin(),a.end()));
-    // cudaDeviceSynchronize();
-    // printf("Thrust = %ld \n",reduce(a.begin(),a.end()));
-  // }
+  inclusive_scan(a.begin(),a.end(),b.begin());
+  // // for (int i =0;i<1;i++)
+  // // {
+  //   printf("Shared = %ld \n",reduce(cuda::shared,a.begin(),a.end()));
+  //   // cudaDeviceSynchronize();
+  //   // printf("Thrust = %ld \n",reduce(a.begin(),a.end()));
+  // // }
   cudaEventRecord(stop);
   cudaEventSynchronize(stop);
   float milliseconds = 0;
