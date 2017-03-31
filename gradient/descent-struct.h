@@ -19,7 +19,7 @@ public:
     this->D = D;
     this->weights = weights;
   }
-  __device__ float operator() (floatD &vector,float y)
+  __host__ __device__ float operator() (floatD &vector,float y)
   {
     float temp = 0;
     for(int i = 0; i<D;i++)
@@ -49,7 +49,7 @@ public:
   {
     this->learn=learn;
   }
-  __device__ float operator() (float &w, float &g)
+  __host__ __device__ float operator() (float &w, float &g)
   {
     return w - learn*g;
   }

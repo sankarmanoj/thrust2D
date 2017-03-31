@@ -20,7 +20,7 @@ all: $(OBJS)
 profile-all: $(PROFILES)
 
 
-openmp: ex_particle_OPENMP_seq.c
+openmp: ex_particle_OPENMP_seq.c thrust_omp_particle_filter.cpp
 	gcc -O3 -ffast-math -fopenmp ex_particle_OPENMP_seq.c -o omp_particle_filter.o -lm
 	g++ -O3 -ffast-math -fopenmp thrust_omp_particle_filter.cpp -o thrust_omp_particle_filter.o -lm
 

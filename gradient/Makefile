@@ -25,6 +25,12 @@ all: $(OBJS)
 .PHONY: profile-all
 profile-all: $(PROFILES)
 
+openmp: omp_descent.cpp
+	g++ -O3 -ffast-math -fopenmp omp_descent.cpp -o omp_descent.o -lm
+
+run_openmp:
+	time ./omp_descent.o 10 0.01
+
 clean:
 	rm -f *.o
 	rm -f *.profile
