@@ -13,8 +13,9 @@ all: $(OBJS)
 	$(CC) $(CFLAGS) `pkg-config --static --libs opencv`   $< -o $@
 
 %.profile:%.o
-		nvprof  --log-file $@.time ./$^
-		nvprof -m branch_efficiency -m gld_transactions_per_request -m gst_transactions_per_request -m shared_efficiency --log-file $@ ./$^
+		# nvprof  --log-file $@.time ./$^
+		# nvprof -m branch_efficiency -m gld_transactions_per_request -m gst_transactions_per_request -m shared_efficiency --log-file $@ ./$^
+		nvprof --unified-memory-profiling off -m dram_read_throughput -m dram_write_throughput --log-file $@ ./$^
 
 .PHONY: profile-all
 profile-all: $(PROFILES)
