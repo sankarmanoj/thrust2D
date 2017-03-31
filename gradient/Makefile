@@ -31,6 +31,12 @@ openmp: omp_descent.cpp
 run_openmp:
 	time ./omp_descent.o 10 0.01
 
+cpp: cpp_descent.cpp
+	g++ -O3 -ffast-math cpp_descent.cpp -o cpp_descent.o -lm
+
+run_cpp:
+	time ./cpp_descent.o 10 0.01
+
 clean:
 	rm -f *.o
 	rm -f *.profile

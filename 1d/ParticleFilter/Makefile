@@ -28,6 +28,14 @@ run_openmp:
 	time ./omp_particle_filter.o -x 128	-y 128 -z 1000 -np 100
 	time ./thrust_omp_particle_filter.o -x 128 -y 128 -z 1000 -np 100
 
+cpp: ex_particle_CPP_seq.c thrust_cpp_particle_filter.cpp
+	gcc -O3 -ffast-math ex_particle_CPP_seq.c -o cpp_particle_filter.o -lm
+	g++ -O3 -ffast-math thrust_cpp_particle_filter.cpp -o thrust_cpp_particle_filter.o -lm
+
+run_cpp:
+	time ./cpp_particle_filter.o -x 128	-y 128 -z 1000 -np 100
+	time ./thrust_cpp_particle_filter.o -x 128 -y 128 -z 1000 -np 100
+
 icc_openmp: ex_particle_OPENMP_seq.c
 	icc -O3 -fast -openmp ex_particle_OPENMP_seq.c -o omp_particle_filter.o
 
