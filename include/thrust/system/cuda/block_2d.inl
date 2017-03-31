@@ -105,13 +105,21 @@ namespace thrust
   template <class T,class Alloc>
   __host__ void block_2d<T,Alloc>::upload (T* data)
   {
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
     cudaMemcpy2D(data_pointer,pitch,data,dim_x*sizeof(T),dim_x*sizeof(T),dim_y,cudaMemcpyHostToDevice);
+    #else
+    memcpy(this->data_pointer,data,this->dim_x*sizeof(T)*this->dim_y);
+    #endif
   }
   template <class T,class Alloc>
   __host__ void block_2d<T,Alloc>::download (T** data)
   {
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
     *data = (T*) std::malloc(sizeof(T)*dim_x*dim_y);
     cudaMemcpy2D(*data,dim_x*sizeof(T),data_pointer,pitch,dim_x*sizeof(T),dim_y,cudaMemcpyDeviceToHost);
+    #else
+    *data = this->data_pointer;
+    #endif
   }
   template <class T,class Alloc>
   __host__ void host_block_2d<T,Alloc>::upload (T* data)
