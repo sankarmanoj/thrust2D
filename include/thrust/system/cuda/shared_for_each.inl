@@ -22,8 +22,8 @@ namespace thrust
     if(properties.maxThreadsPerBlock==0)
       cudaGetDeviceProperties(&properties,0);
 
-    int min_grid_size,block_size,grid_size;
-    cudaOccupancyMaxPotentialBlockSize(&min_grid_size,&block_size,for_each_kernel<Iterator,Func>,sizeof(T)*properties.maxThreadsPerBlock);
+      int block_size = properties.maxThreadsPerBlock,grid_size;
+      // cudaOccupancyMaxPotentialBlockSize(&min_grid_size,&block_size,unary_transform_kernel<Iterator1,Iterator2,Func>,sizeof(T1)*properties.maxThreadsPerBlock);
     grid_size = (number_of_elements + block_size - 1) / block_size;
     for_each_kernel<<<grid_size,block_size,sizeof(T)*properties.maxThreadsPerBlock>>>(number_of_elements,begin1,f);
   }
@@ -50,8 +50,8 @@ namespace thrust
     if(properties.maxThreadsPerBlock==0)
       cudaGetDeviceProperties(&properties,0);
 
-    int min_grid_size,block_size,grid_size;
-    cudaOccupancyMaxPotentialBlockSize(&min_grid_size,&block_size,unary_transform_kernel<Iterator1,Iterator2,Func>,sizeof(T1)*properties.maxThreadsPerBlock);
+    int block_size = properties.maxThreadsPerBlock,grid_size;
+    // cudaOccupancyMaxPotentialBlockSize(&min_grid_size,&block_size,unary_transform_kernel<Iterator1,Iterator2,Func>,sizeof(T1)*properties.maxThreadsPerBlock);
     grid_size = (number_of_elements + block_size - 1) / block_size;
     unary_transform_kernel<<<grid_size,block_size,sizeof(T1)*properties.maxThreadsPerBlock>>>(number_of_elements,begin1,begin2,f);
   }
@@ -81,8 +81,8 @@ namespace thrust
     if(properties.maxThreadsPerBlock==0)
       cudaGetDeviceProperties(&properties,0);
 
-    int min_grid_size,block_size,grid_size;
-    cudaOccupancyMaxPotentialBlockSize(&min_grid_size,&block_size,binary_transform_kernel<Iterator1,Iterator2,Iterator3,Func>,(sizeof(T1)+ sizeof(T2))*properties.maxThreadsPerBlock);
+      int block_size = properties.maxThreadsPerBlock,grid_size;
+      // cudaOccupancyMaxPotentialBlockSize(&min_grid_size,&block_size,unary_transform_kernel<Iterator1,Iterator2,Func>,sizeof(T1)*properties.maxThreadsPerBlock);
     grid_size = (number_of_elements + block_size - 1) / block_size;
     binary_transform_kernel<<<grid_size,block_size,(sizeof(T1)+ sizeof(T2))*properties.maxThreadsPerBlock>>>(number_of_elements,begin1,begin2,begin3,f);
   }
@@ -111,8 +111,8 @@ namespace thrust
     static cudaDeviceProp properties;
     if(properties.maxThreadsPerBlock==0)
       cudaGetDeviceProperties(&properties,0);
-    int min_grid_size,block_size,grid_size;
-    cudaOccupancyMaxPotentialBlockSize(&min_grid_size,&block_size,binary_transform_kernel<Iterator1,Iterator2,Iterator3,Func>,(sizeof(T1))*properties.maxThreadsPerBlock);
+      int block_size = properties.maxThreadsPerBlock,grid_size;
+      // cudaOccupancyMaxPotentialBlockSize(&min_grid_size,&block_size,unary_transform_kernel<Iterator1,Iterator2,Func>,sizeof(T1)*properties.maxThreadsPerBlock);
     grid_size = (number_of_elements + block_size - 1) / block_size;
     first_transform_kernel<<<grid_size,block_size,(sizeof(T1))*properties.maxThreadsPerBlock>>>(number_of_elements,begin1,begin2,begin3,f);
   }
