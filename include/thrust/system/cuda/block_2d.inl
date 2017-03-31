@@ -47,7 +47,8 @@ namespace thrust
   {
     this->dim_x = dim_x;
     this->dim_y = dim_y;
-    if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
+    // if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
     {
       cudaMallocPitch((void **)&data_pointer,&pitch,dim_x*sizeof(T),dim_y);
       block_2d<T,Alloc> * temp;
@@ -55,12 +56,14 @@ namespace thrust
       cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
       this->device_pointer = temp;
     }
-    else
+    // else
+    #else
     {
       data_pointer = (T*) std::malloc(dim_x*dim_y*sizeof(T));
       this->device_pointer = this;
       pitch=dim_x*sizeof(T);
     }
+    #endif
   }
 
   template <class T,class Alloc>
@@ -68,7 +71,8 @@ namespace thrust
   {
     this->dim_x = dim_x;
     this->dim_y = dim_y;
-    if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
+    // if (typeid(Alloc) == typeid(device_malloc_allocator<T>))
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
     {
       cudaMallocPitch((void **)&data_pointer,&pitch,dim_x*sizeof(T),dim_y);
       cudaMemset2D((void **)data_pointer,pitch,value,dim_x*sizeof(T),dim_y);
@@ -77,13 +81,15 @@ namespace thrust
       cudaMemcpy(temp,this,sizeof(block_2d),cudaMemcpyHostToDevice);
       this->device_pointer = temp;
     }
-    else
+    // else
+    #else
     {
       data_pointer = (T*) std::malloc(dim_x*dim_y*sizeof(T));
       std::memset(data_pointer,value,dim_x*dim_y*sizeof(T));
       this->device_pointer = this;
       pitch=dim_x*sizeof(T);
     }
+    #endif
   }
 
   template <class T,class Alloc>

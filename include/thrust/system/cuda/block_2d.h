@@ -5,7 +5,7 @@
 #include <thrust/device_ptr.h>
 #include <thrust/host_vector.h>
 #include <typeinfo>
-
+#include "memory.h"
 namespace thrust
 {
 	template <class T,class Alloc=device_malloc_allocator<T> > class block_2d;
