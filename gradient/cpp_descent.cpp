@@ -10,7 +10,7 @@
 int main(int argc, char **argv)
 {
   std::ifstream values;
-  values.open("/dev/shm/values.txt");
+  values.open("./values.txt");
   int D,N;
   int niter = atoi(argv[1]);
   float learn = atof(argv[2]);

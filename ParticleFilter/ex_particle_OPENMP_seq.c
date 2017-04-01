@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <sys/time.h>
+#include <time.h>
+#include <string.h>
 #include <omp.h>
 #include <limits.h>
 #define PI 3.1415926535897932
