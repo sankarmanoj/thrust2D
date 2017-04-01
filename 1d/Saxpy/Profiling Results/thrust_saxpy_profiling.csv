@@ -1,5 +1,0 @@
-Name,Start Time(ns),Duration(ns),GridX,GridY,GridZ,BlockX,BlockY,BlockZ,Registers/Thread,Static Shared Memory,Dynamic Shared Memory,Size(bytes),Throughput(bytes/sec),Shared Memory Efficiency(%),Global Memory Store Efficiency(%),Global Memory Load Efficiency(%),Achieved Occupancy,Warp Execution Efficiency(%),Warp Non-Predicated Execution Efficiency(%)
-"Memcpy HtoD [async]",644016228,24634162,,,,,,,,,,61943452,2514534571,,,,,,
-"Memcpy HtoD [async]",669287767,24591602,,,,,,,,,,61943452,2518886406,,,,,,
-"void thrust::hybrid::transform_kernel<thrust::hybrid::shared_iterator<float>, float, my_functor>(float, thrust::hybrid::transform_kernel<thrust::hybrid::shared_iterator<float>, float, my_functor>, thrust::hybrid::transform_kernel<thrust::hybrid::shared_iterator<float>, float, my_functor>, int, float, thrust::hybrid::shared_iterator<float>)",693886121,1349377,26,1,1,1024,1,1,15,8192,0,,,50,100,100,0.991,100,99.973
-"Memcpy DtoH [async]",695239818,3200,,,,,,,,,,4,1250000,,,,,,
