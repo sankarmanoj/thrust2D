@@ -5,7 +5,7 @@ data = json.load(open("result.json","r"))
 
 
 plt.xlabel("Dimension")
-plt.ylabel("Time in microseconds")
+plt.ylabel("Time in Seconds")
 keys = data.keys()
 print keys
 names={"omp_descent.o":"Thrust","omp-native.o":"Native"}

@@ -38,7 +38,9 @@ run_openmp:
 	time ./omp_descent.o 10 0.01
 
 cpp: cpp_descent.cpp
-	icpc -O3 -ffast-math cpp_descent.cpp -o cpp_descent.o -lm
+	icpc -O3  cpp_descent.cpp -o cpp_descent.o -lm
+ncpp: cpp-native.cpp
+	icpc -O3  cpp-native.cpp -o cpp-native.o -lm
 cpp_mic: cpp_descent.cpp
 	icpc -O3 -mmic -std=c++11 cpp_descent.cpp -o cpp_descent.o -lm
 
