@@ -5,6 +5,7 @@
 #include <thrust/device_ptr.h>
 #include <thrust/host_vector.h>
 #include <typeinfo>
+#include <vector_functions.h>
 #include "memory.h"
 namespace thrust
 {
