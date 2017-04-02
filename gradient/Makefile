@@ -19,7 +19,7 @@ all: $(OBJS)
 %.o:%.cu Makefile
 	$(CC) $(CFLAGS)  $< -o $@
 %.o:%.cpp Makefile
-	$(CPPC) -debug $< -qopenmp -o $@
+	$(CPPC) $< -qopenmp -o $@
 
 %.profile:%.o
 		nvprof --unified-memory-profiling off -m dram_read_throughput -m dram_write_throughput --log-file $@ ./$^ 1 0.01

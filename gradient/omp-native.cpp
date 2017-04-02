@@ -44,13 +44,25 @@ int main(int argc, char **argv)
 {
   omp_set_num_threads(8);
   std::ifstream values;
-  values.open("/dev/shm/values.txt");
-  int D,N;
-  int niter = atoi(argv[1]);
-  float learn = atof(argv[2]);
+  values.open("./values.txt");
+  int D,N,niter;
+  float learn;
+  if(argc==3)
+  {
+    niter = atoi(argv[1]);
+    learn = atof(argv[2]);
+    omp_set_num_threads(8);
+    // printf("%s %s ",argv[1],argv[2]);
+  }
+  if(argc==4)
+  {
+    niter = atoi(argv[1]);
+    learn = atof(argv[2]);
+    // printf("%s %s %s",argv[1],argv[2],argv[3]);
+    omp_set_num_threads(atoi(argv[3]));
+  }
   float *xvalues,*y_actual,*real_weights,*weights;
   values>>D>>N;
-  printf("N = %d D = %d learn = %f ",N,D,learn);
   xvalues = new float [D*N];
   for(int i = 0 ; i<N;i++)
   {
@@ -77,9 +89,9 @@ int main(int argc, char **argv)
 
   float * error = new float[N];
   float * gradient = new float[D];
-  printf("Done Reading Data\n");
-
   int count = 0;
+  double start, end;
+  start = omp_get_wtime();
   while(count<niter)
   {
     getdotError(N,D,xvalues,weights,y_actual,error);
@@ -87,13 +99,9 @@ int main(int argc, char **argv)
     update_weights(D,weights,gradient,learn);
     count++;
   }
-  printf("\n\nError = ");
-  for(int i = 1; i<10;i++)
-  {
-    printf("%f ",error[i]);
-    if(i%10==0)
-      printf("\n");
-  }
+  end = omp_get_wtime();
+  printf("%f",end-start);
+
     printf("\n");  printf("\n");
 
 
