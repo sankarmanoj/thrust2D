@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     values>>weights[i];
   }
   // printf("Done Reading Data\n");
-  float threshold_error = 1;
+  float threshold_error = N;
   thrust::host_vector<float> d_Xvalues(xvalues,xvalues+D*N);
   thrust::host_vector<float> d_Yactual(y_actual,y_actual+N);
   thrust::host_vector<float> d_Ypredict(N);
@@ -54,27 +54,25 @@ int main(int argc, char **argv)
     d_XD[i].data = d_Xvalues.data() + i;
     d_XD[i].N=N;
   }
+  double start, end;
+  int count = 0;
   float error;
+  start = omp_get_wtime();
   do
   {
     float *ca_weights = d_weights.data();
     thrust::transform(thrust::omp::par,d_XD.begin(),d_XD.end(),d_Yactual.begin(),d_error.begin(),dotProductFunctor<float *>(D,ca_weights));
-    error = thrust::transform_reduce(thrust::omp::par,d_error.begin(),d_error.end(),squareOp(),0,thrust::plus<float>())/N;
-    printf("Error = %f\n",error);
+    error = thrust::transform_reduce(thrust::omp::par,d_error.begin(),d_error.end(),squareOp(),0,thrust::plus<float>());
     for(int i = 0; i<D;i++)
     {
       thrust::transform(thrust::omp::par,d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),d_Ypredict.begin(),thrust::multiplies<float>());
       h_gradient[i]=thrust::reduce(thrust::omp::par,d_Ypredict.begin(),d_Ypredict.end())/N;
     }
     thrust::transform(thrust::omp::par,d_weights.begin(),d_weights.end(),h_gradient.begin(),d_weights.begin(),update_weights(learn));
+    count++;
   }
   while(error>threshold_error);
-  // printf("Compute Time = %f\n",time_in_ms);
-  // sdiff = sqrt(sdiff/D);
-  // printf("Final Error = %f\n",sdiff);
-  // delete xvalues;
-  // delete real_weights;
-  // delete y_actual;
-  // delete weights;
+  end = omp_get_wtime();
+  printf("%f\n",(end-start)/count);
   return 0;
 }

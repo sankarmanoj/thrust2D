@@ -39,10 +39,21 @@ void update_weights(int D, float * weights, float * gradient, float learn)
     weights[index] = weights[index] - learn * gradient[index];
   }
 }
+float getError(float * error, int N)
+{
+  float total_error = 0;
+  //#pragma omp parallel for reduction(+:total_error)
+  for (size_t i = 0; i < N; i++)
+  {
+      total_error+=(error[i]*error[i]);
+  }
+  return total_error;
+}
 
 int main(int argc, char **argv)
 {
-  omp_set_num_threads(8);
+  omp_set_num_threads( omp_get_max_threads() );
+  printf("%d",omp_get_max_threads());
   std::ifstream values;
   values.open("./values.txt");
   int D,N,niter;
@@ -51,7 +62,7 @@ int main(int argc, char **argv)
   {
     niter = atoi(argv[1]);
     learn = atof(argv[2]);
-    omp_set_num_threads(8);
+    // omp_set_num_threads(8);
     // printf("%s %s ",argv[1],argv[2]);
   }
   if(argc==4)
@@ -59,7 +70,7 @@ int main(int argc, char **argv)
     niter = atoi(argv[1]);
     learn = atof(argv[2]);
     // printf("%s %s %s",argv[1],argv[2],argv[3]);
-    omp_set_num_threads(atoi(argv[3]));
+    // omp_set_num_threads(atoi(argv[3]));
   }
   float *xvalues,*y_actual,*real_weights,*weights;
   values>>D>>N;
@@ -90,19 +101,23 @@ int main(int argc, char **argv)
   float * error = new float[N];
   float * gradient = new float[D];
   int count = 0;
+  float threshold_error = N;
   double start, end;
+  float error_val;
   start = omp_get_wtime();
-  while(count<niter)
+  do
   {
     getdotError(N,D,xvalues,weights,y_actual,error);
+    error_val = getError(error,N);
     getGradient(N,D,xvalues,error,gradient);
     update_weights(D,weights,gradient,learn);
     count++;
   }
-  end = omp_get_wtime();
-  printf("%f",end-start);
 
-    printf("\n");  printf("\n");
+  while(error_val>threshold_error);
+  end = omp_get_wtime();
+  printf("%f\n",(end-start)/count);
+
 
 
 }
