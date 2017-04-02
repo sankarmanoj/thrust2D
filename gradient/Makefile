@@ -27,16 +27,19 @@ all: $(OBJS)
 .PHONY: profile-all
 profile-all: $(PROFILES)
 
-openmp: omp_descent.cpp
-	g++ -O3 -ffast-math -fopenmp omp_descent.cpp -o omp_descent.o -lm
-omp_mic: omp_descent.cpp
-	icpc -O3 -mmic -std=c++11 -qopenmp omp_descent.cpp -o omp_descent.o -lm
-
+openmp: omp_descent.cpp Makefile
+	icpc -O3 -I$(IDIR)  -qopenmp omp_descent.cpp -o omp_descent.o -lm
+nopenmp : omp-native.cpp Makefile
+	icpc -O3 -qopenmp omp-native.cpp -o omp-native.o -lm
+omp_mic: omp_descent.cpp Makefile
+	icpc -O3 -mmic -std=c++11 -qopenmp -qopenmp-link static omp_descent.cpp -o omp_descent.o -lm
 run_openmp:
 	time ./omp_descent.o 10 0.01
 
 cpp: cpp_descent.cpp
-	g++ -O3 -ffast-math cpp_descent.cpp -o cpp_descent.o -lm
+	icpc -O3  -qopenmp cpp_descent.cpp -o cpp_descent.o -lm
+ncpp: cpp-native.cpp
+	icpc -O3  -qopenmp cpp-native.cpp -o cpp-native.o -lm   #OpenMP is included for omp_get_wtime()
 cpp_mic: cpp_descent.cpp
 	icpc -O3 -mmic -std=c++11 cpp_descent.cpp -o cpp_descent.o -lm
 

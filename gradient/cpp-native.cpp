@@ -4,11 +4,9 @@
 #include <fstream>
 void getdotError(int N, int D, float * xvalues, float * weights, float * yvalues,float * error)
 {
-  #pragma omp parallel for
   for (size_t i = 0; i < N; i++)
   {
     float pred_value = 0;
-    #pragma omp parallel for reduction(+:pred_value)
     for(size_t j = 0; j<D;j++)
     {
       pred_value += xvalues[i*D + j]*(weights[j]);
@@ -19,11 +17,9 @@ void getdotError(int N, int D, float * xvalues, float * weights, float * yvalues
 
 void getGradient(int N,int D,float * xvalues,float * error,float * gradient)
 {
-  #pragma omp parallel for
   for (size_t i = 0; i < D; i++)
   {
     float gradient_value = 0;
-    #pragma omp parallel for reduction(+:gradient_value)
     for(size_t j = 0; j<N;j++)
     {
       gradient_value += xvalues[j*D + i]*error[j];
@@ -33,7 +29,6 @@ void getGradient(int N,int D,float * xvalues,float * error,float * gradient)
 }
 void update_weights(int D, float * weights, float * gradient, float learn)
 {
-  #pragma omp parallel for
   for(size_t index = 0; index< D;index++)
   {
     weights[index] = weights[index] - learn * gradient[index];
@@ -42,7 +37,6 @@ void update_weights(int D, float * weights, float * gradient, float learn)
 float getError(float * error, int N)
 {
   float total_error = 0;
-  //#pragma omp parallel for reduction(+:total_error)
   for (size_t i = 0; i < N; i++)
   {
       total_error+=(error[i]*error[i]);
@@ -52,7 +46,6 @@ float getError(float * error, int N)
 
 int main(int argc, char **argv)
 {
-  omp_set_num_threads( omp_get_max_threads() );
   std::ifstream values;
   values.open("./values.txt");
   int D,N,niter;

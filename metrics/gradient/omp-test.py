@@ -15,15 +15,13 @@ D = [x**0.5 for x in N]
 for i in range(len(N)):
     comm = "python genfiles.py %d %d"%(D[i],N[i])
     print comm
-    os.system(comm)
+    os.popen(comm,'r')
     print "Done Generating file"
     for texec in execs:
         times = {".name":texec,"dims":[]}
-        print texec,
-        print os.popen(" ./%s 3 0.01"%(texec))
-        times["dims"].append((N[i],D[i]))
-
-        # print times
+        time_ms =  float(os.popen(" ./%s 1000 0.01"%(texec),'r').read())*1000
+        print "Time in MS = ",time_ms
+        results[texec].append((N[i],time_ms))
         print "\n"
 
 os.system("rm log.txt")
