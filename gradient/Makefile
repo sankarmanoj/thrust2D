@@ -29,7 +29,7 @@ profile-all: $(PROFILES)
 openmp: omp_descent.cpp
 	g++ -O3 -ffast-math -fopenmp omp_descent.cpp -o omp_descent.o -lm
 omp_mic: omp_descent.cpp
-	icpc -O3 -mmic -std=c++11 -qopenmp -qopenmp-link static omp_descent.cpp -o omp_descent.o -lm
+	icpc -O3 -mmic -std=c++11 -qopenmp omp_descent.cpp -o omp_descent.o -lm
 
 run_openmp:
 	time ./omp_descent.o 10 0.01

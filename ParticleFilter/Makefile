@@ -22,8 +22,8 @@ profile-all: $(PROFILES)
 
 
 openmp: ex_particle_OPENMP_seq.c thrust_omp_particle_filter.cpp
-	icpc -O3 -mmic -std=c++11 -qopenmp -qopenmp-link static ex_particle_OPENMP_seq.c -o omp_particle_filter.o -lm
-	icpc -O3 -mmic -std=c++11 -qopenmp -qopenmp-link static thrust_omp_particle_filter.cpp -o thrust_omp_particle_filter.o -lm
+	icpc -O3 -mmic -std=c++11 -qopenmp ex_particle_OPENMP_seq.c -o omp_particle_filter.o -lm
+	icpc -O3 -mmic -std=c++11 -qopenmp thrust_omp_particle_filter.cpp -o thrust_omp_particle_filter.o -lm
 
 run_openmp:
 	time ./omp_particle_filter.o -x 128	-y 128 -z 1000 -np 100
