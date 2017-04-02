@@ -14,17 +14,18 @@ weights = yactual[n+d:]
 yactual = yactual[:n]
 print yactual.shape,real_weights.shape,weights.shape
 
-
-count = 100
-learning = 0.5
+print weights
+count = 1
+learning = 0.1
 try:
     for i in range(count):
         ypred = np.dot(xval,weights)
 
         error = ypred - yactual
-        # ersq = np.square(error)
-        # print "Error = ",np.mean(ersq)
+        ersq = np.square(error)
+        print "Error = ",error
         gradient = np.dot(np.transpose(xval),error)
+        print "Gradient = ",gradient
         weights = weights - learning*gradient/n
 except:
     pass

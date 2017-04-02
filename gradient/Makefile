@@ -3,6 +3,7 @@
 
 IDIR =../include
 CC=nvcc
+CPPC=icpc
 CFLAGS=-I$(IDIR) -ccbin=g++-5 -std=c++11 -arch=sm_60
 DFLAGS =-DDEBUG -g -G -lineinfo
 SRCS = $(wildcard *.cu)
@@ -15,14 +16,14 @@ all: $(OBJS)
 .PHONY: all
 
 .PRECIOUS:$(OBJS)
-%.o:%.cu
-
+%.o:%.cu Makefile
 	$(CC) $(CFLAGS)  $< -o $@
-	# nvprof --unified-memory-profiling  off --log-file $@.profile ./$@ 100 0.05
+%.o:%.cpp Makefile
+	$(CPPC) -debug $< -qopenmp -o $@
+
 %.profile:%.o
-		# nvprof --unified-memory-profiling  off --log-file $@.time ./$^ 10 0.01
 		nvprof --unified-memory-profiling off -m dram_read_throughput -m dram_write_throughput --log-file $@ ./$^ 1 0.01
-		# nvprof -m branch_efficiency -m gld_efficiency -m gst_efficiency -m shared_efficiency --log-file $@ ./$^ 1 0.01
+
 .PHONY: profile-all
 profile-all: $(PROFILES)
 
