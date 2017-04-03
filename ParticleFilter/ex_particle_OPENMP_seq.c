@@ -1,7 +1,7 @@
 /**
  * @file ex_particle_OPENMP_seq.c
  * @author Michael Trotter & Matt Goodrum
- * @brief Particle filter implementation in C/OpenMP 
+ * @brief Particle filter implementation in C/OpenMP
  */
 #include <stdlib.h>
 #include <stdio.h>
@@ -37,7 +37,7 @@ long long get_time() {
 float elapsed_time(long long start_time, long long end_time) {
         return (float) (end_time - start_time) / (1000 * 1000);
 }
-/** 
+/**
 * Takes in a double and returns an integer that approximates to that double
 * @return if the mantissa < .5 => return value < input value; else return value > input value
 */
@@ -231,7 +231,7 @@ void videoSequence(int * I, int IszX, int IszY, int Nfr, int * seed){
 	int x0 = (int)roundDouble(IszY/2.0);
 	int y0 = (int)roundDouble(IszX/2.0);
 	I[x0 *IszY *Nfr + y0 * Nfr  + 0] = 1;
-	
+
 	/*move point*/
 	int xk, yk, pos;
 	for(k = 1; k < Nfr; k++){
@@ -242,7 +242,7 @@ void videoSequence(int * I, int IszX, int IszY, int Nfr, int * seed){
 		pos = 0;
 		I[pos] = 1;
 	}
-	
+
 	/*dilate matrix*/
 	int * newMatrix = (int *)malloc(sizeof(int)*IszX*IszY*Nfr);
 	imdilate_disk(I, IszX, IszY, Nfr, 5, newMatrix);
@@ -255,7 +255,7 @@ void videoSequence(int * I, int IszX, int IszY, int Nfr, int * seed){
 		}
 	}
 	free(newMatrix);
-	
+
 	/*define background, add noise*/
 	setIf(0, 100, I, &IszX, &IszY, &Nfr);
 	setIf(1, 228, I, &IszX, &IszY, &Nfr);
@@ -343,13 +343,13 @@ int findIndexBin(double * CDF, int beginIndex, int endIndex, double value){
 * @param Nparticles The number of particles to be used
 */
 void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparticles){
-	
+
 	int max_size = IszX*IszY*Nfr;
 	long long start = get_time();
 	//original particle centroid
 	double xe = roundDouble(IszY/2.0);
 	double ye = roundDouble(IszX/2.0);
-	
+
 	//expected object locations, compared to center
 	int radius = 5;
 	int diameter = radius*2 - 1;
@@ -365,9 +365,9 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 	}
 	double * objxy = (double *)malloc(countOnes*2*sizeof(double));
 	getneighbors(disk, countOnes, objxy, radius);
-	
+
 	long long get_neighbors = get_time();
-	printf("TIME TO GET NEIGHBORS TOOK: %f\n", elapsed_time(start, get_neighbors));
+	//printf("TIME TO GET NEIGHBORS TOOK: %f\n", elapsed_time(start, get_neighbors));
 	//initial weights are all equal (1/Nparticles)
 	double * weights = (double *)malloc(sizeof(double)*Nparticles);
 	#pragma omp parallel for shared(weights, Nparticles) private(x)
@@ -375,7 +375,7 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 		weights[x] = 1/((double)(Nparticles));
 	}
 	long long get_weights = get_time();
-	printf("TIME TO GET WEIGHTSTOOK: %f\n", elapsed_time(get_neighbors, get_weights));
+	//printf("TIME TO GET WEIGHTSTOOK: %f\n", elapsed_time(get_neighbors, get_weights));
 	//initial likelihood to 0.0
 	double * likelihood = (double *)malloc(sizeof(double)*Nparticles);
 	double * arrayX = (double *)malloc(sizeof(double)*Nparticles);
@@ -391,8 +391,8 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 		arrayY[x] = ye;
 	}
 	int k;
-	
-	printf("TIME TO SET ARRAYS TOOK: %f\n", elapsed_time(get_weights, get_time()));
+
+	//printf("TIME TO SET ARRAYS TOOK: %f\n", elapsed_time(get_weights, get_time()));
 	int indX, indY;
 	for(k = 1; k < Nfr; k++){
 		long long set_arrays = get_time();
@@ -405,14 +405,14 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 			arrayY[x] += -2 + 2*randn(seed, x);
 		}
 		long long error = get_time();
-		printf("TIME TO SET ERROR TOOK: %f\n", elapsed_time(set_arrays, error));
+		//printf("TIME TO SET ERROR TOOK: %f\n", elapsed_time(set_arrays, error));
 		//particle filter likelihood
 		#pragma omp parallel for shared(likelihood, I, arrayX, arrayY, objxy, ind) private(x, y, indX, indY)
 		for(x = 0; x < Nparticles; x++){
 			//compute the likelihood: remember our assumption is that you know
 			// foreground and the background image intensity distribution.
 			// Notice that we consider here a likelihood ratio, instead of
-			// p(z|x). It is possible in this case. why? a hometask for you.		
+			// p(z|x). It is possible in this case. why? a hometask for you.
 			//calc ind
 			for(y = 0; y < countOnes; y++){
 				indX = roundDouble(arrayX[x]) + objxy[y*2 + 1];
@@ -427,7 +427,7 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 			likelihood[x] = likelihood[x]/((double) countOnes);
 		}
 		long long likelihood_time = get_time();
-		printf("TIME TO GET LIKELIHOODS TOOK: %f\n", elapsed_time(error, likelihood_time));
+		//printf("TIME TO GET LIKELIHOODS TOOK: %f\n", elapsed_time(error, likelihood_time));
 		// update & normalize weights
 		// using equation (63) of Arulampalam Tutorial
 		#pragma omp parallel for shared(Nparticles, weights, likelihood) private(x)
@@ -435,20 +435,20 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 			weights[x] = weights[x] * exp(likelihood[x]);
 		}
 		long long exponential = get_time();
-		printf("TIME TO GET EXP TOOK: %f\n", elapsed_time(likelihood_time, exponential));
+		//printf("TIME TO GET EXP TOOK: %f\n", elapsed_time(likelihood_time, exponential));
 		double sumWeights = 0;
 		#pragma omp parallel for private(x) reduction(+:sumWeights)
 		for(x = 0; x < Nparticles; x++){
 			sumWeights += weights[x];
 		}
 		long long sum_time = get_time();
-		printf("TIME TO SUM WEIGHTS TOOK: %f\n", elapsed_time(exponential, sum_time));
+		//printf("TIME TO SUM WEIGHTS TOOK: %f\n", elapsed_time(exponential, sum_time));
 		#pragma omp parallel for shared(sumWeights, weights) private(x)
 		for(x = 0; x < Nparticles; x++){
 			weights[x] = weights[x]/sumWeights;
 		}
 		long long normalize = get_time();
-		printf("TIME TO NORMALIZE WEIGHTS TOOK: %f\n", elapsed_time(sum_time, normalize));
+		//printf("TIME TO NORMALIZE WEIGHTS TOOK: %f\n", elapsed_time(sum_time, normalize));
 		xe = 0;
 		ye = 0;
 		// estimate the object location by expected values
@@ -458,33 +458,33 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 			ye += arrayY[x] * weights[x];
 		}
 		long long move_time = get_time();
-		printf("TIME TO MOVE OBJECT TOOK: %f\n", elapsed_time(normalize, move_time));
-		printf("XE: %lf\n", xe);
-		printf("YE: %lf\n", ye);
+		//printf("TIME TO MOVE OBJECT TOOK: %f\n", elapsed_time(normalize, move_time));
+		//printf("XE: %lf\n", xe);
+		//printf("YE: %lf\n", ye);
 		double distance = sqrt( pow((double)(xe-(int)roundDouble(IszY/2.0)),2) + pow((double)(ye-(int)roundDouble(IszX/2.0)),2) );
-		printf("%lf\n", distance);
+		//printf("%lf\n", distance);
 		//display(hold off for now)
-		
+
 		//pause(hold off for now)
-		
+
 		//resampling
-		
-		
+
+
 		CDF[0] = weights[0];
 		for(x = 1; x < Nparticles; x++){
 			CDF[x] = weights[x] + CDF[x-1];
 		}
 		long long cum_sum = get_time();
-		printf("TIME TO CALC CUM SUM TOOK: %f\n", elapsed_time(move_time, cum_sum));
+		//printf("TIME TO CALC CUM SUM TOOK: %f\n", elapsed_time(move_time, cum_sum));
 		double u1 = (1/((double)(Nparticles)))*randu(seed, 0);
 		#pragma omp parallel for shared(u, u1, Nparticles) private(x)
 		for(x = 0; x < Nparticles; x++){
 			u[x] = u1 + x/((double)(Nparticles));
 		}
 		long long u_time = get_time();
-		printf("TIME TO CALC U TOOK: %f\n", elapsed_time(cum_sum, u_time));
+		//printf("TIME TO CALC U TOOK: %f\n", elapsed_time(cum_sum, u_time));
 		int j, i;
-		
+
 		#pragma omp parallel for shared(CDF, Nparticles, xj, yj, u, arrayX, arrayY) private(i, j)
 		for(j = 0; j < Nparticles; j++){
 			i = findIndex(CDF, Nparticles, u[j]);
@@ -492,11 +492,11 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 				i = Nparticles-1;
 			xj[j] = arrayX[i];
 			yj[j] = arrayY[i];
-			
+
 		}
 		long long xyj_time = get_time();
-		printf("TIME TO CALC NEW ARRAY X AND Y TOOK: %f\n", elapsed_time(u_time, xyj_time));
-		
+		//printf("TIME TO CALC NEW ARRAY X AND Y TOOK: %f\n", elapsed_time(u_time, xyj_time));
+
 		//#pragma omp parallel for shared(weights, Nparticles) private(x)
 		for(x = 0; x < Nparticles; x++){
 			//reassign arrayX and arrayY
@@ -505,7 +505,7 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 			weights[x] = 1/((double)(Nparticles));
 		}
 		long long reset = get_time();
-		printf("TIME TO RESET WEIGHTS TOOK: %f\n", elapsed_time(xyj_time, reset));
+		//printf("TIME TO RESET WEIGHTS TOOK: %f\n", elapsed_time(xyj_time, reset));
 	}
 	free(disk);
 	free(objxy);
@@ -520,7 +520,7 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 	free(ind);
 }
 int main(int argc, char * argv[]){
-	
+
 	char* usage = "openmp.out -x <dimX> -y <dimY> -z <Nfr> -np <Nparticles>";
 	//check number of arguments
 	if(argc != 9)
@@ -533,48 +533,48 @@ int main(int argc, char * argv[]){
 		printf( "%s\n",usage );
 		return 0;
 	}
-	
+
 	int IszX, IszY, Nfr, Nparticles;
-	
+
 	//converting a string to a integer
 	if( sscanf( argv[2], "%d", &IszX ) == EOF ) {
 	   printf("ERROR: dimX input is incorrect");
 	   return 0;
 	}
-	
+
 	if( IszX <= 0 ) {
 		printf("dimX must be > 0\n");
 		return 0;
 	}
-	
+
 	//converting a string to a integer
 	if( sscanf( argv[4], "%d", &IszY ) == EOF ) {
 	   printf("ERROR: dimY input is incorrect");
 	   return 0;
 	}
-	
+
 	if( IszY <= 0 ) {
 		printf("dimY must be > 0\n");
 		return 0;
 	}
-	
+
 	//converting a string to a integer
 	if( sscanf( argv[6], "%d", &Nfr ) == EOF ) {
 	   printf("ERROR: Number of frames input is incorrect");
 	   return 0;
 	}
-	
+
 	if( Nfr <= 0 ) {
 		printf("number of frames must be > 0\n");
 		return 0;
 	}
-	
+
 	//converting a string to a integer
 	if( sscanf( argv[8], "%d", &Nparticles ) == EOF ) {
 	   printf("ERROR: Number of particles input is incorrect");
 	   return 0;
 	}
-	
+
 	if( Nparticles <= 0 ) {
 		printf("Number of particles must be > 0\n");
 		return 0;
@@ -590,13 +590,13 @@ int main(int argc, char * argv[]){
 	//call video sequence
 	videoSequence(I, IszX, IszY, Nfr, seed);
 	long long endVideoSequence = get_time();
-	printf("VIDEO SEQUENCE TOOK %f\n", elapsed_time(start, endVideoSequence));
+	// printf("VIDEO SEQUENCE TOOK %f\n", elapsed_time(start, endVideoSequence));
 	//call particle filter
 	particleFilter(I, IszX, IszY, Nfr, seed, Nparticles);
 	long long endParticleFilter = get_time();
-	printf("PARTICLE FILTER TOOK %f\n", elapsed_time(endVideoSequence, endParticleFilter));
-	printf("ENTIRE PROGRAM TOOK %f\n", elapsed_time(start, endParticleFilter));
-	
+	printf("%f\n", elapsed_time(endVideoSequence, endParticleFilter));
+	// printf("ENTIRE PROGRAM TOOK %f\n", elapsed_time(start, endParticleFilter));
+
 	free(seed);
 	free(I);
 	return 0;

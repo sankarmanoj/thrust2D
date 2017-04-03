@@ -1,3 +1,4 @@
+#include <omp.h>
 #include <thrust/host_vector.h>
 #include <thrust/for_each.h>
 #include <thrust/transform.h>
@@ -55,26 +56,24 @@ int main(int argc, char **argv)
     d_XD[i].N=N;
   }
   float error;
+  int count = 0;
+  double start, end;
+  start = omp_get_wtime();
   do
   {
     float *ca_weights = d_weights.data();
     thrust::transform(thrust::cpp::par,d_XD.begin(),d_XD.end(),d_Yactual.begin(),d_error.begin(),dotProductFunctor<float *>(D,ca_weights));
     error = thrust::transform_reduce(thrust::cpp::par,d_error.begin(),d_error.end(),squareOp(),0,thrust::plus<float>())/N;
-    printf("Error = %f\n",error);
     for(int i = 0; i<D;i++)
     {
       thrust::transform(thrust::cpp::par,d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),d_Ypredict.begin(),thrust::multiplies<float>());
       h_gradient[i]=thrust::reduce(thrust::cpp::par,d_Ypredict.begin(),d_Ypredict.end())/N;
     }
     thrust::transform(thrust::cpp::par,d_weights.begin(),d_weights.end(),h_gradient.begin(),d_weights.begin(),update_weights(learn));
+    count++;
   }
   while(error>threshold_error);
-  // printf("Compute Time = %f\n",time_in_ms);
-  // sdiff = sqrt(sdiff/D);
-  // printf("Final Error = %f\n",sdiff);
-  // delete xvalues;
-  // delete real_weights;
-  // delete y_actual;
-  // delete weights;
+  end = omp_get_wtime();
+  printf("%f\n",(end-start)/count);
   return 0;
 }

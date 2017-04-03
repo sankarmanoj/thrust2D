@@ -1,4 +1,4 @@
-IDIR =../../include
+IDIR =../include
 CC=nvcc
 CFLAGS=-I$(IDIR) -ccbin=g++-5 -arch=sm_60 -std=c++11  -D_MWAITXINTRIN_H_INCLUDED -O3
 DFLAGS =-DDEBUG -g -G -lineinfo
@@ -22,16 +22,16 @@ profile-all: $(PROFILES)
 
 
 openmp: ex_particle_OPENMP_seq.c thrust_omp_particle_filter.cpp
-	icpc -O3 -mmic -std=c++11 -qopenmp -qopenmp-link static ex_particle_OPENMP_seq.c -o omp_particle_filter.o -lm
-	icpc -O3 -mmic -std=c++11 -qopenmp -qopenmp-link static thrust_omp_particle_filter.cpp -o thrust_omp_particle_filter.o -lm
+	icpc -O3 -std=c++11 -qopenmp  ex_particle_OPENMP_seq.c -o native.o -lm
+	icpc -O3 -I$(IDIR) -std=c++11 -qopenmp  thrust_omp_particle_filter.cpp -o thrust.o -lm
 
 run_openmp:
 	time ./omp_particle_filter.o -x 128	-y 128 -z 1000 -np 100
 	time ./thrust_omp_particle_filter.o -x 128 -y 128 -z 1000 -np 100
 
 cpp: ex_particle_CPP_seq.c thrust_cpp_particle_filter.cpp
-	icpc -O3 -mmic -std=c++11 ex_particle_CPP_seq.c -o cpp_particle_filter.o -lm
-	icpc -O3 -mmic -std=c++11 thrust_cpp_particle_filter.cpp -o thrust_cpp_particle_filter.o -lm
+	icpc -O3 -qopenmp -std=c++11 ex_particle_CPP_seq.c -o native.o -lm
+	icpc -O3 -qopenmp -std=c++11 thrust_cpp_particle_filter.cpp -o thrust.o -lm
 
 run_cpp:
 	time ./cpp_particle_filter.o -x 128	-y 128 -z 1000 -np 100

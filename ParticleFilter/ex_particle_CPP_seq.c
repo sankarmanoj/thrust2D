@@ -366,14 +366,14 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 	getneighbors(disk, countOnes, objxy, radius);
 
 	long long get_neighbors = get_time();
-	printf("TIME TO GET NEIGHBORS TOOK: %f\n", elapsed_time(start, get_neighbors));
+	//printf("TIME TO GET NEIGHBORS TOOK: %f\n", elapsed_time(start, get_neighbors));
 	//initial weights are all equal (1/Nparticles)
 	double * weights = (double *)malloc(sizeof(double)*Nparticles);
 	for(x = 0; x < Nparticles; x++){
 		weights[x] = 1/((double)(Nparticles));
 	}
 	long long get_weights = get_time();
-	printf("TIME TO GET WEIGHTSTOOK: %f\n", elapsed_time(get_neighbors, get_weights));
+	//printf("TIME TO GET WEIGHTSTOOK: %f\n", elapsed_time(get_neighbors, get_weights));
 	//initial likelihood to 0.0
 	double * likelihood = (double *)malloc(sizeof(double)*Nparticles);
 	double * arrayX = (double *)malloc(sizeof(double)*Nparticles);
@@ -389,7 +389,7 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 	}
 	int k;
 
-	printf("TIME TO SET ARRAYS TOOK: %f\n", elapsed_time(get_weights, get_time()));
+	//printf("TIME TO SET ARRAYS TOOK: %f\n", elapsed_time(get_weights, get_time()));
 	int indX, indY;
 	for(k = 1; k < Nfr; k++){
 		long long set_arrays = get_time();
@@ -401,7 +401,7 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 			arrayY[x] += -2 + 2*randn(seed, x);
 		}
 		long long error = get_time();
-		printf("TIME TO SET ERROR TOOK: %f\n", elapsed_time(set_arrays, error));
+		//printf("TIME TO SET ERROR TOOK: %f\n", elapsed_time(set_arrays, error));
 		//particle filter likelihood
 		for(x = 0; x < Nparticles; x++){
 			//compute the likelihood: remember our assumption is that you know
@@ -422,25 +422,25 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 			likelihood[x] = likelihood[x]/((double) countOnes);
 		}
 		long long likelihood_time = get_time();
-		printf("TIME TO GET LIKELIHOODS TOOK: %f\n", elapsed_time(error, likelihood_time));
+		//printf("TIME TO GET LIKELIHOODS TOOK: %f\n", elapsed_time(error, likelihood_time));
 		// update & normalize weights
 		// using equation (63) of Arulampalam Tutorial
 		for(x = 0; x < Nparticles; x++){
 			weights[x] = weights[x] * exp(likelihood[x]);
 		}
 		long long exponential = get_time();
-		printf("TIME TO GET EXP TOOK: %f\n", elapsed_time(likelihood_time, exponential));
+		//printf("TIME TO GET EXP TOOK: %f\n", elapsed_time(likelihood_time, exponential));
 		double sumWeights = 0;
 		for(x = 0; x < Nparticles; x++){
 			sumWeights += weights[x];
 		}
 		long long sum_time = get_time();
-		printf("TIME TO SUM WEIGHTS TOOK: %f\n", elapsed_time(exponential, sum_time));
+		//printf("TIME TO SUM WEIGHTS TOOK: %f\n", elapsed_time(exponential, sum_time));
 		for(x = 0; x < Nparticles; x++){
 			weights[x] = weights[x]/sumWeights;
 		}
 		long long normalize = get_time();
-		printf("TIME TO NORMALIZE WEIGHTS TOOK: %f\n", elapsed_time(sum_time, normalize));
+		//printf("TIME TO NORMALIZE WEIGHTS TOOK: %f\n", elapsed_time(sum_time, normalize));
 		xe = 0;
 		ye = 0;
 		// estimate the object location by expected values
@@ -449,11 +449,11 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 			ye += arrayY[x] * weights[x];
 		}
 		long long move_time = get_time();
-		printf("TIME TO MOVE OBJECT TOOK: %f\n", elapsed_time(normalize, move_time));
-		printf("XE: %lf\n", xe);
-		printf("YE: %lf\n", ye);
+		//printf("TIME TO MOVE OBJECT TOOK: %f\n", elapsed_time(normalize, move_time));
+		//printf("XE: %lf\n", xe);
+		//printf("YE: %lf\n", ye);
 		double distance = sqrt( pow((double)(xe-(int)roundDouble(IszY/2.0)),2) + pow((double)(ye-(int)roundDouble(IszX/2.0)),2) );
-		printf("%lf\n", distance);
+		//printf("%lf\n", distance);
 		//display(hold off for now)
 
 		//pause(hold off for now)
@@ -466,13 +466,13 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 			CDF[x] = weights[x] + CDF[x-1];
 		}
 		long long cum_sum = get_time();
-		printf("TIME TO CALC CUM SUM TOOK: %f\n", elapsed_time(move_time, cum_sum));
+		//printf("TIME TO CALC CUM SUM TOOK: %f\n", elapsed_time(move_time, cum_sum));
 		double u1 = (1/((double)(Nparticles)))*randu(seed, 0);
 		for(x = 0; x < Nparticles; x++){
 			u[x] = u1 + x/((double)(Nparticles));
 		}
 		long long u_time = get_time();
-		printf("TIME TO CALC U TOOK: %f\n", elapsed_time(cum_sum, u_time));
+		//printf("TIME TO CALC U TOOK: %f\n", elapsed_time(cum_sum, u_time));
 		int j, i;
 
 		for(j = 0; j < Nparticles; j++){
@@ -484,7 +484,7 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 
 		}
 		long long xyj_time = get_time();
-		printf("TIME TO CALC NEW ARRAY X AND Y TOOK: %f\n", elapsed_time(u_time, xyj_time));
+		//printf("TIME TO CALC NEW ARRAY X AND Y TOOK: %f\n", elapsed_time(u_time, xyj_time));
 		for(x = 0; x < Nparticles; x++){
 			//reassign arrayX and arrayY
 			arrayX[x] = xj[x];
@@ -492,7 +492,7 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 			weights[x] = 1/((double)(Nparticles));
 		}
 		long long reset = get_time();
-		printf("TIME TO RESET WEIGHTS TOOK: %f\n", elapsed_time(xyj_time, reset));
+		//printf("TIME TO RESET WEIGHTS TOOK: %f\n", elapsed_time(xyj_time, reset));
 	}
 	free(disk);
 	free(objxy);
@@ -577,12 +577,12 @@ int main(int argc, char * argv[]){
 	//call video sequence
 	videoSequence(I, IszX, IszY, Nfr, seed);
 	long long endVideoSequence = get_time();
-	printf("VIDEO SEQUENCE TOOK %f\n", elapsed_time(start, endVideoSequence));
+	//zprintf("VIDEO SEQUENCE TOOK %f\n", elapsed_time(start, endVideoSequence));
 	//call particle filter
 	particleFilter(I, IszX, IszY, Nfr, seed, Nparticles);
 	long long endParticleFilter = get_time();
-	printf("PARTICLE FILTER TOOK %f\n", elapsed_time(endVideoSequence, endParticleFilter));
-	printf("ENTIRE PROGRAM TOOK %f\n", elapsed_time(start, endParticleFilter));
+	printf("%f\n", elapsed_time(endVideoSequence, endParticleFilter));
+//	printf("ENTIRE PROGRAM TOOK %f\n", elapsed_time(start, endParticleFilter));
 
 	free(seed);
 	free(I);

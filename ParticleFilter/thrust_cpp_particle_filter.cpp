@@ -797,6 +797,7 @@ int main(int argc, char * argv[]) {
     //call particle filter
     particleFilter(I, IszX, IszY, Nfr, seed, Nparticles);
     long long endParticleFilter = get_time();
+    printf("%f\n ",elapsed_time(endVideoSequence,endParticleFilter));
 
     free(seed);
     free(I);
