@@ -8,7 +8,7 @@ void getdotError(int N, int D, float * xvalues, float * weights, float * yvalues
   for (size_t i = 0; i < N; i++)
   {
     float pred_value = 0;
-    #pragma omp parallel for reduction(+:pred_value)
+    // #pragma omp parallel for reduction(+:pred_value)
     for(size_t j = 0; j<D;j++)
     {
       pred_value += xvalues[i*D + j]*(weights[j]);
@@ -23,7 +23,7 @@ void getGradient(int N,int D,float * xvalues,float * error,float * gradient)
   for (size_t i = 0; i < D; i++)
   {
     float gradient_value = 0;
-    #pragma omp parallel for reduction(+:gradient_value)
+    // #pragma omp parallel for reduction(+:gradient_value)
     for(size_t j = 0; j<N;j++)
     {
       gradient_value += xvalues[j*D + i]*error[j];

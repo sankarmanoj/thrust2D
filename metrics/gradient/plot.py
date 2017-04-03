@@ -6,9 +6,10 @@ data = json.load(open("result.json","r"))
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in Seconds")
+plt.title(sys.argv[1])
 keys = data.keys()
 print keys
-names={"omp_descent.o":"Thrust","omp-native.o":"Native"}
+names={"omp_descent.o":"Thrust","omp_native.o":"Native"}
 keys = sorted(keys,key=lambda k:names[k])
 colors = {"Thrust":"r","Thrust++":"g","Native":"b"}
 for key in keys[:3]:
