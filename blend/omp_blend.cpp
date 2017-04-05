@@ -19,6 +19,7 @@ public:
 
 int main(int argc, char const *argv[]) {
   int dim = 4096;
+  double start,end;
   if(argc ==2)
   {
     dim = atoi(argv[1]);
@@ -31,13 +32,15 @@ int main(int argc, char const *argv[]) {
   Mat temp2;
   resize(input2,temp2,Size(dim,dim));
   input2 = temp2;
-  thrust::device_vector<uchar>input_vector1(input1.ptr(),input1.ptr()+input1.cols*input1.rows);
-  thrust::device_vector<uchar>input_vector2(input2.ptr(),input2.ptr()+input2.cols*input2.rows);
-  thrust::device_vector<uchar>output_vector(input1.cols*input1.rows);
+  thrust::device_vector<uchar> input_vector1(input1.ptr(),input1.ptr()+input1.cols*input1.rows);
+  thrust::device_vector<uchar> input_vector2(input2.ptr(),input2.ptr()+input2.cols*input2.rows);
+  thrust::device_vector<uchar> output_vector(input1.cols*input1.rows);
+  thrust::host_vector<uchar> host_output_vector(input1.cols*input1.rows);
   start = omp_get_wtime();
   thrust::transform(input_vector1.begin(),input_vector1.end(),input_vector2.begin(),output_vector.begin(),blendFunctor(0.3));
   end = omp_get_wtime();
   printf("%f\n",(end-start)*1000);
-  Mat output (Size(input1.cols,input1.rows),CV_8UC1,output_vector.data());
+  host_output_vector=output_vector;
+  Mat output (Size(input1.cols,input1.rows),CV_8UC1,host_output_vector.data());
   return 0;
 }
