@@ -8,7 +8,7 @@ plt.xlabel("Dimension")
 plt.ylabel("Time in Seconds")
 keys = data.keys()
 print keys
-names={"cpp_descent.o":"Thrust","cpp-native.o":"Native"}
+names={"cpp_descent.o":"Thrust","cpp_native.o":"Native"}
 keys = sorted(keys,key=lambda k:names[k])
 colors = {"Thrust":"r","Thrust++":"g","Native":"b"}
 for key in keys[:3]:
