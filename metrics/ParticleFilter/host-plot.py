@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import sys
 import json
 from os.path import dirname, abspath
-d = (dirname(abspath(__file__)))
+d = os.getcwd().replace("metrics/","")
+print d
 data = json.load(open(d+"/result.json","r"))
 
 
