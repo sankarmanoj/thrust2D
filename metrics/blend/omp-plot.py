@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import sys
 import json
-data = json.load(open("result.json","r"))
+data = json.load(open("cpp_result.json","r"))
 
 
 plt.xlabel("Dimension")
@@ -19,5 +19,5 @@ for key in keys:
     plt.plot(dims,total,colors[names[key]],label=names[key])
 
 plt.legend(loc=2)
-
+plt.title(sys.argv[1])
 plt.show()

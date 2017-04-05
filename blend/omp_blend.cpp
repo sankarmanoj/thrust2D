@@ -42,5 +42,16 @@ int main(int argc, char const *argv[]) {
   printf("%f\n",(end-start)*1000);
   host_output_vector=output_vector;
   Mat output (Size(input1.cols,input1.rows),CV_8UC1,host_output_vector.data());
+  #ifdef OWRITE
+  imwrite("blend-input1.png",input1);
+  imwrite("blend-input2.png",input2);
+  imwrite("blend-output.png",output);
+  #endif
+  #ifdef SHOW
+  imshow("blend-input1.png",input1);
+  imshow("blend-input2.png",input2);
+  imshow("blend-output.png",output);
+  waitKey(0);
+  #endif
   return 0;
 }
