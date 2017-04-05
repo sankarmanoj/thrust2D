@@ -16,10 +16,14 @@ all: $(OBJS)
 		# nvprof  --log-file $@.time ./$^
 		# nvprof -m branch_efficiency -m gld_transactions_per_request -m gst_transactions_per_request -m shared_efficiency --log-file $@ ./$^
 		nvprof --unified-memory-profiling off -m dram_read_throughput -m dram_write_throughput --log-file $@ ./$^
-%.o: %.cpp Makefile
-		icpc -O3 -qopenmp $< -o $@ -lm  `pkg-config --static --libs opencv` -L/usr/local/cuda-8.0/lib64 
-openmp: native-omp.o Makefile
 
+openmp: native_omp.cpp omp_blend.cpp Makefile
+		icpc -O3 -qopenmp native_omp.cpp -o native_omp.o `pkg-config --static --libs opencv` -lm
+		icpc -O3 -qopenmp omp_blend.cpp -o omp_blend.o `pkg-config --static --libs opencv` -lm
+
+openmp_mic: native_omp.cpp omp_blend.cpp Makefile
+		icpc -O3 -mmic -qopenmp native_omp.cpp -o native_omp.o `pkg-config --static --libs opencv` -lm
+		icpc -O3 -mmic -qopenmp omp_blend.cpp -o omp_blend.o `pkg-config --static --libs opencv` -lm
 
 .PHONY: profile-all
 profile-all: $(PROFILES)

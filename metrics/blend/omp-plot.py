@@ -6,8 +6,8 @@ data = json.load(open("result.json","r"))
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in microseconds")
-names = {"native-omp.o":"CUDA"}
-colors = {"Thrust":"r","Thrust++":"g","CUDA":"b"}
+names = {"native_omp.o":"Native", "omp_blend.o":"Thrust"}
+colors = {"Thrust":"r","Thrust++":"g","Native":"b"}
 keys = data.keys()
 keys.sort()
 for key in keys:
