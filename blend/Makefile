@@ -22,8 +22,8 @@ openmp: native_omp.cpp omp_blend.cpp Makefile
 		icpc -O3 -qopenmp omp_blend.cpp -o omp_blend.o `pkg-config --static --libs opencv` -lm
 
 openmp_mic: native_omp.cpp omp_blend.cpp Makefile
-		icpc -O3 -mmic -qopenmp native_omp.cpp -o native_omp.o `pkg-config --static --libs opencv` -lm
-		icpc -O3 -mmic -qopenmp omp_blend.cpp -o omp_blend.o `pkg-config --static --libs opencv` -lm
+		icpc -O3 -mmic -qopenmp native_omp_mic.cpp -o native_omp_mic.o -lm
+		icpc -O3 -mmic -qopenmp omp_blend_mic.cpp -o omp_blend_mic.o -lm
 
 .PHONY: profile-all
 profile-all: $(PROFILES)

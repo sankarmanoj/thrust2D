@@ -6,7 +6,7 @@ data = json.load(open("result.json","r"))
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in microseconds")
-names = {"blend.o":"Thrust","sblend.o":"Thrust++","anative.o":"CUDA"}
+names = {"blend.o":"Thrust","sblend.o":"Thrust++","native.o":"CUDA"}
 colors = {"Thrust":"r","Thrust++":"g","CUDA":"b"}
 keys = data.keys()
 keys.sort()

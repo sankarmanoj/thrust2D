@@ -56,7 +56,7 @@ int main(int argc, char const *argv[]) {
   cudaEventSynchronize(stop);
   float time_in_ms;
   cudaEventElapsedTime(&time_in_ms,start,stop);
-  printf("Non Shared Blend = %f\n",time_in_ms);
+  printf("%f\n",time_in_ms);
   Mat output (Size(input1.cols,input1.rows),CV_8UC1,host_output_vector.data());
   #ifdef OWRITE
   imwrite("blend-input1.png",input1);

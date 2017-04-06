@@ -3,6 +3,8 @@ import sys
 import json
 from os.path import dirname, abspath
 import os
+import numpy as np
+import scipy.signal as sp
 original_path  = os.getcwd()
 path = os.getcwd().replace("metrics/","")
 print path
@@ -27,6 +29,7 @@ for d  in data:
             total.append(float(val))
         except:
             print val
+    total = sp.savgol_filter(total,51,3)
     plt.plot(dims,total,label=names[d])
 
 plt.legend(loc=2)
