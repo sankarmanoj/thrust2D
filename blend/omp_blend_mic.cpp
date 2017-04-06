@@ -1,7 +1,8 @@
 #define THRUST_DEVICE_SYSTEM 2
 #include <thrust/device_vector.h>
+#include <stdio.h>
 #include <thrust/transform.h>
-using namespace cv;
+typedef unsigned char uchar;
 class blendFunctor
 {
   float alpha;
@@ -33,8 +34,8 @@ int main(int argc, char const *argv[]) {
       input_vector2[i*dim+j] = (j*dim+i)%256;
     }
   }
-  thrust::device_vector<uchar> output_vector(input1.cols*input1.rows);
-  thrust::host_vector<uchar> host_output_vector(input1.cols*input1.rows);
+  thrust::device_vector<uchar> output_vector(dim*dim);
+  thrust::host_vector<uchar> host_output_vector(dim*dim);
   start = omp_get_wtime();
   thrust::transform(input_vector1.begin(),input_vector1.end(),input_vector2.begin(),output_vector.begin(),blendFunctor(0.3));
   end = omp_get_wtime();

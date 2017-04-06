@@ -1,6 +1,6 @@
-#include <opencv2/opencv.hpp>
 #include <omp.h>
-using namespace cv;
+#include <stdio.h>
+typedef unsigned char uchar;
 void blendKernel(uchar * input1,uchar * input2, uchar * output,float alpha, int size)
 {
   #pragma omp parallel for
