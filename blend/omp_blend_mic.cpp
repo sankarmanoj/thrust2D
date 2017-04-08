@@ -24,6 +24,7 @@ int main(int argc, char const *argv[]) {
   {
     dim = atoi(argv[1]);
   }
+  start=omp_get_wtime();
   thrust::device_vector<uchar> input_vector1(dim*dim);
   thrust::device_vector<uchar> input_vector2(dim*dim);
   for (int i = 0; i<dim;i++)
@@ -36,7 +37,6 @@ int main(int argc, char const *argv[]) {
   }
   thrust::device_vector<uchar> output_vector(dim*dim);
   thrust::host_vector<uchar> host_output_vector(dim*dim);
-  start = omp_get_wtime();
   thrust::transform(input_vector1.begin(),input_vector1.end(),input_vector2.begin(),output_vector.begin(),blendFunctor(0.3));
   end = omp_get_wtime();
   printf("%f\n",(end-start)*1000);

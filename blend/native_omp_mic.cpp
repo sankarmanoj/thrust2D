@@ -16,6 +16,8 @@ int main(int argc, char const *argv[]) {
   {
     dim = atoi(argv[1]);
   }
+  double start,end;
+  start = omp_get_wtime();
   uchar *input1 = new uchar[dim*dim];
   uchar *input2 = new uchar[dim*dim];
   for (int i = 0; i<dim;i++)
@@ -27,8 +29,6 @@ int main(int argc, char const *argv[]) {
     }
   }
   uchar *h_output = new uchar[dim*dim];
-  double start, end;
-  start = omp_get_wtime();
   blendKernel(input1,input2,h_output,0.3,dim*dim);
   end = omp_get_wtime();
   printf("%f\n",(end-start)*1000);
