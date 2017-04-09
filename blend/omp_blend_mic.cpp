@@ -19,10 +19,17 @@ public:
 
 int main(int argc, char const *argv[]) {
   int dim = 4096;
+  int t_count = 1;
   double start,end;
   if(argc ==2)
   {
     dim = atoi(argv[1]);
+  }
+  if(argc==3)
+  {
+      dim = atoi(argv[1]);
+    t_count = atoi(argv[2]);
+    omp_set_num_threads(t_count);
   }
   start=omp_get_wtime();
   thrust::device_vector<uchar> input_vector1(dim*dim);
