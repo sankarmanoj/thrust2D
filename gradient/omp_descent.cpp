@@ -12,6 +12,7 @@ int main(int argc, char **argv)
   std::ifstream values;
   values.open("./values.txt");
   int D,N;
+  omp_set_num_threads(60);
   int niter = atoi(argv[1]);
   float learn = atof(argv[2]);
   float *xvalues,*y_actual,*real_weights,*weights;

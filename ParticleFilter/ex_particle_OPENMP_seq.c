@@ -520,7 +520,7 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 	free(ind);
 }
 int main(int argc, char * argv[]){
-
+	omp_set_num_threads(60);
 	char* usage = "openmp.out -x <dimX> -y <dimY> -z <Nfr> -np <Nparticles>";
 	//check number of arguments
 	if(argc != 9)

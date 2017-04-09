@@ -791,6 +791,7 @@ int main(int argc, char * argv[]) {
     //malloc matrix
     unsigned char * I = (unsigned char *) malloc(sizeof (unsigned char) *IszX * IszY * Nfr);
     long long start = get_time();
+    omp_set_num_threads(60);
     //call video sequence
     videoSequence(I, IszX, IszY, Nfr, seed);
     long long endVideoSequence = get_time();
