@@ -7,10 +7,10 @@ const float PI2 = 3.141592653589793 / 2.0;
 const int nd = 3;
 int np;
 float dt = 0.0001;
-float e0;
-float kinetic;
+volatile float e0;
+volatile float kinetic;
 float mass = 1.0;
-float potential;
+volatile float potential;
 int seed;
 int step;
 int step_num;
@@ -29,45 +29,45 @@ float* vel;
 //extern "C"
 //	double cputime();
 
-extern "C" 
+extern "C"
 	void allocMemOnGPU(int, int);
 void initialize();
-extern "C" 
+extern "C"
 	void copyDataToGPU(float *, float *, float *, float *, int, int);
 void compute(int);
-extern "C" 
+extern "C"
 	void GPU_compute_forceonparticle(int, int, int, const float, int, double *);
-extern "C" 
+extern "C"
 	float GPU_seq_wShrdMem_accumulate_parpot_and_parforce(int, int, int, int , double *, double *);
-extern "C" 
+extern "C"
 	float GPU_accumulate_KE_wShrdMem(int, int, float, int, double *);
 void computeForceonCPU();
 float compute_distance(int, int, float* );
 void compute_forceonparticle(int, float, float, float* );
 float compute_kineticenergy();
 void update(int);
-extern "C" 
+extern "C"
 	void GPU_updatePos(int, int, float, int, double *, float *);
-extern "C" 
+extern "C"
 	void GPU_updateVel(int, int, float, float, int, double *, float *);
-extern "C" 
+extern "C"
 	void GPU_updateAcc(int, int, float, int, double *, float *);
 void updateonCPU(float);
 
 
 int main()
 {
-	
+
 	np = 10000; //ENTERED_NP; //Number of molecules
     step_num = 10; //ENTERED_NUMOFSTEPS; //Number of steps
-	
+
 	//Allocate memory on host
 	acc = (float*) malloc(nd * np * sizeof (float));
     box = (float*) malloc(nd * sizeof (float));
     force = (float*) malloc(nd * np * sizeof (float));
     pos = (float*) malloc(nd * np * sizeof (float));
     vel = (float*) malloc(nd * np * sizeof (float));
-	
+
 	//Allocate array on device
 	allocMemOnGPU(nd, np);
 	//Start the program
@@ -76,10 +76,10 @@ int main()
     printf("    NP, the number of particles in the simulation is: %d\n", np);
     printf("    STEP_NUM, the number of time steps, is          : %d\n", step_num);
     printf("    DT, the size of each time step, is              : %E\n\n", dt);
-	
+
 	// Set the dimensions of the box
     int index = nd;
-    while (index != 0) 
+    while (index != 0)
 	{
         box[--index] = 10.0;
     }
@@ -98,7 +98,7 @@ int main()
 
     // Save the initial total energy for use in the accuracy check.
     e0 = potential + kinetic;
-	
+
 	printf("\n");
     printf("    At each step, we report the potential and kinetic energies.\n");
     printf("    The sum of these energies should be a constant.\n");
@@ -108,7 +108,7 @@ int main()
     printf("        Step      Potential       Kinetic        (P+K-E0)/E0\n");
     printf("                  Energy P        Energy K       Relative Energy Error\n");
     printf("\n");
-	
+
 	//  This is the main time stepping loop:
     //    Compute forces and energies,
     //    Update positions, velocities, accelerations.
@@ -121,7 +121,7 @@ int main()
     	step_print_index = step_print_index + 1;
     	step_print = (step_print_index * step_num) / step_print_num;
 
-	
+
     	for (step = 1; step <= step_num; step++)
 	{
 		compute(step);
@@ -130,7 +130,7 @@ int main()
 	}
 	t1=cputime();
 	printf("\n");
-	
+
 	printf("    Normal end of execution.\n");
 /*	printf("Time to run K1 is %0.7f (s)\n", Perf[0][0]);
 	printf("Time to run K2 is %g (us)\n", Perf[1][0]);
@@ -182,11 +182,11 @@ void initialize()
 		for (j = 0; j < np; j++)
 		{
 			int tempIndex = i * np + j;
-			vel[tempIndex] = 0.0;
+			vel[tempIndex] = 0.01;
 			acc[tempIndex] = 0.0;
 		}
 	}
-	
+
 	//Copy data to GPU
 	copyDataToGPU(acc, force, vel, pos, nd, np);
 }
@@ -213,7 +213,7 @@ void initialize()
 //    Output, real ( kind = 8 ) POT, the total potential energy.
 //    Output, real ( kind = 8 ) KIN, the total kinetic energy.
 
-void compute(int step) 
+void compute(int step)
 {
 	int i;
 	potential = 0.0;
@@ -237,17 +237,18 @@ void compute(int step)
 			GPU_compute_forceonparticle(nd, np, i, PI2, step, &time_elapsed);
 			potential += GPU_seq_wShrdMem_accumulate_parpot_and_parforce(nd,np,i, step, &time_elap1, &time_elap2);
 		}
+
 	}
-	
+
 	//Compute force on each particle on CPU; accumulating force and PE for each particle
 	//computeForceonCPU();
 
 	//Compute KE on GPU
 	//Call functions on GPU
-	
+
 	// Compute the total kinetic energy on CPU.
 	//kinetic = compute_kineticenergy();
-	
+
 	//Compute total kinetic energy on GPU
 	//kinetic = GPU_accumulate_KE_woShrdMem(nd, np, mass);
 /*	if(step==4)
@@ -291,7 +292,7 @@ void computeForceonCPU()
 				 **/
 
 				// Attribute half of the total potential energy to particle J.
-				potential += 0.5 * sin(d2) * sin(d2); // Discuss on potential calculation            
+				potential += 0.5 * sin(d2) * sin(d2); // Discuss on potential calculation
 
 				// Add particle J's contribution to the force on particle I.
 				compute_forceonparticle(i, d, d2, rij);
@@ -300,11 +301,11 @@ void computeForceonCPU()
 	}
 }
 
-float compute_distance(int moleculeindexi, int moleculeindexj, float* rij) 
+float compute_distance(int moleculeindexi, int moleculeindexj, float* rij)
 {
 	float d = 0.0;
 	int j1 = 0;
-	for (j1 = 0; j1 < nd; j1++) 
+	for (j1 = 0; j1 < nd; j1++)
 	{
 		rij[j1] = pos[j1 * np + moleculeindexi] - pos[j1 * np + moleculeindexj];
 		d = d + pow(rij[j1], 2.0);
@@ -312,15 +313,15 @@ float compute_distance(int moleculeindexi, int moleculeindexj, float* rij)
 	return sqrt(d);
 }
 
-void compute_forceonparticle(int moleculeindexi, float distance, float truncated_distance, float* rij) 
+void compute_forceonparticle(int moleculeindexi, float distance, float truncated_distance, float* rij)
 {
-	for (int j1 = 0; j1 < nd; j1++) 
+	for (int j1 = 0; j1 < nd; j1++)
 	{
 		force[j1 * np + moleculeindexi] = force[j1 * np + moleculeindexi] - rij[j1] * sin(2.0 * truncated_distance) / distance;
 	}
 }
 
-float compute_kineticenergy() 
+float compute_kineticenergy()
 {
 	int j1 = 0;
 	float temp = 0.0;
@@ -357,7 +358,7 @@ void update(int step)
 		GPU_updateVel(nd, np, dt, rmass, step, &time_elapsedCPU, &time_elapsedGPU);
 		GPU_updateAcc(nd, np, rmass, step, &time_elapsedCPU, &time_elapsedGPU);
 	}
-	
+
 	//Call function on CPU to update
 	//updateonCPU(rmass);
 }

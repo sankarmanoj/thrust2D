@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include "cputime.h"
 
-float *accnew_gpu;
-float *velnew_gpu;
+// float *accnew_gpu;
+// float *velnew_gpu;
 float *parforce_gpu;
 float *parpot_gpu;
 float *parvel_gpu;
@@ -26,8 +26,8 @@ double cputime()
 extern "C"
 void allocMemOnGPU(int nd, int np)
 {
-	cudaMalloc ((void**)(&accnew_gpu), nd*np*sizeof(float));
-	cudaMalloc ((void**)(&velnew_gpu), nd*np*sizeof(float));
+	// cudaMalloc ((void**)(&accnew_gpu), nd*np*sizeof(float));
+	// cudaMalloc ((void**)(&velnew_gpu), nd*np*sizeof(float));
 	cudaMalloc ((void**)(&parforce_gpu), nd*np*sizeof(float));
 	cudaMalloc ((void**)(&parpot_gpu), np*sizeof(float));
 	cudaMalloc ((void**)(&parvel_gpu), nd*np*sizeof(float));
@@ -84,7 +84,7 @@ __global__ void GPU_compute_forceonparticle_KERNEL(int np, int numberOfThreads, 
     dist2 = (dist < PI2) ? dist : PI2;
 
     if(idx==currentMoleculeIndex){
-    	posx=0.0;
+			posx=0.0;
     	posy=0.0;
     	posz=0.0;
     	dist=0.0;
@@ -334,6 +334,9 @@ void GPU_accumulate_parforce_wShrdMem(int nd, int np, int currentMoleculeIndex, 
 
 		dimGrid = dim3(numBlocks, 1);
 		reduce_wShrdMem<float><<< dimGrid, dimBlock, smemSize >>>(parforce_gpu, force_gpu+currentMoleculeIndex, 										numberOfThreads);
+		// float x;
+		// cudaMemcpy(&x,force_gpu + currentMoleculeIndex,sizeof(float),cudaMemcpyDeviceToHost);
+		// printf("%f \n",x);
 		cudaThreadSynchronize();
 		reduce_wShrdMem<float><<< dimGrid, dimBlock, smemSize >>>(parforce_gpu+(np), force_gpu+
 									(np+currentMoleculeIndex), numberOfThreads);
@@ -341,6 +344,7 @@ void GPU_accumulate_parforce_wShrdMem(int nd, int np, int currentMoleculeIndex, 
 		reduce_wShrdMem<float><<< dimGrid, dimBlock, smemSize >>>(parforce_gpu+(np*2), force_gpu+
 									(np+np+currentMoleculeIndex), numberOfThreads);
 		cudaThreadSynchronize();
+
 	}
 }
 //END K3 - Accumulate Force with/without shared memory
@@ -396,6 +400,8 @@ float GPU_accumulate_KE_wShrdMem(int nd, int np, float mass, int step, double *t
 	dim3 dimGrid;
 	int smemSize = (BLOCK_SIZE <= 32) ? 2 * BLOCK_SIZE * sizeof(double) : BLOCK_SIZE * sizeof(double);
 	dimGrid = dim3(numBlocks, 1, 1);
+	float val[100];
+	cudaMemcpy(val,vel_gpu,100*sizeof(float),cudaMemcpyDeviceToHost);
 
 
 /*	if(step == 4)
@@ -616,7 +622,7 @@ void GPU_updateAcc(int nd, int np, float rmass, int step, double *time_elapsedCP
 	dim3 dimGrid(numBlocks) ;
 	dim3 dimBlock(BLOCK_SIZE) ;
 
-	
+
 /*	if(step==4)
 	{
 		cudaEvent_t start, stop;

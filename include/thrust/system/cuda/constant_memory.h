@@ -16,7 +16,7 @@ namespace thrust
     {
       offset = 0;
     }
-    constant_vector(thrust::detail::normal_iterator<thrust::device_ptr<T>>, thrust::detail::normal_iterator<thrust::device_ptr<T>>);
+    constant_vector(thrust::detail::normal_iterator<thrust::device_ptr<T> >, thrust::detail::normal_iterator<thrust::device_ptr<T> >);
     constant_vector(thrust::detail::normal_iterator<T *>, thrust::detail::normal_iterator<T*> );
     constant_vector(const T* ,const T* ,cudaMemoryType );
     __device__ const T operator[] (unsigned long index);

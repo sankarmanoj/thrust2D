@@ -1,6 +1,7 @@
 #include <cuda_runtime_api.h>
 #include <thrust/device_vector.h>
-#include <thrust/transform_reduce.h>
+#include <thrust/transform.h>
+#include <thrust/shared_for_each.h>
 #include <stdio.h>
 #include "cputime.h"
 
@@ -167,7 +168,7 @@ thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(pos_gpuX.begin(),
 
 float GPU_accumulate_parpot_wShrdMem(int nd, int np, int step, double *time_elapsed)
 {
-	return thrust::reduce(parpot_gpu.begin(),parpot_gpu.end());
+	return thrust::reduce(thrust::cuda::shared,parpot_gpu.begin(),parpot_gpu.end());
 }
 
 //END K2 - Accumulate PE with/without shared memory
@@ -176,10 +177,10 @@ float GPU_accumulate_parpot_wShrdMem(int nd, int np, int step, double *time_elap
 //START K3 - Accumulate Force with/without shared memory
 void GPU_accumulate_parforce_wShrdMem(int nd, int np, int currentMoleculeIndex, int step, double *time_elapsed)
 {
-    force_gpuX[currentMoleculeIndex] = thrust::reduce(parforce_gpuX.begin(),parforce_gpuX.end());
+    force_gpuX[currentMoleculeIndex] = thrust::reduce(thrust::cuda::shared,parforce_gpuX.begin(),parforce_gpuX.end());
     // printf("%f\n",(float) force_gpuX[currentMoleculeIndex]);
-    force_gpuY[currentMoleculeIndex] = thrust::reduce(parforce_gpuY.begin(),parforce_gpuY.end());
-    force_gpuZ[currentMoleculeIndex] = thrust::reduce(parforce_gpuZ.begin(),parforce_gpuZ.end());
+    force_gpuY[currentMoleculeIndex] = thrust::reduce(thrust::cuda::shared,parforce_gpuY.begin(),parforce_gpuY.end());
+    force_gpuZ[currentMoleculeIndex] = thrust::reduce(thrust::cuda::shared,parforce_gpuZ.begin(),parforce_gpuZ.end());
 
 }
 //END K3 - Accumulate Force with/without shared memory
@@ -195,11 +196,12 @@ float GPU_seq_wShrdMem_accumulate_parpot_and_parforce(int nd, int np, int curren
 //START K4 - Compute and accumulate KE without shared memory
 //Compute KE with shared memory
 
-struct squareOp
+class squareOp
 {
-  __device__ float operator() ( const float input) const
+public:
+  __host__ __device__ float operator() (float &index) const
   {
-    return input*input;
+    return index*index;
   }
 };
 
@@ -211,9 +213,10 @@ float GPU_accumulate_KE_wShrdMem(int nd, int np, float mass, int step, double *t
   //   printf("%f \n",(float) vel_gpuX[i]);
   // }
 
-    float sum = thrust::transform_reduce(vel_gpuX.begin(),vel_gpuX.end(),squareOp(),0.0f,thrust::plus<float>())
-              + thrust::transform_reduce(vel_gpuY.begin(),vel_gpuY.end(),squareOp(),0.0f,thrust::plus<float>())
-              + thrust::transform_reduce(vel_gpuZ.begin(),vel_gpuZ.end(),squareOp(),0.0f,thrust::plus<float>());
+    float sum = thrust::transform_reduce(thrust::cuda::shared,vel_gpuX.begin(),vel_gpuX.end(),squareOp())
+              + thrust::transform_reduce(thrust::cuda::shared,vel_gpuY.begin(),vel_gpuY.end(),squareOp())
+              + thrust::transform_reduce(thrust::cuda::shared,vel_gpuZ.begin(),vel_gpuZ.end(),squareOp());
+
 	return 0.5 * mass * sum;
 }
 

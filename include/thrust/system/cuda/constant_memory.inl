@@ -48,7 +48,7 @@ namespace thrust
   }
 
   template<class T>
-  constant_vector<T>::constant_vector(thrust::detail::normal_iterator<thrust::device_ptr<T>> begin, thrust::detail::normal_iterator<thrust::device_ptr<T>>end)
+  constant_vector<T>::constant_vector(thrust::detail::normal_iterator<thrust::device_ptr<T> > begin, thrust::detail::normal_iterator<thrust::device_ptr<T> >end)
   {
     int size = end - begin;
     int mem_size = sizeof(T)*size;

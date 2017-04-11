@@ -8,7 +8,7 @@ NVCCFLAGS	:= -arch sm_60
 INCLUDES	:= -I.  -I../include
 LIBS		:=  -lcudart -lm
 
-MAIN	:= Perfsig thrust_Perfsig
+MAIN	:= Perfsig thrust_Perfsig shared_Perfsig
 
 all	: $(MAIN)
 
@@ -17,12 +17,17 @@ Perfsig: main.o MD_kernel_Perfsig.o
 
 thrust_Perfsig : main.o MD_thrust_Perfsig.o
 		$(LINK) -o thrust_Perfsig main.o MD_thrust_Perfsig.o $(LIBS)
+shared_Perfsig : main.o MD_shared_Perfsig.o
+		$(LINK) -o shared_Perfsig main.o MD_shared_Perfsig.o $(LIBS)
 
 MD_kernel_Perfsig.o: MD_kernel_Perfsig.cu
 	$(NVCC) $(NVCCFLAGS) $(INCLUDES) -o MD_kernel_Perfsig.o -c MD_kernel_Perfsig.cu
 
-MD_thrust_Perfsig.o: MD_kernel_Perfsig.cu
+MD_thrust_Perfsig.o: MD_thrust_Perfsig.cu
 	$(NVCC) $(NVCCFLAGS) $(INCLUDES) -o MD_thrust_Perfsig.o -c MD_thrust_Perfsig.cu
+
+MD_shared_Perfsig.o: MD_shared_Perfsig.cu
+	$(NVCC) $(NVCCFLAGS) $(INCLUDES) -o MD_shared_Perfsig.o -c MD_shared_Perfsig.cu
 
 main.o: main.cpp
 	$(CC) $(INCLUDES) -o main.o -c main.cpp
