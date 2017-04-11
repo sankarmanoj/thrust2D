@@ -17,7 +17,7 @@ public:
 };
 int main(int argc, char const *argv[]) {
   Mat input1 = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
-  Mat input2 = imread("aoutput.png",CV_LOAD_IMAGE_GRAYSCALE);
+  Mat input2 = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat temp1;
   resize(input1,temp1,Size(500,500));
   input1 = temp1;

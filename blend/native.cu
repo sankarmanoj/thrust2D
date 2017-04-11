@@ -25,7 +25,7 @@ int main(int argc, char const *argv[]) {
   }
   cudaDeviceProp dev_prop;
   cudaGetDeviceProperties(&dev_prop,0);
-  Mat input1 = imread("../opencv/shared/santiago.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+  Mat input1 = imread("../opencv/shared/car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat input2 = imread("../opencv/shared/car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat temp1;
   resize(input1,temp1,Size(dim,dim));

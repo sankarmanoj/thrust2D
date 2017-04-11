@@ -12,7 +12,7 @@ int main( int argc, char** argv )
   }
   cv::resize(input,image,cv::Size(dim,dim));
   cv::cuda::GpuMat image_d, grad_x_d,grad_y_d,grad_d;
-  cv::imwrite("input.png", image);//displaying image
+  // cv::imwrite("input.png", image);//displaying image
   image_d.upload(image);
   /// Generate grad_x and grad_y
   cv::Mat grad_x, grad_y,grad;
