@@ -5,7 +5,7 @@
 #include <thrust/constant_memory.h>
 #include <thrust/scan.h>
 #include <thrust/transform_reduce.h>
-#include <thrust/shared_for_each.h>
+#include <thrust/shared_algorithms.h>
 // #include <thrust/shared_reduce.h>
 using namespace thrust;
 class printFunctor

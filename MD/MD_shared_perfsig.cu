@@ -1,7 +1,7 @@
 #include <cuda_runtime_api.h>
 #include <thrust/device_vector.h>
 #include <thrust/transform.h>
-#include <thrust/shared_for_each.h>
+#include <thrust/shared_algorithms.h>
 #include <stdio.h>
 #include "cputime.h"
 

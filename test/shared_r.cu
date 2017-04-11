@@ -7,7 +7,7 @@
 #include <thrust/functional.h>
 // #include <thrust/reduce.h>
 // #include <thrust/system/cuda/window_structures.h>
-#include <thrust/shared_for_each.h>
+#include <thrust/shared_algorithms.h>
 // #include <thrust/shared_reduce.h>
 using namespace thrust;
 class printFunctor

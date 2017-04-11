@@ -1,6 +1,6 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/device_vector.h>
-#include <thrust/shared_for_each.h>
+#include <thrust/shared_algorithms.h>
 using namespace cv;
 int iDivUp(int a, int b)
 {

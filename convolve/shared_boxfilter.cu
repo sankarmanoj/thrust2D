@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <thrust/shared_for_each.h>
+#include <thrust/shared_algorithms.h>
 #define RG 10
 // #define DSIZE (32768*1024)
 #define FSIZE 17

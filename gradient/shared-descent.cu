@@ -1,6 +1,6 @@
 #include <thrust/device_vector.h>
 #include <thrust/constant_memory.h>
-#include <thrust/shared_for_each.h>
+#include <thrust/shared_algorithms.h>
 #include "descent-struct.h"
 #include <fstream>
 

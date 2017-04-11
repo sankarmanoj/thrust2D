@@ -9,7 +9,7 @@
 #include <thrust/replace.h>
 #include <thrust/functional.h>
 #include <thrust/scan.h>
-#include <thrust/shared_for_each.h>
+#include <thrust/shared_algorithms.h>
 
 #include <stdlib.h>
 #include <string.h>
