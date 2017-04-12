@@ -19,12 +19,18 @@ void getGradient(int N,int D,float * xvalues,float * error,float * gradient)
 {
   for (size_t i = 0; i < D; i++)
   {
-    float gradient_value = 0;
-    for(size_t j = 0; j<N;j++)
+    gradient[i] = 0;
+  }
+  for (size_t j = 0; i < N; i++)
+  {
+    for(size_t i = 0; j<D;j++)
     {
-      gradient_value += xvalues[j*D + i]*error[j];
+      gradient[i] += xvalues[j*D + i]*error[j];
     }
-    gradient[i]=gradient_value/N;
+  }
+  for (size_t i = 0; i < D; i++)
+  {
+    gradient[i] /= N;
   }
 }
 void update_weights(int D, float * weights, float * gradient, float learn)
