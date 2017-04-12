@@ -6,11 +6,13 @@ CC=nvcc
 CPPC=icpc
 CFLAGS=-I$(IDIR) -ccbin=g++-5 -std=c++11 -arch=sm_60
 DFLAGS =-DDEBUG -g -G -lineinfo
-SRCS = $(wildcard *.cu)
-
+CUSRCS = $(wildcard *.cu)
+CPPSRCS = $(wildcard *.cpp)
 .PHONY: clean
-OBJS=$(SRCS:.cu=.o)
+OBJS=$(CUSRCS:.cu=.o)
+OBJS := $(CPPSRCS:.cpp=.o)
 PROFILES=$(OBJS:.o=.profile)
+
 all: $(OBJS)
 
 .PHONY: all
@@ -32,7 +34,7 @@ openmp: omp_descent.cpp Makefile omp_native.cpp
 	icpc -O3 -qopenmp omp_native.cpp -o omp_native.o -lm
 omp_mic: omp_descent.cpp Makefile
 	icpc -O3 -I$(IDIR) -mmic -std=c++11 -qopenmp omp_descent.cpp -o omp_descent_mic.o -lm
-	icpc -O3 -mmic -std=c++11 -qopenmp omp_native.cpp -o omp_native_mic.o -lm	
+	icpc -O3 -mmic -std=c++11 -qopenmp omp_native.cpp -o omp_native_mic.o -lm
 run_openmp:
 	time ./omp_descent.o 10 0.01
 	time ./omp_native.o 10 0.01

@@ -19,6 +19,7 @@ void getGradient(int N,int D,float * xvalues,float * error,float * gradient)
 {
   for (size_t j = 0; j< N; j++)
   {
+    #pragma omp parallel for
     for(size_t i = 0; i<D; i++)
     {
       if (j==0)
@@ -49,7 +50,7 @@ int main(int argc, char **argv)
   std::ifstream values;
   values.open("./values.txt");
   int D,N,niter;
-  float learn;
+  float learn = 0.01;
   if(argc==3)
   {
     niter = atoi(argv[1]);
@@ -95,18 +96,20 @@ int main(int argc, char **argv)
   int count = 0;
   float threshold_error = N;
   float error_val;
-  double start, end;
-  start = omp_get_wtime();
+  double start, end, total = 0;
   do
   {
     getdotError(N,D,xvalues,weights,y_actual,error);
     error_val = getError(error,N);
+    start = omp_get_wtime();
     getGradient(N,D,xvalues,error,gradient);
+    end = omp_get_wtime();
+    // printf("Start = %f End = %f \n",start,end);
+    total = end - start;
     update_weights(D,weights,gradient,learn);
     count++;
   }
 
   while(error_val>threshold_error);
-  end = omp_get_wtime();
-  printf("%f\n",(end-start)/count);
+  printf("%f\n%d\n",total/count,count );
 }
