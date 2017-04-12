@@ -17,11 +17,11 @@ void getdotError(int N, int D, float * xvalues, float * weights, float * yvalues
 
 void getGradient(int N,int D,float * xvalues,float * error,float * gradient)
 {
-  for (size_t j = 0; i < N; i++)
+  for (size_t j = 0; j< N; j++)
   {
-    for(size_t i = 0; j<D;j++)
+    for(size_t i = 0; i<D; i++)
     {
-      if (j=0)
+      if (j==0)
         gradient[i] = 0;
       gradient[i] += (xvalues[j*D + i]*error[j])/N;
     }
