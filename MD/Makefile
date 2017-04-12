@@ -7,6 +7,12 @@ INCLUDES	:= -I.  -I../include
 LIBS		:=  -lcudart -lm
 MAIN	:= perfsig.out thrust_perfsig.out shared_perfsig.out
 all	: $(MAIN)
+
+profile : CC += -DPROFILING
+profile : $(MAIN)
+
+debug  : NVCCFLAGS += -g -G -DDEBUG
+debug  : $(MAIN)
 perfsig.out: main.o MD_kernel_perfsig.o
 	$(LINK) -o perfsig.out main.o MD_kernel_perfsig.o $(LIBS)
 thrust_perfsig.out: main.o MD_thrust_perfsig.o

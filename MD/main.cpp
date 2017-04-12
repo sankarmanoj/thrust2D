@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "cputime.h"
-
+// #define PROFILING
 const float PI2 = 3.141592653589793 / 2.0;
 const int nd = 3;
 int np;
@@ -55,12 +55,20 @@ extern "C"
 void updateonCPU(float);
 
 
-int main()
+int main(int argc, char ** argv)
 {
 
-	np = 10000; //ENTERED_NP; //Number of molecules
+		np = 10000; //ENTERED_NP; //Number of molecules
     step_num = 10; //ENTERED_NUMOFSTEPS; //Number of steps
-
+		if(argc==2)
+		{
+			np = atoi(argv[1]);
+		}
+		if(argc==3)
+		{
+			np = atoi(argv[1]);
+			step_num = atoi(argv[2]);
+		}
 	//Allocate memory on host
 	acc = (float*) malloc(nd * np * sizeof (float));
     box = (float*) malloc(nd * sizeof (float));
@@ -71,12 +79,13 @@ int main()
 	//Allocate array on device
 	allocMemOnGPU(nd, np);
 	//Start the program
+	#ifndef PROFILING
 	printf("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n");
 	printf("A molecular dynamics program.\n");
     printf("    NP, the number of particles in the simulation is: %d\n", np);
     printf("    STEP_NUM, the number of time steps, is          : %d\n", step_num);
     printf("    DT, the size of each time step, is              : %E\n\n", dt);
-
+	#endif
 	// Set the dimensions of the box
     int index = nd;
     while (index != 0)
@@ -85,20 +94,25 @@ int main()
     }
 
 	double t0, t1;
-    // Set initial positions, velocities, and accelerations
+  #ifndef PROFILING  // Set initial positions, velocities, and accelerations
     printf("Initializing positions, velocities, and accelerations.\n\n");
     t0=cputime();
+		#endif
+
     initialize();
 
 
     // Compute the forces and energies.
 	step = 0;
-    printf("Computing initial forces and energies.");
+    #ifndef PROFILING
+		printf("Computing initial forces and energies.");
+		#endif
+
     compute(step);
 
     // Save the initial total energy for use in the accuracy check.
     e0 = potential + kinetic;
-
+		#ifndef PROFILING
 	printf("\n");
     printf("    At each step, we report the potential and kinetic energies.\n");
     printf("    The sum of these energies should be a constant.\n");
@@ -108,7 +122,7 @@ int main()
     printf("        Step      Potential       Kinetic        (P+K-E0)/E0\n");
     printf("                  Energy P        Energy K       Relative Energy Error\n");
     printf("\n");
-
+		#endif
 	//  This is the main time stepping loop:
     //    Compute forces and energies,
     //    Update positions, velocities, accelerations.
@@ -117,21 +131,29 @@ int main()
     step_print_num = 10;
 
     step = 0;
-    	printf("        %d      %E       %E       %E\n", step, potential, kinetic, ((potential + kinetic - e0) / e0));
-    	step_print_index = step_print_index + 1;
-    	step_print = (step_print_index * step_num) / step_print_num;
-
+		#ifndef PROFILING
+  	printf("        %d      %E       %E       %E\n", step, potential, kinetic, ((potential + kinetic - e0) / e0));
+		#endif
+		step_print_index = step_print_index + 1;
+  	step_print = (step_print_index * step_num) / step_print_num;
+		#ifdef PROFILING
+		t0 = cputime();
+		#endif
 
     	for (step = 1; step <= step_num; step++)
-	{
-		compute(step);
-		printf("        %d      %E       %E       %E\n", step, potential, kinetic, ((potential + kinetic - e0) / e0));
-		update(step);
-	}
+			{
+				compute(step);
+				#ifndef PROFILING
+					printf("        %d      %E       %E       %E\n", step, potential, kinetic, ((potential + kinetic - e0) / e0));
+				#endif
+				update(step);
+			}
 	t1=cputime();
+	#ifndef PROFILING
 	printf("\n");
 
 	printf("    Normal end of execution.\n");
+	#endif
 /*	printf("Time to run K1 is %0.7f (s)\n", Perf[0][0]);
 	printf("Time to run K2 is %g (us)\n", Perf[1][0]);
 	printf("Time to run K3 is %g (us)\n", Perf[2][0]);
@@ -140,7 +162,13 @@ int main()
 	printf("Time to run K6 is %g (us) on CPU\n", Perf[5][0]);//, Perf[5][1]);
 	printf("Time to run K7 is %g (us) on CPU\n", Perf[6][0]);//, Perf[6][1]);
 */
+#ifndef PROFILING
 	printf("Total time for execution is %g (s)\n", (t1-t0)*iCPS);
+#endif
+	#ifdef PROFILING
+printf("%g\n", (t1-t0)*iCPS);
+	#endif
+	exit(-1);
 	return 0;
 }
 
