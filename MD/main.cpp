@@ -168,7 +168,6 @@ int main(int argc, char ** argv)
 	#ifdef PROFILING
 printf("%g\n", (t1-t0)*iCPS);
 	#endif
-	exit(-1);
 	return 0;
 }
 

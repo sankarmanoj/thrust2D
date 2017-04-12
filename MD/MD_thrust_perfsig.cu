@@ -15,28 +15,28 @@
 // float *vel_gpu;
 
 
-thrust::device_vector<float> parforce_gpuX;
-thrust::device_vector<float> parforce_gpuY;
-thrust::device_vector<float> parforce_gpuZ;
+thrust::device_vector<float> *parforce_gpuX;
+thrust::device_vector<float> *parforce_gpuY;
+thrust::device_vector<float> *parforce_gpuZ;
 
-thrust::device_vector<float> parpot_gpu;
+thrust::device_vector<float> *parpot_gpu;
 
-thrust::device_vector<float> acc_gpuX;
-thrust::device_vector<float> acc_gpuY;
-thrust::device_vector<float> acc_gpuZ;
+thrust::device_vector<float> *acc_gpuX;
+thrust::device_vector<float> *acc_gpuY;
+thrust::device_vector<float> *acc_gpuZ;
 
-thrust::device_vector<float> force_gpuX;
-thrust::device_vector<float> force_gpuY;
-thrust::device_vector<float> force_gpuZ;
+thrust::device_vector<float> *force_gpuX;
+thrust::device_vector<float> *force_gpuY;
+thrust::device_vector<float> *force_gpuZ;
 
 
-thrust::device_vector<float> pos_gpuX;
-thrust::device_vector<float> pos_gpuY;
-thrust::device_vector<float> pos_gpuZ;
+thrust::device_vector<float> *pos_gpuX;
+thrust::device_vector<float> *pos_gpuY;
+thrust::device_vector<float> *pos_gpuZ;
 
-thrust::device_vector<float> vel_gpuX;
-thrust::device_vector<float> vel_gpuY;
-thrust::device_vector<float> vel_gpuZ;
+thrust::device_vector<float> *vel_gpuX;
+thrust::device_vector<float> *vel_gpuY;
+thrust::device_vector<float> *vel_gpuZ;
 
 
 /*
@@ -55,49 +55,49 @@ void allocMemOnGPU(int nd, int np)
 {
 
 
-	parforce_gpuX = *(new thrust::device_vector<float>(np));
-	parforce_gpuY = *(new thrust::device_vector<float>(np));
-	parforce_gpuZ = *(new thrust::device_vector<float>(np));
+	parforce_gpuX = (new thrust::device_vector<float>(np));
+	parforce_gpuY = (new thrust::device_vector<float>(np));
+	parforce_gpuZ = (new thrust::device_vector<float>(np));
 
-	parpot_gpu = *(new thrust::device_vector<float>(np) );
+	parpot_gpu = (new thrust::device_vector<float>(np) );
 
-  acc_gpuX = *(new thrust::device_vector<float>(np));
-  acc_gpuY = *(new thrust::device_vector<float>(np));
-  acc_gpuZ = *(new thrust::device_vector<float>(np));
+  acc_gpuX = (new thrust::device_vector<float>(np));
+  acc_gpuY = (new thrust::device_vector<float>(np));
+  acc_gpuZ = (new thrust::device_vector<float>(np));
 
-  force_gpuX = *(new thrust::device_vector<float>(np));
-  force_gpuY = *(new thrust::device_vector<float>(np));
-  force_gpuZ = *(new thrust::device_vector<float>(np));
+  force_gpuX = (new thrust::device_vector<float>(np));
+  force_gpuY = (new thrust::device_vector<float>(np));
+  force_gpuZ = (new thrust::device_vector<float>(np));
 
 
-	pos_gpuX = *(new thrust::device_vector<float>(np));
-  pos_gpuY = *(new thrust::device_vector<float>(np));
-  pos_gpuZ = *(new thrust::device_vector<float>(np));
+	pos_gpuX = (new thrust::device_vector<float>(np));
+  pos_gpuY = (new thrust::device_vector<float>(np));
+  pos_gpuZ = (new thrust::device_vector<float>(np));
 
-  vel_gpuX = *(new thrust::device_vector<float>(np));
-  vel_gpuY = *(new thrust::device_vector<float>(np));
-  vel_gpuZ = *(new thrust::device_vector<float>(np));
+  vel_gpuX = (new thrust::device_vector<float>(np));
+  vel_gpuY = (new thrust::device_vector<float>(np));
+  vel_gpuZ = (new thrust::device_vector<float>(np));
 
 }
 
 extern "C"
 void copyDataToGPU(float *h_acc, float *h_force, float *h_vel, float *h_pos, int nd, int np)
 {
-  acc_gpuX.assign( h_acc        ,h_acc + np);
-  acc_gpuY.assign( h_acc +np    ,h_acc + 2*np);
-  acc_gpuZ.assign( h_acc +2*np  ,h_acc + nd*np);
+  acc_gpuX->assign( h_acc        ,h_acc + np);
+  acc_gpuY->assign( h_acc +np    ,h_acc + 2*np);
+  acc_gpuZ->assign( h_acc +2*np  ,h_acc + nd*np);
 
-  force_gpuX.assign( h_force        ,h_force + np);
-  force_gpuY.assign( h_force +np    ,h_force + 2*np);
-  force_gpuZ.assign( h_force +2*np  ,h_force + nd*np);
+  force_gpuX->assign( h_force        ,h_force + np);
+  force_gpuY->assign( h_force +np    ,h_force + 2*np);
+  force_gpuZ->assign( h_force +2*np  ,h_force + nd*np);
 
-  vel_gpuX.assign( h_vel        ,h_vel + np);
-  vel_gpuY.assign( h_vel +np    ,h_vel + 2*np);
-  vel_gpuZ.assign( h_vel +2*np  ,h_vel + nd*np);
+  vel_gpuX->assign( h_vel        ,h_vel + np);
+  vel_gpuY->assign( h_vel +np    ,h_vel + 2*np);
+  vel_gpuZ->assign( h_vel +2*np  ,h_vel + nd*np);
 
-	pos_gpuX.assign( h_pos        ,h_pos + np);
-  pos_gpuY.assign( h_pos +np    ,h_pos + 2*np);
-  pos_gpuZ.assign( h_pos +2*np  ,h_pos + nd*np);
+	pos_gpuX->assign( h_pos        ,h_pos + np);
+  pos_gpuY->assign( h_pos +np    ,h_pos + 2*np);
+  pos_gpuZ->assign( h_pos +2*np  ,h_pos + nd*np);
 
 }
 
@@ -155,10 +155,10 @@ extern "C"
 void GPU_compute_forceonparticle(int nd, int np, int currentMoleculeIndex, const float PI2, int step, double *time_elapsed)
 {
 
-thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(pos_gpuX.begin(),pos_gpuY.begin(),pos_gpuZ.begin(),thrust::counting_iterator<int>(0))),
-                  thrust::make_zip_iterator(thrust::make_tuple(pos_gpuX.end(),pos_gpuY.end(),pos_gpuZ.end(),thrust::counting_iterator<int>(pos_gpuX.end()-pos_gpuX.begin()))),
-                  thrust::make_zip_iterator(thrust::make_tuple(parforce_gpuX.begin(),parforce_gpuY.begin(),parforce_gpuZ.begin())),
-                  parpot_gpu.begin(),compute_forceonparticle_functor(PI2,pos_gpuX[currentMoleculeIndex],pos_gpuY[currentMoleculeIndex],pos_gpuZ[currentMoleculeIndex],currentMoleculeIndex));
+thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(pos_gpuX->begin(),pos_gpuY->begin(),pos_gpuZ->begin(),thrust::counting_iterator<int>(0))),
+                  thrust::make_zip_iterator(thrust::make_tuple(pos_gpuX->end(),pos_gpuY->end(),pos_gpuZ->end(),thrust::counting_iterator<int>(pos_gpuX->end()-pos_gpuX->begin()))),
+                  thrust::make_zip_iterator(thrust::make_tuple(parforce_gpuX->begin(),parforce_gpuY->begin(),parforce_gpuZ->begin())),
+                  parpot_gpu->begin(),compute_forceonparticle_functor(PI2,(*pos_gpuX)[currentMoleculeIndex],(*pos_gpuY)[currentMoleculeIndex],(*pos_gpuZ)[currentMoleculeIndex],currentMoleculeIndex));
 // if(currentMoleculeIndex<100)
 // printf("%f \n",(float) parforce_gpuX[0]);
 }
@@ -167,7 +167,7 @@ thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(pos_gpuX.begin(),
 
 float GPU_accumulate_parpot_wShrdMem(int nd, int np, int step, double *time_elapsed)
 {
-	return thrust::reduce(parpot_gpu.begin(),parpot_gpu.end());
+	return thrust::reduce(parpot_gpu->begin(),parpot_gpu->end());
 }
 
 //END K2 - Accumulate PE with/without shared memory
@@ -176,10 +176,10 @@ float GPU_accumulate_parpot_wShrdMem(int nd, int np, int step, double *time_elap
 //START K3 - Accumulate Force with/without shared memory
 void GPU_accumulate_parforce_wShrdMem(int nd, int np, int currentMoleculeIndex, int step, double *time_elapsed)
 {
-    force_gpuX[currentMoleculeIndex] = thrust::reduce(parforce_gpuX.begin(),parforce_gpuX.end());
+    (*force_gpuX)[currentMoleculeIndex] = thrust::reduce(parforce_gpuX->begin(),parforce_gpuX->end());
     // printf("%f\n",(float) force_gpuX[currentMoleculeIndex]);
-    force_gpuY[currentMoleculeIndex] = thrust::reduce(parforce_gpuY.begin(),parforce_gpuY.end());
-    force_gpuZ[currentMoleculeIndex] = thrust::reduce(parforce_gpuZ.begin(),parforce_gpuZ.end());
+    (*force_gpuY)[currentMoleculeIndex] = thrust::reduce(parforce_gpuY->begin(),parforce_gpuY->end());
+    (*force_gpuZ)[currentMoleculeIndex] = thrust::reduce(parforce_gpuZ->begin(),parforce_gpuZ->end());
 
 }
 //END K3 - Accumulate Force with/without shared memory
@@ -211,9 +211,9 @@ float GPU_accumulate_KE_wShrdMem(int nd, int np, float mass, int step, double *t
   //   printf("%f \n",(float) vel_gpuX[i]);
   // }
 
-    float sum = thrust::transform_reduce(vel_gpuX.begin(),vel_gpuX.end(),squareOp(),0.0f,thrust::plus<float>())
-              + thrust::transform_reduce(vel_gpuY.begin(),vel_gpuY.end(),squareOp(),0.0f,thrust::plus<float>())
-              + thrust::transform_reduce(vel_gpuZ.begin(),vel_gpuZ.end(),squareOp(),0.0f,thrust::plus<float>());
+    float sum = thrust::transform_reduce(vel_gpuX->begin(),vel_gpuX->end(),squareOp(),0.0f,thrust::plus<float>())
+              + thrust::transform_reduce(vel_gpuY->begin(),vel_gpuY->end(),squareOp(),0.0f,thrust::plus<float>())
+              + thrust::transform_reduce(vel_gpuZ->begin(),vel_gpuZ->end(),squareOp(),0.0f,thrust::plus<float>());
 	return 0.5 * mass * sum;
 }
 
@@ -247,15 +247,15 @@ extern "C"
 void GPU_updatePos(int nd, int np, float dt, int step, double *time_elapsedCPU, float *time_elapsedGPU)
 {
 
-	thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(vel_gpuX.begin(),acc_gpuX.begin())),
-                    thrust::make_zip_iterator(thrust::make_tuple(vel_gpuX.end(),acc_gpuX.end())),
-                    pos_gpuX.begin(),pos_gpuX.begin(),updateOp(dt));
-  thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(vel_gpuY.begin(),acc_gpuY.begin())),
-                    thrust::make_zip_iterator(thrust::make_tuple(vel_gpuY.end(),acc_gpuY.end())),
-                    pos_gpuY.begin(),pos_gpuY.begin(),updateOp(dt));
-  thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(vel_gpuZ.begin(),acc_gpuZ.begin())),
-                    thrust::make_zip_iterator(thrust::make_tuple(vel_gpuZ.end(),acc_gpuZ.end())),
-                    pos_gpuZ.begin(),pos_gpuZ.begin(),updateOp(dt));
+	thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(vel_gpuX->begin(),acc_gpuX->begin())),
+                    thrust::make_zip_iterator(thrust::make_tuple(vel_gpuX->end(),acc_gpuX->end())),
+                    pos_gpuX->begin(),pos_gpuX->begin(),updateOp(dt));
+  thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(vel_gpuY->begin(),acc_gpuY->begin())),
+                    thrust::make_zip_iterator(thrust::make_tuple(vel_gpuY->end(),acc_gpuY->end())),
+                    pos_gpuY->begin(),pos_gpuY->begin(),updateOp(dt));
+  thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(vel_gpuZ->begin(),acc_gpuZ->begin())),
+                    thrust::make_zip_iterator(thrust::make_tuple(vel_gpuZ->end(),acc_gpuZ->end())),
+                    pos_gpuZ->begin(),pos_gpuZ->begin(),updateOp(dt));
 
 
 }
@@ -289,15 +289,15 @@ public:
 extern "C"
 void GPU_updateVel(int nd, int np, float dt, float rmass, int step, double *time_elapsedCPU, float *time_elapsedGPU)
 {
-  thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(force_gpuX.begin(),acc_gpuX.begin())),
-                    thrust::make_zip_iterator(thrust::make_tuple(force_gpuX.end(),acc_gpuX.end())),
-                    vel_gpuX.begin(),vel_gpuX.begin(),updateVelOp(dt,rmass));
-  thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(force_gpuY.begin(),acc_gpuY.begin())),
-                    thrust::make_zip_iterator(thrust::make_tuple(force_gpuY.end(),acc_gpuY.end())),
-                    vel_gpuY.begin(),vel_gpuY.begin(),updateVelOp(dt,rmass));
-  thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(force_gpuZ.begin(),acc_gpuZ.begin())),
-                    thrust::make_zip_iterator(thrust::make_tuple(force_gpuZ.end(),acc_gpuZ.end())),
-                    vel_gpuZ.begin(),vel_gpuZ.begin(),updateVelOp(dt,rmass));
+  thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(force_gpuX->begin(),acc_gpuX->begin())),
+                    thrust::make_zip_iterator(thrust::make_tuple(force_gpuX->end(),acc_gpuX->end())),
+                    vel_gpuX->begin(),vel_gpuX->begin(),updateVelOp(dt,rmass));
+  thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(force_gpuY->begin(),acc_gpuY->begin())),
+                    thrust::make_zip_iterator(thrust::make_tuple(force_gpuY->end(),acc_gpuY->end())),
+                    vel_gpuY->begin(),vel_gpuY->begin(),updateVelOp(dt,rmass));
+  thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(force_gpuZ->begin(),acc_gpuZ->begin())),
+                    thrust::make_zip_iterator(thrust::make_tuple(force_gpuZ->end(),acc_gpuZ->end())),
+                    vel_gpuZ->begin(),vel_gpuZ->begin(),updateVelOp(dt,rmass));
 }
 //END K6 - Update velocity
 
@@ -322,9 +322,9 @@ extern "C"
 void GPU_updateAcc(int nd, int np, float rmass, int step, double *time_elapsedCPU, float *time_elapsedGPU)
 {
 
-  thrust::transform(force_gpuX.begin(),force_gpuX.end(),acc_gpuX.begin(),updateAccOp(rmass));
-  thrust::transform(force_gpuY.begin(),force_gpuY.end(),acc_gpuY.begin(),updateAccOp(rmass));
-  thrust::transform(force_gpuZ.begin(),force_gpuZ.end(),acc_gpuZ.begin(),updateAccOp(rmass));
+  thrust::transform(force_gpuX->begin(),force_gpuX->end(),acc_gpuX->begin(),updateAccOp(rmass));
+  thrust::transform(force_gpuY->begin(),force_gpuY->end(),acc_gpuY->begin(),updateAccOp(rmass));
+  thrust::transform(force_gpuZ->begin(),force_gpuZ->end(),acc_gpuZ->begin(),updateAccOp(rmass));
 
 }
 //END K7 - Update acceleration
