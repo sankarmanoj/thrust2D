@@ -17,20 +17,14 @@ void getdotError(int N, int D, float * xvalues, float * weights, float * yvalues
 
 void getGradient(int N,int D,float * xvalues,float * error,float * gradient)
 {
-  for (size_t i = 0; i < D; i++)
-  {
-    gradient[i] = 0;
-  }
   for (size_t j = 0; i < N; i++)
   {
     for(size_t i = 0; j<D;j++)
     {
-      gradient[i] += xvalues[j*D + i]*error[j];
+      if (j=0)
+        gradient[i] = 0;
+      gradient[i] += (xvalues[j*D + i]*error[j])/N;
     }
-  }
-  for (size_t i = 0; i < D; i++)
-  {
-    gradient[i] /= N;
   }
 }
 void update_weights(int D, float * weights, float * gradient, float learn)
@@ -115,7 +109,4 @@ int main(int argc, char **argv)
   while(error_val>threshold_error);
   end = omp_get_wtime();
   printf("%f\n",(end-start)/count);
-
-
-
 }
