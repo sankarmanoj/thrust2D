@@ -120,31 +120,31 @@ public:
 		int E = tx+1;
 		for (int i=0; i<iteration ; i++)
 		{
-			w[ty][tx] =  w[ty][tx] + stepDivCap * (p[tx][ty] + \
+			w[ty][tx] =  w[ty][tx] + stepDivCap * (p[ty][tx] + \
 				(w[S][tx] + w[N][tx] - 2.0*(w[ty][tx])) * Ry_1 + \
 				(w[ty][E] + w[ty][W] - 2.0*(w[ty][tx])) * Rx_1 + \
 				(AMBIENT_TEMP - w[ty][tx]) * Rz_1);
-			}
-			// Boundary Condtions - causes warp divergence.
-			if(w.start_y == 0)
-			w[N][tx] = w[ty][tx];
-			if(w.start_y == rows - w.window_dim_y)
-			w[S][tx] = w[ty][tx];
-			if(w.start_x == 0)
-			w[ty][W] = w[ty][tx];
-			if(w.start_x == cols - w.window_dim_x)
-			w[ty][E] = w[ty][tx];
-			if(w.start_y == 0 && w.start_x == 0)
-			w[N][W] = w[ty][tx];
-			if(w.start_y == rows - w.window_dim_y && w.start_x == cols - w.window_dim_x)
-			w[S][E] = w[ty][tx];
-			if(w.start_x == 0 && w.start_y == rows - w.window_dim_y)
-			w[S][W] = w[ty][tx];
-			if(w.start_x == cols - w.window_dim_x && w.start_y == 0)
-			w[N][E] = w[ty][tx];
-			return 0;
 		}
-	};
+		// Boundary Condtions - causes warp divergence.
+		if(w.start_y == 0)
+		w[N][tx] = w[ty][tx];
+		if(w.start_y == rows - w.window_dim_y)
+		w[S][tx] = w[ty][tx];
+		if(w.start_x == 0)
+		w[ty][W] = w[ty][tx];
+		if(w.start_x == cols - w.window_dim_x)
+		w[ty][E] = w[ty][tx];
+		if(w.start_y == 0 && w.start_x == 0)
+		w[N][W] = w[ty][tx];
+		if(w.start_y == rows - w.window_dim_y && w.start_x == cols - w.window_dim_x)
+		w[S][E] = w[ty][tx];
+		if(w.start_x == 0 && w.start_y == rows - w.window_dim_y)
+		w[S][W] = w[ty][tx];
+		if(w.start_x == cols - w.window_dim_x && w.start_y == 0)
+		w[N][E] = w[ty][tx];
+		return 0;
+	 }
+};
 
 	void usage(int argc, char **argv)
 	{
@@ -198,8 +198,8 @@ public:
 		readinput(FilesavingPower, grid_rows, grid_cols, pfile);
 		thrust::block_2d<float> TemperatureBlock(grid_rows,grid_cols);
 		thrust::block_2d<float> PowerBlock(grid_rows,grid_cols);
-		TemperatureBlock.assign(FilesavingTemp,FilesavingTemp+size);
-		PowerBlock.assign(FilesavingPower,FilesavingPower+size);
+		TemperatureBlock.upload(FilesavingTemp);
+		PowerBlock.upload(FilesavingPower);
 		printf("Start computing the transient temperature\n");
 		float grid_height = chip_height / grid_rows;
 		float grid_width = chip_width / grid_cols;
@@ -223,12 +223,12 @@ public:
 		{
 			int required_iterations = MIN(pyramid_height,total_iterations-t);
 			HotspotFunctor functor(required_iterations,grid_cols,grid_rows,step_div_Cap,Rx_1,Ry_1,Rz_1);
-			thrust::window_vector<float> wv = thrust::window_vector<float>(&(TemperatureBlock),3,3,1,1);
-			thrust::window_vector<float> wp = thrust::window_vector<float>(&(PowerBlock),3,3,1,1);
+			thrust::window_vector<float> wv(&(TemperatureBlock),3,3,1,1);
+			thrust::window_vector<float> wp(&(PowerBlock),3,3,1,1);
 			thrust::device_vector<int> null_vector(grid_rows*grid_cols);
 			thrust::transform(wv.begin(),wv.end(),wp.begin(),null_vector.begin(),functor);
 		}
 		printf("Ending simulation\n");
-		cudaMemcpy(FilesavingTemp,thrust::raw_pointer_cast(TemperatureBlock.data()),size*sizeof(float),cudaMemcpyDeviceToHost);
+		TemperatureBlock.download(&FilesavingTemp);
 		writeoutput(FilesavingTemp,grid_rows, grid_cols, ofile);
 	}

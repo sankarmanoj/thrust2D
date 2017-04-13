@@ -1,6 +1,6 @@
 IDIR =../../include
 CC=nvcc
-CFLAGS=-I$(IDIR) -std=c++11 -ccbin=g++-5 -D_MWAITXINTRIN_H_INCLUDED
+CFLAGS=-I$(IDIR) -std=c++11 -ccbin=g++-5 -arch=sm_60
 OS := $(shell uname)
 ifeq ($(OS),Darwin)
 	display=open -a ToyViewer
