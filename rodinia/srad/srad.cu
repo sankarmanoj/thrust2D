@@ -2,6 +2,7 @@
 #include "graphics.c"
 #include "resize.c"
 #include <thrust/window_transform.h>
+#include <thrust/shared_algorithms.h>
 #include <thrust/execution_policy.h>
 // includes, kernels
 #include "srad_kernel.cu"
@@ -81,16 +82,15 @@ runTest( int argc, char** argv)
 	thrust::block_2d<float> J_square(cols,rows);
 	thrust::block_2d<float> d_c(cols,rows,0.0);
 	// thrust::fill(d_c.begin(),d_c.end(),0);
-	J_cuda.assign(J,J+size_I);
+	J_cuda.upload(J);
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),extractFunctor());
 	printf("Start the SRAD main loop\n");
 	for (iter=0; iter< niter; iter++)
 	{
-		thrust::copy(J_cuda.begin(),J_cuda.end(),J_square.begin());
-		thrust::for_each(J_square.begin(),J_square.end(),square());
+		thrust::transform(J_cuda.begin(),J_cuda.end(),J_square.begin(),square());
 		// printf("%d %d\n",J_cuda.end().position ,J_cuda.begin().position );
-		sum = thrust::reduce(J_cuda.begin(),J_cuda.end());
-		sum2 = thrust::reduce(J_square.begin(),J_square.end());
+		sum = thrust::reduce(thrust::cuda::shared,J_cuda.begin(),J_cuda.end());
+		sum2 = thrust::reduce(thrust::cuda::shared,J_square.begin(),J_square.end());
 		meanROI = sum / size_R;
 		varROI  = (sum2 / size_R) - meanROI*meanROI;
 		q0sqr   = varROI / (meanROI*meanROI);
@@ -105,7 +105,7 @@ runTest( int argc, char** argv)
 	}
 	printf("Computation Done\n");
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),compressFunctor());
-	cudaMemcpy(J,thrust::raw_pointer_cast(J_cuda.data()),size_I*sizeof(float),cudaMemcpyDeviceToHost);
+	J_cuda.download(&J);
 	write_graphics(out,J,rows,cols,0,255);
 	free(J);
 }

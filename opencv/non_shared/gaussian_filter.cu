@@ -1,6 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/window_transform.h>
 using namespace cv;
+#define KERNEL_LENGTH 5
 __constant__ float c_kernel[KERNEL_LENGTH*KERNEL_LENGTH];
 inline float gauss(int x, int y, int mid, float sigma )
 {

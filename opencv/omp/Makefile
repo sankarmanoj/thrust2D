@@ -6,7 +6,7 @@ OPENCVALLFLAGS=-lopencv_cudafeatures2d -lopencv_cudaoptflow -lopencv_flann -lope
 OPENCVFLAGS=$(shell pkg-config --libs --static opencv)
 SRCS = $(wildcard *.cu)
 
-OBJS=$(SRCS:.cu=.o)
+OBJS=$(SRCS:.cpp=.o)
 all: $(OBJS)
 
 %.o:%.cpp Makefile

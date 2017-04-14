@@ -12,7 +12,7 @@
 #include <thrust/replace.h>
 #include <thrust/functional.h>
 #include <thrust/window_2d.h>
-#include <thrust/window_transform.h>
+#include <thrust/window_for_each.h>
 
 #define STR_SIZE 256
 /* maximum power density possible (say 300W for a 10mm x 10mm chip)	*/
@@ -206,8 +206,8 @@ public:
 		readinput(FilesavingPower, grid_rows, grid_cols, pfile);
 		thrust::block_2d<float> TemperatureBlock(grid_rows,grid_cols);
 		thrust::block_2d<float> PowerBlock(grid_rows,grid_cols);
-		TemperatureBlock.assign(FilesavingTemp,FilesavingTemp+size);
-		PowerBlock.assign(FilesavingPower,FilesavingPower+size);
+		TemperatureBlock.upload(FilesavingTemp);
+		PowerBlock.upload(FilesavingPower);
 		printf("Start computing the transient temperature\n");
 		float grid_height = chip_height / grid_rows;
 		float grid_width = chip_width / grid_cols;
@@ -235,9 +235,9 @@ public:
 			// thrust::window_vector<float> wp = thrust::window_vector<float>(&(PowerBlock),3,3,1,1);
 			// thrust::device_vector<int> null_vector(grid_rows*grid_cols);
 			// thrust::transform(wv.begin(),wv.end(),wp.begin(),null_vector.begin(),functor);
-			thrust::for_each(thrust::cuda::texture,wv.begin(),wv.end(),functor);
+			thrust::for_each(thrust::cuda::shared,wv.begin(),wv.end(),functor);
 		}
 		printf("Ending simulation\n");
-		cudaMemcpy(FilesavingTemp,thrust::raw_pointer_cast(TemperatureBlock.data()),size*sizeof(float),cudaMemcpyDeviceToHost);
+		TemperatureBlock.download(&FilesavingTemp);
 		writeoutput(FilesavingTemp,grid_rows, grid_cols, ofile);
 	}

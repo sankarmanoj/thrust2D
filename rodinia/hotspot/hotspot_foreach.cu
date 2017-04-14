@@ -12,7 +12,6 @@
 #include <thrust/replace.h>
 #include <thrust/functional.h>
 #include <thrust/window_2d.h>
-#include <thrust/window_transform.h>
 
 #define STR_SIZE 256
 /* maximum power density possible (say 300W for a 10mm x 10mm chip)	*/
@@ -45,15 +44,8 @@ void writeoutput(float *vect, int grid_rows, int grid_cols, char *file){
 	int i,j, index=0;
 	FILE *fp;
 	char str[STR_SIZE];
-
 	if( (fp = fopen(file, "w" )) == 0 )
 	printf( "The file was not opened\n" );
-
-    cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-    float milliseconds;
-    cudaEventRecord(start);
 	for (i=0; i < grid_rows; i++)
 	for (j=0; j < grid_cols; j++)
 	{
@@ -62,7 +54,6 @@ void writeoutput(float *vect, int grid_rows, int grid_cols, char *file){
 		fputs(str,fp);
 		index++;
 	}
-
 	fclose(fp);
 }
 
@@ -106,7 +97,7 @@ class HotspotFunctor
 public:
 
 	HotspotFunctor (thrust::block_2d<float> *PowerBlock,int iteration,int cols,int rows,float stepDivCap,float Rx_1,float Ry_1,float Rz_1)
-	{
+  {
 		this->MatrixPower = PowerBlock;
 		this->iteration = iteration;
 		this->cols = cols;
@@ -122,38 +113,38 @@ public:
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
 		int rty = w.start_y + ty;
-		int rtx = w.start_x +tx;
+		int rtx = w.start_x + tx;
 		int N = ty-1;
 		int S = ty+1;
 		int W = tx-1;
 		int E = tx+1;
 		float myPower = (*MatrixPower)[rty][rtx];
-		for (int i=0; i<iteration ; i++)
+		for (int i=0; i<iteration; i++)
 		{
 			w[ty][tx] =  w[ty][tx] + stepDivCap * (myPower + \
 				(w[S][tx] + w[N][tx] - 2.0*(w[ty][tx])) * Ry_1 + \
 				(w[ty][E] + w[ty][W] - 2.0*(w[ty][tx])) * Rx_1 + \
 				(AMBIENT_TEMP - w[ty][tx]) * Rz_1);
-			}
-			// Boundary Condtions - causes warp divergence.
-			if(w.start_y == 0)
-			w[N][tx] = w[ty][tx];
-			if(w.start_y == rows - w.window_dim_y)
-			w[S][tx] = w[ty][tx];
-			if(w.start_x == 0)
-			w[ty][W] = w[ty][tx];
-			if(w.start_x == cols - w.window_dim_x)
-			w[ty][E] = w[ty][tx];
-			if(w.start_y == 0 && w.start_x == 0)
-			w[N][W] = w[ty][tx];
-			if(w.start_y == rows - w.window_dim_y && w.start_x == cols - w.window_dim_x)
-			w[S][E] = w[ty][tx];
-			if(w.start_x == 0 && w.start_y == rows - w.window_dim_y)
-			w[S][W] = w[ty][tx];
-			if(w.start_x == cols - w.window_dim_x && w.start_y == 0)
-			w[N][E] = w[ty][tx];
 		}
-	};
+		// Boundary Condtions - causes warp divergence.
+		if(w.start_y == 0)
+		w[N][tx] = w[ty][tx];
+		if(w.start_y == rows - w.window_dim_y)
+		w[S][tx] = w[ty][tx];
+		if(w.start_x == 0)
+		w[ty][W] = w[ty][tx];
+		if(w.start_x == cols - w.window_dim_x)
+		w[ty][E] = w[ty][tx];
+		if(w.start_y == 0 && w.start_x == 0)
+		w[N][W] = w[ty][tx];
+		if(w.start_y == rows - w.window_dim_y && w.start_x == cols - w.window_dim_x)
+		w[S][E] = w[ty][tx];
+		if(w.start_x == 0 && w.start_y == rows - w.window_dim_y)
+		w[S][W] = w[ty][tx];
+		if(w.start_x == cols - w.window_dim_x && w.start_y == 0)
+		w[N][E] = w[ty][tx];
+	}
+};
 
 	void usage(int argc, char **argv)
 	{
@@ -210,8 +201,8 @@ public:
 		readinput(FilesavingPower, grid_rows, grid_cols, pfile);
 		thrust::block_2d<float> TemperatureBlock(grid_rows,grid_cols);
 		thrust::block_2d<float> PowerBlock(grid_rows,grid_cols);
-		TemperatureBlock.assign(FilesavingTemp,FilesavingTemp+size);
-		PowerBlock.assign(FilesavingPower,FilesavingPower+size);
+		TemperatureBlock.upload(FilesavingTemp);
+		PowerBlock.upload(FilesavingPower);
 		printf("Start computing the transient temperature\n");
 		float grid_height = chip_height / grid_rows;
 		float grid_width = chip_width / grid_cols;
@@ -242,6 +233,6 @@ public:
 			thrust::for_each(wv.begin(),wv.end(),functor);
 		}
 		printf("Ending simulation\n");
-		cudaMemcpy(FilesavingTemp,thrust::raw_pointer_cast(TemperatureBlock.data()),size*sizeof(float),cudaMemcpyDeviceToHost);
+		TemperatureBlock.download(&FilesavingTemp);
 		writeoutput(FilesavingTemp,grid_rows, grid_cols, ofile);
 	}

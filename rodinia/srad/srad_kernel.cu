@@ -26,9 +26,9 @@ class square
 {
 
 public:
-	__host__ __device__ void operator() (float &lhs)
+	__host__ __device__ float operator() (float &lhs)
 	{
-		lhs = lhs*lhs;
+		return lhs*lhs;
 	}
 };
 class SRADFunctor1

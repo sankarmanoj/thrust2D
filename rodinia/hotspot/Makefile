@@ -1,10 +1,8 @@
 IDIR =../../include
 CC=nvcc
-CFLAGS=-I$(IDIR) -ccbin=g++ -std=c++11 -Wno-deprecated-gpu-targets -D_MWAITXINTRIN_H_INCLUDED
+CFLAGS=-I$(IDIR) -ccbin=g++ -std=c++11 -g -G -lineinfo
 
 %.out: %.cu
-	clear
-	clear
 	$(CC)  -o $@ $< $(CFLAGS)
 
 rod_hotspot_64: hotspot.out
@@ -66,3 +64,6 @@ rod_hotspot_host_512: hotspot_host.out
 rod_hotspot_host_1024: hotspot_host.out
 	./hotspot_host.out 1024 2 2 temp_1024	power_1024 result_host.out
 	openssl md5 result_host.out
+
+clean:
+	rm *.out *.profile
