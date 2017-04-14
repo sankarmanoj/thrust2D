@@ -32,7 +32,6 @@ namespace thrust
   {
     int position;
     T* data;
-    bool is_shared;
   public:
     typedef T& reference;
     typedef T* pointer;

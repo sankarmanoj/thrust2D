@@ -82,7 +82,6 @@ namespace thrust
   {
     this->data = data;
     this->position = position;
-    this->is_shared =true;
   }
 
 
