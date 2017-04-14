@@ -1,7 +1,7 @@
 namespace thrust
 {
-  template <class T,unsigned int block_size, class BinaryFunc>
-  __global__ void generic_reduce_kernel (T *g_idata, T *g_odata, unsigned int n, BinaryFunc b)
+  template <class Iterator, class T,unsigned int block_size, class BinaryFunc>
+  __global__ void generic_reduce_kernel (Iterator g_idata, T *g_odata, unsigned int n, BinaryFunc b)
   {
     extern __shared__ T sdata[];
     unsigned int tid=threadIdx.x;
@@ -84,10 +84,8 @@ namespace thrust
     unsigned int number_of_elements = last-first;
     numThreads = min(numThreads, previous_power_of_two(number_of_elements/2));
     numBlocks = min(numBlocks, ((number_of_elements%(2*numThreads))?((number_of_elements/(2*numThreads))+1):(number_of_elements/(2*numThreads))));
-    printf("Num Threads = %d Num Blocks = %d\n",numThreads,numBlocks);
+    // printf("Num Threads = %d Num Blocks = %d\n",numThreads,numBlocks);
     static T *partial = 0 , *h_partial=0;
-    T *first_pointer;
-    first_pointer = raw_pointer_cast(&(first[0]));
     if(partial==0)
       cudaMalloc (&partial,numBlocks*sizeof(T));
     if (h_partial==0)
@@ -95,37 +93,37 @@ namespace thrust
     switch(numThreads)
     {
       case 1024:
-        generic_reduce_kernel<T,1024,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,b);
+        generic_reduce_kernel<Iterator,T,1024,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first,partial,number_of_elements,b);
         break;
       case 512:
-        generic_reduce_kernel<T,512,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,b);
+        generic_reduce_kernel<Iterator,T,512,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first,partial,number_of_elements,b);
         break;
       case 256:
-        generic_reduce_kernel<T,256,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,b);
+        generic_reduce_kernel<Iterator,T,256,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first,partial,number_of_elements,b);
         break;
       case 128:
-        generic_reduce_kernel<T,128,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,b);
+        generic_reduce_kernel<Iterator,T,128,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first,partial,number_of_elements,b);
         break;
       case 64:
-        generic_reduce_kernel<T,64,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,b);
+        generic_reduce_kernel<Iterator,T,64,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first,partial,number_of_elements,b);
         break;
       case 32:
-        generic_reduce_kernel<T,32,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,b);
+        generic_reduce_kernel<Iterator,T,32,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first,partial,number_of_elements,b);
         break;
       case 16:
-        generic_reduce_kernel<T,16,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,b);
+        generic_reduce_kernel<Iterator,T,16,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first,partial,number_of_elements,b);
         break;
       case 8:
-        generic_reduce_kernel<T,8,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,b);
+        generic_reduce_kernel<Iterator,T,8,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first,partial,number_of_elements,b);
         break;
       case 4:
-        generic_reduce_kernel<T,4,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,b);
+        generic_reduce_kernel<Iterator,T,4,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first,partial,number_of_elements,b);
         break;
       case 2:
-        generic_reduce_kernel<T,2,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,b);
+        generic_reduce_kernel<Iterator,T,2,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first,partial,number_of_elements,b);
         break;
       case 1:
-        generic_reduce_kernel<T,1,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,b);
+        generic_reduce_kernel<Iterator,T,1,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first,partial,number_of_elements,b);
         break;
     }
     T answer = 0;
@@ -136,8 +134,8 @@ namespace thrust
     }
     return (OutputType) init + answer;
   }
-  template <class T,class Func,unsigned int block_size,class BinaryFunc>
-  __global__ void unary_generic_reduce_kernel (T *g_idata, T *g_odata, unsigned int n, Func f,BinaryFunc b)
+  template <class Iterator, class T,class Func,unsigned int block_size,class BinaryFunc>
+  __global__ void unary_generic_reduce_kernel (Iterator g_idata, T *g_odata, unsigned int n, Func f,BinaryFunc b)
   {
     extern __shared__ T sdata[];
     unsigned int tid=threadIdx.x;
@@ -222,8 +220,6 @@ namespace thrust
     numThreads = min(numThreads, previous_power_of_two(number_of_elements/2));
     numBlocks = min(numBlocks, ((number_of_elements%(2*numThreads))?((number_of_elements/(2*numThreads))+1):(number_of_elements/(2*numThreads))));
     static T *partial = 0 , *h_partial=0;
-    T *first_pointer;
-    first_pointer = raw_pointer_cast(&(begin[0]));
     if(partial==0)
       cudaMalloc (&partial,numBlocks*sizeof(T));
     if (h_partial==0)
@@ -231,37 +227,37 @@ namespace thrust
     switch(numThreads)
     {
       case 1024:
-        unary_generic_reduce_kernel<T,Func,1024,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f,b);
+        unary_generic_reduce_kernel<Iterator,T,Func,1024,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin,partial,number_of_elements,f,b);
         break;
       case 512:
-        unary_generic_reduce_kernel<T,Func,512,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f,b);
+        unary_generic_reduce_kernel<Iterator,T,Func,512,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin,partial,number_of_elements,f,b);
         break;
       case 256:
-        unary_generic_reduce_kernel<T,Func,256,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f,b);
+        unary_generic_reduce_kernel<Iterator,T,Func,256,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin,partial,number_of_elements,f,b);
         break;
       case 128:
-        unary_generic_reduce_kernel<T,Func,128,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f,b);
+        unary_generic_reduce_kernel<Iterator,T,Func,128,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin,partial,number_of_elements,f,b);
         break;
       case 64:
-        unary_generic_reduce_kernel<T,Func,64,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f,b);
+        unary_generic_reduce_kernel<Iterator,T,Func,64,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin,partial,number_of_elements,f,b);
         break;
       case 32:
-        unary_generic_reduce_kernel<T,Func,32,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f,b);
+        unary_generic_reduce_kernel<Iterator,T,Func,32,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin,partial,number_of_elements,f,b);
         break;
       case 16:
-        unary_generic_reduce_kernel<T,Func,16,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f,b);
+        unary_generic_reduce_kernel<Iterator,T,Func,16,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin,partial,number_of_elements,f,b);
         break;
       case 8:
-        unary_generic_reduce_kernel<T,Func,8,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f,b);
+        unary_generic_reduce_kernel<Iterator,T,Func,8,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin,partial,number_of_elements,f,b);
         break;
       case 4:
-        unary_generic_reduce_kernel<T,Func,4,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f,b);
+        unary_generic_reduce_kernel<Iterator,T,Func,4,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin,partial,number_of_elements,f,b);
         break;
       case 2:
-        unary_generic_reduce_kernel<T,Func,2,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f,b);
+        unary_generic_reduce_kernel<Iterator,T,Func,2,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin,partial,number_of_elements,f,b);
         break;
       case 1:
-        unary_generic_reduce_kernel<T,Func,1,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,partial,number_of_elements,f,b);
+        unary_generic_reduce_kernel<Iterator,T,Func,1,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin,partial,number_of_elements,f,b);
         break;
     }
     T answer = 0;
@@ -274,8 +270,8 @@ namespace thrust
     return (OutputType) init + answer;
   }
 
-  template <class T,class Func,unsigned int block_size, class BinaryFunc>
-  __global__ void binary_generic_reduce_kernel (T *g_idata1, T *g_idata2, T *g_odata, unsigned int n, Func f, BinaryFunc b)
+  template <class Iterator1, class Iterator2, class T,class Func,unsigned int block_size, class BinaryFunc>
+  __global__ void binary_generic_reduce_kernel (Iterator1 g_idata1, Iterator2 g_idata2, T *g_odata, unsigned int n, Func f, BinaryFunc b)
   {
     extern __shared__ T sdata[];
     unsigned int tid=threadIdx.x;
@@ -290,7 +286,6 @@ namespace thrust
         sdata[tid] = b(sdata[tid], f(g_idata1[i+block_size],g_idata2[i+block_size]));
       i+=grid_size;
     }
-
     __syncthreads();
 
     if (block_size >= 1024)
@@ -361,50 +356,44 @@ namespace thrust
     numThreads = min(numThreads, previous_power_of_two(number_of_elements/2));
     numBlocks = min(numBlocks, ((number_of_elements%(2*numThreads))?((number_of_elements/(2*numThreads))+1):(number_of_elements/(2*numThreads))));
     static T *partial = 0 , *h_partial=0;
-
     if(partial==0)
       cudaMalloc (&partial,numBlocks*sizeof(T));
     if (h_partial==0)
       h_partial = (T*) std::malloc(numBlocks*sizeof(T));
-
-    T *first_pointer;
-    first_pointer = raw_pointer_cast(&(begin1[0]));
-    T  *second_pointer;
-    second_pointer = raw_pointer_cast(&(begin2[0]));
     switch(numThreads)
     {
       case 1024:
-        binary_generic_reduce_kernel<T,Func,1024,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f,b);
+        binary_generic_reduce_kernel<Iterator1,Iterator2,T,Func,1024,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin1,begin2,partial,number_of_elements,f,b);
         break;
       case 512:
-        binary_generic_reduce_kernel<T,Func,512,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f,b);
+        binary_generic_reduce_kernel<Iterator1,Iterator2,T,Func,512,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin1,begin2,partial,number_of_elements,f,b);
         break;
       case 256:
-        binary_generic_reduce_kernel<T,Func,256,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f,b);
+        binary_generic_reduce_kernel<Iterator1,Iterator2,T,Func,256,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin1,begin2,partial,number_of_elements,f,b);
         break;
       case 128:
-        binary_generic_reduce_kernel<T,Func,128,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f,b);
+        binary_generic_reduce_kernel<Iterator1,Iterator2,T,Func,128,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin1,begin2,partial,number_of_elements,f,b);
         break;
       case 64:
-        binary_generic_reduce_kernel<T,Func,64,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f,b);
+        binary_generic_reduce_kernel<Iterator1,Iterator2,T,Func,64,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin1,begin2,partial,number_of_elements,f,b);
         break;
       case 32:
-        binary_generic_reduce_kernel<T,Func,32,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f,b);
+        binary_generic_reduce_kernel<Iterator1,Iterator2,T,Func,32,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin1,begin2,partial,number_of_elements,f,b);
         break;
       case 16:
-        binary_generic_reduce_kernel<T,Func,16,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f,b);
+        binary_generic_reduce_kernel<Iterator1,Iterator2,T,Func,16,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin1,begin2,partial,number_of_elements,f,b);
         break;
       case 8:
-        binary_generic_reduce_kernel<T,Func,8,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f,b);
+        binary_generic_reduce_kernel<Iterator1,Iterator2,T,Func,8,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin1,begin2,partial,number_of_elements,f,b);
         break;
       case 4:
-        binary_generic_reduce_kernel<T,Func,4,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f,b);
+        binary_generic_reduce_kernel<Iterator1,Iterator2,T,Func,4,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin1,begin2,partial,number_of_elements,f,b);
         break;
       case 2:
-        binary_generic_reduce_kernel<T,Func,2,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f,b);
+        binary_generic_reduce_kernel<Iterator1,Iterator2,T,Func,2,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin1,begin2,partial,number_of_elements,f,b);
         break;
       case 1:
-        binary_generic_reduce_kernel<T,Func,1,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(first_pointer,second_pointer,partial,number_of_elements,f,b);
+        binary_generic_reduce_kernel<Iterator1,Iterator2,T,Func,1,BinaryFunc><<<numBlocks,numThreads,sharedSize>>>(begin1,begin2,partial,number_of_elements,f,b);
         break;
     }
     T answer = 0;

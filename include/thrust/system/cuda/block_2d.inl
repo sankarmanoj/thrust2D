@@ -7,19 +7,19 @@ namespace thrust
   {
     this->dim_x = dim_x;
     this->dim_y = dim_y;
-    data_pointer = (T*) std::malloc(dim_x*dim_y*sizeof(T));
+    this->data_pointer = (T*) std::malloc(dim_x*dim_y*sizeof(T));
     this->device_pointer = this;
-    pitch=dim_x*sizeof(T);
+    this->pitch=dim_x*sizeof(T);
   }
   template <class T,class Alloc>
   host_block_2d<T,Alloc>::host_block_2d (int dim_x,int dim_y,T value)
   {
     this->dim_x = dim_x;
     this->dim_y = dim_y;
-    data_pointer = (T*) std::malloc(dim_x*dim_y*sizeof(T));
-    std::memset(data_pointer,value,dim_x*dim_y*sizeof(T));
+    this->data_pointer = (T*) std::malloc(dim_x*dim_y*sizeof(T));
+    std::memset(this->data_pointer,value,dim_x*dim_y*sizeof(T));
     this->device_pointer = this;
-    pitch=dim_x*sizeof(T);
+    this->pitch=dim_x*sizeof(T);
   }
   template <class T,class Alloc>
   __host__ void host_block_2d<T,Alloc>::operator= (const block_2d<T> &b)

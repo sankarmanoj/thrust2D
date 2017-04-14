@@ -83,7 +83,7 @@ namespace thrust
     const int sharedSize = numThreads*sizeof (T);
     numThreads = min(numThreads, previous_power_of_two(first.dim_x/2));
     numBlocks = first.dim_y;
-    printf("Num Threads = %d Num Blocks = %d\n",numThreads,numBlocks);
+    // printf("Num Threads = %d Num Blocks = %d\n",numThreads,numBlocks);
     static block_iterator<T> *dev_block_iterator;
     if(dev_block_iterator == 0)
       cudaMalloc((void **)&dev_block_iterator, sizeof(block_iterator<T>));
@@ -214,7 +214,7 @@ namespace thrust
     const int sharedSize = numThreads*sizeof (T);
     numThreads = min(numThreads, previous_power_of_two(first.dim_y/2));
     numBlocks = first.dim_x;
-    printf("Num Threads = %d Num Blocks = %d\n",numThreads,numBlocks);
+    // printf("Num Threads = %d Num Blocks = %d\n",numThreads,numBlocks);
     static block_iterator<T> *dev_block_iterator;
     if(dev_block_iterator == 0)
       cudaMalloc((void **)&dev_block_iterator, sizeof(block_iterator<T>));
