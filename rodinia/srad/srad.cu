@@ -80,7 +80,7 @@ runTest( int argc, char** argv)
 	// printf("%d %d\n", cols,rows);
 	// printf("%d %d\n", J_cuda.dim_x,J_cuda.dim_y);
 	thrust::block_2d<float> J_square(cols,rows);
-	thrust::block_2d<float> d_c(cols,rows,0.0);
+	thrust::block_2d<float> d_c(cols,rows,0.0f);
 	// thrust::fill(d_c.begin(),d_c.end(),0);
 	J_cuda.upload(J);
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),extractFunctor());
@@ -89,8 +89,8 @@ runTest( int argc, char** argv)
 	{
 		thrust::transform(J_cuda.begin(),J_cuda.end(),J_square.begin(),square());
 		// printf("%d %d\n",J_cuda.end().position ,J_cuda.begin().position );
-		sum = thrust::reduce(thrust::cuda::shared,J_cuda.begin(),J_cuda.end());
-		sum2 = thrust::reduce(thrust::cuda::shared,J_square.begin(),J_square.end());
+		sum = thrust::reduce(thrust::cuda::shared,J_cuda.begin(),J_cuda.end(),0.0f,thrust::plus<float>());
+		sum2 = thrust::reduce(thrust::cuda::shared,J_square.begin(),J_square.end(),0.0f,thrust::plus<float>());
 		meanROI = sum / size_R;
 		varROI  = (sum2 / size_R) - meanROI*meanROI;
 		q0sqr   = varROI / (meanROI*meanROI);

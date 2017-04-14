@@ -13,7 +13,7 @@ public:
     this->transformMatrix = tm->device_pointer;
     this->outBlock = outBlock->device_pointer;
   }
-  __device__ __host__ void operator() (const thrust::window_2d<uchar> &inputWindow) const
+   __host__ void operator() (const thrust::window_2d<uchar> &inputWindow) const
   {
     int x_out, y_out;
     x_out = (int)((*transformMatrix)[0][0]*inputWindow.start_x+(*transformMatrix)[0][1]*inputWindow.start_y+(*transformMatrix)[0][2]*1);
@@ -61,7 +61,6 @@ int main(int argc, char const *argv[]) {
   thrust::window_vector<uchar> inputVector(&uchar_image_block,1,1,1,1);
   AffineTransformFunctor atf(&warp_block,&outBlock);
   thrust::for_each(inputVector.begin(),inputVector.end(),atf);
-  cudaDeviceSynchronize();
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   outBlock.download(&img);
   for(int i = 0; i<image.cols*image.rows;i++)

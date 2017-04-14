@@ -5,7 +5,7 @@ using namespace cv;
 class lbpFunctor
 {
   public:
-  __device__ uchar operator() (const thrust::window_2d<uchar> &inputWindow,const thrust::window_2d<uchar> &outputWindow) const
+  __host__  uchar operator() (const thrust::window_2d<uchar> &inputWindow,const thrust::window_2d<uchar> &outputWindow) const
   {
     uchar temp[3][3];
     for(int i = 0; i<inputWindow.window_dim_y;i++)

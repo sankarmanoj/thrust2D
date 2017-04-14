@@ -1,13 +1,13 @@
 #include <thrust/device_vector.h>
 #include <thrust/constant_memory.h>
 #include <thrust/shared_algorithms.h>
-#include "descent-struct.h"
+#include "descent_struct.h"
 #include <fstream>
 
 int main(int argc, char **argv)
 {
   std::ifstream values;
-  values.open("/dev/shm/values.txt");
+  values.open("./values.txt");
   int D,N;
   int niter = atoi(argv[1]);
   float learn = atof(argv[2]);
@@ -60,14 +60,13 @@ int main(int argc, char **argv)
   {
     thrust::constant_vector<float> ca_weights(d_weights.begin(),d_weights.end());
     thrust::transform(thrust::cuda::shared,d_XD.begin(),d_XD.end(),d_Yactual.begin(),d_error.begin(),dotProductFunctor<thrust::constant_vector<float>>(D,ca_weights));
-    error = (thrust::transform_reduce(thrust::cuda::shared,d_error.begin(),d_error.end(),squareOp()))/N;
+    error = (thrust::transform_reduce(thrust::cuda::shared,d_error.begin(),d_error.end(),squareOp(),0.0,thrust::plus<float>()))/N;
     for(int i = 0; i<D;i++)
     {
-      h_gradient[i]=thrust::transform_reduce(thrust::cuda::shared,d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),thrust::multiplies<float>())/N;
+      h_gradient[i]=thrust::transform_reduce(thrust::cuda::shared,d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),thrust::multiplies<float>(),0.0,thrust::plus<float>())/N;
 
     }
     d_gradient = h_gradient;
-
     thrust::transform(thrust::cuda::shared, d_weights.begin(),d_weights.end(),d_gradient.begin(),d_weights.begin(),update_weights(learn));
   }
   while(error > threshold_error);

@@ -10,14 +10,14 @@ public:
   {
     this->alpha = alpha;
   }
-  __device__ __host__ uchar operator() (const thrust::window_2d<uchar> &inputWindow1,const thrust::window_2d<uchar> &inputWindow2) const
+   __host__ uchar operator() (const thrust::window_2d<uchar> &inputWindow1,const thrust::window_2d<uchar> &inputWindow2) const
   {
     return alpha*inputWindow1[0][0]+(1-alpha)*inputWindow2[0][0];
   }
 };
 int main(int argc, char const *argv[]) {
   Mat input1 = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
-  Mat input2 = imread("aoutput.png",CV_LOAD_IMAGE_GRAYSCALE);
+  Mat input2 = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat temp1;
   int dim = 512;
   if(argc ==2)

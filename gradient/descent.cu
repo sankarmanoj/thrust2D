@@ -4,7 +4,7 @@
 #include <thrust/transform.h>
 #include <thrust/transform_reduce.h>
 #include <thrust/reduce.h>
-#include "descent-struct.h"
+#include "descent_struct.h"
 #include <fstream>
 
 int main(int argc, char **argv)
