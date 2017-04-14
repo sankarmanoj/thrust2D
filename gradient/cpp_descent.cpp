@@ -5,7 +5,7 @@
 #include <thrust/transform_reduce.h>
 #include <thrust/reduce.h>
 #include <thrust/system/cpp/execution_policy.h>
-#include "descent-struct.h"
+#include "descent_struct.h"
 #include <fstream>
 
 int main(int argc, char **argv)

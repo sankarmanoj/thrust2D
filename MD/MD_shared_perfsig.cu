@@ -167,7 +167,7 @@ thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(pos_gpuX->begin()
 
 float GPU_accumulate_parpot_wShrdMem(int nd, int np, int step, double *time_elapsed)
 {
-	return thrust::reduce(parpot_gpu->begin(),parpot_gpu->end());
+	return thrust::reduce(parpot_gpu->begin(),parpot_gpu->end(),0.0f,thrust::plus<float>());
 }
 
 //END K2 - Accumulate PE with/without shared memory
@@ -176,10 +176,10 @@ float GPU_accumulate_parpot_wShrdMem(int nd, int np, int step, double *time_elap
 //START K3 - Accumulate Force with/without shared memory
 void GPU_accumulate_parforce_wShrdMem(int nd, int np, int currentMoleculeIndex, int step, double *time_elapsed)
 {
-    (*force_gpuX)[currentMoleculeIndex] = thrust::reduce(thrust::cuda::shared,parforce_gpuX->begin(),parforce_gpuX->end());
+    (*force_gpuX)[currentMoleculeIndex] = thrust::reduce(thrust::cuda::shared,parforce_gpuX->begin(),parforce_gpuX->end(),0.0f,thrust::plus<float>());
     // printf("%f\n",(float) force_gpuX[currentMoleculeIndex]);
-    (*force_gpuY)[currentMoleculeIndex] = thrust::reduce(thrust::cuda::shared,parforce_gpuY->begin(),parforce_gpuY->end());
-    (*force_gpuZ)[currentMoleculeIndex] = thrust::reduce(thrust::cuda::shared,parforce_gpuZ->begin(),parforce_gpuZ->end());
+    (*force_gpuY)[currentMoleculeIndex] = thrust::reduce(thrust::cuda::shared,parforce_gpuY->begin(),parforce_gpuY->end(),0.0f,thrust::plus<float>());
+    (*force_gpuZ)[currentMoleculeIndex] = thrust::reduce(thrust::cuda::shared,parforce_gpuZ->begin(),parforce_gpuZ->end(),0.0f,thrust::plus<float>());
 
 }
 //END K3 - Accumulate Force with/without shared memory
@@ -211,9 +211,9 @@ float GPU_accumulate_KE_wShrdMem(int nd, int np, float mass, int step, double *t
   //   printf("%f \n",(float) vel_gpuX[i]);
   // }
 
-    float sum = thrust::transform_reduce(thrust::cuda::shared,vel_gpuX->begin(),vel_gpuX->end(),squareOp())
-              + thrust::transform_reduce(thrust::cuda::shared,vel_gpuY->begin(),vel_gpuY->end(),squareOp())
-              + thrust::transform_reduce(thrust::cuda::shared,vel_gpuZ->begin(),vel_gpuZ->end(),squareOp());
+    float sum = thrust::transform_reduce(thrust::cuda::shared,vel_gpuX->begin(),vel_gpuX->end(),squareOp(),0.0f,thrust::plus<float>())
+              + thrust::transform_reduce(thrust::cuda::shared,vel_gpuY->begin(),vel_gpuY->end(),squareOp(),0.0f,thrust::plus<float>())
+              + thrust::transform_reduce(thrust::cuda::shared,vel_gpuZ->begin(),vel_gpuZ->end(),squareOp(),0.0f,thrust::plus<float>());
 	return 0.5 * mass * sum;
 }
 

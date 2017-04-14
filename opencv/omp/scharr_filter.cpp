@@ -1,13 +1,12 @@
 #define THRUST_DEVICE_SYSTEM 2
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
-#include <thrust/window_transform.h>
 #define PI 3.14159
 using namespace cv;
 class transFunctor
 {
 public:
-  __device__ uchar operator() (const uchar a,const uchar b) const
+  __host__  uchar operator() (const uchar a,const uchar b) const
   {
     return (uchar) sqrt((float) a*a + b*b);
   }
@@ -23,7 +22,7 @@ public:
     this->dim =dim;
     this->kernel = kernel;
   }
-  __device__ uchar operator() (const thrust::window_2d<uchar> & input_window,const thrust::window_2d<uchar> & output_window) const
+  __host__  uchar operator() (const thrust::window_2d<uchar> & input_window,const thrust::window_2d<uchar> & output_window) const
   {
     uchar temp = 0;
     for(int i = 0; i< dim; i++)

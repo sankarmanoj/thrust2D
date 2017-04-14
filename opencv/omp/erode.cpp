@@ -4,7 +4,7 @@ using namespace cv;
 class erodeFunctor //: public thrust::shared_unary_window_transform_functor<uchar>
 {
   public:
-  __device__ uchar operator() (const thrust::window_2d<uchar> &inputWindow,const thrust::window_2d<uchar> &outputWindow) const
+  __host__  uchar operator() (const thrust::window_2d<uchar> &inputWindow,const thrust::window_2d<uchar> &outputWindow) const
   {
     uchar temp = 255;
     for(int i = 0; i<inputWindow.window_dim_y;i++)
