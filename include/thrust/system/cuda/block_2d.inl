@@ -3,20 +3,25 @@
 namespace thrust
 {
   template <class T,class Alloc>
-  host_block_2d<T,Alloc>::host_block_2d (int dim_x,int dim_y) : block_2d<T,Alloc>( dim_x,dim_y)
+  host_block_2d<T,Alloc>::host_block_2d (int dim_x,int dim_y)
   {
-
+    this->dim_x = dim_x;
+    this->dim_y = dim_y;
+    this->data_pointer = (T*) std::malloc(this->dim_x*this->dim_y*sizeof(T));
+    this->device_pointer = this;
+    this->pitch=this->dim_x*sizeof(T);
   }
   template <class T,class Alloc>
-  block_2d<T,Alloc>::block_2d ()// : block_2d<T,std::allocator<T> >::block_2d (int dim_x,int dim_y)
+  host_block_2d<T,Alloc>::host_block_2d (int dim_x,int dim_y,T value)
   {
-
+    this->dim_x = dim_x;
+    this->dim_y = dim_y;
+    this->data_pointer = (T*) std::malloc(this->dim_x*this->dim_y*sizeof(T));
+    std::memset(this->data_pointer,value,this->dim_x*this->dim_y*sizeof(T));
+    this->device_pointer = this;
+    this->pitch=this->dim_x*sizeof(T);
   }
-  template <class T,class Alloc>
-  host_block_2d<T,Alloc>::host_block_2d (int dim_x,int dim_y,T value) : block_2d<T,Alloc> (dim_x,dim_y, value)
-  {
 
-  }
   // template <class T,class Alloc>
   // host_block_2d<T,Alloc>::host_block_2d (block_2d<T> &b) //: block_2d<T,std::allocator<T> > (block_2d<T> &other)
   // {
@@ -41,6 +46,11 @@ namespace thrust
     this->dim_x = b.dim_x;
     this->dim_y = b.dim_y;
     cudaMemcpy2D(this->data_pointer,this->pitch,b.data_pointer,b.pitch,this->dim_x*sizeof(T),this->dim_y,cudaMemcpyHostToDevice);
+  }
+  template <class T,class Alloc>
+  block_2d<T,Alloc>::block_2d ()// : block_2d<T,std::allocator<T> >::block_2d (int dim_x,int dim_y)
+  {
+
   }
   template <class T,class Alloc>
   block_2d<T,Alloc>::block_2d (int dim_x, int dim_y)
@@ -126,6 +136,14 @@ namespace thrust
   {
     memcpy(this->data_pointer,data,this->dim_x*sizeof(T)*this->dim_y);
   }
+
+  template <class T,class Alloc>
+  __host__ T* host_block_2d<T,Alloc>::data ()
+  {
+    return this->data_pointer;
+  }
+
+
   template <class T,class Alloc>
   __host__ void host_block_2d<T,Alloc>::download (T** data)
   {
