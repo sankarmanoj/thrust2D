@@ -1,9 +1,13 @@
 IDIR =../../include
 CC=nvcc
 CFLAGS=-I$(IDIR) -ccbin=g++ -std=c++11 -g -G -lineinfo
+SRCS = $(wildcard *.cu)
+
+OBJS=$(SRCS:.cu=.out)
+all: $(OBJS)
 
 %.out: %.cu
-	$(CC)  -o $@ $< $(CFLAGS)
+	$(CC)  -g -G -lineinfo -DDEBUG -o $@ $< $(CFLAGS)
 
 rod_hotspot_64: hotspot.out
 	./hotspot.out 64 2 2 temp_64 power_64 result.out

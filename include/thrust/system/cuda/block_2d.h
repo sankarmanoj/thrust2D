@@ -99,6 +99,7 @@ namespace thrust
 		host_block_2d (block_2d<T> &b);
 		__host__ void upload (T* data);
 		__host__ void download (T** data);
+		__host__ T* data();
 		__host__ void operator= (const block_2d<T> &b);
 	};
 }

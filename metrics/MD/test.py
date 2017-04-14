@@ -6,7 +6,7 @@ path = os.getcwd().replace("metrics/","")
 os.chdir(path)
 print path
 results = {}
-execs = [ x for x in  os.listdir(path) if x.partition(".")[2]=="o" ]
+execs = [ x for x in  os.listdir(path) if x.partition(".")[2]=="out" ]
 print execs
 for texec in execs:
     results[texec]=[]
