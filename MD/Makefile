@@ -10,9 +10,11 @@ all	: $(MAIN)
 
 profile : CC += -DPROFILING
 profile : $(MAIN)
-
+			rm MD_*.o
 debug  : NVCCFLAGS += -g -G -DDEBUG
 debug  : $(MAIN)
+
+
 perfsig.out: main.o MD_kernel_perfsig.o
 	$(LINK) -o perfsig.out main.o MD_kernel_perfsig.o $(LIBS)
 thrust_perfsig.out: main.o MD_thrust_perfsig.o
