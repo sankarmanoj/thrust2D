@@ -25,7 +25,7 @@ public:
 	__device__ int operator() (thrust::window_2d<int> &c, thrust::window_2d<int> &w)
 	{
     w[0][0]=c[0][0];
-    printf("%d , %d = %d \n",c.start_x,c.start_y,&(c[0][0])- c.data);
+    printf("%d , %d = %d \t %d , %d = %d \n",c.start_x,c.start_y,&(c[0][0])- c.data, w.start_x,w.start_y,&(w[0][0])- w.data);
     return 0;
 	}
 };
@@ -91,7 +91,7 @@ int main()
   printf("%d -%d  %d\n",wv.begin().windows_along_x,wv.begin().windows_along_y,wv.end()-wv.end());
   thrust::transform(wv.begin(),wv.end(),wv2.begin(),hello.begin(),bob());
 
-  b = c ;
+  b = a ;
   for (int i=0; i<Y;i++)
   {
     for (int j=0;j<X;j++)
