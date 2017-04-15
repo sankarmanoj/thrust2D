@@ -226,7 +226,7 @@ public:
 		{
 			int required_iterations = MIN(pyramid_height,total_iterations-t);
 			HotspotFunctor functor(PowerBlock.device_pointer,required_iterations,grid_cols,grid_rows,step_div_Cap,Rx_1,Ry_1,Rz_1);
-			thrust::window_vector<float> wv = thrust::window_vector<float>(&(TemperatureBlock),3,3,1,1);
+			thrust::window_vector<float> wv(&(TemperatureBlock),3,3,1,1);
 			// thrust::window_vector<float> wp = thrust::window_vector<float>(&(PowerBlock),3,3,1,1);
 			// thrust::device_vector<int> null_vector(grid_rows*grid_cols);
 			// thrust::transform(wv.begin(),wv.end(),wp.begin(),null_vector.begin(),functor);

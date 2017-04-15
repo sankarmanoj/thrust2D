@@ -41,7 +41,7 @@ public:
 		this->rows = rows;
 		this->q0sqr = q0sqr;
 	}
-	__device__ void operator() (thrust::window_2d<float> &w, thrust::window_2d<float> &v)
+	__device__ float operator() (thrust::window_2d<float> &w, thrust::window_2d<float> &v)
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
@@ -74,6 +74,7 @@ public:
 			c=1;
 		}
 		v[ty][tx] = c;
+		return 0.0f;
 	}
 };
 class printFunctor
@@ -101,7 +102,7 @@ public:
 		this->q0sqr = q0sqr;
 	}
 
-	__device__ void operator() (thrust::window_2d<float> &c, thrust::window_2d<float> &w)
+	__device__ float operator() (thrust::window_2d<float> &c, thrust::window_2d<float> &w)
 	{
 		int ty = w.window_dim_y/2;
 		int tx = w.window_dim_x/2;
@@ -126,5 +127,6 @@ public:
 		// image update (equ 61)
 		// w[ty][tx];
 		w[ty][tx] = (float) w[ty][tx] + 0.25 * lambda * d_D;
+		return 0.0f;
 	}
 };

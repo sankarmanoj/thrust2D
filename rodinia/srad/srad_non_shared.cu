@@ -95,9 +95,9 @@ runTest( int argc, char** argv)
 		meanROI = sum / size_R;
 		varROI  = (sum2 / size_R) - meanROI*meanROI;
 		q0sqr   = varROI / (meanROI*meanROI);
-		printf("%f",q0sqr);
-		SRADFunctor1N functor1(cols,rows,q0sqr);
-		SRADFunctor2N functor2(cols,rows,lambda,q0sqr);
+		// printf("%f",q0sqr);
+		SRADFunctor1 functor1(cols,rows,q0sqr);
+		SRADFunctor2 functor2(cols,rows,lambda,q0sqr);
 		thrust::window_vector<float> wv = thrust::window_vector<float>(&(J_cuda),3,3,1,1);
 		thrust::window_vector<float> d_cwv = thrust::window_vector<float>(&(d_c),3,3,1,1);
 		thrust::transform(wv.begin(),wv.end(),d_cwv.begin(),J_square.begin(),functor1);
