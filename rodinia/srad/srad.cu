@@ -91,6 +91,7 @@ runTest( int argc, char** argv)
 		// printf("%d %d\n",J_cuda.end().position ,J_cuda.begin().position );
 		sum = thrust::reduce(thrust::cuda::shared,J_cuda.begin(),J_cuda.end(),0.0f,thrust::plus<float>());
 		sum2 = thrust::reduce(thrust::cuda::shared,J_square.begin(),J_square.end(),0.0f,thrust::plus<float>());
+		printf("%f %f\n", sum,sum2);
 		meanROI = sum / size_R;
 		varROI  = (sum2 / size_R) - meanROI*meanROI;
 		q0sqr   = varROI / (meanROI*meanROI);

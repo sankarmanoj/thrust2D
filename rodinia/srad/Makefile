@@ -7,9 +7,9 @@ ifeq ($(OS),Darwin)
 else
 	display=display
 endif
-all: srad.out
+all: srad.out srad_non_shared.out
 	#display image.pgm &
-	nvprof --unified-memory-profiling off --log-file srad.profile ./srad.out 502 458 0.5 100 image.pgm image_out.pgm
+	# nvprof --unified-memory-profiling off --log-file srad.profile ./srad.out 502 458 0.5 100 image.pgm image_out.pgm
 	# $(display) image_out.pgm &
 %.out: %.cu
 	$(CC) -g -G -lineinfo -o $@ $< $(CFLAGS)

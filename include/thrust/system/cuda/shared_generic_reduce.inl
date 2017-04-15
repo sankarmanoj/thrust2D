@@ -3,26 +3,25 @@ namespace thrust
   template <class Iterator, class T,unsigned int block_size, class BinaryFunc>
   __global__ void generic_reduce_kernel (Iterator g_idata, T *g_odata, unsigned int n, BinaryFunc b)
   {
-    extern __shared__ T sdata[];
+    extern volatile __shared__ T sdata[];
     unsigned int tid=threadIdx.x;
     unsigned int i=blockIdx.x*block_size*2 + tid;
     unsigned int grid_size = block_size*2*gridDim.x;
     sdata[tid]=0;
+    T sum = (T) 0;
     while (i<n)
     {
-
-      sdata[tid] = b(sdata[tid], g_idata[i]);
+      sdata[tid] = sum =  b(sum, g_idata[i]);
       if(i+block_size<n)
-        sdata[tid] = b(sdata[tid], g_idata[i+block_size]);
+        sdata[tid] = sum = b(sum, g_idata[i+block_size]);
       i+=grid_size;
     }
     __syncthreads();
-
     if (block_size >= 1024)
     {
       if (tid < 512)
       {
-        sdata[tid] = b(sdata[tid],sdata[tid + 512]);
+        sdata[tid] = sum = b(sum,(T)sdata[tid + 512]);
       }
       __syncthreads();
     }
@@ -30,7 +29,7 @@ namespace thrust
     {
       if (tid < 256)
       {
-        sdata[tid] = b(sdata[tid],sdata[tid + 256]);
+        sdata[tid] = sum = b(sum,(T)sdata[tid + 256]);
       }
       __syncthreads();
     }
@@ -38,7 +37,7 @@ namespace thrust
     {
       if (tid < 128)
       {
-        sdata[tid] = b(sdata[tid],sdata[tid + 128]);
+        sdata[tid] = sum = b(sum,(T)sdata[tid + 128]);
       }
       __syncthreads();
     }
@@ -46,29 +45,29 @@ namespace thrust
     {
       if (tid < 64)
       {
-        sdata[tid] = b(sdata[tid],sdata[tid + 64]);
+        sdata[tid] = sum = b(sum,(T)sdata[tid + 64]);
       }
       __syncthreads();
     }
     if (tid<32)
     {
       if (block_size >= 64)
-        sdata[tid] = b(sdata[tid],sdata[tid + 32]);
+        sdata[tid] = sum = b(sum,(T)sdata[tid + 32]);
       if (block_size >= 32)
-        sdata[tid] = b(sdata[tid],sdata[tid + 16]);
+        sum = b(sum,__shfl_down(sum,16));
       if (block_size >= 16)
-        sdata[tid] = b(sdata[tid],sdata[tid + 8]);
+        sum = b(sum,__shfl_down(sum,8));
       if (block_size >= 8)
-        sdata[tid] = b(sdata[tid],sdata[tid + 4]);
+        sum = b(sum,__shfl_down(sum,4));
       if (block_size >= 4)
-        sdata[tid] = b(sdata[tid],sdata[tid + 2]);
+        sum = b(sum,__shfl_down(sum,2));
       if (block_size >= 2)
-        sdata[tid] = b(sdata[tid],sdata[tid + 1]);
+        sum = b(sum,__shfl_down(sum,1));
     }
     __syncthreads();
     if(tid == 0)
     {
-      g_odata[blockIdx.x] = sdata[0];
+      g_odata[blockIdx.x] = sum;
     }
   }
   template <class Iterator, class BinaryFunc, class OutputType>
@@ -130,6 +129,7 @@ namespace thrust
     cudaMemcpy (h_partial,partial,numBlocks*sizeof(T),cudaMemcpyDeviceToHost);
     for (int i = 0; i < numBlocks; i++)
     {
+      // printf("%ld\n", h_partial[i]);
       answer = b(answer,h_partial[i]);
     }
     return (OutputType) init + answer;
@@ -137,26 +137,25 @@ namespace thrust
   template <class Iterator, class T,class Func,unsigned int block_size,class BinaryFunc>
   __global__ void unary_generic_reduce_kernel (Iterator g_idata, T *g_odata, unsigned int n, Func f,BinaryFunc b)
   {
-    extern __shared__ T sdata[];
+    extern volatile __shared__ T sdata[];
     unsigned int tid=threadIdx.x;
     unsigned int i=blockIdx.x*block_size*2 + tid;
     unsigned int grid_size = block_size*2*gridDim.x;
     sdata[tid]=0;
+    T sum = 0;
     while (i<n)
     {
-
-      sdata[tid] = b(sdata[tid], f(g_idata[i]));
+      sdata[tid] = sum = b(sum, f(g_idata[i]));
       if(i+block_size<n)
-        sdata[tid] = b(sdata[tid], f(g_idata[i+block_size]));
+        sdata[tid] = sum = b(sum, f(g_idata[i+block_size]));
       i+=grid_size;
     }
     __syncthreads();
-
     if (block_size >= 1024)
     {
       if (tid < 512)
       {
-        sdata[tid] = b(sdata[tid],sdata[tid + 512]);
+        sdata[tid] = sum = b(sum,(T)sdata[tid + 512]);
       }
       __syncthreads();
     }
@@ -164,7 +163,7 @@ namespace thrust
     {
       if (tid < 256)
       {
-        sdata[tid] = b(sdata[tid],sdata[tid + 256]);
+        sdata[tid] = sum = b(sum,(T)sdata[tid + 256]);
       }
       __syncthreads();
     }
@@ -172,7 +171,7 @@ namespace thrust
     {
       if (tid < 128)
       {
-        sdata[tid] = b(sdata[tid],sdata[tid + 128]);
+        sdata[tid] = sum = b(sum,(T)sdata[tid + 128]);
       }
       __syncthreads();
     }
@@ -180,29 +179,29 @@ namespace thrust
     {
       if (tid < 64)
       {
-        sdata[tid] = b(sdata[tid],sdata[tid + 64]);
+        sdata[tid] = sum = b(sum,(T)sdata[tid + 64]);
       }
       __syncthreads();
     }
     if (tid<32)
     {
       if (block_size >= 64)
-        sdata[tid] = b(sdata[tid],sdata[tid + 32]);
+        sdata[tid] = sum = b(sum,(T)sdata[tid + 32]);
       if (block_size >= 32)
-        sdata[tid] = b(sdata[tid],sdata[tid + 16]);
+        sum = b(sum,__shfl_down(sum,16));
       if (block_size >= 16)
-        sdata[tid] = b(sdata[tid],sdata[tid + 8]);
+        sum = b(sum,__shfl_down(sum,8));
       if (block_size >= 8)
-        sdata[tid] = b(sdata[tid],sdata[tid + 4]);
+        sum = b(sum,__shfl_down(sum,4));
       if (block_size >= 4)
-        sdata[tid] = b(sdata[tid],sdata[tid + 2]);
+        sum = b(sum,__shfl_down(sum,2));
       if (block_size >= 2)
-        sdata[tid] = b(sdata[tid],sdata[tid + 1]);
+        sum = b(sum,__shfl_down(sum,1));
     }
     __syncthreads();
     if(tid == 0)
     {
-      g_odata[blockIdx.x] = sdata[0];
+      g_odata[blockIdx.x] = sum;
     }
   }
 
@@ -273,26 +272,26 @@ namespace thrust
   template <class Iterator1, class Iterator2, class T,class Func,unsigned int block_size, class BinaryFunc>
   __global__ void binary_generic_reduce_kernel (Iterator1 g_idata1, Iterator2 g_idata2, T *g_odata, unsigned int n, Func f, BinaryFunc b)
   {
-    extern __shared__ T sdata[];
+    extern volatile __shared__ T sdata[];
     unsigned int tid=threadIdx.x;
     unsigned int i=blockIdx.x*block_size*2 + tid;
     unsigned int grid_size = block_size*2*gridDim.x;
     sdata[tid]=0;
+    T sum = 0;
     while (i<n)
     {
 
-      sdata[tid] = b(sdata[tid], f(g_idata1[i],g_idata2[i]));
+      sdata[tid] = sum = b(sum, f(g_idata1[i],g_idata2[i]));
       if(i+block_size<n)
-        sdata[tid] = b(sdata[tid], f(g_idata1[i+block_size],g_idata2[i+block_size]));
+        sdata[tid] = sum = b(sum, f(g_idata1[i+block_size],g_idata2[i+block_size]));
       i+=grid_size;
     }
     __syncthreads();
-
     if (block_size >= 1024)
     {
       if (tid < 512)
       {
-        sdata[tid] = b(sdata[tid],sdata[tid + 512]);
+        sdata[tid] = sum = b(sum,(T)sdata[tid + 512]);
       }
       __syncthreads();
     }
@@ -300,7 +299,7 @@ namespace thrust
     {
       if (tid < 256)
       {
-        sdata[tid] = b(sdata[tid],sdata[tid + 256]);
+        sdata[tid] = sum = b(sum,(T)sdata[tid + 256]);
       }
       __syncthreads();
     }
@@ -308,7 +307,7 @@ namespace thrust
     {
       if (tid < 128)
       {
-        sdata[tid] = b(sdata[tid],sdata[tid + 128]);
+        sdata[tid] = sum = b(sum,(T)sdata[tid + 128]);
       }
       __syncthreads();
     }
@@ -316,29 +315,29 @@ namespace thrust
     {
       if (tid < 64)
       {
-        sdata[tid] = b(sdata[tid],sdata[tid + 64]);
+        sdata[tid] = sum = b(sum,(T)sdata[tid + 64]);
       }
       __syncthreads();
     }
     if (tid<32)
     {
       if (block_size >= 64)
-        sdata[tid] = b(sdata[tid],sdata[tid + 32]);
+        sdata[tid] = sum = b(sum,(T)sdata[tid + 32]);
       if (block_size >= 32)
-        sdata[tid] = b(sdata[tid],sdata[tid + 16]);
+        sum = b(sum,__shfl_down(sum,16));
       if (block_size >= 16)
-        sdata[tid] = b(sdata[tid],sdata[tid + 8]);
+        sum = b(sum,__shfl_down(sum,8));
       if (block_size >= 8)
-        sdata[tid] = b(sdata[tid],sdata[tid + 4]);
+        sum = b(sum,__shfl_down(sum,4));
       if (block_size >= 4)
-        sdata[tid] = b(sdata[tid],sdata[tid + 2]);
+        sum = b(sum,__shfl_down(sum,2));
       if (block_size >= 2)
-        sdata[tid] = b(sdata[tid],sdata[tid + 1]);
+        sum = b(sum,__shfl_down(sum,1));
     }
     __syncthreads();
     if(tid == 0)
     {
-      g_odata[blockIdx.x] = sdata[0];
+      g_odata[blockIdx.x] = sum;
     }
   }
 

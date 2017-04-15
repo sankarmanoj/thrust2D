@@ -92,6 +92,7 @@ runTest( int argc, char** argv)
 		// printf("%d %d\n",J_cuda.end().position ,J_cuda.begin().position );
 		sum = thrust::reduce(J_cuda.begin(),J_cuda.end());
 		sum2 = thrust::reduce(J_square.begin(),J_square.end());
+		printf("%f %f\n", sum,sum2);
 		meanROI = sum / size_R;
 		varROI  = (sum2 / size_R) - meanROI*meanROI;
 		q0sqr   = varROI / (meanROI*meanROI);

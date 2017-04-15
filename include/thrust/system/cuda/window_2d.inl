@@ -95,7 +95,7 @@ namespace thrust
     }
     else
     {
-      position = (start_y+index)*pitch + start_x;
+      position = (start_y+index)*pitch/sizeof(T) + start_x;
     }
       return window_2d_iterator<T>(data,position);
   }
@@ -115,7 +115,7 @@ namespace thrust
     }
     else
     {
-      return data[(start_y+index.y)*pitch + start_x+index.x];
+      return data[(start_y+index.y)*pitch/sizeof(T) + start_x + index.x];
     }
   }
   template<class T>
@@ -136,8 +136,8 @@ namespace thrust
     this->stride_x = stride_x;
     this->stride_y = stride_y;
     this->pitch = b->pitch;
-    this->position =0;
-    this->windows_along_x= int((this->block_dim_x-window_dim_x)/stride_x) +1;
+    this->position = 0;
+    this->windows_along_x = int((this->block_dim_x-window_dim_x)/stride_x)+1;
     this->windows_along_y = int((this->block_dim_y-window_dim_y)/stride_y)+1;
     window_iterator<T,Alloc> *temp;
     cudaMalloc((void **)&temp,sizeof(window_iterator));
@@ -157,8 +157,8 @@ namespace thrust
     this->window_dim_y = window_dim_y;
     this->stride_x = stride_x;
     this->stride_y = stride_y;
-    this->position =position;
-    this->windows_along_x= int((this->block_dim_x-window_dim_x)/stride_x) +1;
+    this->position = position;
+    this->windows_along_x = int((this->block_dim_x-window_dim_x)/stride_x)+1;
     this->windows_along_y = int((this->block_dim_y-window_dim_y)/stride_y)+1;
     window_iterator<T,Alloc> *temp;
     cudaMalloc((void **)&temp,sizeof(window_iterator));
@@ -191,7 +191,7 @@ namespace thrust
   __host__ __device__ window_iterator<T,Alloc> window_iterator<T,Alloc>::operator+ (long N)
   {
     this->position = this->position+N;
-    if(this->position>=(this->windows_along_x*this->windows_along_y))
+    if(this->position>(this->windows_along_x*this->windows_along_y))
     this->position=(this->windows_along_x*this->windows_along_y);
     return *this;
   }
@@ -200,7 +200,7 @@ namespace thrust
   __host__ __device__ window_iterator<T,Alloc> window_iterator<T,Alloc>::operator++ ()
   {
     this->position++;
-    if(this->position>=(this->windows_along_x*this->windows_along_y))
+    if(this->position>(this->windows_along_x*this->windows_along_y))
     this->position=(this->windows_along_x*this->windows_along_y);
     return *this;
   }
@@ -209,7 +209,7 @@ namespace thrust
   __host__ __device__ window_iterator<T,Alloc> window_iterator<T,Alloc>::operator- (long N)
   {
     this->position = this->position - N;
-    if(this->position>block_dim_x*block_dim_y)
+    if(this->position<0)
       this->position = 0;
     return *this;
   }
@@ -254,7 +254,7 @@ namespace thrust
   __host__ __device__ __forceinline__ window_iterator<T,Alloc> window_iterator<T,Alloc>::operator+= (long N)
   {
     this->position+=N;
-    if(this->position>=(this->windows_along_x*this->windows_along_y))
+    if(this->position>(this->windows_along_x*this->windows_along_y))
     this->position=(this->windows_along_x*this->windows_along_y);
     return *this;
   }
@@ -314,7 +314,7 @@ namespace thrust
   window_iterator<T,Alloc> window_vector<T,Alloc>::end()
   {
 
-    int windowsX = int((b->dim_x-window_dim_x)/stride_x) +1;
+    int windowsX = int((b->dim_x-window_dim_x)/stride_x)+1;
     int windowsY = int((b->dim_y-window_dim_y)/stride_y)+1;
     return window_iterator<T,Alloc>(b,window_dim_x,window_dim_y,stride_x,stride_y,windowsX*windowsY);
   }

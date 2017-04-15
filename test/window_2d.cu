@@ -25,7 +25,7 @@ public:
 	__device__ int operator() (thrust::window_2d<int> &c, thrust::window_2d<int> &w)
 	{
     w[0][0]=c[0][0];
-    printf("%d , %d = %d \t %d , %d = %d \n",c.start_x,c.start_y,&(c[0][0])- c.data, w.start_x,w.start_y,&(w[0][0])- w.data);
+    printf("%d , %d = %d \t %d , %d = %d \n",c.start_x,c.start_y,c[0][0], w.start_x,w.start_y,w[0][0]);
     return 0;
 	}
 };
@@ -70,10 +70,10 @@ int main()
   block_2d<int> c(X,Y,0);
   device_vector<int> hello(X*Y);
   sequence(a.begin(),a.end());
-  window_vector<int> myVector(&a,3,3,1,1);
-  std::cout<<"Size ="<<myVector.end()-myVector.begin()<<"\n Pitch = "<<a.pitch<<std::endl;
+  // window_vector<int> myVector(&a,3,3,1,1);
+  // std::cout<<"Size ="<<myVector.end()-myVector.begin()<<"\n Pitch = "<<a.pitch<<std::endl;
   // for_each(myVector.begin(),myVector.end(),printFunctor());
-  cudaDeviceSynchronize();
+  // cudaDeviceSynchronize();
   // int *b = (int *) malloc(a.pitch*Y);
   // cudaMemcpy2D(b,a.pitch,a.data_pointer,a.pitch,X,Y,cudaMemcpyDeviceToHost);
   host_block_2d<int> b = a;
@@ -88,10 +88,10 @@ int main()
   thrust::window_vector<int> wv(&a,1,1,1,1);
   thrust::window_vector<int> wv2(&c,1,1,1,1);
 
-  printf("%d -%d  %d\n",wv.begin().windows_along_x,wv.begin().windows_along_y,wv.end()-wv.end());
+  printf("%d - %d  %d\n",wv.begin().windows_along_x,wv.begin().windows_along_y,wv.end()-wv.begin());
   thrust::transform(wv.begin(),wv.end(),wv2.begin(),hello.begin(),bob());
 
-  b = a ;
+  b = c;
   for (int i=0; i<Y;i++)
   {
     for (int j=0;j<X;j++)
