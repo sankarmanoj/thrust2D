@@ -22,6 +22,16 @@ namespace thrust
     this->pitch=dim_x*sizeof(T);
   }
   template <class T,class Alloc>
+  host_block_2d<T,Alloc>::host_block_2d (block_2d<T> &b)
+  {
+    this->dim_x = b.dim_x;
+    this->dim_y = b.dim_y;
+    this->pitch = b.dim_x*sizeof(T);
+    this->data_pointer = (T*) std::malloc(this->dim_x*this->dim_y*sizeof(T));
+    cudaMemcpy2D(this->data_pointer,this->pitch,b.data_pointer,b.pitch,this->dim_x*sizeof(T),this->dim_y,cudaMemcpyDeviceToHost);
+    this->device_pointer = this;
+  }
+  template <class T,class Alloc>
   __host__ void host_block_2d<T,Alloc>::operator= (const block_2d<T> &b)
   {
     this->dim_x = b.dim_x;

@@ -24,9 +24,9 @@ aimage:image_affine.cu
 	$(CC) $(CFLAGS) $(DFLAGS) $(OPENCVFLAGS) $< -o aimage.out
 
 %.o:%.cu
-	$(CC) $(CFLAGS)   $(OPENCVFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $(DFLAGS)  $(OPENCVFLAGS) $< -o $@
 
 test_%: %.o
 	./$<
 clean:
-	rm *.out
+	rm  -f *.o *.out

@@ -87,7 +87,6 @@ namespace thrust
   template <class T,class Alloc=device_malloc_allocator<T> >
   class window_vector
   {
-    int windows_along_x, windows_along_y;
     int position;
   public:
     typedef window_2d<T,Alloc> reference;
