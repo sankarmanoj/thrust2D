@@ -8,9 +8,7 @@ LIBS		:=  -lcudart -lm
 MAIN	:= perfsig.out thrust_perfsig.out shared_perfsig.out
 all	: $(MAIN)
 
-profile : CC += -DPROFILING
-profile : $(MAIN)
-			rm MD_*.o
+
 debug  : NVCCFLAGS += -g -G -DDEBUG
 debug  : $(MAIN)
 
@@ -29,5 +27,10 @@ MD_shared_perfsig.o: MD_shared_perfsig.cu
 	$(NVCC) $(NVCCFLAGS) $(INCLUDES) -o MD_shared_perfsig.o -c MD_shared_perfsig.cu
 main.o: main.cpp
 	$(CC) $(INCLUDES) -o main.o -c main.cpp
+
+profile:
+	nvprof --log-file thrust.profile ./thrust_perfsig.out 1000 10
+	nvprof --log-file shared.profile ./shared_perfsig.out 1000 10
+	nvprof --log-file native.profile ./perfsig.out 1000 10
 clean:
 	rm -f *~ *.o *_o $(MAIN)

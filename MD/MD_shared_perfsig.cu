@@ -167,7 +167,7 @@ thrust::transform(thrust::make_zip_iterator(thrust::make_tuple(pos_gpuX->begin()
 
 float GPU_accumulate_parpot_wShrdMem(int nd, int np, int step, double *time_elapsed)
 {
-	return thrust::reduce(parpot_gpu->begin(),parpot_gpu->end(),0.0f,thrust::plus<float>());
+	return thrust::reduce(thrust::cuda::shared,parpot_gpu->begin(),parpot_gpu->end(),0.0f,thrust::plus<float>());
 }
 
 //END K2 - Accumulate PE with/without shared memory
@@ -322,9 +322,9 @@ extern "C"
 void GPU_updateAcc(int nd, int np, float rmass, int step, double *time_elapsedCPU, float *time_elapsedGPU)
 {
 
-  thrust::transform(force_gpuX->begin(),force_gpuX->end(),acc_gpuX->begin(),updateAccOp(rmass));
-  thrust::transform(force_gpuY->begin(),force_gpuY->end(),acc_gpuY->begin(),updateAccOp(rmass));
-  thrust::transform(force_gpuZ->begin(),force_gpuZ->end(),acc_gpuZ->begin(),updateAccOp(rmass));
+  thrust::transform(thrust::cuda::shared,force_gpuX->begin(),force_gpuX->end(),acc_gpuX->begin(),updateAccOp(rmass));
+  thrust::transform(thrust::cuda::shared,force_gpuY->begin(),force_gpuY->end(),acc_gpuY->begin(),updateAccOp(rmass));
+  thrust::transform(thrust::cuda::shared,force_gpuZ->begin(),force_gpuZ->end(),acc_gpuZ->begin(),updateAccOp(rmass));
 
 }
 //END K7 - Update acceleration
