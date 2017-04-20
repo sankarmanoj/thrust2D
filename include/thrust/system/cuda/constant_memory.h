@@ -3,7 +3,7 @@
 namespace thrust
 {
   #define CSIZE 60536
-  __constant__ unsigned char c_memory[CSIZE];
+  __constant__ unsigned char c_storage[CSIZE];
   static int c_position = 0;
   template<class T>
   class constant_vector
@@ -18,7 +18,6 @@ namespace thrust
     }
     constant_vector(thrust::detail::normal_iterator<thrust::device_ptr<T> >, thrust::detail::normal_iterator<thrust::device_ptr<T> >);
     constant_vector(thrust::detail::normal_iterator<T *>, thrust::detail::normal_iterator<T*> );
-    constant_vector(const T* ,const T* ,cudaMemoryType );
     __device__ const T operator[] (unsigned long index);
     __device__ const T operator[] (unsigned long index) const;
 

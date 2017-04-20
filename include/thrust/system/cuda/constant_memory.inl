@@ -1,50 +1,14 @@
 namespace thrust
 {
-
-  template<class T>
-  constant_vector<T>::constant_vector(const T* begin,const T* end,cudaMemoryType memType)
-  {
-    int size = end - begin;
-    int mem_size = sizeof(T)*size;
-    cudaError_t err;
-    if(mem_size+c_position>CSIZE)
-    {
-      c_position = 0;
-    }
-    assert(mem_size+c_position<=CSIZE);
-    // printf("Size - %d MemSize = %d Starting Position = %d ",size,mem_size,c_position);
-    if(memType==cudaMemoryTypeDevice)
-    {
-      err = cudaMemcpyToSymbol(c_memory,begin,mem_size,c_position,cudaMemcpyDeviceToDevice);
-      if ( cudaSuccess != err )
-      {
-         fprintf( stderr, "cudaCheckError() failed at %s:%i : %s\n",
-                  __FILE__, __LINE__, cudaGetErrorString( err ) );
-         exit( -1 );
-       }
-    }
-    else if(memType==cudaMemoryTypeHost)
-    {
-      err = cudaMemcpyToSymbol(c_memory, begin,mem_size,c_position,cudaMemcpyHostToDevice);
-      if ( cudaSuccess != err )
-      {
-         fprintf( stderr, "cudaCheckError() failed at %s:%i : %s\n",
-                  __FILE__, __LINE__, cudaGetErrorString( err ) );
-         exit( -1 );
-       }
-    }
-    this->offset =c_position/sizeof(T);
-    c_position+=mem_size;
-  }
   template<class T>
   __device__ const T constant_vector<T>::operator[](unsigned long index)
   {
-    return ((pointer)c_memory)[this->offset + index];
+    return *((pointer)(c_storage + offset + index*sizeof(T)));
   }
   template<class T>
   __device__ const T constant_vector<T>::operator[](unsigned long index) const
   {
-    return ((pointer)c_memory)[this->offset + index];
+    return *((pointer)(c_storage + offset + index*sizeof(T)));
   }
 
   template<class T>
@@ -59,8 +23,8 @@ namespace thrust
     }
     assert(mem_size+c_position<=CSIZE);
     // printf("Size - %d MemSize = %d Starting Position = %d ",size,mem_size,c_position);
-    err = cudaMemcpyToSymbol(c_memory, (&(begin[0])).get(),mem_size,c_position,cudaMemcpyDeviceToDevice);
-    this->offset=c_position/sizeof(T);
+    err = cudaMemcpyToSymbol(c_storage, (&(begin[0])).get(),mem_size,c_position,cudaMemcpyDeviceToDevice);
+    this->offset=c_position;
     if ( cudaSuccess != err )
     {
        fprintf( stderr, "cudaCheckError() failed at %s:%i : %s\n",
@@ -81,8 +45,8 @@ namespace thrust
     }
     assert(mem_size+c_position<=CSIZE);
     // printf("Size - %d MemSize = %d Starting Position = %d ",size,mem_size,c_position);
-    err = cudaMemcpyToSymbol(c_memory, (&(begin[0])).get(),mem_size,c_position,cudaMemcpyHostToDevice);
-    this->offset=c_position/sizeof(T);
+    err = cudaMemcpyToSymbol(c_storage, (&(begin[0])).get(),mem_size,c_position,cudaMemcpyHostToDevice);
+    this->offset=c_position;
     if ( cudaSuccess != err )
     {
        fprintf( stderr, "cudaCheckError() failed at %s:%i : %s\n",
