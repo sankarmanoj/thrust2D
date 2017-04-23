@@ -1,5 +1,5 @@
 #include <opencv2/opencv.hpp>
-#include <thrust/window_transform.h>
+#include <thrust/window_2d.h>
 using namespace cv;
 #define KERNEL_LENGTH 5
 __constant__ float c_kernel[KERNEL_LENGTH*KERNEL_LENGTH];
@@ -41,7 +41,7 @@ public:
   {
     this->dim =dim;
   }
-  __device__ void operator() (const thrust::window_2d<uchar> & input_window,const thrust::window_2d<uchar> & output_window) const
+  __device__ uchar operator() (const thrust::window_2d<uchar> & input_window,const thrust::window_2d<uchar> & output_window) const
   {
     uchar temp = 0;
     for(int i = 0; i< dim; i++)
@@ -52,6 +52,7 @@ public:
       }
     }
     output_window[1][1]=temp;
+    return 0;
   }
 };
 class pyrdownTransformFunctor
@@ -90,6 +91,7 @@ int main(int argc, char const *argv[])
   cudaMemcpyToSymbol(c_kernel, hkernel, dim*dim * sizeof(float));
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
   thrust::block_2d<uchar> outBlock (image.cols*2,image.rows*2,0.0f);
+  thrust::block_2d<uchar> null_block (image.cols,image.rows);
   thrust::block_2d<uchar> output_image_block(image.cols*2,image.rows*2,0.0f);
   uchar * img = (uchar * )malloc(sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()));
   uchar * img_out = (uchar * )malloc(sizeof(uchar)*(outBlock.end()-outBlock.begin()));
@@ -104,7 +106,7 @@ int main(int argc, char const *argv[])
   thrust::for_each(inputVector.begin(),inputVector.end(),ptf);
   cudaDeviceSynchronize();
   thrust::window_vector<uchar> output_wv(&output_image_block,dim,dim,1,1);
-  thrust::transform(thrust::cuda::shared,input_wv.begin(),input_wv.end(),output_wv.begin(),convolutionFunctor(dim));
+  thrust::transform(input_wv.begin(),input_wv.end(),output_wv.begin(),null_block.begin(),convolutionFunctor(dim));
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(output_image_block.end()-output_image_block.begin()));
   output_image_block.download(&img);
   for(int i = 0; i<image.cols*image.rows*4;i++)

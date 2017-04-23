@@ -1,0 +1,30 @@
+==15548== NVPROF is profiling process 15548, command: ./erode.o 4096
+==15548== Profiling application: ./erode.o 4096
+==15548== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 42.07%  2.4126ms         1  2.4126ms  2.4126ms  2.4126ms  [CUDA memcpy DtoH]
+ 30.87%  1.7705ms         2  885.23us  2.6880us  1.7678ms  [CUDA memcpy HtoD]
+ 18.28%  1.0485ms         1  1.0485ms  1.0485ms  1.0485ms  void cv::cudev::grid_copy_detail::copy<cv::cudev::RemapPtr1<cv::cudev::BrdBase<cv::cudev::BrdReflect101, cv::cudev::GlobPtr<unsigned char>>, _GLOBAL__N__51_tmpxft_00005e52_00000000_7_copy_make_border_cpp1_ii_71482d89::ShiftMap>, unsigned char, cv::cudev::WithOutMask>(cv::cudev::BrdReflect101, cv::cudev::GlobPtr<unsigned char>, cv::cudev::GlobPtr<unsigned char>, int, int)
+  8.78%  503.54us         1  503.54us  503.54us  503.54us  void ForEachTupleByteQuad<unsigned char, int=1, TupleByteQuadFunctor<unsigned char, int=1, ErodeReplicateBorderQuadNewFunctor<unsigned char, int=1>>>(Tuple8<unsigned char, int=1>*, int, NppiSize, unsigned char)
+
+==15548== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 53.48%  565.46ms         2  282.73ms  29.452us  565.44ms  cudaLaunch
+ 45.41%  480.11ms         3  160.04ms  497.34us  479.10ms  cudaMallocPitch
+  0.45%  4.7310ms         3  1.5770ms  17.110us  2.9213ms  cudaMemcpy2D
+  0.15%  1.5523ms         2  776.13us  501.03us  1.0512ms  cudaDeviceSynchronize
+  0.14%  1.4929ms       264  5.6540us     102ns  246.67us  cuDeviceGetAttribute
+  0.14%  1.4676ms         3  489.21us  450.87us  516.99us  cudaGetDeviceProperties
+  0.09%  954.05us         2  477.03us  457.10us  496.95us  cudaMalloc
+  0.07%  771.25us         4  192.81us  155.85us  299.88us  cudaFree
+  0.05%  561.81us         3  187.27us  156.62us  207.80us  cuDeviceTotalMem
+  0.02%  161.00us         3  53.667us  47.861us  58.194us  cuDeviceGetName
+  0.00%  8.0500us         3  2.6830us     458ns  5.9780us  cudaGetDevice
+  0.00%  8.0330us         2  4.0160us  1.1610us  6.8720us  cudaConfigureCall
+  0.00%  4.3750us         9     486ns     163ns  1.3880us  cudaSetupArgument
+  0.00%  2.3060us         4     576ns     230ns  1.1440us  cuDeviceGetCount
+  0.00%  1.2270us         2     613ns     532ns     695ns  cuInit
+  0.00%  1.1560us         2     578ns     489ns     667ns  cudaGetLastError
+  0.00%     953ns         2     476ns     362ns     591ns  cuDriverGetVersion
+  0.00%     874ns         4     218ns     194ns     242ns  cuDeviceGet
+  0.00%     683ns         4     170ns      98ns     233ns  cudaGetDeviceCount

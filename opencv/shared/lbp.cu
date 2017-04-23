@@ -40,7 +40,7 @@ int main(int argc, char const *argv[]) {
   uchar_image_block.upload(img);
   thrust::window_vector<uchar> myVector = thrust::window_vector<uchar>(&uchar_image_block,3,3,1,1);
   thrust::window_vector<uchar> outputVector = thrust::window_vector<uchar>(&outBlock,3,3,1,1);
-  thrust::transform(thrust::cuda::texture,myVector.begin(),myVector.end(),outputVector.begin(),lbpFunctor());
+  thrust::transform(thrust::cuda::shared,myVector.begin(),myVector.end(),outputVector.begin(),lbpFunctor());
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   outBlock.download(&img);
   for(int i = 0; i<image.cols*image.rows;i++)

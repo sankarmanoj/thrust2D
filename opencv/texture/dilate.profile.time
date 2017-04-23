@@ -1,0 +1,25 @@
+==19038== NVPROF is profiling process 19038, command: ./dilate.o 4096
+==19038== Profiling application: ./dilate.o 4096
+==19038== Warning: Found 2 invalid records in the result.
+==19038== Warning: This can happen if device ran out of memory or if a device kernel was stopped due to an assertion.
+==19038== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+100.00%  1.8225ms         7  260.36us  2.4110us  1.6929ms  [CUDA memcpy HtoD]
+
+==19038== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 93.21%  117.27ms         3  39.092ms  409.24us  116.45ms  cudaMallocPitch
+  4.97%  6.2508ms         2  3.1254ms  1.7048ms  4.5460ms  cudaMemcpy2D
+  0.76%  956.95us         2  478.47us  434.20us  522.74us  cudaGetDeviceProperties
+  0.39%  485.79us        90  5.3970us     106ns  198.43us  cuDeviceGetAttribute
+  0.34%  423.04us         6  70.505us  4.9370us  380.94us  cudaMalloc
+  0.15%  194.41us         1  194.41us  194.41us  194.41us  cuDeviceTotalMem
+  0.11%  143.00us         6  23.832us  3.6220us  74.958us  cudaMemcpy
+  0.04%  44.179us         1  44.179us  44.179us  44.179us  cuDeviceGetName
+  0.02%  22.746us         1  22.746us  22.746us  22.746us  cudaLaunch
+  0.01%  13.042us         1  13.042us  13.042us  13.042us  cudaCreateTextureObject
+  0.00%  1.3130us         2     656ns     129ns  1.1840us  cuDeviceGetCount
+  0.00%  1.1270us         1  1.1270us  1.1270us  1.1270us  cudaConfigureCall
+  0.00%  1.0870us         4     271ns     118ns     470ns  cudaSetupArgument
+  0.00%     370ns         2     185ns     116ns     254ns  cuDeviceGet
+  0.00%     140ns         1     140ns     140ns     140ns  cudaCreateChannelDesc

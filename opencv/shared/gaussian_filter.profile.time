@@ -1,0 +1,26 @@
+==17008== NVPROF is profiling process 17008, command: ./gaussian_filter.o 4096
+==17008== Profiling application: ./gaussian_filter.o 4096
+==17008== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 47.93%  2.3834ms         1  2.3834ms  2.3834ms  2.3834ms  [CUDA memcpy DtoH]
+ 32.22%  1.6022ms         4  400.54us  1.2160us  1.5985ms  [CUDA memcpy HtoD]
+  8.57%  425.99us         1  425.99us  425.99us  425.99us  void thrust::convolutionColumnsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)
+  7.92%  393.73us         1  393.73us  393.73us  393.73us  void thrust::convolutionRowsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)
+  3.38%  167.86us         1  167.86us  167.86us  167.86us  [CUDA memcpy DtoD]
+
+==17008== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 93.84%  118.86ms         2  59.431ms  378.99us  118.48ms  cudaMallocPitch
+  4.33%  5.4834ms         3  1.8278ms  12.774us  3.8628ms  cudaMemcpy2D
+  0.98%  1.2440ms         4  310.99us  5.8660us  470.00us  cudaMalloc
+  0.29%  371.93us        90  4.1320us     108ns  147.36us  cuDeviceGetAttribute
+  0.26%  325.69us         1  325.69us  325.69us  325.69us  cudaGetDeviceProperties
+  0.15%  188.86us         1  188.86us  188.86us  188.86us  cuDeviceTotalMem
+  0.08%  107.24us         1  107.24us  107.24us  107.24us  cudaMemcpyToSymbol
+  0.03%  33.700us         1  33.700us  33.700us  33.700us  cuDeviceGetName
+  0.02%  30.610us         2  15.305us  7.3050us  23.305us  cudaLaunch
+  0.01%  16.938us         2  8.4690us  6.7830us  10.155us  cudaMemcpy
+  0.00%  2.8110us        14     200ns     146ns     631ns  cudaSetupArgument
+  0.00%  1.2110us         2     605ns     276ns     935ns  cudaConfigureCall
+  0.00%  1.1740us         2     587ns     190ns     984ns  cuDeviceGetCount
+  0.00%     384ns         2     192ns     135ns     249ns  cuDeviceGet

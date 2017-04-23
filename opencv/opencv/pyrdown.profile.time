@@ -1,0 +1,27 @@
+==15767== NVPROF is profiling process 15767, command: ./pyrdown.o 4096
+==15767== Profiling application: ./pyrdown.o 4096
+==15767== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 59.11%  1.7646ms         1  1.7646ms  1.7646ms  1.7646ms  [CUDA memcpy HtoD]
+ 21.13%  630.82us         1  630.82us  630.82us  630.82us  void cv::cuda::device::imgproc::pyrDown<unsigned char, cv::cuda::device::BrdReflect101<unsigned char>>(cv::cuda::PtrStepSz<unsigned char>, cv::cuda::PtrStep<cv::cuda::PtrStepSz>, unsigned char, int)
+ 19.76%  589.76us         1  589.76us  589.76us  589.76us  [CUDA memcpy DtoH]
+
+==15767== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 95.99%  160.12ms         2  80.058ms  370.67us  159.75ms  cudaMallocPitch
+  1.71%  2.8509ms         2  1.4254ms  1.0594ms  1.7915ms  cudaMemcpy2D
+  0.89%  1.4778ms         2  738.91us  433.03us  1.0448ms  cudaGetDeviceProperties
+  0.38%  633.20us         1  633.20us  633.20us  633.20us  cudaDeviceSynchronize
+  0.34%  566.91us        90  6.2980us     179ns  233.99us  cuDeviceGetAttribute
+  0.27%  447.71us         1  447.71us  447.71us  447.71us  cudaMalloc
+  0.26%  429.24us         2  214.62us  155.88us  273.36us  cudaFree
+  0.12%  197.89us         1  197.89us  197.89us  197.89us  cuDeviceTotalMem
+  0.03%  51.407us         1  51.407us  51.407us  51.407us  cuDeviceGetName
+  0.01%  22.064us         1  22.064us  22.064us  22.064us  cudaLaunch
+  0.00%  1.6220us         2     811ns     226ns  1.3960us  cuDeviceGetCount
+  0.00%  1.3540us         2     677ns     243ns  1.1110us  cudaGetDevice
+  0.00%     847ns         4     211ns     132ns     314ns  cudaSetupArgument
+  0.00%     801ns         1     801ns     801ns     801ns  cudaConfigureCall
+  0.00%     551ns         2     275ns     207ns     344ns  cuDeviceGet
+  0.00%     510ns         4     127ns      77ns     212ns  cudaGetDeviceCount
+  0.00%     319ns         1     319ns     319ns     319ns  cudaGetLastError

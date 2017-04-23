@@ -1,0 +1,27 @@
+==15217== NVPROF is profiling process 15217, command: ./pyrup.o 4096
+==15217== Profiling application: ./pyrup.o 4096
+==15217== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 65.05%  9.8063ms         1  9.8063ms  9.8063ms  9.8063ms  [CUDA memcpy DtoH]
+ 23.41%  3.5292ms         1  3.5292ms  3.5292ms  3.5292ms  void cv::cuda::device::imgproc::pyrUp<unsigned char>(cv::cuda::PtrStepSz<unsigned char>, unsigned char)
+ 11.54%  1.7399ms         1  1.7399ms  1.7399ms  1.7399ms  [CUDA memcpy HtoD]
+
+==15217== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 90.38%  165.94ms         2  82.968ms  408.16us  165.53ms  cudaMallocPitch
+  6.41%  11.766ms         2  5.8831ms  1.7648ms  10.001ms  cudaMemcpy2D
+  1.92%  3.5320ms         1  3.5320ms  3.5320ms  3.5320ms  cudaDeviceSynchronize
+  0.46%  846.38us         2  423.19us  373.26us  473.12us  cudaGetDeviceProperties
+  0.24%  432.47us         2  216.23us  152.04us  280.43us  cudaFree
+  0.23%  424.77us        90  4.7190us     174ns  166.00us  cuDeviceGetAttribute
+  0.23%  415.81us         1  415.81us  415.81us  415.81us  cudaMalloc
+  0.10%  187.22us         1  187.22us  187.22us  187.22us  cuDeviceTotalMem
+  0.02%  36.826us         1  36.826us  36.826us  36.826us  cuDeviceGetName
+  0.01%  17.983us         1  17.983us  17.983us  17.983us  cudaLaunch
+  0.00%  1.4680us         2     734ns     227ns  1.2410us  cuDeviceGetCount
+  0.00%  1.3010us         2     650ns     229ns  1.0720us  cudaGetDevice
+  0.00%     953ns         1     953ns     953ns     953ns  cudaConfigureCall
+  0.00%     571ns         2     285ns     170ns     401ns  cuDeviceGet
+  0.00%     501ns         4     125ns      73ns     206ns  cudaGetDeviceCount
+  0.00%     482ns         2     241ns     126ns     356ns  cudaSetupArgument
+  0.00%     286ns         1     286ns     286ns     286ns  cudaGetLastError

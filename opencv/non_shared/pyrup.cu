@@ -1,6 +1,5 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
-#include <thrust/window_transform.h>
 using namespace cv;
 #define KERNEL_LENGTH 5
 __constant__ float c_kernel[KERNEL_LENGTH*KERNEL_LENGTH];
@@ -42,7 +41,7 @@ public:
   {
     this->dim =dim;
   }
-  __device__ void operator() (const thrust::window_2d<uchar> & input_window,const thrust::window_2d<uchar> & output_window) const
+  __device__ uchar operator() (const thrust::window_2d<uchar> & input_window,const thrust::window_2d<uchar> & output_window) const
   {
     uchar temp = 0;
     for(int i = 0; i< dim; i++)
@@ -53,6 +52,7 @@ public:
       }
     }
     output_window[1][1]=temp;
+    return 0;
   }
 };
 
@@ -97,6 +97,7 @@ int main(int argc, char const *argv[])
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
   thrust::block_2d<uchar> outBlock (image.cols/2,image.rows/2,0.0f);
   thrust::block_2d<uchar> output_image_block(image.cols,image.rows);
+  thrust::block_2d<uchar> null_block (image.cols,image.rows);
   uchar * img = (uchar * )malloc(sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()));
   uchar * img1 = (uchar * )malloc(sizeof(uchar)*(outBlock.end()-outBlock.begin()));
   for(int i = 0; i<image.cols*image.rows;i++)
@@ -106,7 +107,7 @@ int main(int argc, char const *argv[])
   uchar_image_block.upload(img);
   thrust::window_vector<uchar> input_wv(&uchar_image_block,dim,dim,1,1);
   thrust::window_vector<uchar> output_wv(&output_image_block,dim,dim,1,1);
-  thrust::transform(thrust::cuda::shared,input_wv.begin(),input_wv.end(),output_wv.begin(),convolutionFunctor(dim));
+  thrust::transform(input_wv.begin(),input_wv.end(),output_wv.begin(),null_block.begin(),convolutionFunctor(dim));
   thrust::window_vector<uchar> inputVector(&outBlock,1,1,1,1);
   pyrupTransformFunctor ptf(&output_image_block);
   thrust::for_each(inputVector.begin(),inputVector.end(),ptf);

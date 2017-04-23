@@ -1,0 +1,30 @@
+==15433== NVPROF is profiling process 15433, command: ./sobel_filter.o 4096
+==15433== Profiling application: ./sobel_filter.o 4096
+==15433== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 56.80%  4.8376ms         2  2.4188ms  2.3757ms  2.4619ms  [CUDA memcpy DtoH]
+ 20.57%  1.7518ms         5  350.35us  1.1840us  1.7470ms  [CUDA memcpy HtoD]
+ 11.95%  1.0173ms         2  508.66us  505.97us  511.35us  void column_filter::linearColumnFilter<int=3, float, unsigned char, cv::cuda::device::BrdColReflect101<float>>(cv::cuda::PtrStepSz<float>, cv::cuda::PtrStep<unsigned char>, int, float)
+ 10.63%  905.21us         2  452.61us  452.05us  453.17us  void row_filter::linearRowFilter<int=3, unsigned char, float, cv::cuda::device::BrdRowReflect101<unsigned char>>(cv::cuda::PtrStepSz<unsigned char>, cv::cuda::PtrStep<float>, int, unsigned char)
+  0.05%  4.5130us         4  1.1280us  1.0240us  1.4090us  [CUDA memcpy DtoD]
+
+==15433== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 97.14%  455.48ms         5  91.095ms  375.67us  453.79ms  cudaMallocPitch
+  1.59%  7.4406ms         7  1.0629ms  4.1680us  2.9141ms  cudaMemcpy2D
+  0.41%  1.9333ms         4  483.33us  453.58us  516.33us  cudaDeviceSynchronize
+  0.26%  1.2316ms         9  136.85us  4.5690us  391.34us  cudaFree
+  0.21%  963.65us         2  481.82us  432.81us  530.83us  cudaGetDeviceProperties
+  0.19%  901.63us         5  180.33us  6.5450us  445.03us  cudaMalloc
+  0.13%  595.48us        90  6.6160us     176ns  236.18us  cuDeviceGetAttribute
+  0.04%  196.48us         1  196.48us  196.48us  196.48us  cuDeviceTotalMem
+  0.01%  69.065us         4  17.266us  8.8340us  25.858us  cudaMemcpyToSymbol
+  0.01%  51.604us         1  51.604us  51.604us  51.604us  cuDeviceGetName
+  0.01%  37.163us         4  9.2900us  6.7970us  11.771us  cudaLaunch
+  0.00%  3.9530us         5     790ns     237ns  1.1650us  cudaGetDevice
+  0.00%  2.6900us        16     168ns     115ns     489ns  cudaSetupArgument
+  0.00%  1.8270us         4     456ns     253ns     668ns  cudaConfigureCall
+  0.00%  1.6980us         2     849ns     250ns  1.4480us  cuDeviceGetCount
+  0.00%     954ns         4     238ns     161ns     364ns  cudaGetLastError
+  0.00%     495ns         2     247ns     187ns     308ns  cuDeviceGet
+  0.00%     454ns         4     113ns      89ns     147ns  cudaGetDeviceCount
