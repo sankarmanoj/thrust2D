@@ -73,6 +73,8 @@ pyrdownTransformFunctor(thrust::block_2d<uchar> * outBlock)
 };
 int main(int argc, char const *argv[])
 {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
 
@@ -110,7 +112,7 @@ int main(int argc, char const *argv[])
     outputFloatImageData[i]=(unsigned char)img_out[i];
   }
   Mat output (Size(image.cols*2,image.rows*2),CV_8UC1,outputFloatImageData);
-  imwrite("input.png",image);
-  imwrite("pyrdown.png",output);
+  // imwrite("input.png",image);
+  // imwrite("pyrdown.png",output);
   return 0;
 }

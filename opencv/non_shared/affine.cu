@@ -22,9 +22,16 @@ public:
   }
 };
 int main(int argc, char const *argv[]) {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
-  image = small;
+  int dim = 512;
+  if(argc ==2)
+  {
+    dim = atoi(argv[1]);
+  }
+  resize(small,image,Size(dim,dim));
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows,0.0f);
   thrust::block_2d<uchar> outBlock (image.cols,image.rows,0.0f);
   uchar * img = (uchar * )malloc(sizeof(uchar)*(image.cols*image.rows));
@@ -60,7 +67,6 @@ int main(int argc, char const *argv[]) {
   thrust::window_vector<uchar> inputVector(&uchar_image_block,1,1,1,1);
   AffineTransformFunctor atf(&warp_block,&outBlock);
   thrust::for_each(inputVector.begin(),inputVector.end(),atf);
-  cudaDeviceSynchronize();
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   outBlock.download(&img);
   for(int i = 0; i<image.cols*image.rows;i++)
@@ -68,7 +74,14 @@ int main(int argc, char const *argv[]) {
     outputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
-  imwrite("input.png",image);
-  imwrite("aoutput.png",output);
+  #ifdef OWRITE
+  cv::imwrite("ainput.png",image);
+  cv::imwrite("aoutput.png",output);
+  #endif
+  #ifdef SHOW
+  cv::imshow("ainput.png",image);
+  cv::imshow("aoutput.png",output);
+    cv::waitKey(0);
+  #endif
   return 0;
 }

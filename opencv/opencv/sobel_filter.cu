@@ -3,6 +3,8 @@
 #include <opencv2/cudaarithm.hpp>
 int main( int argc, char** argv )
 {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
   int dim = 512;
   if(argc ==2)
   {

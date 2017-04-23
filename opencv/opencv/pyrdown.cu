@@ -2,6 +2,8 @@
 #include <opencv2/cudawarping.hpp>
 int main( int argc, char** argv )
 {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
   cv::Mat src, dst,r;
   cv::cuda::GpuMat src_d, dst_d;
   int dim = 512;

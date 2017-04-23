@@ -4,6 +4,8 @@
 
 int main( int argc, char** argv )
 {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
  double alpha = 0.5; double beta;
 
  cv::Mat t, src1, src2, dst;

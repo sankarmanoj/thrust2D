@@ -55,6 +55,8 @@ public:
   }
 };
 int main(int argc, char const *argv[]) {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
 
@@ -86,8 +88,8 @@ int main(int argc, char const *argv[]) {
     toutputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat toutput (Size(image.cols,image.rows),CV_8UC1,toutputFloatImageData);
-  imwrite("input.png",image);
-  imwrite("output.png",toutput);
+  // imwrite("input.png",image);
+  // imwrite("output.png",toutput);
 
   return 0;
 }

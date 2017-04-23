@@ -38,14 +38,20 @@ public:
 };
 
 int main(int argc, char const *argv[]) {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
-  int dim = 3;
-  image = small;
-  thrust::host_block_2d<float> kernelx(dim,dim);
-  thrust::host_block_2d<float> kernely(dim,dim);
-  thrust::block_2d<float> dkernelx(dim,dim);
-  thrust::block_2d<float> dkernely(dim,dim);
+  int dim = 512;
+  if(argc ==2)
+  {
+    dim = atoi(argv[1]);
+  }
+  resize(small,image,Size(dim,dim));
+  thrust::host_block_2d<float> kernelx(3,3);
+  thrust::host_block_2d<float> kernely(3,3);
+  thrust::block_2d<float> dkernelx(3,3);
+  thrust::block_2d<float> dkernely(3,3);
   //Sobel Filter
   kernelx[0][0]=-1;
   kernelx[0][1]=0;
@@ -80,12 +86,12 @@ int main(int argc, char const *argv[]) {
   uchar_image_block.upload(img);
   convolve1_block.upload(img);
   convolve2_block.upload(img);
-  thrust::window_vector<uchar> input_wv(&uchar_image_block,dim,dim,1,1);
-  thrust::window_vector<uchar> output_wv_x(&convolve1_block,dim,dim,1,1);
-  thrust::window_vector<uchar> output_wv_y(&convolve2_block,dim,dim,1,1);
+  thrust::window_vector<uchar> input_wv(&uchar_image_block,3,3,1,1);
+  thrust::window_vector<uchar> output_wv_x(&convolve1_block,3,3,1,1);
+  thrust::window_vector<uchar> output_wv_y(&convolve2_block,3,3,1,1);
 
-  thrust::transform(input_wv.begin(),input_wv.end(),output_wv_x.begin(),zero_image_block.begin(),convolutionFunctor(dkernelx.device_pointer,dim));
-  thrust::transform(input_wv.begin(),input_wv.end(),output_wv_y.begin(),zero_image_block.begin(),convolutionFunctor(dkernely.device_pointer,dim));
+  thrust::transform(input_wv.begin(),input_wv.end(),output_wv_x.begin(),zero_image_block.begin(),convolutionFunctor(dkernelx.device_pointer,3));
+  thrust::transform(input_wv.begin(),input_wv.end(),output_wv_y.begin(),zero_image_block.begin(),convolutionFunctor(dkernely.device_pointer,3));
   thrust::transform(convolve1_block.begin(),convolve1_block.end(),convolve2_block.begin(),outBlock.begin(),transFunctor());
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   outBlock.download(&img);
@@ -94,9 +100,8 @@ int main(int argc, char const *argv[]) {
     outputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
-  cudaCheckError();
-  imwrite("input.png",image);
-  imwrite("output.png",output);
-
+  // cudaCheckError();
+  // imwrite("input.png",image);
+  // imwrite("output.png",output);
   return 0;
 }

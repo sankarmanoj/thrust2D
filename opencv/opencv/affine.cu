@@ -2,6 +2,8 @@
 #include <opencv2/cudawarping.hpp>
 int main( int argc, char** argv )
 {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
   cv::Mat image,timage, warp_dst;
   cv::cuda::GpuMat image1;
   /// Load the image
@@ -43,6 +45,5 @@ int main( int argc, char** argv )
   cv::imshow("aoutput.png",warp_dst);
     cv::waitKey(0);
   #endif
-
   return 0;
 }

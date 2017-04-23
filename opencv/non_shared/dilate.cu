@@ -19,9 +19,16 @@ class dilateFunctor //: public thrust::shared_unary_window_transform_functor<uch
   }
 };
 int main(int argc, char const *argv[]) {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
-  resize(small,image,Size(512,512));
+  int dim = 512;
+  if(argc ==2)
+  {
+    dim = atoi(argv[1]);
+  }
+  resize(small,image,Size(dim,dim));
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
   thrust::block_2d<uchar> outBlock (image.cols,image.rows);
@@ -43,8 +50,8 @@ int main(int argc, char const *argv[]) {
     outputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
-  imwrite("input.png",image);
-  imwrite("output.png",output);
+  // imwrite("input.png",image);
+  // imwrite("output.png",output);
 
   return 0;
 }

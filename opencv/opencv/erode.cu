@@ -3,6 +3,8 @@
 
 int main ( int argc, char **argv )
 {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
     cv::Mat img_final;
     cv::Mat t,im_rgb;
     int dim = 512;

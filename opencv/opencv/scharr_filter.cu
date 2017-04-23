@@ -3,6 +3,8 @@
 #include <opencv2/cudaarithm.hpp>
 int main( int argc, char** argv )
 {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
   cv::Mat input = cv::imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   cv::Mat image;
   int dim = 512;

@@ -79,6 +79,8 @@ pyrupTransformFunctor(thrust::block_2d<uchar> * inBlock)
 
 int main(int argc, char const *argv[])
 {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
 
@@ -115,8 +117,8 @@ int main(int argc, char const *argv[])
     outputFloatImageData[i]=(unsigned char)img1[i];
   }
   Mat output (Size(image.cols/2,image.rows/2),CV_8UC1,outputFloatImageData);
-  imwrite("input.png",image);
-  imwrite("pyrup.png",output);
+  // imwrite("input.png",image);
+  // imwrite("pyrup.png",output);
   free (img);
   free (img1);
   free (outputFloatImageData);

@@ -27,6 +27,8 @@ pyrdownTransformFunctor(thrust::block_2d<uchar> * inBlock)
 
 int main(int argc, char const *argv[])
 {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
   int dim = 512;
   if(argc ==2)
   {

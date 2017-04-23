@@ -12,6 +12,8 @@ public:
   }
 };
 int main(int argc, char const *argv[]) {
+  cudaDeviceProp dev_prop;
+  cudaGetDeviceProperties(&dev_prop,0);
   Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
   int dim = 512;
@@ -20,7 +22,7 @@ int main(int argc, char const *argv[]) {
     dim = atoi(argv[1]);
   }
   resize(small,image,Size(dim,dim));
-  float kernelx[9], kernely[9];
+  float kernelx[3], kernely[3];
   //Sobel Filter
   kernelx[0]=-1;
   kernelx[1]=0;

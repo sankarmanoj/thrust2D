@@ -1,16 +1,21 @@
 IDIR =../../include
 CC=nvcc
-CFLAGS=-I$(IDIR) -ccbin=g++-5 -std=c++11 -Wno-deprecated-gpu-targets -D_MWAITXINTRIN_H_INCLUDED
+CFLAGS=-I$(IDIR) -ccbin=g++-5 -std=c++11 -arch=sm_35
 DFLAGS =-DDEBUG -g -G -lineinfo
-OPENCVALLFLAGS=-lopencv_cudafeatures2d -lopencv_cudaoptflow -lopencv_flann -lopencv_objdetect -lopencv_ts -lopencv_cudafeatures2d -lopencv_cudaoptflow -lopencv_flann -lopencv_objdetect -lopencv_videoio -lopencv_cudafeatures2d -lopencv_cudaoptflow -lopencv_flann -lopencv_objdetect -lopencv_videoio -lopencv_cudafilters -lopencv_cudastereo -lopencv_highgui -lopencv_photo -lopencv_videoio -lopencv_cudafilters -lopencv_cudastereo -lopencv_highgui -lopencv_photo -lopencv_video -lopencv_cudafilters -lopencv_cudastereo -lopencv_highgui -lopencv_photo -lopencv_video -lopencv_cudaimgproc -lopencv_cudawarping -lopencv_imgcodecs -lopencv_shape -lopencv_video -lopencv_cudaimgproc -lopencv_cudawarping -lopencv_imgcodecs -lopencv_shape -lopencv_videostab -lopencv_cudaimgproc -lopencv_cudawarping -lopencv_imgcodecs -lopencv_shape -lopencv_videostab -lopencv_cudalegacy -lopencv_cudev -lopencv_imgproc -lopencv_stitching -lopencv_videostab -lopencv_cudalegacy -lopencv_cudev -lopencv_imgproc -lopencv_stitching -lopencv_cudabgsegm -lopencv_cudalegacy -lopencv_cudev -lopencv_imgproc -lopencv_stitching -lopencv_cudaobjdetect -lopencv_features2d -lopencv_ml -lopencv_superres -lopencv_cudaobjdetect -lopencv_features2d -lopencv_ml -lopencv_superres -lopencv_cudaobjdetect -lopencv_features2d -lopencv_ml -lopencv_superres
 OPENCVFLAGS=$(shell pkg-config --libs --static opencv) -lcudart
 SRCS = $(wildcard *.cu)
-
 OBJS=$(SRCS:.cu=.o)
+PROFILES=$(OBJS:.o=.profile)
 all: $(OBJS)
 
-%.o:%.cu
-	$(CC) $(CFLAGS)  -O0 $(OPENCVFLAGS) $< -o $@
-	# nvprof --unified-memory-profiling off --log-file $@.profile ./$@
+%.o:%.cu Makefile
+	$(CC) $(CFLAGS) $(OPENCVFLAGS) $< -o $@
+%.profile:%.o
+		nvprof --unified-memory-profiling  off --log-file $@.profile.time ./$^ 4096
+		nvprof --unified-memory-profiling  off -m dram_read_throughput -m achieved_occupancy -m shared_efficiency -m gld_efficiency: -m gst_efficiency -m shared_load_transactions_per_request -m branch_efficiency --log-file $@.profile ./$^ 4096
+.PHONY: profile-all
+profile-all: $(PROFILES)
 clean:
-	rm *.o
+	rm -f  *.o
+	rm -f *.profile
+	rm -f *.time
