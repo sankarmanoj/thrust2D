@@ -18,7 +18,7 @@ class dilateFunctor : public thrust::shared_unary_window_transform_functor<uchar
 
       }
     }
-    outputWindow[1][1]=temp;
+    outputWindow[0][0]=temp;
   }
 };
 int main(int argc, char const *argv[]) {

@@ -2,10 +2,12 @@
 #include <thrust/execution_policy.h>
 #include <iostream>
 #include <thrust/host_vector.h>
+#include <thrust/window_transform.h>
+#include <thrust/window_for_each.h>
 #include <thrust/device_vector.h>
 #include <thrust/window_2d.h>
-#define X 10
-#define Y 10
+#define X 100
+#define Y 100
 using namespace thrust;
 // testing window indexing
 class bob
@@ -22,11 +24,9 @@ public:
 		this->lambda = 1;
 	}
 
-	__device__ int operator() (thrust::window_2d<int> &c, thrust::window_2d<int> &w)
+	__device__ void operator() (const thrust::window_2d<int> &c) const
 	{
-    w[0][0]=c[0][0];
-    printf("%d , %d = %d \t %d , %d = %d \n",c.start_x,c.start_y,c[0][0], w.start_x,w.start_y,w[0][0]);
-    return 0;
+  	c[2][2]=0;
 	}
 };
 class printFunctor
@@ -85,18 +85,17 @@ int main()
     }
     std::cout<<"\n";
   }
-  thrust::window_vector<int> wv(&a,1,1,1,1);
-  thrust::window_vector<int> wv2(&c,1,1,1,1);
+  thrust::window_vector<int> wv(&a,3,3,1,1);
+  thrust::window_vector<int> wv2(&c,3,3,1,1);
 
-  printf("%d - %d  %d\n",wv.begin().windows_along_x,wv.begin().windows_along_y,wv.end()-wv.begin());
-  thrust::transform(wv.begin(),wv.end(),wv2.begin(),hello.begin(),bob());
+  thrust::for_each(thrust::cuda::shared,wv.begin(),wv.end(),bob());
 
-  b = c;
+  b = a;
   for (int i=0; i<Y;i++)
   {
     for (int j=0;j<X;j++)
     {
-      std::cout<<b[i][j]<< " ";
+      printf("%4d ",b[i][j]);
     }
     std::cout<<"\n";
   }

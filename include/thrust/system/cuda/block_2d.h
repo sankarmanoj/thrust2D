@@ -79,7 +79,9 @@ namespace thrust
 		block_2d (block_2d<T> &other);
 		__host__ void operator=(const host_block_2d<T> &b);
 		__host__ void upload (T* data);
+		__host__ void upload (T* data,cudaMemoryType type);
 		__host__ void download (T** data);
+		__host__ void download (T** data,cudaMemoryType type);
 		__host__ __device__ int2 index_to_int2(int index) const;
 		__host__ __device__ block_2d_iterator<T,Alloc> operator[] (int index);
 		__host__ __device__ reference operator[] (int2 index) const;
