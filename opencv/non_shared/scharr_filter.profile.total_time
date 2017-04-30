@@ -1,18 +1,18 @@
-	Command being timed: "./scharr_filter.o 4096"
-	User time (seconds): 0.21
+	Command being timed: "./scharr_filter.o 512"
+	User time (seconds): 0.09
 	System time (seconds): 0.73
-	Percent of CPU this job got: 191%
-	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.49
+	Percent of CPU this job got: 209%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.39
 	Average shared text size (kbytes): 0
 	Average unshared data size (kbytes): 0
 	Average stack size (kbytes): 0
 	Average total size (kbytes): 0
-	Maximum resident set size (kbytes): 276704
+	Maximum resident set size (kbytes): 212304
 	Average resident set size (kbytes): 0
 	Major (requiring I/O) page faults: 0
-	Minor (reclaiming a frame) page faults: 9522
-	Voluntary context switches: 220
-	Involuntary context switches: 136
+	Minor (reclaiming a frame) page faults: 7954
+	Voluntary context switches: 147
+	Involuntary context switches: 21515
 	Swaps: 0
 	File system inputs: 0
 	File system outputs: 0

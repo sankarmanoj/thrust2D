@@ -1,30 +1,30 @@
-==13717== NVPROF is profiling process 13717, command: ./gaussian_filter.o 4096
-==13717== Profiling application: ./gaussian_filter.o 4096
-==13717== Profiling result:
+==9771== NVPROF is profiling process 9771, command: ./gaussian_filter.o 512
+==9771== Profiling application: ./gaussian_filter.o 512
+==9771== Profiling result:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 48.81%  3.8286ms         1  3.8286ms  3.8286ms  3.8286ms  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<convolutionFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
- 30.64%  2.4030ms         1  2.4030ms  2.4030ms  2.4030ms  [CUDA memcpy DtoH]
- 20.55%  1.6119ms         8  201.49us  1.1840us  1.6035ms  [CUDA memcpy HtoD]
+ 55.80%  66.783us         1  66.783us  66.783us  66.783us  void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<convolutionFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)
+ 25.78%  30.848us         8  3.8560us  1.1840us  22.368us  [CUDA memcpy HtoD]
+ 18.42%  22.047us         1  22.047us  22.047us  22.047us  [CUDA memcpy DtoH]
 
-==13717== API calls:
+==9771== API calls:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 90.75%  115.41ms         1  115.41ms  115.41ms  115.41ms  cudaMemcpyToSymbol
-  6.56%  8.3437ms         2  4.1718ms  1.6191ms  6.7245ms  cudaMemcpy2D
-  0.97%  1.2378ms         3  412.62us  384.27us  432.45us  cudaMallocPitch
-  0.55%  696.79us        90  7.7420us     171ns  344.94us  cuDeviceGetAttribute
-  0.50%  631.59us         1  631.59us  631.59us  631.59us  cudaGetDeviceProperties
-  0.34%  428.96us         6  71.493us  4.0900us  390.94us  cudaMalloc
-  0.16%  201.53us         1  201.53us  201.53us  201.53us  cuDeviceTotalMem
-  0.10%  123.92us         6  20.652us  4.7680us  92.100us  cudaMemcpy
-  0.04%  56.059us         1  56.059us  56.059us  56.059us  cuDeviceGetName
-  0.02%  23.874us         1  23.874us  23.874us  23.874us  cudaLaunch
-  0.01%  7.8860us         4  1.9710us  1.3680us  3.7260us  cudaFuncGetAttributes
-  0.00%  3.0970us        11     281ns     211ns     824ns  cudaDeviceGetAttribute
-  0.00%  1.5770us         2     788ns     259ns  1.3180us  cuDeviceGetCount
-  0.00%  1.5620us         1  1.5620us  1.5620us  1.5620us  cudaEventCreateWithFlags
-  0.00%  1.4050us         3     468ns     204ns     922ns  cudaGetDevice
-  0.00%  1.3840us         1  1.3840us  1.3840us  1.3840us  cudaEventRecord
-  0.00%  1.1000us         1  1.1000us  1.1000us  1.1000us  cudaConfigureCall
-  0.00%  1.0200us         1  1.0200us  1.0200us  1.0200us  cudaEventDestroy
-  0.00%     521ns         2     260ns     243ns     278ns  cuDeviceGet
-  0.00%     509ns         1     509ns     509ns     509ns  cudaSetupArgument
+ 96.52%  115.28ms         1  115.28ms  115.28ms  115.28ms  cudaMemcpyToSymbol
+  0.92%  1.0960ms        90  12.177us     521ns  425.27us  cuDeviceGetAttribute
+  0.79%  948.78us         1  948.78us  948.78us  948.78us  cudaGetDeviceProperties
+  0.72%  865.77us         1  865.77us  865.77us  865.77us  cuDeviceTotalMem
+  0.37%  444.06us         3  148.02us  3.8880us  436.04us  cudaMallocPitch
+  0.36%  432.55us         6  72.092us  3.7190us  409.62us  cudaMalloc
+  0.15%  181.89us         2  90.943us  18.056us  163.83us  cudaMemcpy2D
+  0.08%  98.815us         1  98.815us  98.815us  98.815us  cuDeviceGetName
+  0.04%  52.854us         6  8.8090us  3.3980us  25.851us  cudaMemcpy
+  0.01%  14.905us         1  14.905us  14.905us  14.905us  cudaLaunch
+  0.01%  6.5730us         4  1.6430us  1.3750us  2.3030us  cudaFuncGetAttributes
+  0.00%  4.6940us         2  2.3470us     899ns  3.7950us  cuDeviceGetCount
+  0.00%  3.0640us        11     278ns     213ns     784ns  cudaDeviceGetAttribute
+  0.00%  1.7330us         2     866ns     746ns     987ns  cuDeviceGet
+  0.00%  1.4840us         3     494ns     245ns     938ns  cudaGetDevice
+  0.00%  1.3000us         1  1.3000us  1.3000us  1.3000us  cudaEventRecord
+  0.00%  1.2770us         1  1.2770us  1.2770us  1.2770us  cudaEventCreateWithFlags
+  0.00%     946ns         1     946ns     946ns     946ns  cudaEventDestroy
+  0.00%     544ns         1     544ns     544ns     544ns  cudaConfigureCall
+  0.00%     345ns         1     345ns     345ns     345ns  cudaSetupArgument

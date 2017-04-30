@@ -1,18 +1,18 @@
-	Command being timed: "./blend.o 4096"
-	User time (seconds): 0.20
-	System time (seconds): 0.68
-	Percent of CPU this job got: 182%
-	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.48
+	Command being timed: "./blend.o 512"
+	User time (seconds): 0.06
+	System time (seconds): 0.74
+	Percent of CPU this job got: 205%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.39
 	Average shared text size (kbytes): 0
 	Average unshared data size (kbytes): 0
 	Average stack size (kbytes): 0
 	Average total size (kbytes): 0
-	Maximum resident set size (kbytes): 292368
+	Maximum resident set size (kbytes): 212480
 	Average resident set size (kbytes): 0
 	Major (requiring I/O) page faults: 0
-	Minor (reclaiming a frame) page faults: 9576
-	Voluntary context switches: 162
-	Involuntary context switches: 85244
+	Minor (reclaiming a frame) page faults: 7054
+	Voluntary context switches: 156
+	Involuntary context switches: 89768
 	Swaps: 0
 	File system inputs: 0
 	File system outputs: 0

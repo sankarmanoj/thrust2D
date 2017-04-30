@@ -1,18 +1,18 @@
-	Command being timed: "./erode.o 4096"
-	User time (seconds): 0.39
-	System time (seconds): 0.75
-	Percent of CPU this job got: 155%
-	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.73
+	Command being timed: "./erode.o 512"
+	User time (seconds): 0.34
+	System time (seconds): 0.84
+	Percent of CPU this job got: 158%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.75
 	Average shared text size (kbytes): 0
 	Average unshared data size (kbytes): 0
 	Average stack size (kbytes): 0
 	Average total size (kbytes): 0
-	Maximum resident set size (kbytes): 841464
+	Maximum resident set size (kbytes): 813192
 	Average resident set size (kbytes): 0
 	Major (requiring I/O) page faults: 0
-	Minor (reclaiming a frame) page faults: 121969
-	Voluntary context switches: 166
-	Involuntary context switches: 83224
+	Minor (reclaiming a frame) page faults: 121488
+	Voluntary context switches: 145
+	Involuntary context switches: 6049
 	Swaps: 0
 	File system inputs: 0
 	File system outputs: 0

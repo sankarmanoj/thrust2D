@@ -27,8 +27,12 @@ namespace thrust
     this->dim_x = b.dim_x;
     this->dim_y = b.dim_y;
     this->pitch = b.dim_x*sizeof(T);
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
     this->data_pointer = (T*) std::malloc(this->dim_x*this->dim_y*sizeof(T));
     cudaMemcpy2D(this->data_pointer,this->pitch,b.data_pointer,b.pitch,this->dim_x*sizeof(T),this->dim_y,cudaMemcpyDeviceToHost);
+    #else
+    this->data_pointer = b.data_pointer;
+    #endif
     this->device_pointer = this;
   }
   template <class T,class Alloc>
@@ -37,7 +41,11 @@ namespace thrust
     this->dim_x = b.dim_x;
     this->dim_y = b.dim_y;
     this->pitch = b.dim_x*sizeof(T);
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
     cudaMemcpy2D(this->data_pointer,this->pitch,b.data_pointer,b.pitch,this->dim_x*sizeof(T),this->dim_y,cudaMemcpyDeviceToHost);
+    #else
+    this->data_pointer=b.data_pointer;
+    #endif
     this->device_pointer = this;
   }
   template <class T, class Alloc>
@@ -45,7 +53,11 @@ namespace thrust
   {
     this->dim_x = b.dim_x;
     this->dim_y = b.dim_y;
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
     cudaMemcpy2D(this->data_pointer,this->pitch,b.data_pointer,b.pitch,this->dim_x*sizeof(T),this->dim_y,cudaMemcpyHostToDevice);
+    #else
+    this->data_pointer=b.data_pointer;
+    #endif
   }
   template <class T,class Alloc>
   block_2d<T,Alloc>::block_2d ()// : block_2d<T,std::allocator<T> >::block_2d (int dim_x,int dim_y)
@@ -179,6 +191,7 @@ namespace thrust
   {
     return block_iterator<T,Alloc>(this,(this->dim_y)*(this->dim_x));
   }
+  #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
   template <class T,class Alloc>
   __host__ cudaTextureObject_t block_2d<T,Alloc>::getCudaTextureObject ()
   {
@@ -200,6 +213,7 @@ namespace thrust
     cudaCreateTextureObject(&texref, &resDesc, &texDesc, NULL);
     return texref;
   }
+  #endif
   template<class T,class Alloc>
   __host__ __device__ block_2d_iterator<T,Alloc>::block_2d_iterator<T,Alloc>(block_2d<T,Alloc> *b, int index)
   {

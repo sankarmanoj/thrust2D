@@ -1,0 +1,21 @@
+==13933== NVPROF is profiling process 13933, command: ./hotspot_cuda.out 512 2 2 temp_512 power_512 result.out
+==13933== Profiling application: ./hotspot_cuda.out 512 2 2 temp_512 power_512 result.out
+==13933== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 41.14%  164.32us         2  82.160us  82.144us  82.176us  [CUDA memcpy HtoD]
+ 37.96%  151.62us         1  151.62us  151.62us  151.62us  calculate_temp(int, float*, float*, float*, int, int, int, int, float, float, float, float, float, float)
+ 20.91%  83.520us         1  83.520us  83.520us  83.520us  [CUDA memcpy DtoH]
+
+==13933== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 98.39%  118.31ms         3  39.436ms  3.4180us  117.97ms  cudaMalloc
+  0.66%  797.54us         3  265.85us  92.975us  599.22us  cudaMemcpy
+  0.48%  580.17us         3  193.39us  11.373us  406.38us  cudaFree
+  0.27%  324.28us        90  3.6030us     101ns  127.54us  cuDeviceGetAttribute
+  0.15%  180.66us         1  180.66us  180.66us  180.66us  cuDeviceTotalMem
+  0.02%  28.688us         1  28.688us  28.688us  28.688us  cuDeviceGetName
+  0.02%  20.024us         1  20.024us  20.024us  20.024us  cudaLaunch
+  0.00%  2.1100us        14     150ns     113ns     316ns  cudaSetupArgument
+  0.00%  1.0590us         2     529ns     140ns     919ns  cuDeviceGetCount
+  0.00%  1.0360us         1  1.0360us  1.0360us  1.0360us  cudaConfigureCall
+  0.00%     288ns         2     144ns     102ns     186ns  cuDeviceGet

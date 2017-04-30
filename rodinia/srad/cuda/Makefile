@@ -27,6 +27,12 @@ main.o: 	main.cu \
 	nvcc $(CCFLAGS)	main.cu \
 				-c
 
+profile: srad
+	nvprof --unified-memory-profiling off --log-file srad_native.profile.time ./srad.out 100 0.5 502 458
+	nvprof --unified-memory-profiling  off -m dram_read_throughput -m achieved_occupancy -m shared_efficiency -m gld_efficiency -m gst_efficiency -m shared_load_transactions_per_request -m branch_efficiency --log-file srad_native.profile ./srad.out 100 0.5 502 458
+	/usr/bin/time -v --output=srad_native.profile.total_time ./srad.out 100 0.5 502 458
+
+
 # delete all object files
 clean:
 	rm *.o srad

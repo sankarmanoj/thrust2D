@@ -1,0 +1,23 @@
+==7025== NVPROF is profiling process 7025, command: ./erode.o 512
+==7025== Profiling application: ./erode.o 512
+==7025== Profiling result:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 37.40%  30.879us         1  30.879us  30.879us  30.879us  void thrust::transform_kernel<unsigned char, erodeFunctor>(thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<thrust::window_iterator>>*, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<thrust::window_iterator>>, thrust::warp_launcher_config, erodeFunctor)
+ 35.89%  29.631us         7  4.2330us  1.2160us  22.335us  [CUDA memcpy HtoD]
+ 26.71%  22.048us         1  22.048us  22.048us  22.048us  [CUDA memcpy DtoH]
+
+==7025== API calls:
+Time(%)      Time     Calls       Avg       Min       Max  Name
+ 98.13%  116.83ms         3  38.945ms  3.7050us  116.83ms  cudaMallocPitch
+  0.73%  863.26us         2  431.63us  425.58us  437.67us  cudaGetDeviceProperties
+  0.41%  485.54us        90  5.3940us     103ns  197.73us  cuDeviceGetAttribute
+  0.33%  398.24us         6  66.373us  3.9410us  373.73us  cudaMalloc
+  0.16%  194.81us         1  194.81us  194.81us  194.81us  cuDeviceTotalMem
+  0.14%  160.79us         2  80.396us  20.199us  140.59us  cudaMemcpy2D
+  0.05%  58.332us         6  9.7220us  3.6780us  26.384us  cudaMemcpy
+  0.04%  42.563us         1  42.563us  42.563us  42.563us  cuDeviceGetName
+  0.02%  21.685us         1  21.685us  21.685us  21.685us  cudaLaunch
+  0.00%  1.0970us         2     548ns     164ns     933ns  cuDeviceGetCount
+  0.00%     903ns         4     225ns     123ns     363ns  cudaSetupArgument
+  0.00%     852ns         1     852ns     852ns     852ns  cudaConfigureCall
+  0.00%     335ns         2     167ns     148ns     187ns  cuDeviceGet

@@ -1,27 +1,27 @@
-==15985== NVPROF is profiling process 15985, command: ./blend.o 4096
-==15985== Profiling application: ./blend.o 4096
-==15985== Profiling result:
+==8922== NVPROF is profiling process 8922, command: ./blend.o 512
+==8922== Profiling application: ./blend.o 512
+==8922== Profiling result:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 53.51%  3.5380ms         2  1.7690ms  1.7627ms  1.7753ms  [CUDA memcpy HtoD]
- 42.80%  2.8299ms         1  2.8299ms  2.8299ms  2.8299ms  [CUDA memcpy DtoH]
-  3.68%  243.48us         1  243.48us  243.48us  243.48us  void cv::cudev::grid_transform_detail::transformSmart<int=4, unsigned char, unsigned char, unsigned char, _GLOBAL__N__47_tmpxft_00005e96_00000000_7_add_weighted_cpp1_ii_71482d89::AddWeightedOp<unsigned char, unsigned char, unsigned char, float>, cv::cudev::WithOutMask>(cv::cudev::GlobPtr<unsigned char>, cv::cudev::grid_transform_detail::transformSmart<int=4, unsigned char, unsigned char, unsigned char, _GLOBAL__N__47_tmpxft_00005e96_00000000_7_add_weighted_cpp1_ii_71482d89::AddWeightedOp<unsigned char, unsigned char, unsigned char, float, unsigned char>, cv::cudev::WithOutMask>, cv::cudev::grid_transform_detail::transformSmart<int=4, unsigned char, unsigned char, unsigned char, _GLOBAL__N__47_tmpxft_00005e96_00000000_7_add_weighted_cpp1_ii_71482d89::AddWeightedOp<unsigned char, unsigned char, unsigned char, float, unsigned char>, cv::cudev::WithOutMask>, unsigned char, unsigned char, int, int)
+ 61.35%  44.544us         2  22.272us  22.272us  22.272us  [CUDA memcpy HtoD]
+ 30.32%  22.016us         1  22.016us  22.016us  22.016us  [CUDA memcpy DtoH]
+  8.33%  6.0480us         1  6.0480us  6.0480us  6.0480us  void cv::cudev::grid_transform_detail::transformSmart<int=4, unsigned char, unsigned char, unsigned char, _GLOBAL__N__47_tmpxft_00005e96_00000000_7_add_weighted_cpp1_ii_71482d89::AddWeightedOp<unsigned char, unsigned char, unsigned char, float>, cv::cudev::WithOutMask>(cv::cudev::GlobPtr<unsigned char>, cv::cudev::grid_transform_detail::transformSmart<int=4, unsigned char, unsigned char, unsigned char, _GLOBAL__N__47_tmpxft_00005e96_00000000_7_add_weighted_cpp1_ii_71482d89::AddWeightedOp<unsigned char, unsigned char, unsigned char, float, unsigned char>, cv::cudev::WithOutMask>, cv::cudev::grid_transform_detail::transformSmart<int=4, unsigned char, unsigned char, unsigned char, _GLOBAL__N__47_tmpxft_00005e96_00000000_7_add_weighted_cpp1_ii_71482d89::AddWeightedOp<unsigned char, unsigned char, unsigned char, float, unsigned char>, cv::cudev::WithOutMask>, unsigned char, unsigned char, int, int)
 
-==15985== API calls:
+==8922== API calls:
 Time(%)      Time     Calls       Avg       Min       Max  Name
- 95.87%  237.52ms         3  79.174ms  384.60us  236.71ms  cudaMallocPitch
-  2.84%  7.0242ms         3  2.3414ms  1.7812ms  3.4529ms  cudaMemcpy2D
-  0.40%  988.21us         2  494.11us  462.03us  526.19us  cudaGetDeviceProperties
-  0.26%  633.50us         3  211.17us  154.40us  320.85us  cudaFree
-  0.25%  629.35us        90  6.9920us     175ns  252.36us  cuDeviceGetAttribute
-  0.17%  419.59us         1  419.59us  419.59us  419.59us  cudaMalloc
-  0.10%  246.78us         1  246.78us  246.78us  246.78us  cudaDeviceSynchronize
-  0.08%  196.59us         1  196.59us  196.59us  196.59us  cuDeviceTotalMem
-  0.02%  52.523us         1  52.523us  52.523us  52.523us  cuDeviceGetName
-  0.01%  26.085us         1  26.085us  26.085us  26.085us  cudaLaunch
-  0.00%  1.6870us         2     843ns     193ns  1.4940us  cuDeviceGetCount
-  0.00%  1.5680us         1  1.5680us  1.5680us  1.5680us  cudaConfigureCall
-  0.00%  1.3650us         2     682ns     279ns  1.0860us  cudaGetDevice
-  0.00%  1.3470us         7     192ns     120ns     384ns  cudaSetupArgument
-  0.00%     468ns         2     234ns     176ns     292ns  cuDeviceGet
-  0.00%     452ns         4     113ns      78ns     163ns  cudaGetDeviceCount
-  0.00%     427ns         1     427ns     427ns     427ns  cudaGetLastError
+ 98.83%  231.30ms         3  77.100ms  4.5310us  231.29ms  cudaMallocPitch
+  0.41%  949.30us         2  474.65us  429.26us  520.04us  cudaGetDeviceProperties
+  0.26%  602.42us        90  6.6930us     176ns  249.08us  cuDeviceGetAttribute
+  0.17%  402.85us         1  402.85us  402.85us  402.85us  cudaMalloc
+  0.12%  275.60us         3  91.865us  3.9430us  263.59us  cudaFree
+  0.09%  205.53us         1  205.53us  205.53us  205.53us  cuDeviceTotalMem
+  0.09%  202.33us         3  67.444us  37.946us  117.43us  cudaMemcpy2D
+  0.02%  55.450us         1  55.450us  55.450us  55.450us  cuDeviceGetName
+  0.01%  22.978us         1  22.978us  22.978us  22.978us  cudaLaunch
+  0.00%  8.4520us         1  8.4520us  8.4520us  8.4520us  cudaDeviceSynchronize
+  0.00%  1.5870us         1  1.5870us  1.5870us  1.5870us  cudaConfigureCall
+  0.00%  1.4700us         2     735ns     228ns  1.2420us  cuDeviceGetCount
+  0.00%  1.2570us         7     179ns     121ns     340ns  cudaSetupArgument
+  0.00%  1.2300us         2     615ns     260ns     970ns  cudaGetDevice
+  0.00%     504ns         2     252ns     190ns     314ns  cuDeviceGet
+  0.00%     450ns         4     112ns      75ns     175ns  cudaGetDeviceCount
+  0.00%     321ns         1     321ns     321ns     321ns  cudaGetLastError

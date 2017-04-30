@@ -15,13 +15,17 @@ namespace thrust
     int window_dim_x, window_dim_y;
     T *data;
     int pitch;
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
     cudaTextureObject_t texref;
     bool is_shared;
     bool is_texture;
+    #endif
     __host__ __device__ window_2d();
     __host__ __device__ window_2d(block_2d<T,Alloc> *b, int start_x, int start_y, int window_dim_x, int window_dim_y);
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
     __host__ __device__ window_2d(cudaTextureObject_t texref, int start_x, int start_y, int window_dim_x, int window_dim_y);
     __host__ __device__ window_2d(block_2d<T,Alloc> *b,T *data , int start_x, int start_y, int local_start_x, int local_start_y, int window_dim_x, int window_dim_y, int block_dim_x, int block_dim_y,int pitch);
+    #endif
     __host__ __device__ window_2d(const window_2d &obj);
     __host__ __device__ window_2d_iterator<T> operator[](int index) const;
     __host__ __device__ T operator[](int2 index) const ;

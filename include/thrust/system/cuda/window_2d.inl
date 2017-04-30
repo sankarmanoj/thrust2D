@@ -42,6 +42,7 @@ namespace thrust
     this->is_shared = obj.is_shared;
     this->is_texture = obj.is_texture;
   }
+  #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
   template <class T, class Alloc>
   __host__ __device__ window_2d<T,Alloc>::window_2d(cudaTextureObject_t texref, int start_x, int start_y, int window_dim_x, int window_dim_y)
   {
@@ -76,7 +77,7 @@ namespace thrust
     this->pitch = pitch;
     this->is_shared = true;
   }
-
+  #endif
   template <class T>
   __host__ __device__ window_2d_iterator<T>::window_2d_iterator<T>(T * data, int position)
   {
@@ -139,10 +140,14 @@ namespace thrust
     this->position = 0;
     this->windows_along_x = int((this->block_dim_x-window_dim_x)/stride_x)+1;
     this->windows_along_y = int((this->block_dim_y-window_dim_y)/stride_y)+1;
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
     window_iterator<T,Alloc> *temp;
     cudaMalloc((void **)&temp,sizeof(window_iterator));
     cudaMemcpy(temp,this,sizeof(window_iterator),cudaMemcpyHostToDevice);
     this->device_pointer = temp;
+    #else
+    this->device_pointer = this;
+    #endif
   }
 
   template <class T,class Alloc>
@@ -160,10 +165,14 @@ namespace thrust
     this->position = position;
     this->windows_along_x = int((this->block_dim_x-window_dim_x)/stride_x)+1;
     this->windows_along_y = int((this->block_dim_y-window_dim_y)/stride_y)+1;
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
     window_iterator<T,Alloc> *temp;
     cudaMalloc((void **)&temp,sizeof(window_iterator));
     cudaMemcpy(temp,this,sizeof(window_iterator),cudaMemcpyHostToDevice);
     this->device_pointer = temp;
+    #else
+    this->device_pointer = this;
+    #endif
   }
 
   template <class T,class Alloc>
@@ -318,7 +327,7 @@ namespace thrust
     int windowsY = int((b->dim_y-window_dim_y)/stride_y)+1;
     return window_iterator<T,Alloc>(b,window_dim_x,window_dim_y,stride_x,stride_y,windowsX*windowsY);
   }
-
+  #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
   #define cudaCheckError() {                                          \
    cudaError_t e=cudaGetLastError();                                 \
    if(e!=cudaSuccess) {                                              \
@@ -326,4 +335,5 @@ namespace thrust
      exit(0); \
    }                                                                 \
   }
+  #endif
 }

@@ -85,7 +85,9 @@ namespace thrust
 		__host__ __device__ reference operator[] (int2 index) const;
 		iterator begin();
 		iterator end();
+		#if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
 		cudaTextureObject_t getCudaTextureObject();
+		#endif
 	};
 	// template <class T>
 	// using host_block_2d=block_2d<T,std::allocator<T> >;

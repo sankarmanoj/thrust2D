@@ -67,7 +67,7 @@ runTest( int argc, char** argv)
 	int image_ori_cols = cols;
 	// long image_ori_elem = image_ori_rows * image_ori_cols;
 
-	printf("%d %d\n",cols,rows);
+	// printf("%d %d\n",cols,rows);
 	size_I = cols * rows;
 
 	J = (float*) malloc(sizeof(float) * size_I);
@@ -84,14 +84,14 @@ runTest( int argc, char** argv)
 	// thrust::fill(d_c.begin(),d_c.end(),0);
 	J_cuda.upload(J);
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),extractFunctor());
-	printf("Start the SRAD main loop\n");
+	// printf("Start the SRAD main loop\n");
 	for (iter=0; iter< niter; iter++)
 	{
 		thrust::transform(J_cuda.begin(),J_cuda.end(),J_square.begin(),square());
 		// printf("%d %d\n",J_cuda.end().position ,J_cuda.begin().position );
 		sum = thrust::reduce(thrust::cuda::shared,J_cuda.begin(),J_cuda.end(),0.0f,thrust::plus<float>());
 		sum2 = thrust::reduce(thrust::cuda::shared,J_square.begin(),J_square.end(),0.0f,thrust::plus<float>());
-		printf("%f %f\n", sum,sum2);
+		// printf("%f %f\n", sum,sum2);
 		meanROI = sum / size_R;
 		varROI  = (sum2 / size_R) - meanROI*meanROI;
 		q0sqr   = varROI / (meanROI*meanROI);
@@ -104,7 +104,7 @@ runTest( int argc, char** argv)
 		// thrust::for_each(d_c.begin(),d_c.end(),printFunctor());
 		thrust::transform(thrust::cuda::shared,d_cwv.begin(),d_cwv.end(),wv.begin(),functor2);
 	}
-	printf("Computation Done\n");
+	// printf("Computation Done\n");
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),compressFunctor());
 	J_cuda.download(&J);
 	write_graphics(out,J,rows,cols,0,255);
