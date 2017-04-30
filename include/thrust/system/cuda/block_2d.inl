@@ -133,6 +133,19 @@ namespace thrust
     memcpy(this->data_pointer,data,this->dim_x*sizeof(T)*this->dim_y);
     #endif
   }
+
+  template <class T,class Alloc>
+  __host__ void block_2d<T,Alloc>::upload (T* data,cudaMemoryType type)
+  {
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
+      if(type==cudaMemoryTypeHost)
+        cudaMemcpy2D(data_pointer,pitch,data,dim_x*sizeof(T),dim_x*sizeof(T),dim_y,cudaMemcpyHostToDevice);
+      else if(type==cudaMemoryTypeDevice)
+        cudaMemcpy2D(data_pointer,pitch,data,dim_x*sizeof(T),dim_x*sizeof(T),dim_y,cudaMemcpyDeviceToDevice);
+    #else
+      memcpy(this->data_pointer,data,this->dim_x*sizeof(T)*this->dim_y);
+    #endif
+    }
   template <class T,class Alloc>
   __host__ void block_2d<T,Alloc>::download (T** data)
   {
@@ -143,6 +156,26 @@ namespace thrust
     *data = this->data_pointer;
     #endif
   }
+  template <class T,class Alloc>
+  __host__ void block_2d<T,Alloc>::download (T** data,cudaMemoryType type)
+  {
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
+      if(type==cudaMemoryTypeHost)
+      {
+        *data = (T*) std::malloc(sizeof(T)*dim_x*dim_y);
+        cudaMemcpy2D(*data,dim_x*sizeof(T),data_pointer,pitch,dim_x*sizeof(T),dim_y,cudaMemcpyDeviceToHost);
+      }
+      else if(type==cudaMemoryTypeDevice)
+      {
+          cudaMalloc((void **)data,sizeof(T)*dim_x*dim_y);
+          cudaMemcpy2D(*data,dim_x*sizeof(T),data_pointer,pitch,dim_x*sizeof(T),dim_y,cudaMemcpyDeviceToDevice);
+
+      }
+    #else
+    *data = this->data_pointer;
+    #endif
+  }
+
   template <class T,class Alloc>
   __host__ void host_block_2d<T,Alloc>::upload (T* data)
   {
@@ -165,7 +198,7 @@ namespace thrust
     return block_2d_iterator<T,Alloc>(this,index);
   }
   template <class T,class Alloc>
-  __host__ __device__ block_2d<T,Alloc>::reference block_2d<T,Alloc>::operator[] (int2 index) const
+  __host__ __device__ typename block_2d<T,Alloc>::reference block_2d<T,Alloc>::operator[] (int2 index) const
   {
     // if(index.y<0||index.x<0||index.y>=dim_y||index.x>=dim_x)
     // {
@@ -182,12 +215,12 @@ namespace thrust
     return make_int2(j,i);
   }
   template <class T,class Alloc>
-  __host__ block_2d<T,Alloc>::iterator block_2d<T,Alloc>::begin()
+  __host__ typename  block_2d<T,Alloc>::iterator block_2d<T,Alloc>::begin()
   {
     return block_iterator<T,Alloc>(this,0);
   }
   template <class T,class Alloc>
-  __host__  block_2d<T,Alloc>::iterator block_2d<T,Alloc>::end()
+  __host__  typename block_2d<T,Alloc>::iterator block_2d<T,Alloc>::end()
   {
     return block_iterator<T,Alloc>(this,(this->dim_y)*(this->dim_x));
   }

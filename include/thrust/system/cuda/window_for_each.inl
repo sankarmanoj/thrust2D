@@ -22,7 +22,7 @@ namespace thrust
       shared_memory[(threadIdx.y+mConfiguration.padding)*mConfiguration.shared_size_x+threadIdx.x+mConfiguration.padding]=(*(input->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x+mConfiguration.padding,blockIdx.y*mConfiguration.warp_size + threadIdx.y+mConfiguration.padding)];
     }
     __syncthreads();
-    if((threadIdx.x%mConfiguration.stride_x)||(threadIdx.y%mConfiguration.stride_y))
+    if(((blockIdx.x*mConfiguration.warp_size + threadIdx.x)%mConfiguration.stride_x)||((blockIdx.y*mConfiguration.warp_size + threadIdx.y)%mConfiguration.stride_y))
     {
 
     }
@@ -32,7 +32,7 @@ namespace thrust
       f(shared_window);
     }
     __syncthreads();
-    (*(input->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y)]=shared_memory[threadIdx.y*mConfiguration.warp_size+threadIdx.x];
+    (*(input->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y)]=shared_memory[threadIdx.y*mConfiguration.shared_size_x+threadIdx.x];
   }
 
   template <class Iterator, class Func>
