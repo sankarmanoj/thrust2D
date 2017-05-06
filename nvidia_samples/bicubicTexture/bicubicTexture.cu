@@ -241,7 +241,7 @@ void display()
 
     // map PBO to get CUDA device pointer
     uchar4 *d_output;
-    thrust::block_2d<uchar4> block_d_output (imageWidth,imageHeight,make_uchar4(0,0,0,0));
+    thrust::block_2d<uchar4> block_d_output (imageWidth,imageHeight);
     checkCudaErrors(cudaGraphicsMapResources(1, &cuda_pbo_resource, 0));
     size_t num_bytes;
     checkCudaErrors(cudaGraphicsResourceGetMappedPointer((void **)&d_output, &num_bytes,
@@ -250,7 +250,7 @@ void display()
     render(imageWidth, imageHeight, tx, ty, scale, cx, cy,
            blockSize, gridSize, g_FilterMode,d_output,block_d_output);
 
-    checkCudaErrors(cudaMemcpy(d_output,block_d_output.data().get(),num_bytes,cudaMemcpyDeviceToDevice));
+    checkCudaErrors(cudaMemcpy(d_output,block_d_output.data_pointer,num_bytes,cudaMemcpyDeviceToDevice));
 
     checkCudaErrors(cudaGraphicsUnmapResources(1, &cuda_pbo_resource, 0));
 
@@ -565,7 +565,7 @@ void runBenchmark(int iterations)
     sdkCreateTimer(&timer);
 
     uchar4 *d_output;
-    thrust::block_2d<uchar4> block_d_output (imageWidth,imageHeight,make_uchar4(0,0,0,0));
+    thrust::block_2d<uchar4> block_d_output (imageWidth,imageHeight);
 
     checkCudaErrors(cudaGraphicsMapResources(1, &cuda_pbo_resource, 0));
     size_t num_bytes;
@@ -605,7 +605,7 @@ void runAutoTest(int argc, char **argv, const char *dump_filename, eFilterMode f
 
     uchar4 *d_output;
     checkCudaErrors(cudaMalloc((void **)&d_output, imageWidth*imageHeight*4));
-    thrust::block_2d<uchar4> block_d_output (imageWidth,imageHeight,make_uchar4(0,0,0,0));
+    thrust::block_2d<uchar4> block_d_output (imageWidth,imageHeight);
     unsigned int *h_result = (unsigned int *)malloc(width * height * sizeof(unsigned int));
 
     printf("AutoTest: %s Filter Mode: <%s>\n", sSDKsample, sFilterMode[g_FilterMode]);
@@ -618,7 +618,7 @@ void runAutoTest(int argc, char **argv, const char *dump_filename, eFilterMode f
     getLastCudaError("Error: render (bicubicTexture) Kernel execution FAILED");
     checkCudaErrors(cudaDeviceSynchronize());
 
-    cudaMemcpy(h_result, block_d_output.data().get(), imageWidth*imageHeight*4, cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_result, block_d_output.data_pointer, imageWidth*imageHeight*4, cudaMemcpyDeviceToHost);
 
     sdkSavePPM4ub(dump_filename, (unsigned char *)h_result, imageWidth, imageHeight);
 

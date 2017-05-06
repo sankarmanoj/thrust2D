@@ -210,7 +210,7 @@ LIBRARIES :=
 ################################################################################
 
 # Gencode arguments
-SMS ?= 20 30 35 37 50 52 60
+SMS ?= 60
 
 ifeq ($(SMS),)
 $(info >>> WARNING - no SM architectures have been specified - waiving sample <<<)
@@ -252,14 +252,14 @@ convolutionSeparable.o:convolutionSeparable.cu
 convolutionSeparable_gold.o:convolutionSeparable_gold.cpp
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-main.o:main.cpp
+main.o:main.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
 
-main-thrust.o:main-thrust.cpp
+main-thrust.o:main-thrust.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-convolutionSeparable-thrust: main-thrust.o
+convolutionSeparable-thrust: main-thrust.o convolutionSeparable_gold.o
 		$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 		$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 		$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
