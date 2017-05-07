@@ -12,6 +12,8 @@
 #include <helper_math.h>
 #include <helper_functions.h>
 #include <helper_cuda.h>       // CUDA device initialization helper functions
+#include <thrust/window_2d.h>
+#include <thrust/window_transform.h>
 __constant__ float cGaussian[64];   //gaussian array in device side
 texture<uchar4, 2, cudaReadModeNormalizedFloat> rgbaTex;
 
@@ -112,7 +114,43 @@ d_bilateral_filter(uint *od, int w, int h,
 
     od[y * w + x] = rgbaFloatToInt(t/sum);
 }
+class d_bilateral_filter_functor
+{
+  float e_d;
+  int r;
+public:
+  d_bilateral_filter_functor(float e_d,  int r)
+  {
+      this->e_d = e_d;
+      this->r = r;
+  }
+  __device__ int operator() ( const thrust::window_2d<uchar4> &input,  const thrust::window_2d<uint> &output ) const
+  {
 
+
+    float sum = 0.0f;
+    float factor;
+    float4 t = {0.f, 0.f, 0.f, 0.f};
+    uchar4 center_int = input[r][r];
+    float4 center = {(float)center_int.x,(float)center_int.y,(float)center_int.z,(float)center_int.w};
+    for (int i = 0; i <= 2*r; i++)
+    {
+        for (int j = 0; j <= 2*r; j++)
+        {
+            uchar4 temp = input[j][i];
+            float4 curPix = {(float)temp.x,(float)temp.y,(float)temp.z,(float)temp.w,};
+            factor = cGaussian[i + r] * cGaussian[j + r] *     //domain factor
+                     euclideanLen(curPix, center, e_d);             //range factor
+
+            t += factor * curPix;
+            sum += factor;
+        }
+    }
+
+    output[r][r]=rgbaFloatToInt(t/sum);\
+    return 1;
+  }
+};
 extern "C"
 void initTexture(int width, int height, uint *hImage)
 {
@@ -183,7 +221,12 @@ double bilateralFilterRGBA(uint *dDest,
     // Bind the array to the texture
     cudaChannelFormatDesc desc = cudaCreateChannelDesc<uchar4>();
     checkCudaErrors(cudaBindTexture2D(0, rgbaTex, dImage, desc, width, height, pitch));
-
+    thrust::block_2d<uchar4> d_image_block(width,height);
+    d_image_block.upload((uchar4*)dImage,cudaMemoryTypeDevice);
+    thrust::block_2d<uint> d_dest_block(width,height);
+    thrust::device_vector<int> nulla(width*height);
+    thrust::window_vector<uchar4> input_wv(&d_image_block,2*radius+1,2*radius+1,1,1);
+    thrust::window_vector<uint> output_wv(&d_dest_block,2*radius+1,2*radius+1,1,1);
     for (int i=0; i<iterations; i++)
     {
         // sync host and start kernel computation timer
@@ -193,20 +236,19 @@ double bilateralFilterRGBA(uint *dDest,
 
         dim3 gridSize((width + 16 - 1) / 16, (height + 16 - 1) / 16);
         dim3 blockSize(16, 16);
-        d_bilateral_filter<<< gridSize, blockSize>>>(
-            dDest, width, height, e_d, radius);
-
+        thrust::transform(input_wv.begin(),input_wv.end(),output_wv.begin(),nulla.begin(),d_bilateral_filter_functor(e_d,radius));
+        // d_dest_block.download(dDest,cudaMemoryTypeDevice);
         // sync host and stop computation timer
         checkCudaErrors(cudaDeviceSynchronize());
         dKernelTime += sdkGetTimerValue(&timer);
 
         if (iterations > 1)
         {
-            // copy result back from global memory to array
-            checkCudaErrors(cudaMemcpy2D(dTemp, pitch, dDest, sizeof(int)*width,
-                                         sizeof(int)*width, height, cudaMemcpyDeviceToDevice));
-            checkCudaErrors(cudaBindTexture2D(0, rgbaTex, dTemp, desc, width, height, pitch));
+            // checkCudaErrors(cudaMemcpy2D(dTemp, pitch, d_dest_block.data_pointer, sizeof(int)*width,
+            //                              sizeof(int)*width, height, cudaMemcpyDeviceToDevice));
+            // checkCudaErrors(cudaBindTexture2D(0, rgbaTex, dTemp, desc, width, height, pitch));
         }
+
     }
 
     return ((dKernelTime/1000.)/(double)iterations);
