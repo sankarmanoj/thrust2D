@@ -158,7 +158,7 @@ void display()
     thrust::block_2d<unsigned int> block_d_output (width,height,0);
     thrust::block_2d<unsigned int> block_d_input (width,height,0);
     gaussianFilterRGBA(d_img,block_d_input, d_result,block_d_output, d_temp, width, height, sigma, order, nthreads);
-    checkCudaErrors(cudaMemcpy(d_result,block_d_output.data().get(),width*height*sizeof(unsigned int),cudaMemcpyDeviceToDevice));
+    checkCudaErrors(cudaMemcpy(d_result,block_d_output.data_pointer,width*height*sizeof(unsigned int),cudaMemcpyDeviceToDevice));
     checkCudaErrors(cudaGLUnmapBufferObject(pbo));
 
     // load texture from pbo
@@ -376,7 +376,7 @@ benchmark(int iterations)
       gaussianFilterRGBA(d_img, block_d_input,d_result,block_d_output, d_temp, width, height, sigma, order, nthreads);
     }
 
-    checkCudaErrors(cudaMemcpy(d_result,block_d_output.data().get(),width*height*sizeof(unsigned int),cudaMemcpyDeviceToDevice));
+    checkCudaErrors(cudaMemcpy(d_result,block_d_output.data_pointer,width*height*sizeof(unsigned int),cudaMemcpyDeviceToDevice));
 
     checkCudaErrors(cudaDeviceSynchronize());
     sdkStopTimer(&timer);
@@ -403,13 +403,13 @@ runSingleTest(const char *ref_file, const char *exec_path)
     thrust::block_2d<unsigned int> block_d_output (width,height,0);
     thrust::block_2d<unsigned int> block_d_input (width,height,0);
     gaussianFilterRGBA(d_img,block_d_input, d_result,block_d_output, d_temp, width, height, sigma, order, nthreads);
-    checkCudaErrors(cudaMemcpy(d_result,block_d_output.data().get(),width*height*sizeof(unsigned int),cudaMemcpyDeviceToDevice));
+    checkCudaErrors(cudaMemcpy(d_result,block_d_output.data_pointer,width*height*sizeof(unsigned int),cudaMemcpyDeviceToDevice));
 
     checkCudaErrors(cudaDeviceSynchronize());
     sdkStartTimer(&timer);
 
     gaussianFilterRGBA(d_img,block_d_input, d_result,block_d_output, d_temp, width, height, sigma, order, nthreads);
-    checkCudaErrors(cudaMemcpy(d_result,block_d_output.data().get(),width*height*sizeof(unsigned int),cudaMemcpyDeviceToDevice));
+    checkCudaErrors(cudaMemcpy(d_result,block_d_output.data_pointer,width*height*sizeof(unsigned int),cudaMemcpyDeviceToDevice));
     checkCudaErrors(cudaDeviceSynchronize());
     getLastCudaError("Kernel execution failed");
     sdkStopTimer(&timer);

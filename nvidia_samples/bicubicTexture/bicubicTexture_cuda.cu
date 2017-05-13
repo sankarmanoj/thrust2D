@@ -84,14 +84,14 @@ void render(int width, int height, float tx, float ty, float scale, float cx, fl
 
         case MODE_BILINEAR:
             tex.filterMode = cudaFilterModeLinear;
-            thrust::for_each(render_window_vector.begin(),render_window_vector.end(),d_render_functor(tx,ty,scale,cx,cy));
-            d_render<<<gridSize, blockSize>>>(output, width, height, tx, ty, scale, cx, cy);
+            // thrust::for_each(render_window_vector.begin(),render_window_vector.end(),d_render_functor(tx,ty,scale,cx,cy));
+            // d_render<<<gridSize, blockSize>>>(output, width, height, tx, ty, scale, cx, cy);
             break;
 
         case MODE_BICUBIC:
             tex.filterMode = cudaFilterModePoint;
             thrust::for_each(render_window_vector.begin(),render_window_vector.end(),d_renderBicubic_functor(tx,ty,scale,cx,cy));
-            // thrust::for_each(thrust::cuda::shared,render_window_vector.begin(),render_window_vector.end(),d_renderBicubic_functor(tx,ty,scale,cx,cy));
+            thrust::for_each(thrust::cuda::shared,render_window_vector.begin(),render_window_vector.end(),d_renderBicubic_functor(tx,ty,scale,cx,cy));
             d_renderBicubic<<<gridSize, blockSize>>>(output, width, height, tx, ty, scale, cx, cy);
             break;
 

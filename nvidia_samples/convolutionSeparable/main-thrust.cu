@@ -23,7 +23,8 @@
 #include <helper_cuda.h>
 
 #include "convolutionSeparable_common.h"
-
+#include <thrust/window_2d.h>
+#include <thrust/window_transform.h>
 ////////////////////////////////////////////////////////////////////////////////
 // Reference CPU convolution
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,11 +63,6 @@ int main(int argc, char **argv)
     *h_Buffer,
     *h_OutputCPU,
     *h_OutputGPU;
-
-    float
-    *d_Input,
-    *d_Output,
-    *d_Buffer;
 
 
     const int imageW = 3072;
@@ -117,7 +113,7 @@ int main(int argc, char **argv)
             sdkStartTimer(&hTimer);
         }
 
-        thrust::convolve(thrust::cuda::shared,&input_block,h_Kernel,&output_block)
+        thrust::convolve(thrust::cuda::shared,&input_block,h_Kernel,KERNEL_LENGTH,&output_block);
     }
 
     checkCudaErrors(cudaDeviceSynchronize());
@@ -127,7 +123,7 @@ int main(int argc, char **argv)
            (1.0e-6 * (double)(imageW * imageH)/ gpuTime), gpuTime, (imageW * imageH), 1, 0);
 
     printf("\nReading back GPU results...\n\n");
-    output_block.download(h_OutputGPU);
+    output_block.download(&h_OutputGPU);
 
     printf("Checking the results...\n");
     printf(" ...running convolutionRowCPU()\n");
@@ -164,9 +160,7 @@ int main(int argc, char **argv)
     printf("Shutting down...\n");
 
 
-    checkCudaErrors(cudaFree(d_Buffer));
-    checkCudaErrors(cudaFree(d_Output));
-    checkCudaErrors(cudaFree(d_Input));
+
     free(h_OutputGPU);
     free(h_OutputCPU);
     free(h_Buffer);

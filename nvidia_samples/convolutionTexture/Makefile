@@ -190,7 +190,7 @@ else
       BUILD_TYPE := release
 endif
 
-ALL_CCFLAGS :=
+ALL_CCFLAGS := -std=c++11
 ALL_CCFLAGS += $(NVCCFLAGS)
 ALL_CCFLAGS += $(EXTRA_NVCCFLAGS)
 ALL_CCFLAGS += $(addprefix -Xcompiler ,$(CCFLAGS))
@@ -204,13 +204,13 @@ ALL_LDFLAGS += $(addprefix -Xlinker ,$(LDFLAGS))
 ALL_LDFLAGS += $(addprefix -Xlinker ,$(EXTRA_LDFLAGS))
 
 # Common includes and paths for CUDA
-INCLUDES  := -I../../common/inc
+INCLUDES  := -I../common/inc -I../../include
 LIBRARIES :=
 
 ################################################################################
 
 # Gencode arguments
-SMS ?= 20 30 35 37 50 52 60
+SMS ?=  60
 
 ifeq ($(SMS),)
 $(info >>> WARNING - no SM architectures have been specified - waiving sample <<<)
@@ -237,7 +237,7 @@ endif
 # Target rules
 all: build
 
-build: convolutionTexture
+build: convolutionTexture convolutionTexture-thrust
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -252,13 +252,17 @@ convolutionTexture.o:convolutionTexture.cu
 convolutionTexture_gold.o:convolutionTexture_gold.cpp
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-main.o:main.cpp
+main.o:main.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
 convolutionTexture: convolutionTexture.o convolutionTexture_gold.o main.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
-	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
-	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
+
+main-thrust.o:main-thrust.cu
+	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
+
+convolutionTexture-thrust:  convolutionTexture_gold.o main-thrust.o
+	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 
 run: build
 	$(EXEC) ./convolutionTexture
