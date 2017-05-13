@@ -23,9 +23,14 @@ public:
   }
 };
 int main(int argc, char const *argv[]) {
-  Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
-  image = small;
+  image = cv::imread( "car.jpg", CV_LOAD_IMAGE_GRAYSCALE );
+  int dim = 512;
+  if(argc ==2)
+  {
+    dim = atoi(argv[1]);
+  }
+  cv::resize(image,image,cv::Size(dim,dim));
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows,0.0f);
   thrust::block_2d<uchar> outBlock (image.cols,image.rows,0.0f);
   uchar * img = (uchar * )malloc(sizeof(uchar)*(image.cols*image.rows));
@@ -68,7 +73,5 @@ int main(int argc, char const *argv[]) {
     outputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
-  imwrite("input.png",image);
-  imwrite("aoutput.png",output);
   return 0;
 }

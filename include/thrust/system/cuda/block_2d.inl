@@ -215,12 +215,12 @@ namespace thrust
     return make_int2(j,i);
   }
   template <class T,class Alloc>
-  __host__ typename  block_2d<T,Alloc>::iterator block_2d<T,Alloc>::begin()
+  __host__ typename block_2d<T,Alloc>::iterator block_2d<T,Alloc>::begin()
   {
     return block_iterator<T,Alloc>(this,0);
   }
   template <class T,class Alloc>
-  __host__  typename block_2d<T,Alloc>::iterator block_2d<T,Alloc>::end()
+  __host__ typename block_2d<T,Alloc>::iterator block_2d<T,Alloc>::end()
   {
     return block_iterator<T,Alloc>(this,(this->dim_y)*(this->dim_x));
   }
@@ -248,7 +248,7 @@ namespace thrust
   }
   #endif
   template<class T,class Alloc>
-  __host__ __device__ block_2d_iterator<T,Alloc>::block_2d_iterator<T,Alloc>(block_2d<T,Alloc> *b, int index)
+  __host__ __device__ block_2d_iterator<T,Alloc>::block_2d_iterator(block_2d<T,Alloc> *b, int index)
   {
     this->b=b;
     this->index_y=index;
@@ -259,7 +259,7 @@ namespace thrust
     return b->data_pointer[index_y*b->pitch/sizeof(T) + index];
   }
   template<class T,class Alloc>
-  __host__ __device__ block_iterator<T,Alloc>::block_iterator<T,Alloc>(block_2d<T,Alloc> *pB, int position)
+  __host__ __device__ block_iterator<T,Alloc>::block_iterator(block_2d<T,Alloc> *pB, int position)
   {
     parent_block = pB->device_pointer;
     parent_block_host = pB;
@@ -277,13 +277,13 @@ namespace thrust
     this->dim_y = it.dim_y;
   }
   template<class T,class Alloc>
-  __host__ __device__ block_iterator<T,Alloc>::reference	block_iterator<T,Alloc>::operator* () const
+  __host__ __device__ typename block_iterator<T,Alloc>::reference	block_iterator<T,Alloc>::operator* () const
   {
     int2 temp = parent_block->index_to_int2(position);
     return (*parent_block)[temp];
   }
   template<class T,class Alloc>
-  __host__ __device__ block_iterator<T,Alloc>::reference	block_iterator<T,Alloc>::operator[] (const int index) const
+  __host__ __device__ typename block_iterator<T,Alloc>::reference	block_iterator<T,Alloc>::operator[] (const int index) const
   {
     int2 temp = parent_block->index_to_int2(position+index);
     return (*parent_block)[temp];
@@ -308,13 +308,13 @@ namespace thrust
     return *this;
   }
   template<class T,class Alloc>
-  __host__ __device__ block_iterator<T,Alloc>::difference_type block_iterator<T,Alloc>::operator- (const block_iterator<T,Alloc>& it) const
+  __host__ __device__ typename block_iterator<T,Alloc>::difference_type block_iterator<T,Alloc>::operator- (const block_iterator<T,Alloc>& it) const
   {
     return position - it.position;
   }
 
   template<class T,class Alloc>
-  __host__ __device__ block_iterator<T,Alloc>::difference_type block_iterator<T,Alloc>::operator- (block_iterator<T,Alloc>& it) const
+  __host__ __device__ typename block_iterator<T,Alloc>::difference_type block_iterator<T,Alloc>::operator- (block_iterator<T,Alloc>& it) const
   {
     return position - it.position;
   }

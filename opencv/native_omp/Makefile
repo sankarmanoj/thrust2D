@@ -1,7 +1,5 @@
-IDIR =../../include
 CC=nvcc
-CFLAGS=-I$(IDIR) -ccbin=g++-5 -std=c++11 -Xcompiler -fopenmp -Xcompiler
-DFLAGS =-DDEBUG -g -G -lineinfo
+CFLAGS= -std=c++11 -ccbin=g++-5 -Xcompiler -fopenmp
 OPENCVFLAGS=$(shell pkg-config --libs --static opencv)
 SRCS = $(wildcard *.cpp)
 OBJS=$(SRCS:.cpp=.o)
@@ -14,4 +12,6 @@ all: $(OBJS)
 .PHONY: profile-all
 profile-all: $(PROFILES)
 clean:
-	rm *.o
+		rm -f  *.o
+		rm -f *.profile*
+		rm -f *.time

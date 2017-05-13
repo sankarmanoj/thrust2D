@@ -24,8 +24,10 @@ namespace thrust
     this->block_dim_x = b->dim_x;
     this->block_dim_y = b->dim_y;
     this->pitch=b->pitch;
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
     this->is_shared = false;
     this->is_texture = false;
+    #endif
   }
   template <class T,class Alloc>
   __host__ __device__ window_2d<T,Alloc>::window_2d (const window_2d<T,Alloc> &obj)
@@ -34,13 +36,15 @@ namespace thrust
     this->start_y = obj.start_y;
     this->window_dim_x = obj.window_dim_x;
     this->window_dim_y = obj.window_dim_y;
-    this->texref = texref;
     this->data = obj.data;
     this->block_dim_y = obj.block_dim_y;
     this->block_dim_x = obj.block_dim_x;
     this->pitch=obj.pitch;
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
     this->is_shared = obj.is_shared;
     this->is_texture = obj.is_texture;
+    this->texref = texref;
+    #endif
   }
   #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
   template <class T, class Alloc>
@@ -79,7 +83,7 @@ namespace thrust
   }
   #endif
   template <class T>
-  __host__ __device__ window_2d_iterator<T>::window_2d_iterator<T>(T * data, int position)
+  __host__ __device__ window_2d_iterator<T>::window_2d_iterator(T * data, int position)
   {
     this->data = data;
     this->position = position;
@@ -90,11 +94,13 @@ namespace thrust
   __host__ __device__ window_2d_iterator<T> window_2d<T,Alloc>::operator[] (int index) const
   {
     int position;
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
     if(this->is_shared)
     {
       position = (local_start_y+index)*block_dim_x + local_start_x;
     }
     else
+    #endif
     {
       position = (start_y+index)*pitch/sizeof(T) + start_x;
     }
@@ -104,6 +110,7 @@ namespace thrust
   template <class T,class Alloc>
   __host__ __device__ T window_2d<T,Alloc>::operator[] (int2 index) const
   {
+    #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
     if(is_texture)
     {
         return tex2D<T>(texref,start_x+index.x,start_y+index.y);
@@ -115,6 +122,7 @@ namespace thrust
         return data[(local_start_y+index.y)*block_dim_x + local_start_x+index.x];
     }
     else
+    #endif
     {
       return data[(start_y+index.y)*pitch/sizeof(T) + start_x + index.x];
     }
@@ -176,7 +184,7 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ window_iterator<T,Alloc>::reference window_iterator<T,Alloc>::operator* () const
+  __host__ __device__ typename window_iterator<T,Alloc>::reference window_iterator<T,Alloc>::operator* () const
   {
     int i = position%windows_along_x;
     int j = position/windows_along_x;
@@ -187,12 +195,12 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ window_iterator<T,Alloc>::difference_type window_iterator<T,Alloc>::operator- (window_iterator<T,Alloc> &it) const
+  __host__ __device__ typename window_iterator<T,Alloc>::difference_type window_iterator<T,Alloc>::operator- (window_iterator<T,Alloc> &it) const
   {
     return this->position - it.position;
   }
   template <class T,class Alloc>
-  __host__ __device__ window_iterator<T,Alloc>::difference_type window_iterator<T,Alloc>::operator- (const window_iterator<T,Alloc> &it) const
+  __host__ __device__ typename window_iterator<T,Alloc>::difference_type window_iterator<T,Alloc>::operator- (const window_iterator<T,Alloc> &it) const
   {
     return this->position - it.position;
   }
@@ -224,7 +232,7 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ window_iterator<T,Alloc>::window_iterator<T,Alloc> (const window_iterator<T,Alloc>& other)
+  __host__ __device__ window_iterator<T,Alloc>::window_iterator(const window_iterator<T,Alloc>& other)
   {
     this->b = other.b;
     this->data_pointer = other.data_pointer;

@@ -20,9 +20,14 @@ class dilateFunctor //: public thrust::shared_unary_window_transform_functor<uch
   }
 };
 int main(int argc, char const *argv[]) {
-  Mat small = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat image;
-  resize(small,image,Size(512,512));
+  image = cv::imread( "car.jpg", CV_LOAD_IMAGE_GRAYSCALE );
+  int dim = 512;
+  if(argc ==2)
+  {
+    dim = atoi(argv[1]);
+  }
+  cv::resize(image,image,cv::Size(dim,dim));
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
   thrust::block_2d<uchar> outBlock (image.cols,image.rows);
@@ -36,10 +41,6 @@ int main(int argc, char const *argv[]) {
   cudaMemcpy2D(uchar_image_block.data_pointer,uchar_image_block.pitch,img,image.cols*sizeof(uchar),image.cols,image.rows,cudaMemcpyHostToDevice);
   thrust::window_vector<uchar> myVector = thrust::window_vector<uchar>(&uchar_image_block,3,3,1,1);
   thrust::window_vector<uchar> outputVector = thrust::window_vector<uchar>(&outBlock,3,3,1,1);
-  #pragma omp parallel
-{
-    printf("Thread Number = %d\n", omp_get_thread_num());
-}
   thrust::transform(myVector.begin(),myVector.end(),outputVector.begin(),null_block.begin(),dilateFunctor());
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   outBlock.download(&img);
@@ -48,8 +49,5 @@ int main(int argc, char const *argv[]) {
     outputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
-  imwrite("input.png",image);
-  imwrite("output.png",output);
-
   return 0;
 }
