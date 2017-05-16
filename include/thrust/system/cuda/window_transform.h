@@ -9,8 +9,8 @@
 namespace thrust
 {
 
-  template <class Iterator, class Func>
-  void transform(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2, Func f);
+  template <class Iterator1, class Iterator2, class Func>
+  void transform(cuda::shared_policy,Iterator1 begin1, Iterator1 end1, Iterator2 begin2, Func f);
 
   template <class Iterator1, class Iterator2, class Iterator3 , class Func>
   void transform(cuda::shared_policy,Iterator1 begin1, Iterator1 end1, Iterator2 begin2, Iterator3 begin3, Func f);

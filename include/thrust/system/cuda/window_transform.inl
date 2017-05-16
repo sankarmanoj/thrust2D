@@ -80,12 +80,12 @@ namespace thrust
   }
 
   //Unary Shared Transform
-  template<typename T, class Func>
+  template<typename T1, typename T2 , class Func>
   __global__
   // __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)
-  void transform_kernel (window_iterator<T> *input, window_iterator<T> * output, warp_launcher_config mConfiguration, Func f)
+  void transform_kernel (window_iterator<T1> *input, window_iterator<T2> * output, warp_launcher_config mConfiguration, Func f)
   {
-    extern __shared__ T shared_memory [];
+    extern __shared__ T1 shared_memory [];
     shared_memory[threadIdx.y*mConfiguration.shared_size_x+threadIdx.x]=(*(input->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y)];
     if(threadIdx.y>=mConfiguration.warp_size-mConfiguration.padding)
     {
@@ -102,20 +102,19 @@ namespace thrust
     }
     if((threadIdx.x%mConfiguration.stride_x)||(threadIdx.y%mConfiguration.stride_y))
       return;
-    //XXX: Why was this line required? // if(mConfiguration.block_dim_x<=(mConfiguration.stride_x/2)+mConfiguration.stride_x*(blockIdx.x*blockDim.x+ threadIdx.x))
-    //   return;
     if((mConfiguration.block_dim_x<blockIdx.x*mConfiguration.warp_size + threadIdx.x+mConfiguration.window_dim_x)||(mConfiguration.block_dim_y<blockIdx.y*mConfiguration.warp_size + threadIdx.y+mConfiguration.window_dim_y))
       return;
     __syncthreads();
-    window_2d<T> shared_window(input->b,shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,input->window_dim_x,input->window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+mConfiguration.padding,input->pitch);
-    window_2d<T> output_window(output->b,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,output->window_dim_x,output->window_dim_y);
+    window_2d<T1> shared_window(input->b,shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,input->window_dim_x,input->window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+mConfiguration.padding,input->pitch);
+    window_2d<T2> output_window(output->b,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,output->window_dim_x,output->window_dim_y);
     f(shared_window,output_window);
   }
 
-  template <class Iterator, class Func>
-  void transform(cuda::shared_policy,Iterator begin1, Iterator end1, Iterator begin2, Func f)
+  template <class Iterator1, class Iterator2, class Func>
+  void transform(cuda::shared_policy,Iterator1 begin1, Iterator1 end1, Iterator2 begin2, Func f)
   {
-    typedef typename Iterator::base_value_type T;
+    typedef typename Iterator1::base_value_type T1;
+    typedef typename Iterator2::base_value_type T2;
     static cudaDeviceProp properties;
     if (properties.maxThreadsPerBlock == 0)
       cudaGetDeviceProperties(&properties,0);
@@ -143,10 +142,10 @@ namespace thrust
     assert(begin1.window_dim_y == begin2.window_dim_y);
     assert(begin1.stride_x == begin2.stride_x);
     assert(begin1.stride_y == begin2.stride_y);
-    assert(size_along_y*size_along_x*sizeof(T)<properties.sharedMemPerBlock);
+    assert(size_along_y*size_along_x*sizeof(T1)<properties.sharedMemPerBlock);
 
 
-    transform_kernel<<<dim3(iDivUp(begin1.block_dim_x,mConfiguration.warp_size),iDivUp(begin1.block_dim_y,mConfiguration.warp_size),1),dim3(mConfiguration.warp_size,mConfiguration.warp_size,1),(size_along_y+mConfiguration.padding)*(mConfiguration.padding+size_along_x)*sizeof(T)>>>(begin1.device_pointer,begin2.device_pointer,mConfiguration,f);
+    transform_kernel<<<dim3(iDivUp(begin1.block_dim_x,mConfiguration.warp_size),iDivUp(begin1.block_dim_y,mConfiguration.warp_size),1),dim3(mConfiguration.warp_size,mConfiguration.warp_size,1),(size_along_y+mConfiguration.padding)*(mConfiguration.padding+size_along_x)*sizeof(T1)>>>(begin1.device_pointer,begin2.device_pointer,mConfiguration,f);
   }
   //Binary Texture Transform
   template<typename T, class Func>
