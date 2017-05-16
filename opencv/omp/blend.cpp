@@ -53,8 +53,5 @@ int main(int argc, char const *argv[]) {
     charImageData[i]=(unsigned char)ucharImageData[i];
   }
   Mat output (Size(input1.cols,input1.rows),CV_8UC1,charImageData);
-  imwrite("blend-input1.png",input1);
-  imwrite("blend-input2.png",input2);
-  imwrite("blend-output.png",output);
   return 0;
 }

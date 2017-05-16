@@ -1,18 +1,18 @@
-	Command being timed: "./affine.o 512"
-	User time (seconds): 0.07
-	System time (seconds): 0.74
-	Percent of CPU this job got: 191%
-	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.42
+	Command being timed: "./lbp.o 512"
+	User time (seconds): 0.31
+	System time (seconds): 0.60
+	Percent of CPU this job got: 401%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.22
 	Average shared text size (kbytes): 0
 	Average unshared data size (kbytes): 0
 	Average stack size (kbytes): 0
 	Average total size (kbytes): 0
-	Maximum resident set size (kbytes): 210532
+	Maximum resident set size (kbytes): 116388
 	Average resident set size (kbytes): 0
 	Major (requiring I/O) page faults: 0
-	Minor (reclaiming a frame) page faults: 7456
-	Voluntary context switches: 144
-	Involuntary context switches: 134239
+	Minor (reclaiming a frame) page faults: 5171
+	Voluntary context switches: 130
+	Involuntary context switches: 77
 	Swaps: 0
 	File system inputs: 0
 	File system outputs: 0
