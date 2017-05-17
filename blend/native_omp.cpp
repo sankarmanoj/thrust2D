@@ -16,6 +16,11 @@ int main(int argc, char const *argv[]) {
   {
     dim = atoi(argv[1]);
   }
+  else if(argc==3)
+  {
+    dim = atoi(argv[1]);
+    omp_set_num_threads(atoi(argv[2]));
+  }
   Mat input1 = imread("./car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat input2 = imread("./car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
   Mat temp1;
