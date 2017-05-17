@@ -152,63 +152,6 @@ void computeFPS()
         varyEuclidean();
     }
 }
-
-// display results using OpenGL
-void display()
-{
-    sdkStartTimer(&timer);
-
-    // execute filter, writing results to pbo
-    unsigned int *dResult;
-
-    //DEPRECATED: checkCudaErrors( cudaGLMapBufferObject((void**)&d_result, pbo) );
-    checkCudaErrors(cudaGraphicsMapResources(1, &cuda_pbo_resource, 0));
-    size_t num_bytes;
-    checkCudaErrors(cudaGraphicsResourceGetMappedPointer((void **)&dResult, &num_bytes, cuda_pbo_resource));
-    bilateralFilterRGBA(dResult, width, height, euclidean_delta, filter_radius, iterations, kernel_timer);
-
-    // DEPRECATED: checkCudaErrors(cudaGLUnmapBufferObject(pbo));
-    checkCudaErrors(cudaGraphicsUnmapResources(1, &cuda_pbo_resource, 0));
-
-    // Common display code path
-    {
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // load texture from pbo
-        glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, pbo);
-        glBindTexture(GL_TEXTURE_2D, texid);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-        glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
-
-        // fragment program is required to display floating point texture
-        glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, shader);
-        glEnable(GL_FRAGMENT_PROGRAM_ARB);
-        glDisable(GL_DEPTH_TEST);
-
-        glBegin(GL_QUADS);
-        {
-            glTexCoord2f(0, 0);
-            glVertex2f(0, 0);
-            glTexCoord2f(1, 0);
-            glVertex2f(1, 0);
-            glTexCoord2f(1, 1);
-            glVertex2f(1, 1);
-            glTexCoord2f(0, 1);
-            glVertex2f(0, 1);
-        }
-        glEnd();
-        glBindTexture(GL_TEXTURE_TYPE, 0);
-        glDisable(GL_FRAGMENT_PROGRAM_ARB);
-    }
-
-    glutSwapBuffers();
-    glutReportErrors();
-
-    sdkStopTimer(&timer);
-
-    computeFPS();
-}
-
 /*
     right arrow to increase the gaussian delta
     left arrow to decrease the gaussian delta
@@ -303,6 +246,64 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/)
            filter_radius, iterations, gaussian_delta, euclidean_delta);
     glutPostRedisplay();
 }
+
+// display results using OpenGL
+void display()
+{
+    sdkStartTimer(&timer);
+
+    // execute filter, writing results to pbo
+    unsigned int *dResult;
+
+    //DEPRECATED: checkCudaErrors( cudaGLMapBufferObject((void**)&d_result, pbo) );
+    checkCudaErrors(cudaGraphicsMapResources(1, &cuda_pbo_resource, 0));
+    size_t num_bytes;
+    checkCudaErrors(cudaGraphicsResourceGetMappedPointer((void **)&dResult, &num_bytes, cuda_pbo_resource));
+    bilateralFilterRGBA(dResult, width, height, euclidean_delta, filter_radius, iterations, kernel_timer);
+
+    // DEPRECATED: checkCudaErrors(cudaGLUnmapBufferObject(pbo));
+    checkCudaErrors(cudaGraphicsUnmapResources(1, &cuda_pbo_resource, 0));
+
+    // Common display code path
+    {
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // load texture from pbo
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, pbo);
+        glBindTexture(GL_TEXTURE_2D, texid);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
+
+        // fragment program is required to display floating point texture
+        glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, shader);
+        glEnable(GL_FRAGMENT_PROGRAM_ARB);
+        glDisable(GL_DEPTH_TEST);
+
+        glBegin(GL_QUADS);
+        {
+            glTexCoord2f(0, 0);
+            glVertex2f(0, 0);
+            glTexCoord2f(1, 0);
+            glVertex2f(1, 0);
+            glTexCoord2f(1, 1);
+            glVertex2f(1, 1);
+            glTexCoord2f(0, 1);
+            glVertex2f(0, 1);
+        }
+        glEnd();
+        glBindTexture(GL_TEXTURE_TYPE, 0);
+        glDisable(GL_FRAGMENT_PROGRAM_ARB);
+    }
+
+    glutSwapBuffers();
+    glutReportErrors();
+
+    sdkStopTimer(&timer);
+
+    computeFPS();
+    keyboard(27,0,0);
+}
+
 
 void timerEvent(int value)
 {
