@@ -1,7 +1,7 @@
 
 NVCC          := nvcc
 # internal flags
-NVCCFLAGS   :=  -std=c++11 
+NVCCFLAGS   :=  -std=c++11
 CCFLAGS     :=
 LDFLAGS     :=
 
@@ -63,7 +63,7 @@ endif
 # Target rules
 all: build
 
-build: bilateralFilter thrust_bilateralFilter
+build: bilateralFilter thrust_bilateralFilter shared_bilateralFilter texture_bilateralFilter
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -81,20 +81,21 @@ bilateralFilter_cpu.o:bilateralFilter_cpu.cpp
 bilateral_kernel.o:bilateral_kernel.cu
 	 $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-bilateral_kernel_thrust.o:bilateral_kernel_thrust.cu
-	 $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
-
 bmploader.o:bmploader.cpp
 	 $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
 bilateralFilter: bilateralFilter.o bilateralFilter_cpu.o bilateral_kernel.o bmploader.o
 	 $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 
-thrust_bilateralFilter: bilateralFilter.o bilateralFilter_cpu.o bilateral_kernel_thrust.o bmploader.o
-	$(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
-
+thrust_bilateralFilter: bilateralFilter.o bilateralFilter_cpu.o bilateral_kernel_thrust.cu bmploader.o
+	$(NVCC) $(ALL_LDFLAGS) $(INCLUDES) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
+shared_bilateralFilter: bilateralFilter.o bilateralFilter_cpu.o bilateral_kernel_shared.cu bmploader.o
+	$(NVCC) $(ALL_LDFLAGS) $(INCLUDES) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
+texture_bilateralFilter: bilateralFilter.o bilateralFilter_cpu.o bilateral_kernel_texture.cu bmploader.o
+	$(NVCC) $(ALL_LDFLAGS) $(INCLUDES) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 run: build
 	 ./bilateralFilter
+
 
 clean:
 	rm -f bilateralFilter bilateralFilter.o bilateralFilter_cpu.o bilateral_kernel.o bmploader.o
