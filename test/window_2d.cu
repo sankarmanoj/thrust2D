@@ -26,7 +26,9 @@ public:
 
 	__device__ void operator() (const thrust::window_2d<int> &c) const
 	{
-  	c[2][2]=0;
+  	for(int i = 0; i< 3; i++)
+			for(int j = 0; j<3;j++)
+				c[i][j]=i*3+j;
 	}
 };
 class printFunctor
@@ -66,10 +68,10 @@ public:
 };
 int main()
 {
-  block_2d<int> a(X,Y,0);
+  block_2d<int> a(X,Y,1);
   block_2d<int> c(X,Y,0);
   device_vector<int> hello(X*Y);
-  sequence(a.begin(),a.end());
+	fill(a.begin(),a.end(),1);
   // window_vector<int> myVector(&a,3,3,1,1);
   // std::cout<<"Size ="<<myVector.end()-myVector.begin()<<"\n Pitch = "<<a.pitch<<std::endl;
   // for_each(myVector.begin(),myVector.end(),printFunctor());
