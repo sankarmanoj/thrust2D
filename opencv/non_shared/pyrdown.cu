@@ -114,7 +114,14 @@ int main(int argc, char const *argv[])
     outputFloatImageData[i]=(unsigned char)img_out[i];
   }
   Mat output (Size(image.cols*2,image.rows*2),CV_8UC1,outputFloatImageData);
-  // imwrite("input.png",image);
-  // imwrite("pyrdown.png",output);
+  #ifdef OWRITE
+  imwrite("input.png",image);
+  imwrite("output.png",output);
+  #endif
+  #ifdef SHOW
+  imshow("input.png",image);
+  imshow("output.png",output);
+  waitKey(0);
+  #endif
   return 0;
 }

@@ -40,15 +40,20 @@ int main(int argc, char const *argv[]) {
   {
     img[i]=(float)image.ptr()[i];
   }
-  // uchar_image_block.assign(img,img+image.cols*image.rows);
-  // cudaMemcpy2D(uchar_image_block.data_pointer,uchar_image_block.pitch,img,image.cols*sizeof(uchar),image.cols,image.rows,cudaMemcpyHostToDevice);
   float_image_block.upload(img);
   thrust::window_vector<float> myVector = thrust::window_vector<float>(&float_image_block,3,3,1,1);
   thrust::window_vector<uchar> outputVector = thrust::window_vector<uchar>(&outBlock,3,3,1,1);
+  cudaEvent_t start, stop;
+  cudaEventCreate(&start);
+  cudaEventCreate(&stop);
+  cudaEventRecord(start);
   thrust::transform(thrust::cuda::shared,myVector.begin(),myVector.end(),outputVector.begin(),dilateFunctor());
+  cudaEventRecord(stop);
+  cudaEventSynchronize(stop);
+  float time_in_ms;
+  cudaEventElapsedTime(&time_in_ms,start,stop);
+  printf("%f\n",time_in_ms);
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(float_image_block.end()-float_image_block.begin()));
-  // cudaMemcpy(img,thrust::raw_pointer_cast(outBlock.data()),sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()),cudaMemcpyDeviceToHost);
-  // cudaMemcpy2D(img,outBlock.dim_x*sizeof(uchar),outBlock.data_pointer,outBlock.pitch,outBlock.dim_x,outBlock.dim_y,cudaMemcpyDeviceToHost);
   outBlock.download(&outputFloatImageData);
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
   #ifdef OWRITE

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "cputime.h"
-// #define PROFILING
+#define PROFILING
 const float PI2 = 3.141592653589793 / 2.0;
 const int nd = 3;
 int np;

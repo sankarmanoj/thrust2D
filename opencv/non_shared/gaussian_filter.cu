@@ -89,9 +89,16 @@ int main(int argc, char const *argv[]) {
   {
     toutputFloatImageData[i]=(unsigned char)img[i];
   }
-  Mat toutput (Size(image.cols,image.rows),CV_8UC1,toutputFloatImageData);
-  // imwrite("input.png",image);
-  // imwrite("output.png",toutput);
+  Mat output (Size(image.cols,image.rows),CV_8UC1,toutputFloatImageData);
+  #ifdef OWRITE
+  imwrite("input.png",image);
+  imwrite("output.png",output);
+  #endif
+  #ifdef SHOW
+  imshow("input.png",image);
+  imshow("output.png",output);
+  waitKey(0);
+  #endif
 
   return 0;
 }

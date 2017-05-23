@@ -118,8 +118,15 @@ int main(int argc, char const *argv[])
     outputFloatImageData[i]=(unsigned char)img1[i];
   }
   Mat output (Size(image.cols/2,image.rows/2),CV_8UC1,outputFloatImageData);
-  // imwrite("input.png",image);
-  // imwrite("pyrup.png",output);
+  #ifdef OWRITE
+  imwrite("input.png",image);
+  imwrite("output.png",output);
+  #endif
+  #ifdef SHOW
+  imshow("input.png",image);
+  imshow("output.png",output);
+  waitKey(0);
+  #endif
   free (img);
   free (img1);
   free (outputFloatImageData);

@@ -17,7 +17,16 @@ int main ( int argc, char **argv )
     cv::resize(im_rgb_t,im_rgb,cv::Size(dim,dim));
     cv::cuda::GpuMat im_rgb_d, img_final_d;
     im_rgb_d.upload(im_rgb);
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start);
     cv::Ptr<cv::cuda::Filter> dilate = cv::cuda::createMorphologyFilter(cv::MORPH_DILATE, im_rgb_d.type(), cv::Mat());
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    float time_in_ms;
+    cudaEventElapsedTime(&time_in_ms,start,stop);
+    printf("%f\n",time_in_ms);
     dilate->apply(im_rgb_d, img_final_d);
     img_final_d.download(img_final);
     #ifdef OWRITE
