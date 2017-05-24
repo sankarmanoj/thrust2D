@@ -1,6 +1,6 @@
 IDIR =../../include
 CC=nvcc
-CFLAGS=-I$(IDIR) -ccbin=g++ -std=c++11
+CFLAGS=-I$(IDIR) -ccbin=g++ -std=c++11 -DPROFILING
 SRCS = $(wildcard *.cu)
 
 OBJS=$(SRCS:.cu=.out)

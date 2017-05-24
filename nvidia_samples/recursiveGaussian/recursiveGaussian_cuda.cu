@@ -44,8 +44,10 @@
 #include <thrust/window_2d.h>
 
 #include "recursiveGaussian_kernel.cuh"
-
+cudaEvent_t start, stop;
+float time_in_ms;
 #define USE_SIMPLE_FILTER 0
+
 
 //Round a / b to nearest higher integer value
 int iDivUp(int a, int b)
@@ -141,8 +143,9 @@ void gaussianFilterRGBA(uint *d_src,thrust::block_2d<unsigned int> &block_d_inpu
 #if USE_SIMPLE_FILTER
     d_simpleRecursive_rgba<<< iDivUp(width, nthreads), nthreads >>>(d_src, d_temp, width, height, ema);
 #else
-    thrust::transform(input_window_vector.begin(),input_window_vector.end(),output_window_vector.begin(),null_vector.begin(),d_recursiveGaussian_functor(width, height, a0, a1, a2, a3, b1, b2, coefp, coefn));
-    d_recursiveGaussian_rgba<<< iDivUp(width, nthreads), nthreads >>>(d_src, d_temp, width, height, a0, a1, a2, a3, b1, b2, coefp, coefn);
+
+   thrust::transform(input_window_vector.begin(),input_window_vector.end(),output_window_vector.begin(),null_vector.begin(),d_recursiveGaussian_functor(width, height, a0, a1, a2, a3, b1, b2, coefp, coefn));
+    // d_recursiveGaussian_rgba<<< iDivUp(width, nthreads), nthreads >>>(d_src, d_temp, width, height, a0, a1, a2, a3, b1, b2, coefp, coefn);
 #endif
     getLastCudaError("Kernel execution failed");
 
@@ -151,9 +154,9 @@ void gaussianFilterRGBA(uint *d_src,thrust::block_2d<unsigned int> &block_d_inpu
 
     // process rows
 #if USE_SIMPLE_FILTER
-    d_simpleRecursive_rgba<<< iDivUp(height, nthreads), nthreads >>>(d_dest, d_temp, height, width, ema);
+    // d_simpleRecursive_rgba<<< iDivUp(height, nthreads), nthreads >>>(d_dest, d_temp, height, width, ema);
 #else
-    d_recursiveGaussian_rgba<<< iDivUp(height, nthreads), nthreads >>>(d_dest, d_temp, height, width, a0, a1, a2, a3, b1, b2, coefp, coefn);
+    // d_recursiveGaussian_rgba<<< iDivUp(height, nthreads), nthreads >>>(d_dest, d_temp, height, width, a0, a1, a2, a3, b1, b2, coefp, coefn);
 #endif
     getLastCudaError("Kernel execution failed");
 

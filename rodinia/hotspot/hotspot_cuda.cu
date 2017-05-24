@@ -97,6 +97,20 @@ void readinput(float *vect, int grid_rows, int grid_cols, char *file){
 
 }
 
+void readRandom(float * vect, int grid_rows, int grid_cols ){
+
+	int i,j;
+
+
+	for (i=0; i <= grid_rows-1; i++)
+	for (j=0; j <= grid_cols-1; j++)
+	{
+
+		vect[i*grid_cols+j] = float(rand() % 100)/1000 + 323;
+	}
+}
+
+
 #define IN_RANGE(x, min, max)   ((x)>=(min) && (x)<=(max))
 #define CLAMP_RANGE(x, min, max) x = (x<(min)) ? min : ((x>(max)) ? max : x )
 #define MIN(a, b) ((a)<=(b) ? (a) : (b))
@@ -312,10 +326,15 @@ void run(int argc, char** argv)
         fatal("unable to allocate memory");
 
     printf("pyramidHeight: %d\ngridSize: [%d, %d]\nborder:[%d, %d]\nblockGrid:[%d, %d]\ntargetBlock:[%d, %d]\n",\
-	pyramid_height, grid_cols, grid_rows, borderCols, borderRows, blockCols, blockRows, smallBlockCol, smallBlockRow);
+	   pyramid_height, grid_cols, grid_rows, borderCols, borderRows, blockCols, blockRows, smallBlockCol, smallBlockRow);
 
+    #ifndef PROFILING
     readinput(FilesavingTemp, grid_rows, grid_cols, tfile);
     readinput(FilesavingPower, grid_rows, grid_cols, pfile);
+    #else
+    readRandom(FilesavingTemp, grid_rows, grid_cols);
+    readRandom(FilesavingPower, grid_rows, grid_cols);
+    #endif
 
     float *MatrixTemp[2], *MatrixPower;
     cudaMalloc((void**)&MatrixTemp[0], sizeof(float)*size);
@@ -330,7 +349,9 @@ void run(int argc, char** argv)
     printf("Ending simulation\n");
     cudaMemcpy(MatrixOut, MatrixTemp[ret], sizeof(float)*size, cudaMemcpyDeviceToHost);
 
+    #ifndef PROFILING
     writeoutput(MatrixOut,grid_rows, grid_cols, ofile);
+		#endif
 
     cudaFree(MatrixPower);
     cudaFree(MatrixTemp[0]);

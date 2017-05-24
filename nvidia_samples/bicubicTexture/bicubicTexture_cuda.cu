@@ -74,39 +74,63 @@ void render(int width, int height, float tx, float ty, float scale, float cx, fl
 {
     // call CUDA kernel, writing results to PBO memory
     thrust::window_vector<uchar4> render_window_vector(&block_d_output,1,1,1,1);
-    switch (filter_mode)
-    {
-        case MODE_NEAREST:
+  //  switch (filter_mode)
+    //{
+        // case MODE_NEAREST:
+        cudaEvent_t start, stop;
+        cudaEventCreate(&start);
+        cudaEventCreate(&stop);
+        cudaEventRecord(start);
+        tex.filterMode = cudaFilterModePoint;
+        d_render<<<gridSize, blockSize>>>(output, width, height, tx, ty, scale, cx, cy);
+
+        d_renderBicubic<<<gridSize, blockSize>>>(output, width, height, tx, ty, scale, cx, cy);
+        tex.filterMode = cudaFilterModePoint;
+
+        d_renderFastBicubic<<<gridSize, blockSize>>>(output, width, height, tx, ty, scale, cx, cy);
+        tex.filterMode = cudaFilterModeLinear;
+
+        d_renderCatRom<<<gridSize, blockSize>>>(output, width, height, tx, ty, scale, cx, cy);
+        tex.filterMode = cudaFilterModePoint;
+        cudaEventRecord(stop);
+        cudaEventSynchronize(stop);
+        float time_in_ms;
+        cudaEventElapsedTime(&time_in_ms,start,stop);
+        printf("%f",time_in_ms);
+        cudaEventCreate(&start);
+        cudaEventCreate(&stop);
+        cudaEventRecord(start);
+
             tex.filterMode = cudaFilterModePoint;
             thrust::for_each(render_window_vector.begin(),render_window_vector.end(),d_render_functor(tx,ty,scale,cx,cy));
-            d_render<<<gridSize, blockSize>>>(output, width, height, tx, ty, scale, cx, cy);
-            break;
+            // break;
 
-        case MODE_BILINEAR:
+        // case MODE_BILINEAR:
             tex.filterMode = cudaFilterModeLinear;
             // thrust::for_each(render_window_vector.begin(),render_window_vector.end(),d_render_functor(tx,ty,scale,cx,cy));
             // d_render<<<gridSize, blockSize>>>(output, width, height, tx, ty, scale, cx, cy);
-            break;
+            // break;
 
-        case MODE_BICUBIC:
+        // case MODE_BICUBIC:
             tex.filterMode = cudaFilterModePoint;
             thrust::for_each(render_window_vector.begin(),render_window_vector.end(),d_renderBicubic_functor(tx,ty,scale,cx,cy));
             thrust::for_each(thrust::cuda::shared,render_window_vector.begin(),render_window_vector.end(),d_renderBicubic_functor(tx,ty,scale,cx,cy));
-            d_renderBicubic<<<gridSize, blockSize>>>(output, width, height, tx, ty, scale, cx, cy);
-            break;
+            // break;
 
-        case MODE_FAST_BICUBIC:
+        // case MODE_FAST_BICUBIC:
             tex.filterMode = cudaFilterModeLinear;
             thrust::for_each(render_window_vector.begin(),render_window_vector.end(),d_renderFastBicubic_functor(tx,ty,scale,cx,cy));
-            d_renderFastBicubic<<<gridSize, blockSize>>>(output, width, height, tx, ty, scale, cx, cy);
-            break;
+            // break;
 
-        case MODE_CATROM:
+        // case MODE_CATROM:
             tex.filterMode = cudaFilterModePoint;
             thrust::for_each(render_window_vector.begin(),render_window_vector.end(),d_renderCatrom_functor(tx,ty,scale,cx,cy));
-            d_renderCatRom<<<gridSize, blockSize>>>(output, width, height, tx, ty, scale, cx, cy);
-            break;
-    }
+            // break;
+            cudaEventRecord(stop);
+            cudaEventSynchronize(stop);
+            cudaEventElapsedTime(&time_in_ms,start,stop);
+            printf(" %f\n",time_in_ms);
+    // }
 
     getLastCudaError("kernel failed");
 }

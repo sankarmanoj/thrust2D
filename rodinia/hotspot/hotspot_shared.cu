@@ -85,6 +85,20 @@ void readinput(float * vect, int grid_rows, int grid_cols, char *file){
 	fclose(fp);
 
 }
+
+void readRandom(float * vect, int grid_rows, int grid_cols ){
+
+	int i,j;
+
+
+	for (i=0; i <= grid_rows-1; i++)
+	for (j=0; j <= grid_cols-1; j++)
+	{
+
+		vect[i*grid_cols+j] = float(rand() % 100)/1000 + 323;
+	}
+}
+
 #define MIN(a, b) ((a)<=(b) ? (a) : (b))
 
 
@@ -193,8 +207,13 @@ public:
 		if( !FilesavingPower || !FilesavingTemp)
 		fatal((char *)"unable to allocate memory");
 
+		#ifndef PROFILING
 		readinput(FilesavingTemp, grid_rows, grid_cols, tfile);
 		readinput(FilesavingPower, grid_rows, grid_cols, pfile);
+		#else
+		readRandom(FilesavingTemp, grid_rows, grid_cols);
+		readRandom(FilesavingPower, grid_rows, grid_cols);
+		#endif
 		thrust::block_2d<float> TemperatureBlock(grid_rows,grid_cols);
 		thrust::block_2d<float> PowerBlock(grid_rows,grid_cols);
 		TemperatureBlock.upload(FilesavingTemp);
@@ -227,6 +246,8 @@ public:
 			thrust::transform(thrust::cuda::shared,wv.begin(),wv.end(),wp.begin(),functor);
 		}
 		printf("Ending simulation\n");
+		#ifndef PROFILING
 		TemperatureBlock.download(&FilesavingTemp);
 		writeoutput(FilesavingTemp,grid_rows, grid_cols, ofile);
+		#endif
 	}

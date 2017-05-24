@@ -34,7 +34,7 @@
 ################################################################################
 
 # Location of the CUDA Toolkit
-CUDA_PATH ?= "/usr/local/cuda-8.0"
+CUDA_PATH ?= "/usr/"
 
 ##############################
 # start deprecated interface #
@@ -148,7 +148,7 @@ else ifneq ($(TARGET_ARCH),$(HOST_ARCH))
     endif
 endif
 HOST_COMPILER ?= g++-5
-NVCC          := $(CUDA_PATH)/bin/nvcc -ccbin $(HOST_COMPILER)
+NVCC          := $(CUDA_PATH)/bin/nvcc -ccbin $(HOST_COMPILER) -Xcompiler -fPIC
 
 # internal flags
 NVCCFLAGS   := -m${TARGET_SIZE}

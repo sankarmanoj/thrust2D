@@ -24,7 +24,6 @@
 #define FACTOR_CHIP	0.5
 
 #define AMBIENT_TEMP 80
-
 /* chip parameters	*/
 float t_chip = 0.0005;
 float chip_height = 0.016;
@@ -85,6 +84,19 @@ void readinput(float * vect, int grid_rows, int grid_cols, char *file){
 	fclose(fp);
 
 }
+void readRandom(float * vect, int grid_rows, int grid_cols ){
+
+	int i,j;
+
+
+	for (i=0; i <= grid_rows-1; i++)
+	for (j=0; j <= grid_cols-1; j++)
+	{
+
+		vect[i*grid_cols+j] = float(rand() % 100)/1000 + 323;
+	}
+}
+
 #define MIN(a, b) ((a)<=(b) ? (a) : (b))
 
 
@@ -187,17 +199,22 @@ public:
 		ofile=argv[6];
 
 		size=grid_rows*grid_cols;
+		thrust::block_2d<float> TemperatureBlock(grid_rows,grid_cols);
+		thrust::block_2d<float> PowerBlock(grid_rows,grid_cols);
+		thrust::device_vector<int> null_vector(grid_rows*grid_cols);
 
 		FilesavingTemp = (float *) malloc(size*sizeof(float));
 		FilesavingPower = (float *) malloc(size*sizeof(float));
-
 		if( !FilesavingPower || !FilesavingTemp)
 		fatal((char *)"unable to allocate memory");
 
+		#ifndef PROFILING
 		readinput(FilesavingTemp, grid_rows, grid_cols, tfile);
 		readinput(FilesavingPower, grid_rows, grid_cols, pfile);
-		thrust::block_2d<float> TemperatureBlock(grid_rows,grid_cols);
-		thrust::block_2d<float> PowerBlock(grid_rows,grid_cols);
+		#else
+		readRandom(FilesavingTemp, grid_rows, grid_cols);
+		readRandom(FilesavingPower, grid_rows, grid_cols);
+		#endif
 		TemperatureBlock.upload(FilesavingTemp);
 		PowerBlock.upload(FilesavingPower);
 		printf("Start computing the transient temperature\n");
@@ -225,10 +242,11 @@ public:
 			HotspotFunctor functor(required_iterations,grid_cols,grid_rows,step_div_Cap,Rx_1,Ry_1,Rz_1);
 			thrust::window_vector<float> wv(&(TemperatureBlock),3,3,1,1);
 			thrust::window_vector<float> wp(&(PowerBlock),3,3,1,1);
-			thrust::device_vector<int> null_vector(grid_rows*grid_cols);
 			thrust::transform(wv.begin(),wv.end(),wp.begin(),null_vector.begin(),functor);
 		}
 		printf("Ending simulation\n");
+		#ifndef PROFILING
 		TemperatureBlock.download(&FilesavingTemp);
 		writeoutput(FilesavingTemp,grid_rows, grid_cols, ofile);
+		#endif
 	}

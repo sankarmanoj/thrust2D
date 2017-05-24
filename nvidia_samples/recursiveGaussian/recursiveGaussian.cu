@@ -300,10 +300,10 @@ void initCudaBuffers()
     unsigned int size = width * height * sizeof(unsigned int);
 
     // allocate device memory
-    checkCudaErrors(cudaMalloc((void **) &d_img, size));
-    checkCudaErrors(cudaMalloc((void **) &d_temp, size));
+    // checkCudaErrors(cudaMalloc((void **) &d_img, size));
+    // checkCudaErrors(cudaMalloc((void **) &d_temp, size));
 
-    checkCudaErrors(cudaMemcpy(d_img, h_img, size, cudaMemcpyHostToDevice));
+    // checkCudaErrors(cudaMemcpy(d_img, h_img, size, cudaMemcpyHostToDevice));
 
     sdkCreateTimer(&timer);
 }
@@ -361,7 +361,7 @@ benchmark(int iterations)
     // allocate memory for result
     unsigned int *d_result;
     unsigned int size = width * height * sizeof(unsigned int);
-    checkCudaErrors(cudaMalloc((void **) &d_result, size));
+    // checkCudaErrors(cudaMalloc((void **) &d_result, size));
     thrust::block_2d<unsigned int> block_d_output (width,height,0);
     thrust::block_2d<unsigned int> block_d_input (width,height,0);
     // warm-up
@@ -397,7 +397,7 @@ runSingleTest(const char *ref_file, const char *exec_path)
     int nTotalErrors = 0;
     unsigned int *d_result;
     unsigned int size = width * height * sizeof(unsigned int);
-    checkCudaErrors(cudaMalloc((void **) &d_result, size));
+    // checkCudaErrors(cudaMalloc((void **) &d_result, size));
 
     // warm-up
     thrust::block_2d<unsigned int> block_d_output (width,height,0);
