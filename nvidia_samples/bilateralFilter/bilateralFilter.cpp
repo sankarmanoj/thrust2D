@@ -413,8 +413,22 @@ void initGLResources()
 int runBenchmark(int argc, char **argv)
 {
     printf("[runBenchmark]: [%s]\n", sSDKsample);
-
+    #ifdef PROFILING
+    if(argc==3)
+    {
+      printf("Size is =");
+      printf("%d",atoi(argv[2]));
+      width=atoi(argv[2]);
+      height = atoi(argv[2]);
+      hImage = (unsigned int*)malloc(sizeof(uchar4)*width*height);
+      for(int i = 0; i<width*height;i++)
+      {
+        hImage[i]=rand();
+      }
+    }
+    #else
     loadImageData(argc, argv);
+    #endif
     initCuda();
 
     unsigned int *dResult;

@@ -100,10 +100,14 @@ int main(int argc, char const *argv[])
   thrust::window_vector<uchar> inputVector(&uchar_image_block,1,1,1,1);
   thrust::window_vector<uchar> input_wv(&outBlock,dim,dim,1,1);
   pyrdownTransformFunctor ptf(&outBlock);
-  thrust::for_each(inputVector.begin(),inputVector.end(),ptf);
-  cudaDeviceSynchronize();
   thrust::window_vector<uchar> output_wv(&output_image_block,dim,dim,1,1);
+  double start, end;
+  start = omp_get_wtime();
+  thrust::for_each(inputVector.begin(),inputVector.end(),ptf);
   thrust::transform(input_wv.begin(),input_wv.end(),output_wv.begin(),null_block.begin(),convolutionFunctor(dim,hkernel));
+
+  end = omp_get_wtime();
+  printf("%f\n",(end-start));
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(output_image_block.end()-output_image_block.begin()));
   output_image_block.download(&img);
   for(int i = 0; i<image.cols*image.rows*4;i++)
@@ -111,5 +115,14 @@ int main(int argc, char const *argv[])
     outputFloatImageData[i]=(unsigned char)img_out[i];
   }
   Mat output (Size(image.cols*2,image.rows*2),CV_8UC1,outputFloatImageData);
+  #ifdef OWRITE
+  imwrite("input.png",image);
+  imwrite("output.png",output);
+  #endif
+  #ifdef SHOW
+  imshow("input.png",image);
+  imshow("output.png",output);
+  waitKey(0);
+  #endif
   return 0;
 }

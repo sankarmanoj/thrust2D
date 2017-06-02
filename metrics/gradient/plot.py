@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import sys
 import json
 data = json.load(open("result.json","r"))
+plt.title("Gradient")
 
 
 plt.xlabel("Dimension")

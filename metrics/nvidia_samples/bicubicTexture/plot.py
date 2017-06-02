@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import sys
 import json
 data = json.load(open("result.json","r"))
-
+plt.title("BicubicTexture")
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")

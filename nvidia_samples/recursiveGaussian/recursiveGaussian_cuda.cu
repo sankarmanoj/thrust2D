@@ -140,13 +140,13 @@ void gaussianFilterRGBA(uint *d_src,thrust::block_2d<unsigned int> &block_d_inpu
     thrust::window_vector<unsigned int> output_window_vector(&block_d_output,1,height,1,1);
     thrust::block_2d<unsigned int> null_vector(width,height);
     // process columns
-#if USE_SIMPLE_FILTER
-    d_simpleRecursive_rgba<<< iDivUp(width, nthreads), nthreads >>>(d_src, d_temp, width, height, ema);
-#else
+// #if USE_SIMPLE_FILTER
+    // d_simpleRecursive_rgba<<< iDivUp(width, nthreads), nthreads >>>(d_src, d_temp, width, height, ema);
+// #else
 
    thrust::transform(input_window_vector.begin(),input_window_vector.end(),output_window_vector.begin(),null_vector.begin(),d_recursiveGaussian_functor(width, height, a0, a1, a2, a3, b1, b2, coefp, coefn));
-    // d_recursiveGaussian_rgba<<< iDivUp(width, nthreads), nthreads >>>(d_src, d_temp, width, height, a0, a1, a2, a3, b1, b2, coefp, coefn);
-#endif
+    d_recursiveGaussian_rgba<<< iDivUp(width, nthreads), nthreads >>>(d_src, d_temp, width, height, a0, a1, a2, a3, b1, b2, coefp, coefn);
+// #endif
     getLastCudaError("Kernel execution failed");
 
     transpose(d_temp, d_dest, width, height);

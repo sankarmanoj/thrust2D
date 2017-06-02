@@ -15,7 +15,7 @@ namespace thrust
 
     shared_memory[threadIdx.y*mConfiguration.shared_size_x+threadIdx.x]=(*(input1->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y)];
     shared_memory_2[ threadIdx.y*mConfiguration.shared_size_x+threadIdx.x]=(*(input2->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y)];
-    if(threadIdx.y>=mConfiguration.warp_size-mConfiguration.padding)
+    if(threadIdx.y>=mConfiguration.warp_size-mConfiguration.padding&&(blockIdx.y*mConfiguration.warp_size + (threadIdx.y+mConfiguration.padding))<mConfiguration.block_dim_y)
     {
       shared_memory[(threadIdx.y+mConfiguration.padding)*mConfiguration.shared_size_x+threadIdx.x]=(*(input1->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + (threadIdx.y+mConfiguration.padding))];
       shared_memory_2[ (threadIdx.y+mConfiguration.padding)*mConfiguration.shared_size_x+threadIdx.x]=(*(input2->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + (threadIdx.y+mConfiguration.padding))];
@@ -87,16 +87,16 @@ namespace thrust
   {
     extern __shared__ T1 shared_memory [];
     shared_memory[threadIdx.y*mConfiguration.shared_size_x+threadIdx.x]=(*(input->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y)];
-    if(threadIdx.y>=mConfiguration.warp_size-mConfiguration.padding)
+    if(threadIdx.y>=mConfiguration.warp_size-mConfiguration.padding&&(blockIdx.y*mConfiguration.warp_size + (threadIdx.y+mConfiguration.padding))<mConfiguration.block_dim_y)
     {
       shared_memory[(threadIdx.y+mConfiguration.padding)*mConfiguration.shared_size_x+threadIdx.x]=(*(input->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + (threadIdx.y+mConfiguration.padding))];
 
     }
-    if(threadIdx.x>=mConfiguration.warp_size-mConfiguration.padding)
+    if(threadIdx.x>=mConfiguration.warp_size-mConfiguration.padding&&(blockIdx.x*mConfiguration.warp_size + threadIdx.x+mConfiguration.padding)<mConfiguration.block_dim_x)
     {
       shared_memory[threadIdx.y*mConfiguration.shared_size_x+threadIdx.x+mConfiguration.padding]=(*(input->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x+mConfiguration.padding,blockIdx.y*mConfiguration.warp_size + threadIdx.y)];
     }
-    if(threadIdx.x>=mConfiguration.warp_size-mConfiguration.padding&&threadIdx.y>=mConfiguration.warp_size-mConfiguration.padding)
+    if(threadIdx.x>=mConfiguration.warp_size-mConfiguration.padding&&threadIdx.y>=mConfiguration.warp_size-mConfiguration.padding&&(blockIdx.y*mConfiguration.warp_size + (threadIdx.y+mConfiguration.padding))<mConfiguration.block_dim_y)
     {
       shared_memory[(threadIdx.y+mConfiguration.padding)*mConfiguration.shared_size_x+threadIdx.x+mConfiguration.padding]=(*(input->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x+mConfiguration.padding,blockIdx.y*mConfiguration.warp_size + threadIdx.y+mConfiguration.padding)];
     }

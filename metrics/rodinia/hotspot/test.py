@@ -10,13 +10,12 @@ execs = [ x for x in  os.listdir(path) if x.partition(".")[2]=="out" ]
 print execs
 for texec in execs:
     results[texec]=[]
-dims = [2**x for x in range(6,10)]
-dims.remove(512)
+dims = range(10,1100,20)
 for dim in dims:
     print str(dim)+"  ",
     for texec in execs:
         print texec,
-        print os.popen("nvprof -u us --csv --log-file log.txt ./%s %d 1 4 temp_512 power_512 result"%(texec,dim)).read()
+        print os.popen("nvprof -u us --csv --log-file log.txt ./%s %d 1 6 temp_512 power_512 result"%(texec,dim)).read()
         with open("log.txt","r") as x:
             cr = csv.reader(x)
             cr.next()
@@ -38,4 +37,5 @@ for dim in dims:
 
 os.system("rm log.txt")
 os.chdir(original_path)
+json.dump(dims,open("dims.json","w"))
 json.dump(results,open("result.json","w"),indent=4,sort_keys = True, separators=(',', ': '))

@@ -104,10 +104,14 @@ int main(int argc, char const *argv[])
   uchar_image_block.upload(img);
   thrust::window_vector<uchar> input_wv(&uchar_image_block,dim,dim,1,1);
   thrust::window_vector<uchar> output_wv(&output_image_block,dim,dim,1,1);
-  thrust::transform(input_wv.begin(),input_wv.end(),output_wv.begin(),null_block.begin(),convolutionFunctor(dim,hkernel));
   thrust::window_vector<uchar> inputVector(&outBlock,1,1,1,1);
   pyrupTransformFunctor ptf(&output_image_block);
+  double start, end;
+  start = omp_get_wtime();
   thrust::for_each(inputVector.begin(),inputVector.end(),ptf);
+  thrust::transform(input_wv.begin(),input_wv.end(),output_wv.begin(),null_block.begin(),convolutionFunctor(dim,hkernel));
+  end = omp_get_wtime();
+  printf("%f\n",(end-start));
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(outBlock.end()-outBlock.begin()));
   output_image_block.download(&img);
   for(int i = 0; i<(outBlock.end()-outBlock.begin());i++)
@@ -115,5 +119,14 @@ int main(int argc, char const *argv[])
     outputFloatImageData[i]=(unsigned char)img1[i];
   }
   Mat output (Size(image.cols/2,image.rows/2),CV_8UC1,outputFloatImageData);
+  #ifdef OWRITE
+  imwrite("input.png",image);
+  imwrite("output.png",output);
+  #endif
+  #ifdef SHOW
+  imshow("input.png",image);
+  imshow("output.png",output);
+  waitKey(0);
+  #endif
   return 0;
 }

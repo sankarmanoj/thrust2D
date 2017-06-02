@@ -34,7 +34,8 @@
 ################################################################################
 
 # Location of the CUDA Toolkit
-CUDA_PATH ?= "/usr/local/cuda-8.0"
+CUDA_PATH ?= "/usr/"
+
 
 ##############################
 # start deprecated interface #
@@ -147,8 +148,8 @@ else ifneq ($(TARGET_ARCH),$(HOST_ARCH))
         HOST_COMPILER ?= powerpc64le-linux-gnu-g++
     endif
 endif
-HOST_COMPILER ?= g++
-NVCC          := $(CUDA_PATH)/bin/nvcc -ccbin $(HOST_COMPILER)
+HOST_COMPILER ?= g++-5
+NVCC          := $(CUDA_PATH)/bin/nvcc  -ccbin $(HOST_COMPILER)
 
 # internal flags
 NVCCFLAGS   := -m${TARGET_SIZE}
@@ -184,7 +185,7 @@ endif
 
 # Debug build flags
 ifeq ($(dbg),1)
-      NVCCFLAGS += -g -G
+      NVCCFLAGS += -g -G -DDEBUG
       BUILD_TYPE := debug
 else
       BUILD_TYPE := release
@@ -237,7 +238,7 @@ endif
 # Target rules
 all: build
 
-build: convolutionSeparable convolutionSeparable-thrust
+build: convolutionSeparable.out convolutionSeparable-thrust.out
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -259,13 +260,13 @@ main.o:main.cu
 main-thrust.o:main-thrust.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-convolutionSeparable-thrust: main-thrust.o convolutionSeparable_gold.o
-		$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
+convolutionSeparable-thrust.out: main-thrust.cu convolutionSeparable_gold.cpp
+		$(EXEC) $(NVCC)  $(INCLUDES) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 		$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 		$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
-convolutionSeparable: convolutionSeparable.o convolutionSeparable_gold.o main.o
-	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
+convolutionSeparable.out: convolutionSeparable.cu convolutionSeparable_gold.cpp main.cu
+	$(EXEC) $(NVCC)  $(INCLUDES) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
@@ -273,6 +274,7 @@ run: build
 	$(EXEC) ./convolutionSeparable
 
 clean:
+	rm -f *.out
 	rm -f convolutionSeparable convolutionSeparable.o convolutionSeparable_gold.o main.o
 	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/convolutionSeparable
 

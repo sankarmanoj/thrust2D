@@ -65,6 +65,11 @@ int main(int argc, char const *argv[]) {
   {
     dim_image = atoi(argv[1]);
   }
+  if(argc==3)
+  {
+    dim_image = atoi(argv[1]);
+    omp_set_num_threads(atoi(argv[2]));
+  }
   resize(small,image,Size(dim_image,dim_image));
   float *hkernel = (float *) std::malloc(sizeof(float) * dim*dim);
   getGaussianKernelBlock(dim,5,hkernel);
@@ -79,13 +84,26 @@ int main(int argc, char const *argv[]) {
   uchar_image_block.upload(img);
   thrust::window_vector<uchar> input_wv(&uchar_image_block,dim,dim,1,1);
   thrust::window_vector<uchar> output_wv(&output_image_block,dim,dim,1,1);
+  double start, end;
+  start = omp_get_wtime();
   thrust::transform(input_wv.begin(),input_wv.end(),output_wv.begin(),null_block.begin(),convolutionFunctor(dim,hkernel));
+  end = omp_get_wtime();
+  printf("%f\n",(end-start));
   unsigned char * toutputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   output_image_block.download(&img);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     toutputFloatImageData[i]=(unsigned char)img[i];
   }
-  Mat toutput (Size(image.cols,image.rows),CV_8UC1,toutputFloatImageData);
+  Mat output (Size(image.cols,image.rows),CV_8UC1,toutputFloatImageData);
+  #ifdef OWRITE
+  imwrite("input.png",image);
+  imwrite("output.png",output);
+  #endif
+  #ifdef SHOW
+  imshow("input.png",image);
+  imshow("output.png",output);
+  waitKey(0);
+  #endif
   return 0;
 }

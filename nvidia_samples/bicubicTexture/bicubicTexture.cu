@@ -87,6 +87,7 @@ unsigned int g_TotalErrors = 0;
 StopWatchInterface *timer = 0;
 bool g_Verify      = false;
 
+int count = 0;
 int *pArgc = NULL;
 char **pArgv = NULL;
 
@@ -128,7 +129,7 @@ const char *sReference[] =
 
 const char *srcImageFilename = "lena_bw.pgm";
 char *dumpFilename = NULL;
-
+void keyboard(unsigned char key, int /*x*/, int /*y*/);
 uint width = 512, height = 512;
 uint imageWidth, imageHeight;
 dim3 blockSize(16, 16);
@@ -325,6 +326,11 @@ void display()
     sdkStopTimer(&timer);
 
     computeFPS();
+    if(count>=10)
+    {
+      keyboard(27,0,0);
+    }
+    count++;
 }
 
 // GLUT callback functions
@@ -600,9 +606,15 @@ void runAutoTest(int argc, char **argv, const char *dump_filename, eFilterMode f
 
     printf("[%s] (automated testing w/ readback)\n", sSDKsample);
     printf("CUDA device [%s] has %d Multi-Processors\n", deviceProps.name, deviceProps.multiProcessorCount);
-
+    #ifdef PROFILING
+    imageWidth = atoi(argv[3]);
+    imageHeight = atoi(argv[3]);
+    // initTexture(imageWidth, imageHeight, h_data);
+    width = imageWidth;
+    height = imageHeight;
+    #else
     loadImageData(argc, argv);
-
+    #endif
     uchar4 *d_output;
     checkCudaErrors(cudaMalloc((void **)&d_output, imageWidth*imageHeight*4));
     thrust::block_2d<uchar4> block_d_output (imageWidth,imageHeight);
@@ -618,10 +630,10 @@ void runAutoTest(int argc, char **argv, const char *dump_filename, eFilterMode f
     getLastCudaError("Error: render (bicubicTexture) Kernel execution FAILED");
     checkCudaErrors(cudaDeviceSynchronize());
 
+    #ifndef PROFILING
     cudaMemcpy(h_result, block_d_output.data_pointer, imageWidth*imageHeight*4, cudaMemcpyDeviceToHost);
-
     sdkSavePPM4ub(dump_filename, (unsigned char *)h_result, imageWidth, imageHeight);
-
+    #endif
     checkCudaErrors(cudaFree(d_output));
     free(h_result);
 }

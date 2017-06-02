@@ -1,6 +1,7 @@
 #define THRUST_DEVICE_SYSTEM 2
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
+#include <omp.h>
 using namespace cv;
 class AffineTransformFunctor
 {
@@ -29,6 +30,11 @@ int main(int argc, char const *argv[]) {
   if(argc ==2)
   {
     dim = atoi(argv[1]);
+  }
+  if(argc==3)
+  {
+    dim = atoi(argv[1]);
+    omp_set_num_threads(atoi(argv[2]));
   }
   cv::resize(image,image,cv::Size(dim,dim));
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows,0.0f);
@@ -65,6 +71,12 @@ int main(int argc, char const *argv[]) {
   //Create Windows For Indexing
   thrust::window_vector<uchar> inputVector(&uchar_image_block,1,1,1,1);
   AffineTransformFunctor atf(&warp_block,&outBlock);
+  double start, end;
+  start = omp_get_wtime();
+
+  end = omp_get_wtime();
+  printf("%f\n",(end-start));
+
   thrust::for_each(inputVector.begin(),inputVector.end(),atf);
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   outBlock.download(&img);
@@ -73,5 +85,14 @@ int main(int argc, char const *argv[]) {
     outputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
+  #ifdef OWRITE
+  imwrite("input.png",image);
+  imwrite("output.png",output);
+  #endif
+  #ifdef SHOW
+  imshow("input.png",image);
+  imshow("output.png",output);
+  waitKey(0);
+  #endif
   return 0;
 }

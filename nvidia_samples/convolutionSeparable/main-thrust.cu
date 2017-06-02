@@ -47,13 +47,14 @@ extern "C" void convolutionColumnCPU(
 );
 
 
-
+int imageW , imageH;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Main program
 ////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char **argv)
 {
+
     // start logs
     printf("[%s] - Starting...\n", argv[0]);
 
@@ -64,9 +65,18 @@ int main(int argc, char **argv)
     *h_OutputCPU,
     *h_OutputGPU;
 
-
-    const int imageW = 3072;
-    const int imageH = 3072;
+    if(argc==2)
+    {
+      printf("Size = ");
+      printf("%d",atoi(argv[1]));
+       imageW = atoi(argv[1]);
+       imageH = atoi(argv[1]);
+    }
+    else
+    {
+       imageW = 3072;
+       imageH = 3072;
+    }
     const int iterations = 16;
 
     StopWatchInterface *hTimer = NULL;

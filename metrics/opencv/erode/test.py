@@ -9,7 +9,7 @@ print path, app_name
 results = []
 execs = [ "shared/"+app_name, "non_shared/"+app_name,"opencv/"+app_name ]
 print execs
-dims = range(1000,5000,200) + range(5000,20000,500)
+dims = range(10,1000,20)
 for texec in execs:
     times = {".name":texec}
     print texec,
@@ -41,4 +41,5 @@ print "\n"
 
 os.system("rm log.txt")
 os.chdir(original_path)
+json.dump(dims,open("dims.json","w"))
 json.dump(results,open("result.json","w"),indent=4,sort_keys = True, separators=(',', ': '))

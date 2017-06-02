@@ -2,6 +2,7 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
 #define PI 3.14159
+#define ITER 50
 using namespace cv;
 class transFunctor
 {
@@ -88,15 +89,31 @@ int main(int argc, char const *argv[]) {
   thrust::window_vector<uchar> output_wv_x(&convolve1_block,3,3,1,1);
   thrust::window_vector<uchar> output_wv_y(&convolve2_block,3,3,1,1);
 
-  thrust::transform(input_wv.begin(),input_wv.end(),output_wv_x.begin(),zero_image_block.begin(),convolutionFunctor(dkernelx.device_pointer,3));
-  thrust::transform(input_wv.begin(),input_wv.end(),output_wv_y.begin(),zero_image_block.begin(),convolutionFunctor(dkernely.device_pointer,3));
-  thrust::transform(convolve1_block.begin(),convolve1_block.end(),convolve2_block.begin(),outBlock.begin(),transFunctor());
+  double start, end;
+  start = omp_get_wtime();
+  for(int i = 0; i< ITER;i++)
+  {
+    thrust::transform(input_wv.begin(),input_wv.end(),output_wv_x.begin(),zero_image_block.begin(),convolutionFunctor(dkernelx.device_pointer,3));
+    thrust::transform(input_wv.begin(),input_wv.end(),output_wv_y.begin(),zero_image_block.begin(),convolutionFunctor(dkernely.device_pointer,3));
+    thrust::transform(convolve1_block.begin(),convolve1_block.end(),convolve2_block.begin(),outBlock.begin(),transFunctor());
+  }
+  end = omp_get_wtime();
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   outBlock.download(&img);
+  printf("%f\n",(end-start)/ITER);
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     outputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
+  #ifdef OWRITE
+  imwrite("input.png",image);
+  imwrite("output.png",output);
+  #endif
+  #ifdef SHOW
+  imshow("input.png",image);
+  imshow("output.png",output);
+  waitKey(0);
+  #endif
   return 0;
 }

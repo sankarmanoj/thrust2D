@@ -1,4 +1,5 @@
 #define THRUST_DEVICE_SYSTEM 2
+#define ITER 50
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
 using namespace cv;
@@ -17,12 +18,17 @@ public:
 };
 int main(int argc, char const *argv[]) {
   Mat input1 = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
-  Mat input2 = imread("car.jpg",CV_LOAD_IMAGE_GRAYSCALE);
+  Mat input2 = imread("corners.png",CV_LOAD_IMAGE_GRAYSCALE);
   Mat temp1;
   int dim = 512;
   if(argc ==2)
   {
     dim = atoi(argv[1]);
+  }
+  if(argc==3)
+  {
+    dim = atoi(argv[1]);
+    omp_set_num_threads(atoi(argv[2]));
   }
   resize(input1,temp1,Size(dim,dim));
   input1 = temp1;
@@ -46,12 +52,28 @@ int main(int argc, char const *argv[]) {
   input_image_block_2.upload(ucharImageData);
   thrust::window_vector<uchar> inputWindow1 (&input_image_block_1,1,1,1,1);
   thrust::window_vector<uchar> inputWindow2 (&input_image_block_2,1,1,1,1);
+  double start, end;
+  start = omp_get_wtime();
+  for(int i = 0 ; i<ITER;i++)
   thrust::transform(inputWindow1.begin(),inputWindow1.end(),inputWindow2.begin(),output_image_block.begin(),blendFunctor(0.5));
+  end = omp_get_wtime();
+  printf("%f\n",(end-start)/ITER);
   output_image_block.download(&ucharImageData);
   for(int i = 0; i<input1.cols*input1.rows;i++)
   {
     charImageData[i]=(unsigned char)ucharImageData[i];
   }
   Mat output (Size(input1.cols,input1.rows),CV_8UC1,charImageData);
+  #ifdef OWRITE
+  imwrite("blend-input1.png",input1);
+  imwrite("blend-input2.png",input2);
+  imwrite("blend-output.png",output);
+  #endif
+  #ifdef SHOW
+  imshow("blend-input1.png",input1);
+  imshow("blend-input2.png",input2);
+  imshow("blend-output.png",output);
+  waitKey(0);
+  #endif
   return 0;
 }

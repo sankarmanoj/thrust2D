@@ -33,7 +33,7 @@
 #include "convolutionTexture_common.h"
 
 
-
+int imageW , imageH;
 ////////////////////////////////////////////////////////////////////////////////
 // Main program
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,8 +59,19 @@ int main(int argc, char **argv)
 
     StopWatchInterface *hTimer = NULL;
 
-    const int imageW = 3072;
-    const int imageH = 3072 / 2;
+
+    if(argc==2)
+    {
+      printf("Size = ");
+      printf("%d",atoi(argv[1]));
+       imageW = atoi(argv[1]);
+       imageH = atoi(argv[1]);
+    }
+    else
+    {
+       imageW = 3072;
+       imageH = 3072;
+    }
     const unsigned int iterations = 10;
 
     printf("[%s] - Starting...\n", argv[0]);

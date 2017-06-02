@@ -4,6 +4,7 @@ import json
 from os.path import dirname, abspath
 d = (dirname(abspath(__file__)))
 data = json.load(open(d+"/result.json","r"))
+plt.title("Particle Filter")
 
 
 plt.xlabel("Dimension")

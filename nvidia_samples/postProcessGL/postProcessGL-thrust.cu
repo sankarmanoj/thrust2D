@@ -133,7 +133,7 @@ __device__ operator() (thrust::window_2d<unsigned int> input, thrust::window_2d<
 //     g_odata[y*imgw+x] = rgbToInt(rsum, gsum, bsum);
     output[0][0]=input[0][0];
     //g_odata[y*imgw+x] = rgbToInt(x,y,0);
-#endif
+// #endif
 }
 
 extern "C" void
@@ -176,7 +176,7 @@ launch_cudaProcess(dim3 grid, dim3 block, int sbytes,
       thrust::block_2d<int> input_block(imgw,imgh);
       input_block.upload(g_data_array,cudaMemoryTypeDevice);
       thrust::block_2d<int>output_block(imgw,imgh);
-      
+
 
 #ifdef GPU_PROFILING
     }

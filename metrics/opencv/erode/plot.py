@@ -2,15 +2,16 @@ import matplotlib.pyplot as plt
 import sys
 import json
 data = json.load(open("result.json","r"))
-
+plt.title("Erode")
+dims = json.load(open("dims.json","r"))
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
 names = {"non_shared/erode.o":"Non Shared","shared/erode.o":"Shared","opencv/erode.o":"Native"}
 colors = {"Non Shared":"r","Shared":"g","Native":"b"}
 for app in data:
-    dims = []
-    total = []
+    dims = range(10,1000,20)
+    total = [0 for x in dims]
     keys = app.keys()
     print app['.name']
     keys.remove(".name")
@@ -20,16 +21,11 @@ for app in data:
         print len(app[key])," ",
     print ""
     nkeys = len(keys)
-    for pos in range(len(app[keys[0]])):
-        dims.append(app[keys[0]][pos][0])
-        tval = 0
-        for x in range(nkeys):
-            try:
-                tval+=app[keys[x]][pos][1]
-            except:
-                print "Value does not exist at ",keys[x],":",pos,"for ",app['.name']
-        total.append(tval)
+    for kernel in keys:
+        for value in app[kernel]:
+            total[dims.index(value[0])]+=value[1]
     plt.plot(dims,total,colors[names[app[".name"]]],label=names[app[".name"]])
+
 
 plt.legend(loc=2)
 

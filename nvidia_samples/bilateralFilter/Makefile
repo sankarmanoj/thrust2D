@@ -1,7 +1,7 @@
 
 NVCC          := nvcc
 # internal flags
-NVCCFLAGS   :=  -std=c++11
+NVCCFLAGS   :=  -std=c++11 -DPROFILING
 CCFLAGS     :=
 LDFLAGS     :=
 
@@ -63,7 +63,7 @@ endif
 # Target rules
 all: build
 
-build: bilateralFilter thrust_bilateralFilter shared_bilateralFilter texture_bilateralFilter
+build: _bilateralFilter thrust_bilateralFilter shared_bilateralFilter texture_bilateralFilter
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -84,7 +84,7 @@ bilateral_kernel.o:bilateral_kernel.cu
 bmploader.o:bmploader.cpp
 	 $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-bilateralFilter: bilateralFilter.o bilateralFilter_cpu.o bilateral_kernel.o bmploader.o
+_bilateralFilter: bilateralFilter.o bilateralFilter_cpu.o bilateral_kernel.o bmploader.o
 	 $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 
 thrust_bilateralFilter: bilateralFilter.o bilateralFilter_cpu.o bilateral_kernel_thrust.cu bmploader.o

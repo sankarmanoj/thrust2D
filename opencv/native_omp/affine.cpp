@@ -1,6 +1,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include <iostream>
+#include <omp.h>
 using namespace cv;
 int main(int argc, char** argv)
 {
@@ -11,6 +12,11 @@ int main(int argc, char** argv)
   if(argc ==2)
   {
     dim = atoi(argv[1]);
+  }
+  if(argc==3)
+  {
+    dim = atoi(argv[1]);
+    omp_set_num_threads(atoi(argv[2]));
   }
   cv::resize(image,image,cv::Size(dim,dim));
   Point2f srcTri[3];
@@ -28,8 +34,20 @@ int main(int argc, char** argv)
   /// Get the Affine Transform
   warp_mat = getAffineTransform( srcTri, dstTri );
   /// Apply the Affine Transform just found to the src image
+  double start, end;
+  start = omp_get_wtime();
   warpAffine( image, warp_dst, warp_mat, warp_dst.size() );
-  imwrite("ainput.png",image);
-  imwrite("aoutput.png",warp_dst);
+  end = omp_get_wtime();
+  printf("%f\n",(end-start));
+
+  #ifdef OWRITE
+  imwrite("input.png",image);
+  imwrite("output.png",warp_dst);
+  #endif
+  #ifdef SHOW
+  imshow("input.png",image);
+  imshow("output.png",warp_dst);
+  waitKey(0);
+  #endif
   return 0;
 }

@@ -11,19 +11,12 @@ public:
   {
     this->alpha = alpha;
   }
-  __device__ void operator() (const thrust::window_2d<uchar> &inputWindow1,const thrust::window_2d<float> &inputWindow2,const thrust::window_2d<uchar> &outputWindow) const
+  __device__ void operator() (const thrust::window_2d<uchar> &inputWindow1,const thrust::window_2d<uchar> &inputWindow2,const thrust::window_2d<uchar> &outputWindow) const
   {
     outputWindow[0][0] = alpha * inputWindow1[make_int2(0,0)]+(1-alpha) *  inputWindow2[make_int2(0,0)];
   }
 };
 
-class floatFunctor{
-public:
-  __device__ float operator() (uchar x)
-  {
-    return (float)x;
-  }
-};
 
 int main(int argc, char const *argv[]) {
   int dim = 512;
@@ -58,10 +51,8 @@ int main(int argc, char const *argv[]) {
     ucharImageData2[i]=(uchar)input2.ptr()[i];
   }
   input_image_block_2.upload(ucharImageData2);
-  thrust::block_2d<float> float_input_image_block_2 (input2.cols,input2.rows);
-  thrust::transform(input_image_block_2.begin(),input_image_block_2.end(),float_input_image_block_2.begin(),floatFunctor());
   thrust::window_vector<uchar> inputWindow1 (&input_image_block_1,1,1,1,1);
-  thrust::window_vector<float> inputWindow2 (&float_input_image_block_2,1,1,1,1);
+  thrust::window_vector<uchar> inputWindow2 (&input_image_block_2,1,1,1,1);
   thrust::window_vector<uchar> outputWindow (&output_image_block,1,1,1,1);
   thrust::transform(thrust::cuda::shared,inputWindow1.begin(),inputWindow1.end(),inputWindow2.begin(),outputWindow.begin(),blendFunctor(0.8));
   output_image_block.download(&charImageData);

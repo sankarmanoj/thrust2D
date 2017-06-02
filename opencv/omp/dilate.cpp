@@ -27,6 +27,11 @@ int main(int argc, char const *argv[]) {
   {
     dim = atoi(argv[1]);
   }
+  if(argc==3)
+  {
+    dim = atoi(argv[1]);
+    omp_set_num_threads(atoi(argv[2]));
+  }
   cv::resize(image,image,cv::Size(dim,dim));
   thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
@@ -41,7 +46,11 @@ int main(int argc, char const *argv[]) {
   cudaMemcpy2D(uchar_image_block.data_pointer,uchar_image_block.pitch,img,image.cols*sizeof(uchar),image.cols,image.rows,cudaMemcpyHostToDevice);
   thrust::window_vector<uchar> myVector = thrust::window_vector<uchar>(&uchar_image_block,3,3,1,1);
   thrust::window_vector<uchar> outputVector = thrust::window_vector<uchar>(&outBlock,3,3,1,1);
+  double start, end;
+  start = omp_get_wtime();
   thrust::transform(myVector.begin(),myVector.end(),outputVector.begin(),null_block.begin(),dilateFunctor());
+  end = omp_get_wtime();
+  printf("%f\n",(end-start));
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   outBlock.download(&img);
   for(int i = 0; i<image.cols*image.rows;i++)
@@ -49,5 +58,14 @@ int main(int argc, char const *argv[]) {
     outputFloatImageData[i]=(unsigned char)img[i];
   }
   Mat output (Size(image.cols,image.rows),CV_8UC1,outputFloatImageData);
+  #ifdef OWRITE
+  imwrite("input.png",image);
+  imwrite("output.png",output);
+  #endif
+  #ifdef SHOW
+  imshow("input.png",image);
+  imshow("output.png",output);
+  waitKey(0);
+  #endif
   return 0;
 }

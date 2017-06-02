@@ -34,7 +34,7 @@
 ################################################################################
 
 # Location of the CUDA Toolkit
-CUDA_PATH ?= "/usr/local/cuda-8.0"
+CUDA_PATH ?= "/usr/"
 
 ##############################
 # start deprecated interface #
@@ -147,8 +147,8 @@ else ifneq ($(TARGET_ARCH),$(HOST_ARCH))
         HOST_COMPILER ?= powerpc64le-linux-gnu-g++
     endif
 endif
-HOST_COMPILER ?= g++
-NVCC          := $(CUDA_PATH)/bin/nvcc -ccbin $(HOST_COMPILER)
+HOST_COMPILER ?= g++-5
+NVCC          := $(CUDA_PATH)/bin/nvcc -ccbin $(HOST_COMPILER)  -Xcompiler -fPIC
 
 # internal flags
 NVCCFLAGS   := -m${TARGET_SIZE}
@@ -237,7 +237,7 @@ endif
 # Target rules
 all: build
 
-build: convolutionTexture convolutionTexture-thrust
+build: convolutionTexture.out convolutionTexture-thrust.out
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -255,14 +255,14 @@ convolutionTexture_gold.o:convolutionTexture_gold.cpp
 main.o:main.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-convolutionTexture: convolutionTexture.o convolutionTexture_gold.o main.o
-	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
+convolutionTexture.out: convolutionTexture.cu convolutionTexture_gold.cpp main.cu
+	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 
 main-thrust.o:main-thrust.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-convolutionTexture-thrust:  convolutionTexture_gold.o main-thrust.o
-	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
+convolutionTexture-thrust.out:  convolutionTexture_gold.cpp main-thrust.cu
+	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 
 run: build
 	$(EXEC) ./convolutionTexture

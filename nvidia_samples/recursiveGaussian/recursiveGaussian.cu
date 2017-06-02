@@ -300,10 +300,10 @@ void initCudaBuffers()
     unsigned int size = width * height * sizeof(unsigned int);
 
     // allocate device memory
-    // checkCudaErrors(cudaMalloc((void **) &d_img, size));
-    // checkCudaErrors(cudaMalloc((void **) &d_temp, size));
+    checkCudaErrors(cudaMalloc((void **) &d_img, size));
+    checkCudaErrors(cudaMalloc((void **) &d_temp, size));
 
-    // checkCudaErrors(cudaMemcpy(d_img, h_img, size, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_img, h_img, size, cudaMemcpyHostToDevice));
 
     sdkCreateTimer(&timer);
 }
@@ -361,10 +361,11 @@ benchmark(int iterations)
     // allocate memory for result
     unsigned int *d_result;
     unsigned int size = width * height * sizeof(unsigned int);
-    // checkCudaErrors(cudaMalloc((void **) &d_result, size));
+    checkCudaErrors(cudaMalloc((void **) &d_result, size));
     thrust::block_2d<unsigned int> block_d_output (width,height,0);
     thrust::block_2d<unsigned int> block_d_input (width,height,0);
     // warm-up
+    printf("Dimension = %dx%d \n",width,height);
     gaussianFilterRGBA(d_img,block_d_input, d_result,block_d_output, d_temp, width, height, sigma, order, nthreads);
 
     checkCudaErrors(cudaDeviceSynchronize());
@@ -397,7 +398,7 @@ runSingleTest(const char *ref_file, const char *exec_path)
     int nTotalErrors = 0;
     unsigned int *d_result;
     unsigned int size = width * height * sizeof(unsigned int);
-    // checkCudaErrors(cudaMalloc((void **) &d_result, size));
+    checkCudaErrors(cudaMalloc((void **) &d_result, size));
 
     // warm-up
     thrust::block_2d<unsigned int> block_d_output (width,height,0);
@@ -544,9 +545,18 @@ main(int argc, char **argv)
     if (runBenchmark)
     {
         printf("(Run Benchmark)\n");
+        if(argc==3)
+        {
+          cleanup();
+          width = atoi(argv[2]);
+          height = atoi(argv[2]);
+          h_img = (unsigned int *)malloc(width*height*sizeof(unsigned int));
+          memset(h_img,213,sizeof(unsigned int)*width*height);
+          initCudaBuffers();
+        }
         benchmark(100);
-
         cleanup();
+
         exit(EXIT_SUCCESS);
     }
 

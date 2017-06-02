@@ -1,400 +1,411 @@
 [
     {
-        ".name": "shared/gaussian_filter.o",
-        "void thrust::convolutionColumnsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)": [
+        ".name": "omp/gaussian_filter.o",
+        "values": [
             [
-                128,
-                5.632
+                10,
+                0.000431
             ],
             [
-                256,
-                6.016
+                30,
+                0.000334
             ],
             [
-                384,
-                9.729
+                50,
+                0.000224
             ],
             [
-                512,
-                8.929
+                70,
+                0.000448
             ],
             [
-                640,
-                15.937
+                90,
+                0.000356
             ],
             [
-                768,
-                17.729
+                110,
+                0.000384
             ],
             [
-                896,
-                25.282
+                130,
+                0.00052
             ],
             [
-                1024,
-                31.618
+                150,
+                0.000905
             ],
             [
-                1152,
-                38.915
+                170,
+                0.00101
             ],
             [
-                1280,
-                47.075
+                190,
+                0.00103
             ],
             [
-                1408,
-                55.844
+                210,
+                0.001199
             ],
             [
-                1536,
-                65.22
+                230,
+                0.001832
             ],
             [
-                1664,
-                75.717
+                250,
+                0.001369
             ],
             [
-                1792,
-                86.086
+                270,
+                0.001881
             ],
             [
-                1920,
-                97.83
+                290,
+                0.001902
             ],
             [
-                2048,
-                110.951
+                310,
+                0.002099
             ],
             [
-                2176,
-                124.008
+                330,
+                0.002001
             ],
             [
-                2304,
-                138.665
+                350,
+                0.002229
             ],
             [
-                2432,
-                154.026
-            ]
-        ],
-        "void thrust::convolutionRowsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)": [
-            [
-                128,
-                6.016
+                370,
+                0.002553
             ],
             [
-                256,
-                6.241
+                390,
+                0.002845
             ],
             [
-                384,
-                9.792
+                410,
+                0.003085
             ],
             [
-                512,
-                9.569
+                430,
+                0.003378
             ],
             [
-                640,
-                15.393
+                450,
+                0.003762
             ],
             [
-                768,
-                17.057
+                470,
+                0.004921
             ],
             [
-                896,
-                24.705
+                490,
+                0.004407
             ],
             [
-                1024,
-                31.234
+                510,
+                0.004781
             ],
             [
-                1152,
-                37.154
+                530,
+                0.005205
             ],
             [
-                1280,
-                44.515
+                550,
+                0.005578
             ],
             [
-                1408,
-                51.875
+                570,
+                0.007182
             ],
             [
-                1536,
-                60.324
+                590,
+                0.006465
             ],
             [
-                1664,
-                69.188
+                610,
+                0.008225
             ],
             [
-                1792,
-                79.557
+                630,
+                0.007311
             ],
             [
-                1920,
-                91.27
+                650,
+                0.008148
             ],
             [
-                2048,
-                105.095
+                670,
+                0.008258
             ],
             [
-                2176,
-                118.088
+                690,
+                0.008742
             ],
             [
-                2304,
-                127.848
+                710,
+                0.011104
             ],
             [
-                2432,
-                142.474
-            ]
-        ]
-    },
-    {
-        ".name": "non_shared/gaussian_filter.o",
-        "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<convolutionFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
-            [
-                128,
-                8.513
+                730,
+                0.009886
             ],
             [
-                256,
-                20.578
+                750,
+                0.010459
             ],
             [
-                384,
-                39.843
+                770,
+                0.010892
             ],
             [
-                512,
-                65.924
+                790,
+                0.011488
             ],
             [
-                640,
-                98.758
+                810,
+                0.012135
             ],
             [
-                768,
-                138.249
+                830,
+                0.012815
             ],
             [
-                896,
-                187.692
+                850,
+                0.013299
             ],
             [
-                1024,
-                247.696
+                870,
+                0.013885
             ],
             [
-                1152,
-                317.526
+                890,
+                0.014554
             ],
             [
-                1280,
-                398.106
+                910,
+                0.015291
             ],
             [
-                1408,
-                486.047
+                930,
+                0.015958
             ],
             [
-                1536,
-                577.414
+                950,
+                0.016704
             ],
             [
-                1664,
-                677.357
+                970,
+                0.017415
             ],
             [
-                1792,
-                785.715
-            ],
-            [
-                1920,
-                900.123
-            ],
-            [
-                2048,
-                1026.051
-            ],
-            [
-                2176,
-                1160.075
-            ],
-            [
-                2304,
-                1300.181
-            ],
-            [
-                2432,
-                1454.559
+                990,
+                0.021796
             ]
         ]
     },
     {
-        ".name": "opencv/gaussian_filter.o",
-        "void column_filter::linearColumnFilter<int=5, float, unsigned char, cv::cuda::device::BrdColReflect101<float>>(cv::cuda::PtrStepSz<float>, cv::cuda::PtrStep<unsigned char>, int, float)": [
+        ".name": "native_omp/gaussian_filter.o",
+        "values": [
             [
-                128,
-                5.056
+                10,
+                6.7e-05
             ],
             [
-                256,
-                7.937
+                30,
+                6.2e-05
             ],
             [
-                384,
-                12.545
+                50,
+                6.5e-05
             ],
             [
-                512,
-                22.625
+                70,
+                7.3e-05
             ],
             [
-                640,
-                31.938
+                90,
+                7.6e-05
             ],
             [
-                768,
-                42.659
+                110,
+                8.9e-05
             ],
             [
-                896,
-                54.979
+                130,
+                9.7e-05
             ],
             [
-                1024,
-                71.813
+                150,
+                0.000109
             ],
             [
-                1152,
-                87.526
+                170,
+                0.000119
             ],
             [
-                1280,
-                112.519
+                190,
+                0.000129
             ],
             [
-                1408,
-                132.168
+                210,
+                0.000146
             ],
             [
-                1536,
-                151.721
+                230,
+                0.000184
             ],
             [
-                1664,
-                174.571
+                250,
+                0.000173
             ],
             [
-                1792,
-                202.861
+                270,
+                0.000195
             ],
             [
-                1920,
-                234.063
+                290,
+                0.000206
             ],
             [
-                2048,
-                261.137
+                310,
+                0.000227
             ],
             [
-                2176,
-                304.211
+                330,
+                0.000255
             ],
             [
-                2304,
-                332.373
+                350,
+                0.000488
             ],
             [
-                2432,
-                371.096
-            ]
-        ],
-        "void row_filter::linearRowFilter<int=5, unsigned char, float, cv::cuda::device::BrdRowReflect101<unsigned char>>(cv::cuda::PtrStepSz<unsigned char>, cv::cuda::PtrStep<float>, int, unsigned char)": [
-            [
-                128,
-                7.585
+                370,
+                0.000306
             ],
             [
-                256,
-                7.105
+                390,
+                0.000341
             ],
             [
-                384,
-                10.944
+                410,
+                0.000364
             ],
             [
-                512,
-                16.129
+                430,
+                0.000404
             ],
             [
-                640,
-                23.969
+                450,
+                0.000422
             ],
             [
-                768,
-                35.65
+                470,
+                0.000475
             ],
             [
-                896,
-                48.387
+                490,
+                0.000482
             ],
             [
-                1024,
-                63.3
+                510,
+                0.000521
             ],
             [
-                1152,
-                76.773
+                530,
+                0.000551
             ],
             [
-                1280,
-                96.454
+                550,
+                0.000597
             ],
             [
-                1408,
-                114.599
+                570,
+                0.000686
             ],
             [
-                1536,
-                136.456
+                590,
+                0.000689
             ],
             [
-                1664,
-                161.994
+                610,
+                0.001395
             ],
             [
-                1792,
-                185.036
+                630,
+                0.001399
             ],
             [
-                1920,
-                214.125
+                650,
+                0.000789
             ],
             [
-                2048,
-                242.896
+                670,
+                0.000871
             ],
             [
-                2176,
-                271.506
+                690,
+                0.000905
             ],
             [
-                2304,
-                305.619
+                710,
+                0.000946
             ],
             [
-                2432,
-                339.51
+                730,
+                0.001006
+            ],
+            [
+                750,
+                0.001089
+            ],
+            [
+                770,
+                0.001339
+            ],
+            [
+                790,
+                0.00116
+            ],
+            [
+                810,
+                0.00134
+            ],
+            [
+                830,
+                0.001255
+            ],
+            [
+                850,
+                0.001301
+            ],
+            [
+                870,
+                0.001431
+            ],
+            [
+                890,
+                0.001453
+            ],
+            [
+                910,
+                0.001585
+            ],
+            [
+                930,
+                0.001768
+            ],
+            [
+                950,
+                0.001994
+            ],
+            [
+                970,
+                0.001728
+            ],
+            [
+                990,
+                0.001944
             ]
         ]
     }

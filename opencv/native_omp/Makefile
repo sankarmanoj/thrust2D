@@ -1,5 +1,5 @@
-CC=nvcc
-CFLAGS= -std=c++11 -ccbin=g++-5 -Xcompiler -fopenmp
+CC=icpc
+CFLAGS= -std=c++11 -qopenmp 
 OPENCVFLAGS=$(shell pkg-config --libs --static opencv)
 SRCS = $(wildcard *.cpp)
 OBJS=$(SRCS:.cpp=.o)
