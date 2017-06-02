@@ -3,7 +3,7 @@ import sys
 import json
 data = json.load(open("result.json","r"))
 
-plt.title("OpenMP Dilate")
+plt.title("OpenMP Affine")
 plt.xlabel("Dimension")
 plt.ylabel("Time in Milliseconds")
 names = {"omp/affine.o":"Thrust","native_omp/affine.o":"Native"}

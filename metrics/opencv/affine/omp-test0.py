@@ -14,9 +14,13 @@ for texec in execs:
     times = {".name":texec,"values":[]}
     print texec,
     for dim in dims:
-        time = float(os.popen(" ./%s %d 12"%(texec,dim)).read())
-        print time,"  ",texec," ",dim
-        times["values"].append((dim,time))
+        stime = (os.popen(" ./%s %d 12"%(texec,dim)).read())
+        try:
+            time = float(stime)
+            print time,"  ",texec," ",dim
+            times["values"].append((dim,time))
+        except:
+            print stime
     results.append(times)
 
 
