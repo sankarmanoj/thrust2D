@@ -6,7 +6,7 @@ plt.title("Scharr Filter")
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
-names = {"non_shared/erode.o":"Non Shared","shared/erode.o":"Shared","opencv/erode.o":"Native"}
+names = {"non_shared/scharr_filter.o":"Non Shared","shared/scharr_filter.o":"Shared","opencv/scharr_filter.o":"Native"}
 colors = {"Non Shared":"r","Shared":"g","Native":"b"}
 for app in data:
     dims = []

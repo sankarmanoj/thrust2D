@@ -1,411 +1,248 @@
 [
     {
-        ".name": "omp/sobel_filter.o",
-        "values": [
+        ".name": "shared/sobel_filter.o",
+        "void thrust::convolutionColumnsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)": [
             [
-                10,
-                0.663151
+                128,
+                5.391
             ],
             [
-                30,
-                0.666032
+                256,
+                5.632
             ],
             [
-                50,
-                0.66439
+                384,
+                7.791
             ],
             [
-                70,
-                0.665554
+                512,
+                9.792
             ],
             [
-                90,
-                0.666402
+                640,
+                13.759
             ],
             [
-                110,
-                0.667571
+                768,
+                19.247
             ],
             [
-                130,
-                0.666371
+                896,
+                24.719
             ],
             [
-                150,
-                0.670239
+                1024,
+                30.718
+            ]
+        ],
+        "void thrust::convolutionRowsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)": [
+            [
+                128,
+                5.248
             ],
             [
-                170,
-                0.665502
+                256,
+                5.503
             ],
             [
-                190,
-                0.66146
+                384,
+                7.824
             ],
             [
-                210,
-                0.661885
+                512,
+                8.591
             ],
             [
-                230,
-                0.664388
+                640,
+                11.711
             ],
             [
-                250,
-                0.659739
+                768,
+                18.927
             ],
             [
-                270,
-                0.666645
+                896,
+                23.534
             ],
             [
-                290,
-                0.668874
+                1024,
+                29.71
+            ]
+        ],
+        "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<transFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
+            [
+                128,
+                4.895
             ],
             [
-                310,
-                0.666125
+                256,
+                11.232
             ],
             [
-                330,
-                0.66681
+                384,
+                22.463
             ],
             [
-                350,
-                0.662908
+                512,
+                38.877
             ],
             [
-                370,
-                0.663475
+                640,
+                59.677
             ],
             [
-                390,
-                0.674273
+                768,
+                86.107
             ],
             [
-                410,
-                0.66411
+                896,
+                117.817
             ],
             [
-                430,
-                0.666052
-            ],
-            [
-                450,
-                0.666133
-            ],
-            [
-                470,
-                0.669931
-            ],
-            [
-                490,
-                0.666425
-            ],
-            [
-                510,
-                0.665974
-            ],
-            [
-                530,
-                0.665079
-            ],
-            [
-                550,
-                0.661251
-            ],
-            [
-                570,
-                0.665039
-            ],
-            [
-                590,
-                0.66212
-            ],
-            [
-                610,
-                0.666992
-            ],
-            [
-                630,
-                0.662684
-            ],
-            [
-                650,
-                0.662757
-            ],
-            [
-                670,
-                0.663304
-            ],
-            [
-                690,
-                0.662102
-            ],
-            [
-                710,
-                0.661387
-            ],
-            [
-                730,
-                0.664313
-            ],
-            [
-                750,
-                0.665543
-            ],
-            [
-                770,
-                0.666854
-            ],
-            [
-                790,
-                0.664058
-            ],
-            [
-                810,
-                0.664821
-            ],
-            [
-                830,
-                0.664433
-            ],
-            [
-                850,
-                0.662966
-            ],
-            [
-                870,
-                0.664178
-            ],
-            [
-                890,
-                0.662248
-            ],
-            [
-                910,
-                0.664521
-            ],
-            [
-                930,
-                0.663507
-            ],
-            [
-                950,
-                0.666421
-            ],
-            [
-                970,
-                0.666362
-            ],
-            [
-                990,
-                0.673719
+                1024,
+                151.64
             ]
         ]
     },
     {
-        ".name": "native_omp/sobel_filter.o",
-        "values": [
+        ".name": "non_shared/sobel_filter.o",
+        "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<transFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
             [
-                10,
-                0.000252
+                128,
+                5.088
             ],
             [
-                30,
-                0.000248
+                256,
+                11.071
             ],
             [
-                50,
-                0.00027
+                384,
+                22.559
             ],
             [
-                70,
-                0.000341
+                512,
+                38.91
             ],
             [
-                90,
-                0.000319
+                640,
+                59.773
             ],
             [
-                110,
-                0.000366
+                768,
+                85.787
             ],
             [
-                130,
-                0.000351
+                896,
+                117.242
             ],
             [
-                150,
-                0.000425
+                1024,
+                152.312
+            ]
+        ],
+        "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<convolutionFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
+            [
+                128,
+                6.736
             ],
             [
-                170,
-                0.000452
+                256,
+                19.039
             ],
             [
-                190,
-                0.000724
+                384,
+                39.133
             ],
             [
-                210,
-                0.000545
+                512,
+                64.637
             ],
             [
-                230,
-                0.000626
+                640,
+                96.171
             ],
             [
-                250,
-                0.000682
+                768,
+                140.809
             ],
             [
-                270,
-                0.000879
+                896,
+                191.462
             ],
             [
-                290,
-                0.000871
+                1024,
+                236.612
+            ]
+        ]
+    },
+    {
+        ".name": "opencv/sobel_filter.o",
+        "void column_filter::linearColumnFilter<int=3, float, unsigned char, cv::cuda::device::BrdColReflect101<float>>(cv::cuda::PtrStepSz<float>, cv::cuda::PtrStep<unsigned char>, int, float)": [
+            [
+                128,
+                4.399
             ],
             [
-                310,
-                0.001016
+                256,
+                4.399
             ],
             [
-                330,
-                0.001117
+                384,
+                6.863
             ],
             [
-                350,
-                0.001167
+                512,
+                10.047
             ],
             [
-                370,
-                0.00123
+                640,
+                14.8
             ],
             [
-                390,
-                0.001423
+                768,
+                23.486
             ],
             [
-                410,
-                0.00152
+                896,
+                29.983
             ],
             [
-                430,
-                0.001686
+                1024,
+                36.974
+            ]
+        ],
+        "void row_filter::linearRowFilter<int=3, unsigned char, float, cv::cuda::device::BrdRowReflect101<unsigned char>>(cv::cuda::PtrStepSz<unsigned char>, cv::cuda::PtrStep<float>, int, unsigned char)": [
+            [
+                128,
+                3.872
             ],
             [
-                450,
-                0.001906
+                256,
+                4.208
             ],
             [
-                470,
-                0.001903
+                384,
+                6.079
             ],
             [
-                490,
-                0.002043
+                512,
+                8.079
             ],
             [
-                510,
-                0.002173
+                640,
+                12.047
             ],
             [
-                530,
-                0.002289
+                768,
+                15.823
             ],
             [
-                550,
-                0.002541
+                896,
+                22.287
             ],
             [
-                570,
-                0.002753
-            ],
-            [
-                590,
-                0.003114
-            ],
-            [
-                610,
-                0.003002
-            ],
-            [
-                630,
-                0.003187
-            ],
-            [
-                650,
-                0.003393
-            ],
-            [
-                670,
-                0.003593
-            ],
-            [
-                690,
-                0.003674
-            ],
-            [
-                710,
-                0.003968
-            ],
-            [
-                730,
-                0.004085
-            ],
-            [
-                750,
-                0.004548
-            ],
-            [
-                770,
-                0.004582
-            ],
-            [
-                790,
-                0.004799
-            ],
-            [
-                810,
-                0.005067
-            ],
-            [
-                830,
-                0.005264
-            ],
-            [
-                850,
-                0.005504
-            ],
-            [
-                870,
-                0.00581
-            ],
-            [
-                890,
-                0.005985
-            ],
-            [
-                910,
-                0.00644
-            ],
-            [
-                930,
-                0.006359
-            ],
-            [
-                950,
-                0.007492
-            ],
-            [
-                970,
-                0.007031
-            ],
-            [
-                990,
-                0.007724
+                1024,
+                29.39
             ]
         ]
     }

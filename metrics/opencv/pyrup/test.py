@@ -31,7 +31,10 @@ for texec in execs:
                         times[line[6]]
                     except:
                         times[line[6]]=[]
-                    times[line[6]].append((dim,float(line[3])))
+                    try:
+                        times[line[6]].append((dim,float(line[3])))
+                    except:
+                        print "Error at ",dim," for ",texec
                 line = cr.next()
                 values = len(line)
     results.append(times)
@@ -41,4 +44,5 @@ print "\n"
 
 os.system("rm log.txt")
 os.chdir(original_path)
+json.dump(dims,open("dims.json","w"))
 json.dump(results,open("result.json","w"),indent=4,sort_keys = True, separators=(',', ': '))

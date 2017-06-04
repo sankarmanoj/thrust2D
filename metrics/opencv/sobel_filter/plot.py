@@ -2,11 +2,11 @@ import matplotlib.pyplot as plt
 import sys
 import json
 data = json.load(open("result.json","r"))
-plt.title("Scharr Filter")
+plt.title("Sobel Filter")
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
-names = {"non_shared/erode.o":"Non Shared","shared/erode.o":"Shared","opencv/erode.o":"Native"}
+names = {"non_shared/sobel_filter.o":"Non Shared","shared/sobel_filter.o":"Shared","opencv/sobel_filter.o":"Native"}
 colors = {"Non Shared":"r","Shared":"g","Native":"b"}
 for app in data:
     dims = []

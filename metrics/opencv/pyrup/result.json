@@ -1,411 +1,241 @@
 [
     {
-        ".name": "omp/pyrup.o",
-        "values": [
+        ".name": "non_shared/pyrup.o",
+        "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::detail::wrapped_function<pyrupTransformFunctor, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
             [
-                10,
-                0.40511
+                128,
+                2.239
             ],
             [
-                30,
-                0.401015
+                256,
+                2.879
             ],
             [
-                50,
-                0.399384
+                384,
+                3.455
             ],
             [
-                70,
-                0.402972
+                512,
+                4.479
             ],
             [
-                90,
-                0.40094
+                640,
+                5.886
             ],
             [
-                110,
-                0.405308
+                768,
+                7.965
             ],
             [
-                130,
-                0.401215
+                896,
+                9.404
             ],
             [
-                150,
-                0.401776
+                1024,
+                12.443
             ],
             [
-                170,
-                0.402818
+                1152,
+                14.139
             ],
             [
-                190,
-                0.40048
+                1280,
+                17.305
             ],
             [
-                210,
-                0.406374
+                1408,
+                19.545
             ],
             [
-                230,
-                0.402064
+                1536,
+                25.879
             ],
             [
-                250,
-                0.400934
+                1664,
+                26.071
             ],
             [
-                270,
-                0.408309
+                1792,
+                30.485
             ],
             [
-                290,
-                0.403106
+                1920,
+                38.418
             ],
             [
-                310,
-                0.400394
+                2048,
+                45.999
             ],
             [
-                330,
-                0.402406
+                2176,
+                43.057
             ],
             [
-                350,
-                0.401422
+                2304,
+                47.886
             ],
             [
-                370,
-                0.40102
+                2432,
+                51.982
+            ]
+        ],
+        "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<convolutionFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
+            [
+                128,
+                7.645
             ],
             [
-                390,
-                0.399966
+                256,
+                20.088
             ],
             [
-                410,
-                0.400581
+                384,
+                42.288
             ],
             [
-                430,
-                0.400274
+                512,
+                68.742
             ],
             [
-                450,
-                0.405125
+                640,
+                105.625
             ],
             [
-                470,
-                0.401676
+                768,
+                143.146
             ],
             [
-                490,
-                0.404111
+                896,
+                188.537
             ],
             [
-                510,
-                0.407055
+                1024,
+                252.642
             ],
             [
-                530,
-                0.406284
+                1152,
+                314.892
             ],
             [
-                550,
-                0.40297
+                1280,
+                393.646
             ],
             [
-                570,
-                0.400532
+                1408,
+                476.56
             ],
             [
-                590,
-                0.408142
+                1536,
+                569.199
             ],
             [
-                610,
-                0.405978
+                1664,
+                671.497
             ],
             [
-                630,
-                0.400263
+                1792,
+                772.901
             ],
             [
-                650,
-                0.400586
+                1920,
+                887.996
             ],
             [
-                670,
-                0.406566
+                2048,
+                1011.759
             ],
             [
-                690,
-                0.405105
+                2176,
+                1146.529
             ],
             [
-                710,
-                0.405733
+                2304,
+                1275.891
             ],
             [
-                730,
-                0.400546
-            ],
-            [
-                750,
-                0.401154
-            ],
-            [
-                770,
-                0.401024
-            ],
-            [
-                790,
-                0.400161
-            ],
-            [
-                810,
-                0.401092
-            ],
-            [
-                830,
-                0.400747
-            ],
-            [
-                850,
-                0.403656
-            ],
-            [
-                870,
-                0.404284
-            ],
-            [
-                890,
-                0.400506
-            ],
-            [
-                910,
-                0.400636
-            ],
-            [
-                930,
-                0.403763
-            ],
-            [
-                950,
-                0.40001
-            ],
-            [
-                970,
-                0.401137
-            ],
-            [
-                990,
-                0.402639
+                2432,
+                1428.768
             ]
         ]
     },
     {
-        ".name": "native_omp/pyrup.o",
-        "values": [
+        ".name": "opencv/pyrup.o",
+        "void cv::cuda::device::imgproc::pyrUp<unsigned char>(cv::cuda::PtrStepSz<unsigned char>, unsigned char)": [
             [
-                10,
-                3.1e-05
+                128,
+                6.27
             ],
             [
-                30,
-                2.7e-05
+                256,
+                16.442
             ],
             [
-                50,
-                3.4e-05
+                384,
+                32.852
             ],
             [
-                70,
-                4.2e-05
+                512,
+                56.332
             ],
             [
-                90,
-                6.5e-05
+                640,
+                86.689
             ],
             [
-                110,
-                9.7e-05
+                768,
+                123.828
             ],
             [
-                130,
-                0.00011
+                896,
+                167.333
             ],
             [
-                150,
-                0.000134
+                1024,
+                219.028
             ],
             [
-                170,
-                0.000204
+                1152,
+                275.521
             ],
             [
-                190,
-                0.000234
+                1280,
+                339.563
             ],
             [
-                210,
-                0.000277
+                1408,
+                410.291
             ],
             [
-                230,
-                0.000353
+                1536,
+                487.513
             ],
             [
-                250,
-                0.000323
+                1664,
+                571.774
             ],
             [
-                270,
-                0.000441
+                1792,
+                662.591
             ],
             [
-                290,
-                0.000541
+                1920,
+                760.254
             ],
             [
-                310,
-                0.000585
+                2048,
+                864.701
             ],
             [
-                330,
-                0.000658
+                2176,
+                975.991
             ],
             [
-                350,
-                0.000658
+                2304,
+                1093.683
             ],
             [
-                370,
-                0.000807
-            ],
-            [
-                390,
-                0.00089
-            ],
-            [
-                410,
-                0.000981
-            ],
-            [
-                430,
-                0.001005
-            ],
-            [
-                450,
-                0.001141
-            ],
-            [
-                470,
-                0.001234
-            ],
-            [
-                490,
-                0.001319
-            ],
-            [
-                510,
-                0.001502
-            ],
-            [
-                530,
-                0.001604
-            ],
-            [
-                550,
-                0.001737
-            ],
-            [
-                570,
-                0.001879
-            ],
-            [
-                590,
-                0.001913
-            ],
-            [
-                610,
-                0.002129
-            ],
-            [
-                630,
-                0.002275
-            ],
-            [
-                650,
-                0.002415
-            ],
-            [
-                670,
-                0.002543
-            ],
-            [
-                690,
-                0.002649
-            ],
-            [
-                710,
-                0.002791
-            ],
-            [
-                730,
-                0.003014
-            ],
-            [
-                750,
-                0.003161
-            ],
-            [
-                770,
-                0.003317
-            ],
-            [
-                790,
-                0.00345
-            ],
-            [
-                810,
-                0.003663
-            ],
-            [
-                830,
-                0.00327
-            ],
-            [
-                850,
-                0.003999
-            ],
-            [
-                870,
-                0.003705
-            ],
-            [
-                890,
-                0.003875
-            ],
-            [
-                910,
-                0.004071
-            ],
-            [
-                930,
-                0.005606
-            ],
-            [
-                950,
-                0.004488
-            ],
-            [
-                970,
-                0.004721
-            ],
-            [
-                990,
-                0.004968
+                2432,
+                1218.154
             ]
         ]
     }

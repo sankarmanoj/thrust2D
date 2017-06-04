@@ -1,0 +1,2 @@
+./hotspot 1024 1024 2 4 ../temp_1024 ../power_1024 output.out
+./thrust_hotspot 1024 1024 2 4 ../temp_1024 ../power_1024 output.out

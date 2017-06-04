@@ -82,9 +82,11 @@ void readinput(float * vect, int grid_rows, int grid_cols, char *file){
 
 }
 
-void readRandom(float * vect, int grid_rows, int grid_cols )
-{
+void readRandom(float * vect, int grid_rows, int grid_cols ){
+
 	int i,j;
+
+
 	for (i=0; i <= grid_rows-1; i++)
 	for (j=0; j <= grid_cols-1; j++)
 	{
@@ -191,17 +193,11 @@ public:
 
 		if (argc != 7)
 		usage(argc, argv);
-		#ifndef PROFILING
 		if((grid_rows = atoi(argv[1]))<=0||
 		(grid_cols = atoi(argv[1]))<=0||
 		(pyramid_height = atoi(argv[2]))<=0||
 		(total_iterations = atoi(argv[3]))<=0)
 		usage(argc, argv);
-		#else
-		pyramid_height = 1;
-		total_iterations = atoi(argv[3]));
-		omp_set_num_threads(atoi(argv[4]));
-		#endif
 
 		tfile=argv[4];
 		pfile=argv[5];
@@ -218,7 +214,6 @@ public:
 		#ifndef PROFILING
 		readinput(FilesavingTemp, grid_rows, grid_cols, tfile);
 		readinput(FilesavingPower, grid_rows, grid_cols, pfile);
-		printf("Start computing the transient temperature\n");
 		#else
 		readRandom(FilesavingTemp, grid_rows, grid_cols);
 		readRandom(FilesavingPower, grid_rows, grid_cols);
@@ -227,6 +222,7 @@ public:
 		thrust::block_2d<float> PowerBlock(grid_rows,grid_cols);
 		TemperatureBlock.upload(FilesavingTemp);
 		PowerBlock.upload(FilesavingPower);
+		printf("Start computing the transient temperature\n");
 		float grid_height = chip_height / grid_rows;
 		float grid_width = chip_width / grid_cols;
 
@@ -244,8 +240,7 @@ public:
 		Rx_1=1/Rx;
 		Ry_1=1/Ry;
 		Rz_1=1/Rz;
-
-	  long long start_time = get_time();
+		printf("step_div_Cap = %f\nrx,ry,rz = %f,%f,%f\n",step_div_Cap,Rx_1,Ry_1,Rz_1);
 		for (t = 0; t < total_iterations; t+=pyramid_height)
 		{
 			int required_iterations = MIN(pyramid_height,total_iterations-t);
@@ -256,14 +251,9 @@ public:
 			// thrust::transform(wv.begin(),wv.end(),wp.begin(),null_vector.begin(),functor);
 			thrust::for_each(wv.begin(),wv.end(),functor);
 		}
-		long long end_time = get_time();
-
-
-		#ifndef PROFILING
 		printf("Ending simulation\n");
+		#ifndef PROFILING
 		TemperatureBlock.download(&FilesavingTemp);
 		writeoutput(FilesavingTemp,grid_rows, grid_cols, ofile);
-		#else
-		printf("%f \n",((float) (end_time - start_time)) / (1000));
 		#endif
 	}
