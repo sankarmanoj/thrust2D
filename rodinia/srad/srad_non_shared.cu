@@ -43,14 +43,12 @@ runTest( int argc, char** argv)
 	float *J,lambda, q0sqr, sum, sum2,meanROI,varROI ;
 	int r1, r2, c1, c2;
 	char *in,*out;
-	if (argc == 7)
+	if (argc == 5)
 	{
-		rows = atoi(argv[1]);  //number of rows in the domain
-		cols = atoi(argv[2]);  //number of cols in the domain
-		lambda = atof(argv[3]); //Lambda value
-		niter = atoi(argv[4]); //number of iterations
-		in = argv[5];
-		out = argv[6];
+		rows = atoi(argv[3]);  //number of rows in the domain
+		cols = atoi(argv[4]);  //number of cols in the domain
+		lambda = atof(argv[2]); //Lambda value
+		niter = atoi(argv[1]); //number of iterations
 	}
 	else
 	{
@@ -64,18 +62,24 @@ runTest( int argc, char** argv)
 
 	size_R = (r2-r1+1)*(c2-c1+1);
 
-	int image_ori_rows = rows;
-	int image_ori_cols = cols;
-	// long image_ori_elem = image_ori_rows * image_ori_cols;
+	long image_ori_rows = 502;
+	long image_ori_cols = 458;
+	long image_ori_elem = image_ori_rows * image_ori_cols;
 
-	// printf("%d %d\n",cols,rows);
+	float * image_ori = (float*)malloc(sizeof(float) * image_ori_elem);
+
+	read_graphics(	"./image.pgm",
+								image_ori,
+								image_ori_rows,
+								image_ori_cols,
+								1);
 	size_I = cols * rows;
 
 	J = (float*) malloc(sizeof(float) * size_I);
 
-	read_graphics(in,J,image_ori_rows,image_ori_cols,0);
+	read_graphics(in,image_ori,image_ori_rows,image_ori_cols,0);
 
-	// resize(	image_ori,image_ori_rows,image_ori_cols,J,rows,cols,0);
+	resize(	image_ori,image_ori_rows,image_ori_cols,J,rows,cols,0);
 
 	thrust::block_2d<float> J_cuda (cols,rows);
 	// printf("%d %d\n", cols,rows);
