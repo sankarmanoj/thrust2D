@@ -1,160 +1,177 @@
 [
     {
+        ".name": "shared/pyrup.o",
+        "void thrust::convolutionColumnsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)": [
+            [
+                128,
+                6.112
+            ],
+            [
+                256,
+                10.56
+            ],
+            [
+                384,
+                20.992
+            ],
+            [
+                512,
+                36.128
+            ],
+            [
+                640,
+                55.424
+            ],
+            [
+                768,
+                76.897
+            ],
+            [
+                896,
+                103.2
+            ],
+            [
+                1024,
+                133.185
+            ]
+        ],
+        "void thrust::convolutionRowsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)": [
+            [
+                128,
+                5.632
+            ],
+            [
+                256,
+                9.664
+            ],
+            [
+                384,
+                19.2
+            ],
+            [
+                512,
+                35.136
+            ],
+            [
+                640,
+                51.776
+            ],
+            [
+                768,
+                72.448
+            ],
+            [
+                896,
+                97.729
+            ],
+            [
+                1024,
+                125.536
+            ]
+        ],
+        "void thrust::for_each_kernel<unsigned char, pyrupTransformFunctor>(thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<thrust::window_iterator>>*, thrust::warp_launcher_config, pyrupTransformFunctor)": [
+            [
+                128,
+                10.112
+            ],
+            [
+                256,
+                30.976
+            ],
+            [
+                384,
+                66.112
+            ],
+            [
+                512,
+                114.817
+            ],
+            [
+                640,
+                178.369
+            ],
+            [
+                768,
+                255.489
+            ],
+            [
+                896,
+                347.809
+            ],
+            [
+                1024,
+                454.369
+            ]
+        ]
+    },
+    {
         ".name": "non_shared/pyrup.o",
         "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::detail::wrapped_function<pyrupTransformFunctor, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
             [
                 128,
-                2.239
+                3.04
             ],
             [
                 256,
-                2.879
+                7.36
             ],
             [
                 384,
-                3.455
+                14.528
             ],
             [
                 512,
-                4.479
+                25.472
             ],
             [
                 640,
-                5.886
+                38.752
             ],
             [
                 768,
-                7.965
+                55.552
             ],
             [
                 896,
-                9.404
+                75.392
             ],
             [
                 1024,
-                12.443
-            ],
-            [
-                1152,
-                14.139
-            ],
-            [
-                1280,
-                17.305
-            ],
-            [
-                1408,
-                19.545
-            ],
-            [
-                1536,
-                25.879
-            ],
-            [
-                1664,
-                26.071
-            ],
-            [
-                1792,
-                30.485
-            ],
-            [
-                1920,
-                38.418
-            ],
-            [
-                2048,
-                45.999
-            ],
-            [
-                2176,
-                43.057
-            ],
-            [
-                2304,
-                47.886
-            ],
-            [
-                2432,
-                51.982
+                96.896
             ]
         ],
         "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<convolutionFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
             [
                 128,
-                7.645
+                18.784
             ],
             [
                 256,
-                20.088
+                55.104
             ],
             [
                 384,
-                42.288
+                117.249
             ],
             [
                 512,
-                68.742
+                224.224
             ],
             [
                 640,
-                105.625
+                359.553
             ],
             [
                 768,
-                143.146
+                511.362
             ],
             [
                 896,
-                188.537
+                697.762
             ],
             [
                 1024,
-                252.642
-            ],
-            [
-                1152,
-                314.892
-            ],
-            [
-                1280,
-                393.646
-            ],
-            [
-                1408,
-                476.56
-            ],
-            [
-                1536,
-                569.199
-            ],
-            [
-                1664,
-                671.497
-            ],
-            [
-                1792,
-                772.901
-            ],
-            [
-                1920,
-                887.996
-            ],
-            [
-                2048,
-                1011.759
-            ],
-            [
-                2176,
-                1146.529
-            ],
-            [
-                2304,
-                1275.891
-            ],
-            [
-                2432,
-                1428.768
+                924.802
             ]
         ]
     },
@@ -163,79 +180,35 @@
         "void cv::cuda::device::imgproc::pyrUp<unsigned char>(cv::cuda::PtrStepSz<unsigned char>, unsigned char)": [
             [
                 128,
-                6.27
+                6.56
             ],
             [
                 256,
-                16.442
+                16.608
             ],
             [
                 384,
-                32.852
+                32.16
             ],
             [
                 512,
-                56.332
+                56.288
             ],
             [
                 640,
-                86.689
+                86.977
             ],
             [
                 768,
-                123.828
+                123.617
             ],
             [
                 896,
-                167.333
+                167.328
             ],
             [
                 1024,
-                219.028
-            ],
-            [
-                1152,
-                275.521
-            ],
-            [
-                1280,
-                339.563
-            ],
-            [
-                1408,
-                410.291
-            ],
-            [
-                1536,
-                487.513
-            ],
-            [
-                1664,
-                571.774
-            ],
-            [
-                1792,
-                662.591
-            ],
-            [
-                1920,
-                760.254
-            ],
-            [
-                2048,
-                864.701
-            ],
-            [
-                2176,
-                975.991
-            ],
-            [
-                2304,
-                1093.683
-            ],
-            [
-                2432,
-                1218.154
+                218.176
             ]
         ]
     }

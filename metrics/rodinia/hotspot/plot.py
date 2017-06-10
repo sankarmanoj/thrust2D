@@ -19,7 +19,7 @@ for key in keys:
     for val in data[key]:
         dims.append(val[1])
         total.append(val[0])
-    plt.plot(dims,total,label=key)
+    plt.plot(dims,total,colors[names[key]],label=names[key])
     # plt.plot(dims,total,label=key[:-2]+" Total")
     # plt.plot(dims,dot,label=key+" Dot")
     # plt.plot(dims,grad,label=key+" Grad")

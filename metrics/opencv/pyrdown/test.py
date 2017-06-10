@@ -7,9 +7,9 @@ app_name = os.getcwd().split("/")[-1]+".o"
 os.chdir(path)
 print path, app_name
 results = []
-execs = [ "shared/"+app_name, "opencv/"+app_name ]
+execs = [ "non_shared/"+app_name,"shared/"+app_name, "opencv/"+app_name ]
 print execs
-dims = [x*128 for x in range(1,20)]
+dims = [x*128 for x in range(1,9)]
 for texec in execs:
     times = {".name":texec}
     print texec,

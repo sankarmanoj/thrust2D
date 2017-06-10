@@ -8,14 +8,14 @@ class lbpFunctor : public thrust::shared_unary_window_transform_functor<uchar>
   __device__ void operator() (const thrust::window_2d<uchar> &inputWindow,const thrust::window_2d<uchar> &outputWindow) const
   {
     uchar temp[3][3];
-    for(int i = 0; i<inputWindow.window_dim_y;i++)
+    for(int i = 0; i<3;i++)
     {
-      for(int j = 0; j<inputWindow.window_dim_x;j++)
+      for(int j = 0; j<3;j++)
       {
-        temp[i][j] = inputWindow[make_int2(inputWindow.window_dim_x/2,inputWindow.window_dim_y/2)]>=inputWindow[make_int2(j,i)]?1:0;
+        temp[i][j] = inputWindow[make_int2(3/2,3/2)]>=inputWindow[make_int2(j,i)]?1:0;
       }
     }
-    outputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=128*temp[0][1]+64*temp[0][0]+32*temp[1][0]+16*temp[2][0]+8*temp[2][1]+4*temp[2][2]+2*temp[1][2]+1*temp[1][1];
+    outputWindow[3/2][3/2]=128*temp[0][1]+64*temp[0][0]+32*temp[1][0]+16*temp[2][0]+8*temp[2][1]+4*temp[2][2]+2*temp[1][2]+1*temp[1][1];
   }
 };
 int main(int argc, char const *argv[]) {

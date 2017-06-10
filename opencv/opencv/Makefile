@@ -1,6 +1,6 @@
 IDIR =../../include
 CC=nvcc
-CFLAGS=-I$(IDIR) -ccbin=g++-5 -std=c++11 -arch=sm_60 
+CFLAGS=-I$(IDIR) -ccbin=g++-5 -std=c++11 -arch=sm_60
 DFLAGS =-DDEBUG -g -G -lineinfo
 OPENCVFLAGS=$(shell pkg-config --libs --static opencv) -lcudart
 SRCS = $(wildcard *.cu)

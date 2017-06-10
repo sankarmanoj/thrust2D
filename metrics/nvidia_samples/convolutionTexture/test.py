@@ -8,7 +8,7 @@ print path
 results = []
 execs = execs = [ x for x in  os.listdir(path) if ".out" in x ]
 print execs
-dims = [x*128 for x in range(1,20)]
+dims = [x*128 for x in range(1,9)]
 for texec in execs:
     times = {".name":texec}
     print texec,

@@ -7,14 +7,14 @@ class dilateFunctor //: public thrust::shared_unary_window_transform_functor<uch
   __device__ uchar operator() (const thrust::window_2d<uchar> &inputWindow,const thrust::window_2d<uchar> &outputWindow) const
   {
     uchar temp = 0;
-    for(int i = 0; i<inputWindow.window_dim_y;i++)
+    for(int i = 0; i<3;i++)
     {
-      for(int j = 0; j<inputWindow.window_dim_x;j++)
+      for(int j = 0; j<3;j++)
       {
         temp = max((float)temp,(float)inputWindow[i][j]);
       }
     }
-    outputWindow[inputWindow.window_dim_y/2][inputWindow.window_dim_x/2]=temp;
+    outputWindow[3/2][3/2]=temp;
     return 0;
   }
 };

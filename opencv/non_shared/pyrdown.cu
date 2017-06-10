@@ -55,23 +55,28 @@ public:
     return 0;
   }
 };
+
 class pyrdownTransformFunctor
 {
 public:
-  thrust::block_2d<uchar> *outBlock;
+  thrust::block_2d<uchar> *inBlock;
 
-pyrdownTransformFunctor(thrust::block_2d<uchar> * outBlock)
+pyrdownTransformFunctor(thrust::block_2d<uchar> * inBlock)
   {
-    this->outBlock = outBlock->device_pointer;
+    this->inBlock = inBlock->device_pointer;
   }
-  __device__ void operator() (const thrust::window_2d<uchar> &inputWindow) const
+  __device__ void operator() (const thrust::window_2d<uchar> &outputWindow) const
   {
-    int x_out, y_out;
-    x_out = inputWindow.start_x*2;
-    y_out = inputWindow.start_y*2;
-    (*outBlock)[y_out][x_out] = inputWindow[0][0];
+    int x_in, y_in;
+    if(outputWindow.start_x%2 && outputWindow.start_y%2)
+    {
+      x_in = outputWindow.start_x*2;
+      y_in = outputWindow.start_y*2;
+      outputWindow[0][0]=(*inBlock)[y_in][x_in];
+    }
   }
 };
+
 int main(int argc, char const *argv[])
 {
   cudaDeviceProp dev_prop;
@@ -90,30 +95,29 @@ int main(int argc, char const *argv[])
   getGaussianKernelBlock(dim,5,hkernel);
   cudaMemcpyToSymbol(c_kernel, hkernel, dim*dim * sizeof(float));
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
-  thrust::block_2d<uchar> outBlock (image.cols*2,image.rows*2,0.0f);
+  thrust::block_2d<uchar> outBlock (image.cols/2,image.rows/2,0.0f);
+  thrust::block_2d<uchar> output_image_block(image.cols,image.rows);
   thrust::block_2d<uchar> null_block (image.cols,image.rows);
-  thrust::block_2d<uchar> output_image_block(image.cols*2,image.rows*2,0.0f);
   uchar * img = (uchar * )malloc(sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()));
-  uchar * img_out = (uchar * )malloc(sizeof(uchar)*(outBlock.end()-outBlock.begin()));
+  uchar * img1 = (uchar * )malloc(sizeof(uchar)*(outBlock.end()-outBlock.begin()));
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     img[i]=(uchar)image.ptr()[i];
   }
   uchar_image_block.upload(img);
-  thrust::window_vector<uchar> inputVector(&uchar_image_block,1,1,1,1);
-  thrust::window_vector<uchar> input_wv(&outBlock,dim,dim,1,1);
-  pyrdownTransformFunctor ptf(&outBlock);
-  thrust::for_each(inputVector.begin(),inputVector.end(),ptf);
-  cudaDeviceSynchronize();
+  thrust::window_vector<uchar> input_wv(&uchar_image_block,dim,dim,1,1);
   thrust::window_vector<uchar> output_wv(&output_image_block,dim,dim,1,1);
   thrust::transform(input_wv.begin(),input_wv.end(),output_wv.begin(),null_block.begin(),convolutionFunctor(dim));
-  unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(output_image_block.end()-output_image_block.begin()));
+  thrust::window_vector<uchar> inputVector(&outBlock,1,1,1,1);
+  pyrdownTransformFunctor ptf(&output_image_block);
+  thrust::for_each(inputVector.begin(),inputVector.end(),ptf);
+  unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(outBlock.end()-outBlock.begin()));
   output_image_block.download(&img);
-  for(int i = 0; i<image.cols*image.rows*4;i++)
+  for(int i = 0; i<(outBlock.end()-outBlock.begin());i++)
   {
-    outputFloatImageData[i]=(unsigned char)img_out[i];
+    outputFloatImageData[i]=(unsigned char)img1[i];
   }
-  Mat output (Size(image.cols*2,image.rows*2),CV_8UC1,outputFloatImageData);
+  Mat output (Size(image.cols/2,image.rows/2),CV_8UC1,outputFloatImageData);
   #ifdef OWRITE
   imwrite("input.png",image);
   imwrite("output.png",output);
@@ -123,5 +127,8 @@ int main(int argc, char const *argv[])
   imshow("output.png",output);
   waitKey(0);
   #endif
+  free (img);
+  free (img1);
+  free (outputFloatImageData);
   return 0;
 }

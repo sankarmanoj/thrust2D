@@ -10,7 +10,7 @@ execs = [ x for x in  os.listdir(path) if x.partition(".")[2]=="out" ]
 print execs
 for texec in execs:
     results[texec]=[]
-dims = range(10,1100,20)
+dims = range(10,1020,15)
 for dim in dims:
     print str(dim)+"  ",
     for texec in execs:
