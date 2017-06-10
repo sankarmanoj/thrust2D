@@ -1,22 +1,24 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
 using namespace cv;
+__constant__ float constantTransformMatrix [6];
+
 class AffineTransformFunctor
 {
 public:
-  thrust::block_2d<float> *transformMatrix;
+
   thrust::block_2d<uchar> *outBlock;
 
-  AffineTransformFunctor(thrust::block_2d<float> * tm,thrust::block_2d<uchar> * outBlock)
+  AffineTransformFunctor(thrust::block_2d<uchar> * outBlock)
   {
-    this->transformMatrix = tm->device_pointer;
+
     this->outBlock = outBlock->device_pointer;
   }
   __device__ void operator() (const thrust::window_2d<uchar> &inputWindow) const
   {
     int x_out, y_out;
-    x_out = (int)((*transformMatrix)[0][0]*inputWindow.start_x+(*transformMatrix)[0][1]*inputWindow.start_y+(*transformMatrix)[0][2]*1);
-    y_out = (int)((*transformMatrix)[1][0]*inputWindow.start_x+(*transformMatrix)[1][1]*inputWindow.start_y+(*transformMatrix)[1][2]*1);
+    x_out = (int)(constantTransformMatrix[0]*inputWindow.start_x+constantTransformMatrix[1]*inputWindow.start_y+constantTransformMatrix[2]*1);
+    y_out = (int)(constantTransformMatrix[0+3]*inputWindow.start_x+constantTransformMatrix[1+3]*inputWindow.start_y+constantTransformMatrix[2+3]*1);
 
     (*outBlock)[y_out][x_out]=inputWindow[0][0];
   }
@@ -53,19 +55,11 @@ int main(int argc, char const *argv[]) {
   /// Get the Affine Transform
   warp_mat = getAffineTransform( srcTri, dstTri );
   warp_mat.convertTo(warp_mat,CV_32FC1);
-  thrust::host_block_2d<float> host_warp_block(warp_mat.cols,warp_mat.rows);
-  thrust::block_2d<float> warp_block(warp_mat.cols,warp_mat.rows);
-  for(int i = 0; i< warp_mat.rows;i++)
-  {
-    for(int j = 0; j<warp_mat.cols;j++)
-    {
-      host_warp_block[i][j]=warp_mat.at<float>(i,j);
-    }
-  }
-  warp_block = host_warp_block;
-  //Create Windows For Indexing
+  cudaMemcpyToSymbol(constantTransformMatrix,warp_mat.ptr(),sizeof(float)*warp_mat.rows*warp_mat.cols);
+
+
   thrust::window_vector<uchar> inputVector(&uchar_image_block,1,1,1,1);
-  AffineTransformFunctor atf(&warp_block,&outBlock);
+  AffineTransformFunctor atf(&outBlock);
   thrust::for_each(inputVector.begin(),inputVector.end(),atf);
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   outBlock.download(&img);

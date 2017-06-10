@@ -1,22 +1,24 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
-#include <thrust/window_for_each.h>
+#include <thrust/window_transform.h>
 using namespace cv;
 __constant__ float constantTransformMatrix [6];
-class AffineTransformFunctor : public thrust::shared_window_for_each_functor<uchar>
+class AffineTransformFunctor : public thrust::shared_unary_window_transform_functor<uchar>
 {
 public:
   thrust::block_2d<uchar> *outBlock;
+
   AffineTransformFunctor(thrust::block_2d<uchar> * outBlock)
   {
+
     this->outBlock = outBlock;
   }
-  __device__ void operator() (const thrust::window_2d<uchar> &inputWindow) const
+  __device__ void operator() (const thrust::window_2d<uchar> &inputWindow, const thrust::window_2d<uchar> &outputWindow) const
   {
     int x_out, y_out;
     x_out = (int)(constantTransformMatrix[0]*inputWindow.start_x+constantTransformMatrix[1]*inputWindow.start_y+constantTransformMatrix[2]*1);
     y_out = (int)(constantTransformMatrix[0+3]*inputWindow.start_x+constantTransformMatrix[1+3]*inputWindow.start_y+constantTransformMatrix[2+3]*1);
-    (*outBlock)[y_out][x_out]=inputWindow[0][0];
+    (*outBlock)[y_out][x_out]=inputWindow[make_int2(0,0)];
   }
 };
 int main(int argc, char const *argv[]) {
@@ -52,12 +54,12 @@ int main(int argc, char const *argv[]) {
   warp_mat = getAffineTransform( srcTri, dstTri );
   warp_mat.convertTo(warp_mat,CV_32FC1);
 
-  //Move Warp Matrix to Device
   cudaMemcpyToSymbol(constantTransformMatrix,warp_mat.ptr(),sizeof(float)*warp_mat.rows*warp_mat.cols);
-
+  //Create Windows For Indexing
   thrust::window_vector<uchar> inputVector(&uchar_image_block,1,1,1,1);
   AffineTransformFunctor atf(outBlock.device_pointer);
-  thrust::for_each(thrust::cuda::shared,inputVector.begin(),inputVector.end(),atf);
+  thrust::transform(thrust::cuda::texture,inputVector.begin(),inputVector.end(),inputVector.begin(),atf);
+  // cudaDeviceSynchronize();
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   outBlock.download(&img);
   for(int i = 0; i<image.cols*image.rows;i++)

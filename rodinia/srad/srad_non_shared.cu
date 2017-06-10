@@ -42,7 +42,6 @@ runTest( int argc, char** argv)
 	int rows, cols, size_I, size_R, niter = 10, iter;
 	float *J,lambda, q0sqr, sum, sum2,meanROI,varROI ;
 	int r1, r2, c1, c2;
-	char *in,*out;
 	if (argc == 5)
 	{
 		rows = atoi(argv[3]);  //number of rows in the domain
@@ -77,7 +76,6 @@ runTest( int argc, char** argv)
 
 	J = (float*) malloc(sizeof(float) * size_I);
 
-	read_graphics(in,image_ori,image_ori_rows,image_ori_cols,0);
 
 	resize(	image_ori,image_ori_rows,image_ori_cols,J,rows,cols,0);
 
@@ -111,6 +109,6 @@ runTest( int argc, char** argv)
 	// printf("Computation Done\n");
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),compressFunctor());
 	J_cuda.download(&J);
-	write_graphics(out,J,rows,cols,0,255);
+	write_graphics("./image_out.pgm",J,rows,cols,0,255);
 	free(J);
 }

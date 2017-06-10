@@ -7,8 +7,8 @@ plt.title("Blend")
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
-names = {"non_shared/blend.o":"Non Shared","shared/blend.o":"Shared","opencv/blend.o":"Native"}
-colors = {"Non Shared":"r","Shared":"g","Native":"b"}
+names = {"non_shared/blend.o":"Non Shared","shared/blend.o":"Shared","opencv/blend.o":"Native","texture/blend.o":"Texture"}
+colors = {"Non Shared":"r","Shared":"g","Native":"b","Texture":'y'}
 for app in data:
     dims = range(10,1000,20)
     total = [0 for x in dims]

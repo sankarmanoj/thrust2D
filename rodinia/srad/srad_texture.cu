@@ -1,6 +1,7 @@
 #include "srad.h"
 #include "graphics.c"
 #include "resize.c"
+#define TEXTURE
 #include <thrust/window_transform.h>
 // includes, kernels
 #include "srad_kernel.cu"
@@ -39,7 +40,6 @@ runTest( int argc, char** argv)
 	int rows, cols, size_I, size_R, niter = 10, iter;
 	float *J,lambda, q0sqr, sum, sum2,meanROI,varROI ;
 	int r1, r2, c1, c2;
-	char *in,*out;
 	if (argc == 5)
 	{
 		rows = atoi(argv[3]);  //number of rows in the domain
@@ -74,7 +74,6 @@ runTest( int argc, char** argv)
 
 	J = (float*) malloc(sizeof(float) * size_I);
 
-	read_graphics(in,image_ori,image_ori_rows,image_ori_cols,0);
 
 	resize(	image_ori,image_ori_rows,image_ori_cols,J,rows,cols,0);
 
@@ -101,10 +100,10 @@ runTest( int argc, char** argv)
 		SRADFunctor2 functor2(cols,rows,lambda,q0sqr);
 		thrust::window_vector<float> wv(&(J_cuda),3,3,1,1);
 		thrust::window_vector<float> d_cwv(&(d_c),3,3,1,1);
-		thrust::transform(thrust::cuda::shared,wv.begin(),wv.end(),d_cwv.begin(),functor1);
+		thrust::transform(thrust::cuda::texture,wv.begin(),wv.end(),d_cwv.begin(),functor1);
 		// thrust::for_each(J_cuda.begin(),J_cuda.end(),printFunctor());
 		// thrust::for_each(d_c.begin(),d_c.end(),printFunctor());
-		thrust::transform(thrust::cuda::shared,d_cwv.begin(),d_cwv.end(),wv.begin(),functor2);
+		thrust::transform(thrust::cuda::texture,d_cwv.begin(),d_cwv.end(),wv.begin(),functor2);
 	}
 	// printf("Computation Done\n");
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),compressFunctor());

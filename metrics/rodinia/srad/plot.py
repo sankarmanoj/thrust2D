@@ -7,7 +7,7 @@ plt.title("SRAD")
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
-names = {"srad_non_shared.out":"Non Shared","srad.out":"Shared","cuda_srad.out":"Native","texture_bilateralFilter":"Texture"}
+names = {"srad_non_shared.out":"Non Shared","srad_shared.out":"Shared","srad.out":"Native","srad_texture.out":"Texture"}
 colors = {"Non Shared":"r","Shared":"g","Native":"b","Texture":'y'}
 for app in data:
     dims = json.load(open("dims.json","r"))

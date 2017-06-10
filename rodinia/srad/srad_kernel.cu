@@ -50,11 +50,19 @@ public:
 		int W = tx-1;
 		int E = tx+1;
 		float jc,n,s,we,e,g2,l,num,den,qsqr,c;
+		#ifdef TEXTURE
+		jc = (float) w[make_int2(ty,tx)];
+		n  = (float) w[make_int2(N,tx)] - jc;
+		s  = (float) w[make_int2(S,tx)] - jc;
+		we = (float) w[make_int2(ty,W)]  - jc;
+		e  = (float) w[make_int2(ty,E)] - jc;
+		#else
 		jc = (float) w[ty][tx];
 		n  = (float) w[N][tx] - jc;
 		s  = (float) w[S][tx] - jc;
 		we = (float) w[ty][W]  - jc;
 		e  = (float) w[ty][E] - jc;
+		#endif
 		g2 = ( n * n + s * s + we * we + e * e ) / (jc * jc);
 		l = ( n + s + we + e ) / jc;
 		num  = (0.5*g2) - ((1.0/16.0)*(l*l)) ;
@@ -111,6 +119,21 @@ public:
 		int W = tx-1;
 		int E = tx+1;
 		float cc,cn,cs,cw,ce;
+		#ifdef TEXTURE
+		cc = (float) c[make_int2(ty,tx)];
+		cn  = cc;
+		cs  = (float) c[make_int2(S,tx)];
+		cw  = cc;
+		ce  = (float) c[make_int2(ty,E)];
+		float jc,n,s,we,e;
+		jc = (float) w[make_int2(ty,tx)];
+		n  = (float) w[make_int2(N,tx)] - jc;
+		s  = (float) w[make_int2(S,tx)] - jc;
+		we = (float) w[make_int2(ty,W)]  - jc;
+		e  = (float) w[make_int2(ty,E)] - jc;
+		float d_D = cn*n +cs*s + ce*e + cw*we;
+		w[ty][tx] = (float) w[make_int2(ty,tx)] + 0.25 * lambda * d_D;
+		#else
 		cc = (float) c[ty][tx];
 		cn  = cc;
 		cs  = (float) c[S][tx];
@@ -122,11 +145,9 @@ public:
 		s  = (float) w[S][tx] - jc;
 		we = (float) w[ty][W]  - jc;
 		e  = (float) w[ty][E] - jc;
-		// divergence (equ 58)
 		float d_D = cn*n +cs*s + ce*e + cw*we;
-		// image update (equ 61)
-		// w[ty][tx];
 		w[ty][tx] = (float) w[ty][tx] + 0.25 * lambda * d_D;
+		#endif
 		return 0.0f;
 	}
 };
