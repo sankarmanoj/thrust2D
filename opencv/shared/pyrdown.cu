@@ -41,7 +41,6 @@ int main(int argc, char const *argv[])
   thrust::block_2d<uchar> convolve_image_block (image.cols,image.rows);
   thrust::block_2d<uchar> outBlock (image.cols/2,image.rows/2,0.0f);
   uchar * img = (uchar * )malloc(sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()));
-  uchar * img1 = (uchar * )malloc(sizeof(uchar)*(outBlock.end()-outBlock.begin()));
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     img[i]=(uchar)image.ptr()[i];
@@ -64,6 +63,5 @@ int main(int argc, char const *argv[])
   waitKey(0);
   #endif
   free (img);
-  free (img1);
   return 0;
 }

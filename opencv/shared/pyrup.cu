@@ -36,30 +36,25 @@ int main(int argc, char const *argv[])
     dim = atoi(argv[1]);
   }
   resize(small,image,Size(dim,dim));
-  thrust::block_2d<unsigned char > image_block (image.cols,image.rows);
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
+  thrust::block_2d<uchar> intermediate_image_block (image.cols*2,image.rows*2);
   thrust::block_2d<uchar> outBlock (image.cols*2,image.rows*2,0.0f);
   thrust::window_vector<uchar> output_wv(&outBlock,1,1,1,1);
-  uchar * img = (uchar * )malloc(sizeof(uchar)*(image_block.end()-image_block.begin()));
+  uchar * img = (uchar * )malloc(sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()));
   uchar * img_out = (uchar * )malloc(sizeof(uchar)*(outBlock.end()-outBlock.begin()));
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     img[i]=(uchar)image.ptr()[i];
   }
   uchar_image_block.upload(img);
-  thrust::window_vector<uchar> inputVector(&outBlock,1,1,1,1);
+  thrust::window_vector<uchar> inputVector(&intermediate_image_block,1,1,1,1);
   pyrupTransformFunctor ptf(&uchar_image_block);
   thrust::for_each(thrust::cuda::shared,inputVector.begin(),inputVector.end(),ptf);
   cudaDeviceSynchronize();
-  float kernel[3] = {0.25,0.5,0.25};
-  thrust::convolve(thrust::cuda::shared,&outBlock,kernel,3,&outBlock);
-  unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(outBlock.end()-outBlock.begin()));
-  outBlock.download(&img);
-  for(int i = 0; i<image.cols*image.rows*4;i++)
-  {
-    outputFloatImageData[i]=(unsigned char)img_out[i];
-  }
-  Mat output (Size(image.cols*2,image.rows*2),CV_8UC1,outputFloatImageData);
+  float kernel[5] = {0.0625*2,0.25*2,0.375*2,0.25*2,0.0625*2};
+  thrust::convolve(thrust::cuda::shared,&intermediate_image_block,kernel,5,&outBlock);
+  outBlock.download(&img_out);
+  Mat output (Size(image.cols*2,image.rows*2),CV_8UC1,img_out);
   #ifdef OWRITE
   imwrite("input.png",image);
   imwrite("pyrup.png",output);
