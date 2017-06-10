@@ -27,7 +27,7 @@ void getGaussianKernelBlock(int dim, float sigma,float *GaussianKernel )
   {
     for(int j = 0; j<dim;j++)
     {
-      (GaussianKernel)[i*dim + j]/=total;
+      (GaussianKernel)[i*dim + j]/=(0.25*total);
       newTotal +=  (GaussianKernel)[i*dim + j];
     }
   }
@@ -54,7 +54,7 @@ int main(int argc, char const *argv[]) {
   }
   uchar_image_block.upload(img);
   float kernel[9];
-  getGaussianKernelBlock(3,5,kernel);
+  getGaussianKernelBlock(3,1,kernel);
   thrust::convolve(thrust::cuda::shared,&uchar_image_block,kernel,3,&output_image_block);
 
   unsigned char * outputucharImageData = (unsigned char *)malloc(sizeof(unsigned char)*(output_image_block.end()-output_image_block.begin()));

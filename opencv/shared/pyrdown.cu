@@ -16,7 +16,7 @@ pyrdownTransformFunctor(thrust::block_2d<uchar> * inBlock)
   __device__ void operator() (const thrust::window_2d<uchar> &outputWindow) const
   {
     int x_in, y_in;
-    if(outputWindow.start_x%2 && outputWindow.start_y%2)
+    // if(outputWindow.start_x%2 && outputWindow.start_y%2)
     {
       x_in = outputWindow.start_x*2;
       y_in = outputWindow.start_y*2;
@@ -38,6 +38,7 @@ int main(int argc, char const *argv[])
   Mat image;
   resize(small,image,Size(dim,dim));
   thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
+  thrust::block_2d<uchar> convolve_image_block (image.cols,image.rows);
   thrust::block_2d<uchar> outBlock (image.cols/2,image.rows/2,0.0f);
   uchar * img = (uchar * )malloc(sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()));
   uchar * img1 = (uchar * )malloc(sizeof(uchar)*(outBlock.end()-outBlock.begin()));
@@ -46,18 +47,13 @@ int main(int argc, char const *argv[])
     img[i]=(uchar)image.ptr()[i];
   }
   uchar_image_block.upload(img);
-  float kernel[3] = {0.25,0.5,0.25};
-  thrust::convolve(thrust::cuda::shared,&uchar_image_block,kernel,3,&uchar_image_block);
-  thrust::window_vector<uchar> inputVector(&outBlock,1,1,1,1);
-  pyrdownTransformFunctor ptf(&uchar_image_block);
-  thrust::for_each(thrust::cuda::shared,inputVector.begin(),inputVector.end(),ptf);
-  unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(outBlock.end()-outBlock.begin()));
+  float kernel[5] = {0.0625,0.25,0.375,0.25,0.0625};
+  thrust::convolve(thrust::cuda::shared,&uchar_image_block,kernel,5,&convolve_image_block);
+  thrust::window_vector<uchar> outputVector(&outBlock,1,1,1,1);
+  pyrdownTransformFunctor ptf(&convolve_image_block);
+  thrust::for_each(thrust::cuda::shared,outputVector.begin(),outputVector.end(),ptf);
   outBlock.download(&img);
-  for(int i = 0; i<(outBlock.end()-outBlock.begin());i++)
-  {
-    outputFloatImageData[i]=(unsigned char)img1[i];
-  }
-  Mat output (Size(image.cols/2,image.rows/2),CV_8UC1,outputFloatImageData);
+  Mat output (Size(image.cols/2,image.rows/2),CV_8UC1,img);
   #ifdef OWRITE
   imwrite("input.png",image);
   imwrite("pyrdown.png",output);
@@ -69,6 +65,5 @@ int main(int argc, char const *argv[])
   #endif
   free (img);
   free (img1);
-  free (outputFloatImageData);
   return 0;
 }

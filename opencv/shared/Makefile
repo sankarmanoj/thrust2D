@@ -1,12 +1,21 @@
 IDIR =../../include
 CC=nvcc
-CFLAGS=-I$(IDIR) -ccbin=g++-5 -std=c++11 -arch=sm_60 
+CFLAGS=-I$(IDIR) -ccbin=g++-5 -std=c++11 -arch=sm_60
 DFLAGS =-DDEBUG -g -G -lineinfo -O0
 OPENCVFLAGS=$(shell pkg-config --libs --static opencv) -lcudart
 SRCS = $(wildcard *.cu)
 OBJS=$(SRCS:.cu=.o)
 PROFILES=$(OBJS:.o=.profile)
+.PHONY: all
 all: $(OBJS)
+
+debug: CFLAGS += $(DFLAGS)
+debug: $(OBJS)
+
+show: CFLAGS += -DSHOW
+show: $(OBJS)
+
+
 
 %.o:%.cu
 	$(CC)  $(CFLAGS) $(OPENCVFLAGS) $< -o $@
