@@ -130,7 +130,7 @@ const char *sReference[] =
 const char *srcImageFilename = "lena_bw.pgm";
 char *dumpFilename = NULL;
 void keyboard(unsigned char key, int /*x*/, int /*y*/);
-uint width = 512, height = 512;
+uint width = 1024, height = 1024;
 uint imageWidth, imageHeight;
 dim3 blockSize(16, 16);
 dim3 gridSize(width / blockSize.x, height / blockSize.y);
@@ -606,19 +606,20 @@ void runAutoTest(int argc, char **argv, const char *dump_filename, eFilterMode f
 
     printf("[%s] (automated testing w/ readback)\n", sSDKsample);
     printf("CUDA device [%s] has %d Multi-Processors\n", deviceProps.name, deviceProps.multiProcessorCount);
+    unsigned int *h_result = (unsigned int *)malloc(width * height * sizeof(unsigned int));
+    memset(h_result,INT_MAX,width * height * sizeof(unsigned int));
     #ifdef PROFILING
     imageWidth = atoi(argv[3]);
     imageHeight = atoi(argv[3]);
-    // initTexture(imageWidth, imageHeight, h_data);
     width = imageWidth;
     height = imageHeight;
+    initTexture(imageWidth, imageHeight,(uchar *)h_result);
     #else
     loadImageData(argc, argv);
     #endif
     uchar4 *d_output;
     checkCudaErrors(cudaMalloc((void **)&d_output, imageWidth*imageHeight*4));
     thrust::block_2d<uchar4> block_d_output (imageWidth,imageHeight);
-    unsigned int *h_result = (unsigned int *)malloc(width * height * sizeof(unsigned int));
 
     printf("AutoTest: %s Filter Mode: <%s>\n", sSDKsample, sFilterMode[g_FilterMode]);
 
@@ -633,9 +634,9 @@ void runAutoTest(int argc, char **argv, const char *dump_filename, eFilterMode f
     #ifndef PROFILING
     cudaMemcpy(h_result, block_d_output.data_pointer, imageWidth*imageHeight*4, cudaMemcpyDeviceToHost);
     sdkSavePPM4ub(dump_filename, (unsigned char *)h_result, imageWidth, imageHeight);
+    free(h_result);
     #endif
     checkCudaErrors(cudaFree(d_output));
-    free(h_result);
 }
 
 

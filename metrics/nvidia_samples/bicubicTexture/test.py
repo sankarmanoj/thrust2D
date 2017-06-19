@@ -23,7 +23,7 @@ for dim in dims:
         line = cr.next()
         values = len(line)
         while values >= 6 :
-            if "memcpy" not in line[6] and "memset" not in line[6] and "fill" not in line[6]:
+            if "d_render" in line[6]:
                 if "thrust" in line[6]:
                     Ttime += float(line[3])
                 else:

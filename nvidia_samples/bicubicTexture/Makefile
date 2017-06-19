@@ -35,7 +35,6 @@
 
 # Location of the CUDA Toolkit
 CUDA_PATH ?= "/usr/"
-dbg=1
 
 ##############################
 # start deprecated interface #
@@ -152,7 +151,7 @@ HOST_COMPILER ?= g++-5
 NVCC          := $(CUDA_PATH)/bin/nvcc -ccbin $(HOST_COMPILER) -DPROFILING
 
 # internal flags
-NVCCFLAGS   := -m${TARGET_SIZE}
+NVCCFLAGS   := -m${TARGET_SIZE} -DPROFILING
 CCFLAGS     :=
 LDFLAGS     :=
 
