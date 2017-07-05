@@ -58,7 +58,7 @@ int main(int argc, char **argv)
   }
   thrust::device_vector<floatD> d_XD;
   d_XD = h_XD;
-  float error;
+  float error ;
   do
   {
     float *ca_weights = d_weights.data().get();
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
     d_gradient = h_gradient;
     thrust::transform(d_weights.begin(),d_weights.end(),d_gradient.begin(),d_weights.begin(),update_weights(learn));
   }
-  while(error>threshold_error);
+  while(error>=threshold_error);
 
 
   h_error = d_error;

@@ -7,7 +7,7 @@ parser.add_argument('number',metavar='N',type=int,help='Number of Sample Points'
 args = parser.parse_args()
 d = args.dimension
 n = args.number
-output = open("./values.txt","w")
+output = open("/dev/shm/values.txt","w")
 output.write("%d\n%d\n"%(args.dimension,args.number))
 xvals = preprocessing.scale(numpy.random.rand(n,d))
 # print xvals
