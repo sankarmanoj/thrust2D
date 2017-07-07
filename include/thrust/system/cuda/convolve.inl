@@ -201,23 +201,17 @@ namespace thrust
 
 
   template <class T,class U>
-  void convolve(cuda::shared_policy,block_2d<T> *input, U *kernel,int dim,block_2d<T> *output)
+  void convolve(cuda::shared_policy,block_2d<T> *input, U *kernelX, U *kernelY,int dim,block_2d<T> *output)
   {
-    constant_vector<U >c_kernel(kernel, kernel+dim*dim, cudaMemoryTypeHost);
+    constant_vector<U >c_kernelX(kernelX, kernelX+dim, cudaMemoryTypeHost);
+    constant_vector<U >c_kernelY(kernelY, kernelY+dim, cudaMemoryTypeHost);
     T *d_Output, *d_Buffer;
     const int imageW = input->dim_x;
     const int imageH = input->dim_y;
     cudaMalloc((void **)&d_Output, imageW * imageH * sizeof(T));
     cudaMalloc((void **)&d_Buffer, imageW * imageH * sizeof(T));
-    convolutionRowsGPU ( d_Buffer , input , imageW , imageH , dim , c_kernel );
-    convolutionColumnsGPU(
-        d_Output,
-        d_Buffer,
-        imageW,
-        imageH,
-        dim,
-        c_kernel
-    );
+    convolutionRowsGPU (d_Buffer,input,imageW,imageH,dim,c_kernelX);
+    convolutionColumnsGPU(d_Output,d_Buffer,imageW,imageH,dim,c_kernelY);
     cudaMemcpy2D(output->data_pointer,output->pitch, d_Output,imageW*sizeof(T), imageW*sizeof(T), imageH, cudaMemcpyDeviceToDevice);
   }
 
