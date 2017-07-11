@@ -47,7 +47,7 @@ int main(int argc, char const *argv[])
   }
   uchar_image_block.upload(img);
   float kernel[5] = {0.0625,0.25,0.375,0.25,0.0625};
-  thrust::convolve(thrust::cuda::shared,&uchar_image_block,kernel,5,&convolve_image_block);
+  thrust::convolve(thrust::cuda::shared,&uchar_image_block,kernel,kernel,5,&convolve_image_block);
   thrust::window_vector<uchar> outputVector(&outBlock,1,1,1,1);
   pyrdownTransformFunctor ptf(&convolve_image_block);
   thrust::for_each(thrust::cuda::shared,outputVector.begin(),outputVector.end(),ptf);

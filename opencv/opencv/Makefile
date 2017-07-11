@@ -8,6 +8,10 @@ OBJS=$(SRCS:.cu=.o)
 PROFILES=$(OBJS:.o=.profile)
 all: $(OBJS)
 
+debug: CFLAGS += $(DFLAGS)
+debug: $(OBJS)
+show: CFLAGS += -DSHOW
+show: $(OBJS)
 %.o:%.cu
 	$(CC) $(CFLAGS) $(OPENCVFLAGS) $< -o $@
 %.profile:%.o

@@ -30,22 +30,16 @@ int main(int argc, char const *argv[]) {
   kernely[0]=+(1/4);
   kernely[1]=+(2/4);
   kernely[2]=+(1/4);
-  thrust::block_2d<uchar> uchar_image_block (image.cols,image.rows);
   thrust::block_2d<uchar> convolve1_block (image.cols,image.rows);
-  thrust::block_2d<uchar> convolve2_block (image.cols,image.rows);
   thrust::block_2d<uchar> outBlock (image.cols,image.rows);
-  uchar * img = (uchar * )malloc(sizeof(uchar)*(uchar_image_block.end()-uchar_image_block.begin()));
+  uchar * img = (uchar * )malloc(sizeof(uchar)*(convolve1_block.end()-convolve1_block.begin()));
   for(int i = 0; i<image.cols*image.rows;i++)
   {
     img[i]=(uchar)image.ptr()[i];
   }
-  uchar_image_block.upload(img);
   convolve1_block.upload(img);
-  convolve2_block.upload(img);
-  thrust::convolve(thrust::cuda::shared,&convolve1_block,kernelx,3,&convolve1_block);
-  thrust::convolve(thrust::cuda::shared,&convolve2_block,kernely,3,&convolve2_block);
-  thrust::transform(convolve1_block.begin(),convolve1_block.end(),convolve2_block.begin(),outBlock.begin(),transFunctor());
-  unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
+  thrust::convolve(thrust::cuda::shared,&convolve1_block,kernelx,kernely,3,&outBlock);
+  unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(convolve1_block.end()-convolve1_block.begin()));
   outBlock.download(&img);
   for(int i = 0; i<image.cols*image.rows;i++)
   {

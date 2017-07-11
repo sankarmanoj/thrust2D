@@ -14,7 +14,7 @@ for texec in execs:
     times = {".name":texec}
     print texec,
     for dim in dims:
-        print os.popen("nvprof -u us --csv --log-file log.txt ./%s %d"%(texec,dim)).read()
+        print os.popen("sudo nvprof -u us --csv --log-file log.txt ./%s %d"%(texec,dim)).read()
         print dim
         with open("log.txt","r") as x:
             cr = csv.reader(x)

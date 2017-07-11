@@ -17,7 +17,7 @@ int main ( int argc, char **argv )
     cv::resize(im_rgb_t,im_rgb,cv::Size(dim,2*dim));
     cv::cuda::GpuMat im_rgb_d, img_final_d;
     im_rgb_d.upload(im_rgb);
-    cv::Ptr<cv::cuda::Filter> gaussian = cv::cuda::createGaussianFilter(im_rgb_d.type(),img_final_d.type(), cv::Size(5,5), 0.8);
+    cv::Ptr<cv::cuda::Filter> gaussian = cv::cuda::createGaussianFilter(im_rgb_d.type(),img_final_d.type(), cv::Size(3,3), 0.8);
     gaussian->apply(im_rgb_d, img_final_d);
     img_final_d.download(img_final);
     #ifdef OWRITE

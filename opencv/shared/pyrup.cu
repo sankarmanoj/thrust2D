@@ -52,7 +52,7 @@ int main(int argc, char const *argv[])
   thrust::for_each(thrust::cuda::shared,inputVector.begin(),inputVector.end(),ptf);
   cudaDeviceSynchronize();
   float kernel[5] = {0.0625*2,0.25*2,0.375*2,0.25*2,0.0625*2};
-  thrust::convolve(thrust::cuda::shared,&intermediate_image_block,kernel,5,&outBlock);
+  thrust::convolve(thrust::cuda::shared,&intermediate_image_block,kernel,kernel,5,&outBlock);
   outBlock.download(&img_out);
   Mat output (Size(image.cols*2,image.rows*2),CV_8UC1,img_out);
   #ifdef OWRITE

@@ -4,103 +4,69 @@
         "void thrust::convolutionColumnsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)": [
             [
                 128,
-                5.391
+                6.016
             ],
             [
                 256,
-                5.632
+                6.368
             ],
             [
                 384,
-                7.791
+                6.592
             ],
             [
                 512,
-                9.792
+                10.016
             ],
             [
                 640,
-                13.759
+                13.952
             ],
             [
                 768,
-                19.247
+                21.024
             ],
             [
                 896,
-                24.719
+                26.464
             ],
             [
                 1024,
-                30.718
+                34.081
             ]
         ],
         "void thrust::convolutionRowsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)": [
             [
                 128,
-                5.248
+                6.176
             ],
             [
                 256,
-                5.503
+                6.784
             ],
             [
                 384,
-                7.824
+                7.168
             ],
             [
                 512,
-                8.591
+                9.856
             ],
             [
                 640,
-                11.711
+                13.472
             ],
             [
                 768,
-                18.927
+                20.448
             ],
             [
                 896,
-                23.534
+                25.728
             ],
             [
                 1024,
-                29.71
-            ]
-        ],
-        "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<transFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
-            [
-                128,
-                4.895
-            ],
-            [
-                256,
-                11.232
-            ],
-            [
-                384,
-                22.463
-            ],
-            [
-                512,
-                38.877
-            ],
-            [
-                640,
-                59.677
-            ],
-            [
-                768,
-                86.107
-            ],
-            [
-                896,
-                117.817
-            ],
-            [
-                1024,
-                151.64
+                32.288
             ]
         ]
     },
@@ -109,69 +75,69 @@
         "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<transFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
             [
                 128,
-                5.088
+                5.376
             ],
             [
                 256,
-                11.071
+                12.224
             ],
             [
                 384,
-                22.559
+                24.64
             ],
             [
                 512,
-                38.91
+                42.72
             ],
             [
                 640,
-                59.773
+                65.537
             ],
             [
                 768,
-                85.787
+                94.113
             ],
             [
                 896,
-                117.242
+                128.098
             ],
             [
                 1024,
-                152.312
+                165.666
             ]
         ],
         "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<convolutionFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
             [
                 128,
-                6.736
+                7.312
             ],
             [
                 256,
-                19.039
+                21.568
             ],
             [
                 384,
-                39.133
+                44.48
             ],
             [
                 512,
-                64.637
+                70.097
             ],
             [
                 640,
-                96.171
+                105.377
             ],
             [
                 768,
-                140.809
+                154.594
             ],
             [
                 896,
-                191.462
+                220.131
             ],
             [
                 1024,
-                236.612
+                277.139
             ]
         ]
     },
@@ -180,69 +146,69 @@
         "void column_filter::linearColumnFilter<int=3, float, unsigned char, cv::cuda::device::BrdColReflect101<float>>(cv::cuda::PtrStepSz<float>, cv::cuda::PtrStep<unsigned char>, int, float)": [
             [
                 128,
-                4.399
+                4.704
             ],
             [
                 256,
-                4.399
+                5.008
             ],
             [
                 384,
-                6.863
+                7.328
             ],
             [
                 512,
-                10.047
+                11.888
             ],
             [
                 640,
-                14.8
+                16.624
             ],
             [
                 768,
-                23.486
+                25.392
             ],
             [
                 896,
-                29.983
+                32.0
             ],
             [
                 1024,
-                36.974
+                40.256
             ]
         ],
         "void row_filter::linearRowFilter<int=3, unsigned char, float, cv::cuda::device::BrdRowReflect101<unsigned char>>(cv::cuda::PtrStepSz<unsigned char>, cv::cuda::PtrStep<float>, int, unsigned char)": [
             [
                 128,
-                3.872
+                4.256
             ],
             [
                 256,
-                4.208
+                4.928
             ],
             [
                 384,
-                6.079
+                6.848
             ],
             [
                 512,
-                8.079
+                9.2
             ],
             [
                 640,
-                12.047
+                13.6
             ],
             [
                 768,
-                15.823
+                18.256
             ],
             [
                 896,
-                22.287
+                24.256
             ],
             [
                 1024,
-                29.39
+                31.76
             ]
         ]
     }
