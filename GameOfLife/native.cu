@@ -71,8 +71,11 @@ int main(int argc, char* argv[])
     int* d_grid; //Grid on device
     int* d_newGrid; //Second grid used on device only
     int* d_tmpGrid; //tmp grid pointer used to switch between grid and newGrid
-
-    int dim = 1024; //Linear dimension of our grid - not counting ghost cells
+    int dim;
+    if (argc==2)
+     dim = atoi(argv[1]);
+    else
+     dim = 1024;
     int maxIter = 1<<10; //Number of game steps
 
     size_t bytes = sizeof(int)*(dim+2)*(dim+2);//2 added for periodic boundary condition ghost cells

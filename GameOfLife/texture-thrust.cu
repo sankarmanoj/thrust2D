@@ -33,11 +33,11 @@ public:
   {
       int numNeighbors;
       // Get the number of neighbors for a given grid point
-      numNeighbors = inputWindow[0][1]+inputWindow[2][1]+
-                  inputWindow[1][0]+inputWindow[1][2]+
-                  inputWindow[0][0]+inputWindow[2][2]+
-                  inputWindow[0][2]+inputWindow[2][0];
-      int cell = inputWindow[1][1];
+      numNeighbors = inputWindow[make_int2(0,1)]+inputWindow[make_int2(2,1)]+
+                  inputWindow[make_int2(1,0)]+inputWindow[make_int2(1,2)]+
+                  inputWindow[make_int2(0,0)]+inputWindow[make_int2(2,2)]+
+                  inputWindow[make_int2(0,2)]+inputWindow[make_int2(2,0)];
+      int cell = inputWindow[make_int2(1,1)];
       // Here we have explicitly all of the game rules
       if (cell == 1 && numNeighbors < 2)
           outputWindow[1][1] = 0;
@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
         thrust::for_each(ghostColsWindows.begin(),ghostColsWindows.end(),ghostColsFunctor());
         thrust::window_vector<int>GOLInputVector(d_grid,3,3,1,1);
         thrust::window_vector<int>GOLOutputVector(d_new_grid,3,3,1,1);
-        thrust::transform(thrust::cuda::shared,GOLInputVector.begin(),GOLInputVector.end(),GOLOutputVector.begin(),GOLFunctor());
+        thrust::transform(thrust::cuda::texture,GOLInputVector.begin(),GOLInputVector.end(),GOLOutputVector.begin(),GOLFunctor());
         // ghostRows<<<cpyGridRowsGridSize, cpyBlockSize>>>(dim, d_grid);
         // ghostCols<<<cpyGridColsGridSize, cpyBlockSize>>>(dim, d_grid);
         // GOL<<<gridSize, blockSize>>>(dim, d_grid, d_newGrid);
