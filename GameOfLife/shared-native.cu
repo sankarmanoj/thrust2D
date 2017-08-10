@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    cudaFuncSetCacheConfig(GOL, cudaFuncCachePreferShared);
+    // cudaFuncSetCacheConfig(GOL, cudaFuncCachePreferShared);
 
     // Copy over initial game grid (Dim-1 threads)
     cudaMemcpy(d_grid, h_grid, bytes, cudaMemcpyHostToDevice);

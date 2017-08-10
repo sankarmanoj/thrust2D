@@ -7,8 +7,8 @@ plt.title("Game Of Life")
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
-names={"shared-thrust.o":"Shared Thrust","shared-native.o":"Shared Native","texture-thrust.o":"Texture Thrust","native.o":"Native"}
-colors = {"Shared Thrust":"r","Texture Thrust":"y","Shared Native":"b","Native":"g"}
+names={"thrust.o":"Thrust","shared-thrust.o":"Shared Thrust","shared-native.o":"Shared Native","texture-thrust.o":"Texture Thrust","native.o":"Native"}
+colors = {"Thrust":'k',"Shared Thrust":"r","Texture Thrust":"y","Shared Native":"b","Native":"g"}
 for app in data:
     dims = json.load(open("dims.json","r"))
     total = [0 for x in dims]

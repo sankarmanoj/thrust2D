@@ -37,19 +37,18 @@ public:
                   inputWindow[1][0]+inputWindow[1][2]+
                   inputWindow[0][0]+inputWindow[2][2]+
                   inputWindow[0][2]+inputWindow[2][0];
-      // int cell = inputWindow[1][1];
+      int cell = inputWindow[1][1];
       // Here we have explicitly all of the game rules
-      // if (cell == 1 && numNeighbors < 2)
-      //     outputWindow[1][1] = 0;
-      // else if (cell == 1 && (numNeighbors == 2 || numNeighbors == 3))
-      //     outputWindow[1][1] = 1;
-      // else if (cell == 1 && numNeighbors > 3)
-      //     outputWindow[1][1] = 0;
-      // else if (cell == 0 && numNeighbors == 3)
-      //     outputWindow[1][1] = 1;
-      // else
-      //     outputWindow[1][1] = cell;
-      outputWindow[1][1]=(numNeighbors==3)||(inputWindow[1][1]&&(numNeighbors==2));
+      if (cell == 1 && numNeighbors < 2)
+          outputWindow[1][1] = 0;
+      else if (cell == 1 && (numNeighbors == 2 || numNeighbors == 3))
+          outputWindow[1][1] = 1;
+      else if (cell == 1 && numNeighbors > 3)
+          outputWindow[1][1] = 0;
+      else if (cell == 0 && numNeighbors == 3)
+          outputWindow[1][1] = 1;
+      else
+          outputWindow[1][1] = cell;
 
       return 0;
   }
@@ -69,6 +68,7 @@ int main(int argc, char* argv[])
     thrust::block_2d<bool> *d_grid = new thrust::block_2d<bool>(dim+2,dim+2);
     thrust::block_2d<bool> *d_new_grid = new thrust::block_2d<bool>(dim+2,dim+2);
     thrust::block_2d<bool> *d_temp_grid;
+    thrust::device_vector<bool> null_vector(dim*dim);
     thrust::host_block_2d<bool> h_grid(dim+2,dim+2);
 
     // Assign initial population randomly
@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
         thrust::for_each(ghostColsWindows.begin(),ghostColsWindows.end(),ghostColsFunctor());
         thrust::window_vector<bool>GOLInputVector(d_grid,3,3,1,1);
         thrust::window_vector<bool>GOLOutputVector(d_new_grid,3,3,1,1);
-        thrust::transform(thrust::cuda::shared,GOLInputVector.begin(),GOLInputVector.end(),GOLOutputVector.begin(),GOLFunctor());
+        thrust::transform(GOLInputVector.begin(),GOLInputVector.end(),GOLOutputVector.begin(),null_vector.begin(),GOLFunctor());
         // ghostRows<<<cpyGridRowsGridSize, cpyBlockSize>>>(dim, d_grid);
         // ghostCols<<<cpyGridColsGridSize, cpyBlockSize>>>(dim, d_grid);
         // GOL<<<gridSize, blockSize>>>(dim, d_grid, d_newGrid);

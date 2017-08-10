@@ -25,7 +25,7 @@ for texec in execs:
             line = cr.next()
             values = len(line)
             while values >= 6 :
-                if "memcpy" not in line[6] and "memset" not in line[6] and "fill" not in line[6]:
+                if "memcpy" not in line[6] and "memset" not in line[6] and "fill" not in line[6] and "GOL" in line[6]:
                     try:
                         times[line[6]]
                     except:
