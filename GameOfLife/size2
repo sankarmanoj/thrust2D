@@ -1,0 +1,16 @@
+total 176
+drwxr-xr-x  2 sankarmanoj sankarmanoj  4096 Aug 10 21:04 ./
+drwxr-xr-x 17 sankarmanoj sankarmanoj  4096 Aug 10 20:45 ../
+-rw-r--r--  1 sankarmanoj sankarmanoj   186 Aug 10 20:45 Makefile
+-rw-r--r--  1 sankarmanoj sankarmanoj  4109 Aug  7 22:14 native.cu
+-rw-rw-r--  1 sankarmanoj sankarmanoj  5267 Aug 10 21:04 native.o
+-rw-r--r--  1 sankarmanoj sankarmanoj  4900 Aug  7 22:23 shared-native.cu
+-rw-rw-r--  1 sankarmanoj sankarmanoj  6013 Aug 10 21:04 shared-native.o
+-rw-r--r--  1 sankarmanoj sankarmanoj  3938 Aug  8 21:03 shared-thrust.cu
+-rw-rw-r--  1 sankarmanoj sankarmanoj 31057 Aug 10 21:04 shared-thrust.o
+-rw-rw-r--  1 sankarmanoj sankarmanoj   969 Aug 10 21:02 size1
+-rw-rw-r--  1 sankarmanoj sankarmanoj     0 Aug 10 21:04 size2
+-rw-r--r--  1 sankarmanoj sankarmanoj  3898 Aug  7 22:14 texture-thrust.cu
+-rw-rw-r--  1 sankarmanoj sankarmanoj 31141 Aug 10 21:04 texture-thrust.o
+-rw-rw-r--  1 sankarmanoj sankarmanoj  3874 Aug  7 22:14 thrust.cu
+-rw-rw-r--  1 sankarmanoj sankarmanoj 50725 Aug 10 21:04 thrust.o
