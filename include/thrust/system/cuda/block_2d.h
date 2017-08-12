@@ -54,7 +54,7 @@ namespace thrust
 		typedef T& reference;
 		typedef T* pointer;
 		__host__ __device__ block_2d_iterator (block_2d<T,Alloc> *b, int index);
-		__host__ __device__ reference operator[] (int index) const;
+		__host__ __device__  __forceinline__ reference operator[] (int index) const;
 	};
 
 	template <class T,class Alloc>
@@ -83,8 +83,8 @@ namespace thrust
 		__host__ void download (T** data);
 		__host__ void download (T** data,cudaMemoryType type);
 		__host__ __device__ int2 index_to_int2(int index) const;
-		__host__ __device__ block_2d_iterator<T,Alloc> operator[] (int index);
-		__host__ __device__ reference operator[] (int2 index) const;
+		__host__ __device__ __forceinline__ block_2d_iterator<T,Alloc> operator[] (int index);
+		__host__ __device__ __forceinline__ reference operator[] (int2 index) const;
 		iterator begin();
 		iterator end();
 		#if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA

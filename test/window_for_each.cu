@@ -4,35 +4,36 @@
 #include <thrust/window_transform.h>
 #define X 32
 #define Y 32
-#define XSTART 0
-#define XRANGE 10
-#define YSTART 0
-#define YRANGE 10
+#define XSTART 10
+#define XRANGE 20
+#define YSTART 10
+#define YRANGE 20
 
-class printFunctor : public thrust::shared_binary_window_transform_functor<float>
+class printFunctor
 {
 public:
-  __device__ void operator() (const thrust::window_2d<float> &inputWindow,const thrust::window_2d<float> &inputWindow1, const thrust::window_2d<float> &outputWindow) const
+  __device__ void operator() (const thrust::window_2d<int> &inputWindow,const thrust::window_2d<int> &inputWindow1, const thrust::window_2d<int> &outputWindow) const
   {
-  printf("%f=%f+%f\n",(float)outputWindow[0][0],(float) inputWindow[0][0],(float)inputWindow1[0][0]);
+  printf("%f=%f+%f\n",(int)outputWindow[0][0],(int) inputWindow[0][0],(int)inputWindow1[0][0]);
      outputWindow[0][0]=inputWindow[0][0] + inputWindow1[0][0];
   }
 };
 
-class printFunctor1 : public thrust::shared_unary_window_transform_functor<float>
+class printFunctor1
 {
 public:
-  __device__ void operator() (const thrust::window_2d<float> &inputWindow, const thrust::window_2d<float> &outputWindow) const
+  __device__ void operator() (const thrust::window_2d<int> &inputWindow, const thrust::window_2d<int> &outputWindow) const
   {
-    printf("%f - %d - %d\n",tex2D<float>(inputWindow.texref,blockIdx.x*blockDim.x + threadIdx.x,blockIdx.y*blockDim.y + threadIdx.y),blockIdx.x*blockDim.x + threadIdx.x,blockIdx.y*blockDim.y + threadIdx.y);
+    // printf("%f - %d - %d\n",tex2D<int>(inputWindow.texref,blockIdx.x*blockDim.x + threadIdx.x,blockIdx.y*blockDim.y + threadIdx.y),blockIdx.x*blockDim.x + threadIdx.x,blockIdx.y*blockDim.y + threadIdx.y);
+    outputWindow[0][0]=inputWindow[make_int2(1,1)];
   }
 };
 
-class forEachFunctor : public thrust::shared_window_for_each_functor<float>
+class forEachFunctor
 {
 public:
 
-  __device__ void operator() (const thrust::window_2d<float> &inputWindow) const
+  __device__ void operator() (const thrust::window_2d<int> &inputWindow) const
   {
      inputWindow[0][0]=934;
     //  printf("%d %d %d\n",outputWindow[0][0], inputWindow[0][0],inputWindow1[0][0]);
@@ -41,40 +42,44 @@ public:
 int main()
 {
   srand(13);
-  thrust::block_2d<float> inBlock(X,Y);
-  thrust::block_2d<float> outBlock(X,Y);
+  thrust::block_2d<int> inBlock(X,Y);
+  thrust::block_2d<int> outBlock(X,Y);
+  thrust::host_block_2d<int> h_inBlock(X,Y);
+  thrust::host_block_2d<int> h_outBlock(X,Y);
   thrust::sequence(inBlock.begin(),inBlock.end());
   thrust::fill(outBlock.begin(),outBlock.end(),777.0f);
-  thrust::window_vector<float> myVector = thrust::window_vector<float>(&inBlock,3,3,2,2);
-  thrust::window_vector<float> mySecondVector = thrust::window_vector<float>(&outBlock,3,3,2,2);
-  // for (int j=YSTART;j<YSTART + YRANGE;j++)
-  // {
-  //   for (int i=XSTART; i<XSTART + XRANGE;i++)
-  //   {
-  //       int2 pos = make_int2(i,j);
-  //       printf("%5.0f ",inBlock[pos]);
-  //   }
-  //   std::cout<<"\n";
-  // }
+  h_inBlock =inBlock;
+  thrust::window_vector<int> myVector = thrust::window_vector<int>(&inBlock,3,3,1,1);
+  thrust::window_vector<int> mySecondVector = thrust::window_vector<int>(&outBlock,3,3,1,1);
+  for (int j=YSTART;j<YSTART + YRANGE;j++)
+  {
+    for (int i=XSTART; i<XSTART + XRANGE;i++)
+    {
+        int2 pos = make_int2(i,j);
+        printf("%d ",h_inBlock[pos]);
+    }
+    std::cout<<"\n";
+  }
   cudaEvent_t start, stop;
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
   cudaEventRecord(start);
   // thrust::transform(thrust::cuda::shared,myVector.begin(),myVector.end(),myVector1.begin(),mySecondVector.begin(),printFunctor());
-  thrust::transform_texture(thrust::cuda::shared,myVector.begin(),myVector.end(),mySecondVector.begin(),printFunctor1());
+  thrust::transform(thrust::cuda::texture,myVector.begin(),myVector.end(),mySecondVector.begin(),printFunctor1());
   cudaEventRecord(stop);
   cudaEventSynchronize(stop);
   float milliseconds = 0;
   cudaEventElapsedTime(&milliseconds, start, stop);
+  h_outBlock = outBlock;
   printf("\nTime Taken = %f\n",milliseconds);
-  //
-  // for (int j=YSTART;j<YSTART + YRANGE;j++)
-  // {
-  //   for (int i=XSTART; i<XSTART + XRANGE;i++)
-  //   {
-  //       int2 pos = make_int2(i,j);
-  //       printf("%5.0f  ",(float)outBlock[pos]);
-  //   }
-  //   std::cout<<"\n";
-  // }
+
+  for (int j=YSTART;j<YSTART + YRANGE;j++)
+  {
+    for (int i=XSTART; i<XSTART + XRANGE;i++)
+    {
+        int2 pos = make_int2(i,j);
+        printf("%d  ",(int)h_outBlock[pos]);
+    }
+    std::cout<<"\n";
+  }
 }

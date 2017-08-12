@@ -91,7 +91,7 @@ namespace thrust
 
 
   template <class T,class Alloc>
-  __host__ __device__ window_2d_iterator<T> window_2d<T,Alloc>::operator[] (int index) const
+  __host__ __device__  __forceinline__ window_2d_iterator<T> window_2d<T,Alloc>::operator[] (int index) const
   {
     int position;
     #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
@@ -108,7 +108,7 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  __host__ __device__ T window_2d<T,Alloc>::operator[] (int2 index) const
+  __device__  __forceinline__ T window_2d<T,Alloc>::operator[] (int2 index) const
   {
     #if THRUST_DEVICE_SYSTEM==THRUST_DEVICE_SYSTEM_CUDA
     if(is_texture)
@@ -128,7 +128,7 @@ namespace thrust
     }
   }
   template<class T>
-  __host__ __device__ T & window_2d_iterator<T>::operator[] (int index) const
+  __host__ __device__  __forceinline__ T & window_2d_iterator<T>::operator[] (int index) const
   {
       return data[position + index];
   }

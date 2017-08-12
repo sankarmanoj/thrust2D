@@ -37,18 +37,7 @@ public:
                   inputWindow[make_int2(1,0)]+inputWindow[make_int2(1,2)]+
                   inputWindow[make_int2(0,0)]+inputWindow[make_int2(2,2)]+
                   inputWindow[make_int2(0,2)]+inputWindow[make_int2(2,0)];
-      int cell = inputWindow[make_int2(1,1)];
-      // Here we have explicitly all of the game rules
-      if (cell == 1 && numNeighbors < 2)
-          outputWindow[1][1] = 0;
-      else if (cell == 1 && (numNeighbors == 2 || numNeighbors == 3))
-          outputWindow[1][1] = 1;
-      else if (cell == 1 && numNeighbors > 3)
-          outputWindow[1][1] = 0;
-      else if (cell == 0 && numNeighbors == 3)
-          outputWindow[1][1] = 1;
-      else
-          outputWindow[1][1] = cell;
+      outputWindow[1][1]=(numNeighbors==3)||(inputWindow[make_int2(1,1)]&&(numNeighbors==2));
 
       return 0;
   }

@@ -239,12 +239,15 @@ namespace thrust
   // __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)
   void transform_texture_kernel (cudaTextureObject_t texref, window_iterator<T2> * output, warp_launcher_config mConfiguration, Func f)
   {
-
+    extern __shared__ T2 shared_memory [];
     if((mConfiguration.block_dim_x<blockIdx.x*mConfiguration.warp_size + threadIdx.x+mConfiguration.window_dim_x)||(mConfiguration.block_dim_y<blockIdx.y*mConfiguration.warp_size + threadIdx.y+mConfiguration.window_dim_y))
       return;
     window_2d<T1> shared_window(texref,mConfiguration.stride_x*(blockIdx.x*blockDim.x+ threadIdx.x),output->stride_y*(blockIdx.y*blockDim.y+ threadIdx.y),output->window_dim_x,output->window_dim_y);
     window_2d<T2> output_window(output->b,mConfiguration.stride_x*(blockIdx.x*blockDim.x+ threadIdx.x),output->stride_y*(blockIdx.y*blockDim.y+ threadIdx.y),output->window_dim_x,output->window_dim_y);
+    // window_2d<T2> output_window(output->b,shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,output->window_dim_x,output->window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+mConfiguration.padding, output->pitch);
     f(shared_window,output_window);
+    __syncthreads();
+    // (*(output->b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y)]=shared_memory[threadIdx.y*mConfiguration.shared_size_x+threadIdx.x];
 
   }
 
@@ -270,7 +273,7 @@ namespace thrust
     mConfiguration.block_dim_y = begin1.block_dim_y;
     mConfiguration.window_dim_x = begin1.window_dim_x;
     mConfiguration.window_dim_y = begin1.window_dim_y;
-    mConfiguration.padding = begin1.window_dim_x - begin1.stride_x;
+    mConfiguration.padding = 0;
     mConfiguration.shared_size_x = mConfiguration.warp_size+mConfiguration.padding;
     // assert(!(begin1.block_dim_y%mConfiguration.warp_size));
     // assert(!(begin1.block_dim_x%mConfiguration.warp_size));
@@ -298,7 +301,7 @@ namespace thrust
     //Texture Object Creation
     cudaTextureObject_t texref;
     cudaCreateTextureObject(&texref, &resDesc, &texDesc, NULL);
-    transform_texture_kernel<T1,T2><<<dim3(iDivUp(begin1.block_dim_x,mConfiguration.warp_size),iDivUp(begin1.block_dim_y,mConfiguration.warp_size),1),dim3(mConfiguration.warp_size,mConfiguration.warp_size,1)>>>(texref,begin2.device_pointer,mConfiguration,f);
+    transform_texture_kernel<T1,T2><<<dim3(iDivUp(begin1.block_dim_x,mConfiguration.warp_size),iDivUp(begin1.block_dim_y,mConfiguration.warp_size),1),dim3(mConfiguration.warp_size,mConfiguration.warp_size,1),(size_along_y+mConfiguration.padding)*(mConfiguration.padding+size_along_x)*sizeof(T2)>>>(texref,begin2.device_pointer,mConfiguration,f);
   }
 
 }
