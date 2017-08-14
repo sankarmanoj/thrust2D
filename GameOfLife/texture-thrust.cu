@@ -29,18 +29,19 @@ class GOLFunctor
 {
 
 public:
-  __device__ void operator() (cudaTextureObject_t texref,thrust::block_2d<short> &output) const
+  __device__ void operator() (thrust::window_2d<short> &inputWindow, thrust::window_2d<short> &outputWindow) const
   {
       int numNeighbors;
       // Get the number of neighbors for a given grid point
-      numNeighbors = tex2D<short>(texref,blockIdx.x*blockDim.x + threadIdx.x+ 0,threadIdx.y + blockIdx.y*blockDim.y +1)+tex2D<short>(texref,blockIdx.x*blockDim.x + threadIdx.x+ 2,threadIdx.y + blockIdx.y*blockDim.y +1)+
-                  tex2D<short>(texref,blockIdx.x*blockDim.x + threadIdx.x+ 1,threadIdx.y + blockIdx.y*blockDim.y +0)+tex2D<short>(texref,blockIdx.x*blockDim.x + threadIdx.x+ 1,threadIdx.y + blockIdx.y*blockDim.y +2)+
-                  tex2D<short>(texref,blockIdx.x*blockDim.x + threadIdx.x+ 0,threadIdx.y + blockIdx.y*blockDim.y +0)+tex2D<short>(texref,blockIdx.x*blockDim.x + threadIdx.x+ 2,threadIdx.y + blockIdx.y*blockDim.y +2)+
-                  tex2D<short>(texref,blockIdx.x*blockDim.x + threadIdx.x+ 0,threadIdx.y + blockIdx.y*blockDim.y +2)+tex2D<short>(texref,blockIdx.x*blockDim.x + threadIdx.x+ 2,threadIdx.y + blockIdx.y*blockDim.y +0);
-      output[threadIdx.y + blockIdx.y*blockDim.y +1][blockIdx.x*blockDim.x + 1]=(numNeighbors==3)||(tex2D<short>(texref,blockIdx.x*blockDim.x + 1,threadIdx.y + blockIdx.y*blockDim.y +1)&&(numNeighbors==2));
+      numNeighbors = inputWindow[make_int2(0,1)]+inputWindow[make_int2(2,1)]+
+                  inputWindow[make_int2(1,0)]+inputWindow[make_int2(1,2)]+
+                  inputWindow[make_int2(0,0)]+inputWindow[make_int2(2,2)]+
+                  inputWindow[make_int2(0,2)]+inputWindow[make_int2(2,0)];
+      outputWindow[1][1]=(numNeighbors==3)||(inputWindow[make_int2(1,1)]&&(numNeighbors==2));
 
   }
-};int main(int argc, char* argv[])
+};
+int main(int argc, char* argv[])
 {
     int i,j,iter;
 

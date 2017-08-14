@@ -54,11 +54,16 @@ int main(int argc, char* argv[])
     int* d_newGrid; //Second grid used on device only
 
     int dim;
+    int maxIter = 1<<10; //Number of game steps
     if (argc==2)
      dim = atoi(argv[1]);
+    else if (argc==3)
+    {
+      dim = atoi(argv[1]);
+      maxIter = atoi(argv[2]);
+    }
     else
      dim = 1024;
-    int maxIter = 1<<10; //Number of game steps
 
     size_t bytes = sizeof(int)*dim*dim;
     //Allocate host Grid used for initial setup and read back from device

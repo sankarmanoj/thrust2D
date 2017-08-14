@@ -8,12 +8,12 @@ print path
 results = []
 execs = [ x for x in  os.listdir(path) if x.partition(".")[2]=="o" ]
 print execs
-dims = range(10,1000,20)
+dims = range(10,1000,50)
 for texec in execs:
     times = {".name":texec}
     print texec,
     for dim in dims:
-        os.popen("nvprof -u us --csv --log-file log.txt ./%s %d"%(texec,dim))
+        os.popen("nvprof -u us --csv --log-file log.txt ./%s %d 2"%(texec,dim))
         print dim
         with open("log.txt","r") as x:
             cr = csv.reader(x)

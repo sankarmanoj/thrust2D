@@ -59,11 +59,16 @@ int main(int argc, char* argv[])
 
 
     int dim;
+    int maxIter = 1<<10; //Number of game steps
     if (argc==2)
      dim = atoi(argv[1]);
+    else if (argc==3)
+    {
+      dim = atoi(argv[1]);
+      maxIter = atoi(argv[2]);
+    }
     else
      dim = 1024;
-    int maxIter = 1<<10; //Number of game steps
 
     thrust::block_2d<bool> *d_grid = new thrust::block_2d<bool>(dim+2,dim+2);
     thrust::block_2d<bool> *d_new_grid = new thrust::block_2d<bool>(dim+2,dim+2);
