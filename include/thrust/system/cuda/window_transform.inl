@@ -220,10 +220,9 @@ namespace thrust
       return;
     window_2d<T1> shared_window(texref,mConfiguration.stride_x*(blockIdx.x*blockDim.x+ threadIdx.x),mConfiguration.stride_y*(blockIdx.y*blockDim.y+ threadIdx.y),mConfiguration.window_dim_x,mConfiguration.window_dim_y);
     window_2d<T2> output_window(output,mConfiguration.stride_x*(blockIdx.x*blockDim.x+ threadIdx.x),mConfiguration.stride_y*(blockIdx.y*blockDim.y+ threadIdx.y),mConfiguration.window_dim_x,mConfiguration.window_dim_y,pitch2);
-    // window_2d<T2> output_window(mConfiguration.b,shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,mConfiguration.window_dim_x,mConfiguration.window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+mConfiguration.padding, mConfiguration.pitch);
     f(shared_window,output_window);
     __syncthreads();
-    // (*(mConfiguration.b))[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y)]=shared_memory[threadIdx.y*mConfiguration.shared_size_x+threadIdx.x];
+
 
   }
 

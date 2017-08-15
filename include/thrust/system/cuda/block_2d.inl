@@ -193,12 +193,12 @@ namespace thrust
     memcpy(*data,this->data_pointer,this->dim_x*sizeof(T)*this->dim_y);
   }
   template <class T,class Alloc>
-  __host__ __device__ block_2d_iterator<T,Alloc> block_2d<T,Alloc>::operator[] (int index)
+  __host__ __device__  __forceinline__ block_2d_iterator<T,Alloc> block_2d<T,Alloc>::operator[] (int index)
   {
     return block_2d_iterator<T,Alloc>(this,index);
   }
   template <class T,class Alloc>
-  __host__ __device__ typename block_2d<T,Alloc>::reference block_2d<T,Alloc>::operator[] (int2 index) const
+  __host__ __device__  __forceinline__ typename block_2d<T,Alloc>::reference block_2d<T,Alloc>::operator[] (int2 index) const
   {
     // if(index.y<0||index.x<0||index.y>=dim_y||index.x>=dim_x)
     // {
@@ -254,7 +254,7 @@ namespace thrust
     this->index_y=index;
   }
   template<class T,class Alloc>
-  __host__ __device__ T & block_2d_iterator<T,Alloc>::operator[] (int index) const
+  __host__ __device__  __forceinline__ T & block_2d_iterator<T,Alloc>::operator[] (int index) const
   {
     return b->data_pointer[index_y*b->pitch/sizeof(T) + index];
   }
@@ -283,7 +283,7 @@ namespace thrust
     return (*parent_block)[temp];
   }
   template<class T,class Alloc>
-  __host__ __device__ typename block_iterator<T,Alloc>::reference	block_iterator<T,Alloc>::operator[] (const int index) const
+  __host__ __device__  __forceinline__ typename block_iterator<T,Alloc>::reference	block_iterator<T,Alloc>::operator[] (const int index) const
   {
     int2 temp = parent_block->index_to_int2(position+index);
     return (*parent_block)[temp];

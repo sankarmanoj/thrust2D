@@ -31,6 +31,7 @@ public:
                 inputWindow[make_int2(0,0)]+inputWindow[make_int2(2,2)]+
                 inputWindow[make_int2(0,2)]+inputWindow[make_int2(2,0)];
     printf("@ %dx%d, val = %d (%d x %d):(%d x %d)\n",outputWindow.start_x,outputWindow.start_y,outputWindow[1][1],blockIdx.x,blockIdx.y,threadIdx.x,threadIdx.y);
+
   }
 };
 
@@ -52,6 +53,7 @@ int main()
   thrust::host_block_2d<int> h_inBlock(X,Y);
   thrust::host_block_2d<int> h_outBlock(X,Y);
   thrust::fill(inBlock.begin(),inBlock.end(),1);
+
   thrust::fill(outBlock.begin(),outBlock.end(),777.0f);
   h_inBlock =inBlock;
   thrust::window_vector<int> myVector = thrust::window_vector<int>(&inBlock,3,3,1,1);
@@ -70,7 +72,6 @@ int main()
   cudaEventCreate(&stop);
   cudaEventRecord(start);
   thrust::transform(thrust::cuda::shared,myVector.begin(),myVector.end(),mySecondVector.begin(),printFunctor1());
-  // thrust::for_each(mySecondVector.begin(),mySecondVector.end(),forEachFunctor());
   cudaEventRecord(stop);
   cudaEventSynchronize(stop);
   float milliseconds = 0;
@@ -91,6 +92,7 @@ int main()
     {
         int2 pos = make_int2(i,j);
         printf("%d   ",(int)h_outBlock[pos]);
+
     }
     std::cout<<"\n";
   }

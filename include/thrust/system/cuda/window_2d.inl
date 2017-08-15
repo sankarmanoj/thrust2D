@@ -90,6 +90,7 @@ namespace thrust
    }
 
 
+
    template <class T,class Alloc>
    __host__ __device__  __forceinline__ window_2d_iterator<T> window_2d<T,Alloc>::operator[] (int index) const
    {
@@ -132,6 +133,7 @@ namespace thrust
    {
        return data[position + index];
    }
+
 
    template <class T,class Alloc>
    __host__ window_iterator<T,Alloc>::window_iterator(block_2d<T,Alloc> *b, int window_dim_x, int window_dim_y, int stride_x, int stride_y)

@@ -6,6 +6,8 @@ all: $(OBJS)
 
 
 %.o : %.cu
+
 	nvcc -std=c++11   -I../include  -O3  -arch  sm_60 $< -o $@ 
+
 clean:
 	rm -f *.o

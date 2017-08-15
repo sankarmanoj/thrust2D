@@ -38,7 +38,7 @@ public:
                   inputWindow[make_int2(0,0)]+inputWindow[make_int2(2,2)]+
                   inputWindow[make_int2(0,2)]+inputWindow[make_int2(2,0)];
       outputWindow[1][1]=(numNeighbors==3)||(inputWindow[make_int2(1,1)]&&(numNeighbors==2));
-
+      return 0;
   }
 };
 int main(int argc, char* argv[])
