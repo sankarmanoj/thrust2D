@@ -199,8 +199,7 @@ public:
 		usage(argc, argv);
 		#else
 		pyramid_height = 1;
-		total_iterations = atoi(argv[3]));
-		omp_set_num_threads(atoi(argv[4]));
+		total_iterations = atoi(argv[3]);
 		#endif
 
 		tfile=argv[4];
@@ -245,7 +244,6 @@ public:
 		Ry_1=1/Ry;
 		Rz_1=1/Rz;
 
-	  long long start_time = get_time();
 		for (t = 0; t < total_iterations; t+=pyramid_height)
 		{
 			int required_iterations = MIN(pyramid_height,total_iterations-t);
@@ -256,7 +254,6 @@ public:
 			// thrust::transform(wv.begin(),wv.end(),wp.begin(),null_vector.begin(),functor);
 			thrust::for_each(wv.begin(),wv.end(),functor);
 		}
-		long long end_time = get_time();
 
 
 		#ifndef PROFILING
@@ -264,6 +261,5 @@ public:
 		TemperatureBlock.download(&FilesavingTemp);
 		writeoutput(FilesavingTemp,grid_rows, grid_cols, ofile);
 		#else
-		printf("%f \n",((float) (end_time - start_time)) / (1000));
 		#endif
 	}

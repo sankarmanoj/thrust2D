@@ -10,7 +10,7 @@ plt.ylabel("Time in Microseconds")
 names = {"non_shared/dilate.o":"Non Shared","shared/dilate.o":"Shared","opencv/dilate.o":"Native"}
 colors = {"Non Shared":"r","Shared":"g","Native":"b"}
 for app in data:
-    dims = range(10,1000,20)
+    dims = json.load(open("dims.json","r"))
     total = [0 for x in dims]
     keys = app.keys()
     print app['.name']

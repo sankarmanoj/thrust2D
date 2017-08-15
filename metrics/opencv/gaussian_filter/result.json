@@ -4,15 +4,49 @@
         "void thrust::convolutionColumnsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)": [
             [
                 128,
-                5.632
+                5.44
             ],
             [
                 256,
-                5.856
+                5.792
             ],
             [
                 384,
-                6.208
+                6.144
+            ],
+            [
+                512,
+                9.12
+            ],
+            [
+                640,
+                12.576
+            ],
+            [
+                768,
+                17.376
+            ],
+            [
+                896,
+                25.441
+            ],
+            [
+                1024,
+                30.945
+            ]
+        ],
+        "void thrust::convolutionRowsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)": [
+            [
+                128,
+                5.792
+            ],
+            [
+                256,
+                6.176
+            ],
+            [
+                384,
+                6.624
             ],
             [
                 512,
@@ -20,53 +54,19 @@
             ],
             [
                 640,
-                12.8
+                12.705
             ],
             [
                 768,
-                17.024
+                16.768
             ],
             [
                 896,
-                24.992
+                24.416
             ],
             [
                 1024,
-                31.232
-            ]
-        ],
-        "void thrust::convolutionRowsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)": [
-            [
-                128,
-                6.016
-            ],
-            [
-                256,
-                6.208
-            ],
-            [
-                384,
-                7.104
-            ],
-            [
-                512,
-                9.056
-            ],
-            [
-                640,
-                12.608
-            ],
-            [
-                768,
-                16.832
-            ],
-            [
-                896,
-                21.792
-            ],
-            [
-                1024,
-                27.168
+                31.04
             ]
         ]
     },
@@ -75,35 +75,35 @@
         "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<convolutionFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
             [
                 128,
-                8.384
+                8.256
             ],
             [
                 256,
-                20.128
+                20.097
             ],
             [
                 384,
-                40.064
+                37.569
             ],
             [
                 512,
-                65.664
+                60.129
             ],
             [
                 640,
-                99.969
+                91.937
             ],
             [
                 768,
-                137.825
+                130.337
             ],
             [
                 896,
-                187.265
+                176.29
             ],
             [
                 1024,
-                246.785
+                231.396
             ]
         ]
     },
@@ -112,45 +112,45 @@
         "void column_filter::linearColumnFilter<int=3, float, unsigned char, cv::cuda::device::BrdColReflect101<float>>(cv::cuda::PtrStepSz<float>, cv::cuda::PtrStep<unsigned char>, int, float)": [
             [
                 128,
-                5.056
+                4.64
             ],
             [
                 256,
-                7.296
+                6.497
             ],
             [
                 384,
-                11.744
+                11.232
             ],
             [
                 512,
-                21.152
+                21.6
             ],
             [
                 640,
-                31.136
+                30.657
             ],
             [
                 768,
-                41.024
+                40.736
             ],
             [
                 896,
-                52.832
+                53.409
             ],
             [
                 1024,
-                68.16
+                67.104
             ]
         ],
         "void row_filter::linearRowFilter<int=3, unsigned char, float, cv::cuda::device::BrdRowReflect101<unsigned char>>(cv::cuda::PtrStepSz<unsigned char>, cv::cuda::PtrStep<float>, int, unsigned char)": [
             [
                 128,
-                5.184
+                5.312
             ],
             [
                 256,
-                7.2
+                7.808
             ],
             [
                 384,
@@ -158,23 +158,23 @@
             ],
             [
                 512,
-                15.072
+                15.264
             ],
             [
                 640,
-                23.648
+                24.672
             ],
             [
                 768,
-                34.72
+                39.936
             ],
             [
                 896,
-                46.624
+                46.817
             ],
             [
                 1024,
-                61.696
+                57.537
             ]
         ]
     }
