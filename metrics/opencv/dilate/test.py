@@ -9,7 +9,7 @@ print path, app_name
 results = []
 execs = [ "shared/"+app_name, "non_shared/"+app_name,"opencv/"+app_name ]
 print execs
-dims = range(10,1000,20)
+dims = range(10,650,20)+range(700,1000,20) 
 for texec in execs:
     times = {".name":texec}
     print texec,

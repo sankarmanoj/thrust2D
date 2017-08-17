@@ -60,7 +60,7 @@ namespace thrust
     #endif
   }
   template <class T,class Alloc>
-  block_2d<T,Alloc>::block_2d ()// : block_2d<T,std::allocator<T> >::block_2d (int dim_x,int dim_y)
+  __host__ __device__  block_2d<T,Alloc>::block_2d ()// : block_2d<T,std::allocator<T> >::block_2d (int dim_x,int dim_y)
   {
 
   }
@@ -115,7 +115,7 @@ namespace thrust
   }
 
   template <class T,class Alloc>
-  block_2d<T,Alloc>::block_2d (block_2d<T> &other)
+  __host__ __device__ block_2d<T,Alloc>::block_2d (block_2d<T> &other)
   {
     this->dim_x = other.dim_x;
     this->dim_y = other.dim_y;

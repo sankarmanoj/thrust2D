@@ -73,10 +73,10 @@ namespace thrust
 		pointer data_pointer;
 		// iterator_base device_iterator;
 		block_2d *device_pointer;
-		block_2d ();
+		__host__ __device__ block_2d ();
 		block_2d (int dim_x,int dim_y);
 		block_2d (int dim_x,int dim_y,T value);
-		block_2d (block_2d<T> &other);
+		__host__ __device__ block_2d (block_2d<T> &other);
 		__host__ void operator=(const host_block_2d<T> &b);
 		__host__ void upload (T* data);
 		__host__ void upload (T* data,cudaMemoryType type);
