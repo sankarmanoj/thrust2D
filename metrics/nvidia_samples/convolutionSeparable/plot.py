@@ -7,8 +7,8 @@ plt.title("ConvolutionSeparable")
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
-names = {"convolutionSeparable-thrust.out":"Thrust","convolutionSeparable.out":"Native"}
-colors = {"Non Shared":"r","Thrust":"g","Native":"b"}
+names = {"convolutionSeparable-thrust.out":"Shared","convolutionSeparable.out":"Native"}
+colors = {"Non Shared":"r","Shared":"g","Native":"b"}
 for app in data:
     dims = []
     total = []

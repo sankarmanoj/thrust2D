@@ -1,0 +1,32 @@
+==17029== NVPROF is profiling process 17029, command: ./shared_bilateralFilter benchmark 90
+==17029== Profiling application: ./shared_bilateralFilter benchmark 90
+==17029== Profiling result:
+"Time(%)","Time","Calls","Avg","Min","Max","Name"
+%,us,,us,us,us,
+94.055274,8568.047000,151,56.742000,56.480000,57.089000,"void thrust::transform_kernel<uchar4, unsigned int, d_bilateral_filter_functor>(thrust::block_2d<uchar4, thrust::device_malloc_allocator<thrust::block_2d>>, int, unsigned int*, int, thrust::warp_launcher_config, d_bilateral_filter_functor)"
+4.441606,404.612000,757,0.534000,0.480000,4.576000,"[CUDA memcpy HtoD]"
+1.503120,136.928000,151,0.906000,0.864000,2.048000,"[CUDA memcpy DtoD]"
+
+==17029== API calls:
+"Time(%)","Time","Calls","Avg","Min","Max","Name"
+%,us,,us,us,us,
+85.447743,126961.262000,1,126961.262000,126961.262000,126961.262000,"cudaMemcpyToSymbol"
+6.408553,9522.054000,304,31.322000,1.388000,64.469000,"cudaDeviceSynchronize"
+2.406282,3575.338000,755,4.735000,3.490000,201.597000,"cudaMalloc"
+1.703552,2531.198000,755,3.352000,2.680000,18.070000,"cudaMemcpy"
+1.525409,2266.507000,305,7.431000,2.383000,173.185000,"cudaMallocPitch"
+0.753086,1118.961000,151,7.410000,6.780000,17.623000,"cudaLaunch"
+0.704778,1047.184000,152,6.889000,6.154000,30.985000,"cudaMemcpy2D"
+0.559170,830.834000,4,207.708000,198.147000,233.016000,"cudaGetDeviceProperties"
+0.147720,219.487000,151,1.453000,1.336000,6.174000,"cudaBindTexture2D"
+0.141115,209.673000,91,2.304000,0.100000,91.049000,"cuDeviceGetAttribute"
+0.082869,123.130000,906,0.135000,0.109000,0.404000,"cudaSetupArgument"
+0.059953,89.080000,1,89.080000,89.080000,89.080000,"cuDeviceTotalMem"
+0.028310,42.064000,151,0.278000,0.235000,0.873000,"cudaConfigureCall"
+0.016701,24.815000,1,24.815000,24.815000,24.815000,"cuDeviceGetName"
+0.010622,15.782000,151,0.104000,0.084000,0.212000,"cudaCreateChannelDesc"
+0.001649,2.450000,1,2.450000,2.450000,2.450000,"cudaSetDevice"
+0.001188,1.765000,3,0.588000,0.094000,1.510000,"cuDeviceGetCount"
+0.000569,0.846000,2,0.423000,0.085000,0.761000,"cudaGetDeviceCount"
+0.000534,0.794000,3,0.264000,0.107000,0.507000,"cuDeviceGet"
+0.000198,0.294000,1,0.294000,0.294000,0.294000,"cudaGetLastError"

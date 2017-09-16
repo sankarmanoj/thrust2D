@@ -9,8 +9,8 @@ plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
 keys = data.keys()
 print keys
-names={"hotspot_foreach.out":"Thrust","hotspot_cuda.out":"Native"}
-colors = {"Thrust":"r","Native":"b"}
+names={"hotspot_shared.out":"Shared","hotspot_cuda.out":"Native"}
+colors = {"Shared":"g","Native":"b"}
 for key in keys:
     dims = []
     dot = []

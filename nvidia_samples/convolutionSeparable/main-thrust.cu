@@ -123,7 +123,7 @@ int main(int argc, char **argv)
             sdkStartTimer(&hTimer);
         }
 
-        thrust::convolve(thrust::cuda::shared,&input_block,h_Kernel,KERNEL_LENGTH,&output_block);
+        thrust::convolve(thrust::cuda::shared,&input_block,h_Kernel,h_Kernel,KERNEL_LENGTH,&output_block);
     }
 
     checkCudaErrors(cudaDeviceSynchronize());

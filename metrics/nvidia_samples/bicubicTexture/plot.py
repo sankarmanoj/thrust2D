@@ -7,7 +7,7 @@ plt.title("BicubicTexture")
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
 names = {"thrust_bilateralFilter":"Non Shared","shared_bilateralFilter":"Shared","_bilateralFilter":"Native","texture_bilateralFilter":"Texture"}
-colors = {"Non Shared":"r","thrust":"g","native":"b","Texture":'y'}
+colors = {"Non Shared":"r","Shared":"g","Native":"b","Texture":'y'}
 for app in data:
     values = data[app]
     dims  = []
@@ -18,5 +18,5 @@ for app in data:
     plt.plot(dims,total,colors[app],label=app)
 
 plt.legend(loc=2)
-
+plt.axis([0,1000,0,350])
 plt.show()

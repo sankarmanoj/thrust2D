@@ -7,9 +7,11 @@ plt.title("Pyrdown")
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
-names = {"non_shared/pyrdown.o":"Non Shared","shared/pyrdown.o":"Shared","opencv/pyrdown.o":"Native"}
+names = {"shared/pyrdown.o":"Shared","opencv/pyrdown.o":"Native"}
 colors = {"Non Shared":"r","Shared":"g","Native":"b"}
 for app in data:
+    if app['.name'] not in names.keys():
+        continue
     dims = json.load(open("dims.json","r"))
     total = [0 for x in dims]
     keys = app.keys()

@@ -7,7 +7,7 @@ app_name = os.getcwd().split("/")[-1]+".o"
 os.chdir(path)
 print path, app_name
 results = []
-execs = [ "shared/"+app_name, "non_shared/"+app_name,"opencv/"+app_name ]
+execs = [ "shared/"+app_name, "texture/"+app_name,"opencv/"+app_name ]
 print execs
 dims = range(10,1000,20)
 for texec in execs:

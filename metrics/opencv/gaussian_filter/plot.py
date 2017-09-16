@@ -5,9 +5,11 @@ data = json.load(open("result.json","r"))
 plt.title("Gaussian Filter")
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
-names = {"non_shared/gaussian_filter.o":"Non Shared","shared/gaussian_filter.o":"Shared","opencv/gaussian_filter.o":"Native"}
+names = {"shared/gaussian_filter.o":"Shared","opencv/gaussian_filter.o":"Native"}
 colors = {"Non Shared":"r","Shared":"g","Native":"b"}
 for app in data:
+    if app[".name"] not in names.keys():
+        continue
     dims = []
     total = []
     keys = app.keys()

@@ -1,0 +1,31 @@
+==8166== NVPROF is profiling process 8166, command: ./shared-native.o 1000 2
+==8166== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==8166== Profiling application: ./shared-native.o 1000 2
+==8166== Profiling result:
+==8166== Metric result:
+Invocations                               Metric Name                            Metric Description         Min         Max         Avg
+Device "GeForce GTX 1070 (0)"
+    Kernel: GOL(int, int*, int*)
+          2                      dram_read_throughput                 Device Memory Read Throughput  64.607GB/s  65.245GB/s  64.923GB/s
+          2                        achieved_occupancy                            Achieved Occupancy    0.834779    0.839047    0.836913
+          2                         shared_efficiency                      Shared Memory Efficiency      92.62%      92.62%      92.62%
+          2                            gld_efficiency                 Global Memory Load Efficiency      83.96%      83.96%      83.96%
+          2                            gst_efficiency                Global Memory Store Efficiency      27.65%      30.50%      29.07%
+          2      shared_load_transactions_per_request   Shared Memory Load Transactions Per Request    1.000000    1.000000    1.000000
+          2                         branch_efficiency                             Branch Efficiency      78.82%      80.03%      79.43%
+    Kernel: ghostCols(int, int*)
+          2                      dram_read_throughput                 Device Memory Read Throughput  11.486GB/s  12.224GB/s  11.845GB/s
+          2                        achieved_occupancy                            Achieved Occupancy    0.032017    0.032027    0.032022
+          2                         shared_efficiency                      Shared Memory Efficiency       0.00%       0.00%       0.00%
+          2                            gld_efficiency                 Global Memory Load Efficiency      12.50%      12.50%      12.50%
+          2                            gst_efficiency                Global Memory Store Efficiency      12.50%      12.50%      12.50%
+          2      shared_load_transactions_per_request   Shared Memory Load Transactions Per Request    0.000000    0.000000    0.000000
+          2                         branch_efficiency                             Branch Efficiency     100.00%     100.00%     100.00%
+    Kernel: ghostRows(int, int*)
+          2                      dram_read_throughput                 Device Memory Read Throughput  2.4923GB/s  3.4169GB/s  2.9681GB/s
+          2                        achieved_occupancy                            Achieved Occupancy    0.032678    0.032931    0.032805
+          2                         shared_efficiency                      Shared Memory Efficiency       0.00%       0.00%       0.00%
+          2                            gld_efficiency                 Global Memory Load Efficiency      79.62%      79.62%      79.62%
+          2                            gst_efficiency                Global Memory Store Efficiency      79.62%      79.62%      79.62%
+          2      shared_load_transactions_per_request   Shared Memory Load Transactions Per Request    0.000000    0.000000    0.000000
+          2                         branch_efficiency                             Branch Efficiency     100.00%     100.00%     100.00%

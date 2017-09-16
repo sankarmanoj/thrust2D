@@ -7,8 +7,8 @@ dims = json.load(open("dims.json","r"))
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
-names = {"non_shared/erode.o":"Non Shared","shared/erode.o":"Shared","opencv/erode.o":"Native"}
-colors = {"Non Shared":"r","Shared":"g","Native":"b"}
+names = {"non_shared/erode.o":"Non Shared","shared/erode.o":"Shared","opencv/erode.o":"Native","texture/erode.o":"Texture"}
+colors = {"Non Shared":"r","Shared":"g","Native":"b","Texture":'y'}
 for app in data:
     dims = range(10,1000,20)
     total = [0 for x in dims]
@@ -28,5 +28,5 @@ for app in data:
 
 
 plt.legend(loc=2)
-
+plt.axis([0,1000,0,160])
 plt.show()
