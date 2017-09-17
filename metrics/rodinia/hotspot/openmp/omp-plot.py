@@ -3,7 +3,7 @@ import sys
 import json
 data = json.load(open("result.json","r"))
 
-plt.title("OpenMP Blend")
+plt.title("OpenMP Hotspot")
 plt.xlabel("Dimension")
 plt.ylabel("Time in Milliseconds")
 names = {"thrust_hotspot":"Thrust","hotspot":"Native"}

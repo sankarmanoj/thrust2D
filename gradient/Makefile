@@ -4,13 +4,13 @@
 IDIR =../include
 CC=nvcc
 CPPC=icpc
-CFLAGS=-I$(IDIR) -ccbin=g++-5 -std=c++11 -arch=sm_60
+CFLAGS=-I$(IDIR) -ccbin=g++ -std=c++11 -arch=sm_35
 DFLAGS =-DDEBUG -g -G -lineinfo
 CUSRCS = $(wildcard *.cu)
 CPPSRCS = $(wildcard *.cpp)
 .PHONY: clean
 OBJS=$(CUSRCS:.cu=.o)
-OBJS := $(CPPSRCS:.cpp=.o)
+#OBJS := $(CPPSRCS:.cpp=.o)
 PROFILES=$(OBJS:.o=.profile)
 
 all: $(OBJS)

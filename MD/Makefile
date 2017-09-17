@@ -2,7 +2,7 @@ NVCC			:= nvcc
 # use the --device-emulation flag for emulating GPU on the CPU
 CC	:= gcc -W -Wall -Wimplicit -Wswitch -Wformat -Wchar-subscripts -Wparentheses -Wmultichar -Wtrigraphs -Wpointer-arith -Wcast-align -Wreturn-type -Wno-unused-function  -fno-strict-aliasing
 LINK	:= g++ -fPIC -W -Wall -Wimplicit -Wswitch -Wformat -Wchar-subscripts -Wparentheses -Wmultichar -Wtrigraphs -Wpointer-arith -Wcast-align -Wreturn-type -Wno-unused-function  -fno-strict-aliasing
-NVCCFLAGS	:= -arch sm_60
+NVCCFLAGS	:= -arch=sm_35
 INCLUDES	:= -I.  -I../include
 LIBS		:=  -lcudart -lm
 MAIN	:= perfsig.out thrust_perfsig.out shared_perfsig.out

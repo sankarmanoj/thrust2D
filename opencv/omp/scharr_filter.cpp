@@ -2,7 +2,7 @@
 #include <opencv2/opencv.hpp>
 #include <thrust/window_2d.h>
 #define PI 3.14159
-#define ITER 50
+#define ITER 25
 #include <omp.h>
 using namespace cv;
 class transFunctor

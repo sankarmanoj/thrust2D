@@ -73,11 +73,10 @@ int main(int argc, char const *argv[]) {
   AffineTransformFunctor atf(&warp_block,&outBlock);
   double start, end;
   start = omp_get_wtime();
-
+  thrust::for_each(inputVector.begin(),inputVector.end(),atf);
   end = omp_get_wtime();
   printf("%f\n",(end-start));
 
-  thrust::for_each(inputVector.begin(),inputVector.end(),atf);
   unsigned char * outputFloatImageData = (unsigned char *)malloc(sizeof(unsigned char)*(uchar_image_block.end()-uchar_image_block.begin()));
   outBlock.download(&img);
   for(int i = 0; i<image.cols*image.rows;i++)

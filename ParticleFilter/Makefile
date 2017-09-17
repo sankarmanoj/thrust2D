@@ -1,6 +1,6 @@
 IDIR =../include
 CC=nvcc
-CFLAGS=-I$(IDIR) -ccbin=g++-5 -arch=sm_60 -std=c++11  -D_MWAITXINTRIN_H_INCLUDED -O3
+CFLAGS=-I$(IDIR) -ccbin=g++ -arch=sm_35 -std=c++11  -D_MWAITXINTRIN_H_INCLUDED -O3
 DFLAGS =-DDEBUG -g -G -lineinfo
 SRCS = $(wildcard *.cu)
 OBJS=$(SRCS:.cu=.o)

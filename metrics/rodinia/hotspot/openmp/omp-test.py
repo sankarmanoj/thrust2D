@@ -12,7 +12,7 @@ for texec in execs:
     times = {".name":texec,"values":[]}
     print texec,
     for dim in dims:
-        time = float(os.popen(" ./%s %d %d 200 8 temp_512 power_512 result"%(texec,dim,dim)).read())
+        time = float(os.popen(" ./%s %d %d 200 12 temp_512 power_512 result"%(texec,dim,dim)).read())
         print time,"  ",texec," ",dim
         times["values"].append((dim,time))
     results.append(times)
