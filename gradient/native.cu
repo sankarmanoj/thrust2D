@@ -3,12 +3,13 @@
 int main(int argc, char **argv)
 {
   std::ifstream values;
-  values.open("/dev/shm/values.txt");
+  values.open("./values.txt");
   int D,N;
   int niter = atoi(argv[1]);
   float learn = atof(argv[2]);
   float *xvalues,*y_actual,*real_weights,*weights;
   values>>D>>N;
+  printf("N = %d    D  = %d",N,D);
   xvalues = new float [D*N];
   for(int i = 0 ; i<N;i++)
   {
@@ -58,6 +59,7 @@ int main(int argc, char **argv)
       better_reduce_kernel<256><<<20,256,256*sizeof(float)>>>(d_xval + i*N,d_error,d_gradient+i,N,D);
     // cudaMemcpy(gradient,d_weights,sizeof(float)*D,cudaMemcpyDeviceToHost);
     update_weights<<<iDivUp(D,128),128>>> (d_weights,d_gradient,learn);
+    printf("Error = \n");
     count++;
   }
   // cudaEventRecord(stop);

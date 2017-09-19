@@ -13,6 +13,7 @@ int main(int argc, char **argv)
   float learn = atof(argv[2]);
   float *xvalues,*y_actual,*real_weights,*weights;
   values>>D>>N;
+  printf("N = %d    D  = %d",N,D);
   xvalues = new float [D*N];
   for(int i = 0 ; i<N;i++)
   {
@@ -56,6 +57,7 @@ int main(int argc, char **argv)
   d_XD = h_XD;
   float threshold_error = 1.0f;
   float error;
+  int count = 0;
   do
   {
     thrust::constant_vector<float> ca_weights(d_weights.begin(),d_weights.end());
@@ -66,10 +68,12 @@ int main(int argc, char **argv)
       h_gradient[i]=thrust::transform_reduce(thrust::cuda::shared,d_Xvalues.begin()+i*N,d_Xvalues.begin()+(i+1)*N,d_error.begin(),thrust::multiplies<float>(),0.0,thrust::plus<float>())/N;
 
     }
+    printf("Error = %f\n",error);
     d_gradient = h_gradient;
     thrust::transform(thrust::cuda::shared, d_weights.begin(),d_weights.end(),d_gradient.begin(),d_weights.begin(),update_weights(learn));
+    count++;
   }
-  while(error > threshold_error);
+  while(count < niter );//error > threshold_error);
   h_error = d_error;
   // for(int i = 0; i<100;i++)
   // {

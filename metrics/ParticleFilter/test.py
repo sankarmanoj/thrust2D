@@ -6,12 +6,12 @@ path = os.getcwd().replace("metrics/","")
 os.chdir(path)
 print path
 results = {}
-p_names = ["likelihood_kernel","normalize_weights_kernel","find_index_kernel","sum_kernel","YOYOYO","scan_","reduce"]
+p_names = ["likelihood","normalize_weights","find_index_kernel","sum_kernel","YOYOYO","randn_transform","scan_","reduce","ind_calc","exp_transform","update_u","get_index","update_coord"]
 execs = [ x for x in  os.listdir(path) if x.partition(".")[2]=="o" ]
 print execs
 for texec in execs:
     results[texec]=[]
-dims = range(100,2000,100) + range(2000,10000,200)
+dims = [500]
 for texec in execs:
     times = {".name":texec,"dims":[]}
     print texec,

@@ -10,12 +10,13 @@
 int main(int argc, char **argv)
 {
   std::ifstream values;
-  values.open("/dev/shm/values.txt");
+  values.open("./values.txt");
   int D,N;
   int niter = atoi(argv[1]);
   float learn = atof(argv[2]);
   float *xvalues,*y_actual,*real_weights,*weights;
   values>>D>>N;
+  printf("N = %d    D  = %d",N,D);
   xvalues = new float [D*N];
   for(int i = 0 ; i<N;i++)
   {
@@ -59,6 +60,7 @@ int main(int argc, char **argv)
   thrust::device_vector<floatD> d_XD;
   d_XD = h_XD;
   float error;
+  int count = 0;
   do
   {
     float *ca_weights = d_weights.data().get();
@@ -72,8 +74,9 @@ int main(int argc, char **argv)
     }
     d_gradient = h_gradient;
     thrust::transform(d_weights.begin(),d_weights.end(),d_gradient.begin(),d_weights.begin(),update_weights(learn));
+    count++;
   }
-  while(error>threshold_error);
+  while(count < niter );//error > threshold_error);
 
 
   h_error = d_error;
