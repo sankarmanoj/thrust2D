@@ -7,9 +7,17 @@ plt.title("Game Of Life")
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
-names={"thrust.o":"Non Shared","shared-thrust.o":"Thrust Shared","shared-native.o":"Native Shared","texture-thrust.o":"Thrust Texture","native.o":"Native","texture-native.o":"Native Texture"}
-colors = {"Non Shared":'r',"Thrust Shared":"g","Thrust Texture":"y","Native Shared":"b","Native":"b","Native Texture":"m"}
-for app in sorted(data,key=lambda x: names[x[".name"]]):
+names={
+        "thrust.o":"Thrust2D",
+        # "shared-thrust.o":"Thrust2D Shared",
+        # "shared-native.o":"Native Shared",
+        "texture-thrust.o":"Thrust2D Texture",
+        "native.o":"Native",
+        "texture-native.o":"Native Texture"}
+colors = {"Thrust2D":'r',"Thrust2D Shared":"g","Thrust2D Texture":"y","Native Shared":"c","Native":"b","Native Texture":"m"}
+for app in  data: #sorted(data,key=lambda x: names[x[".name"]]):
+    if app[".name"] not in names.keys():
+        continue
     dims = json.load(open("dims.json","r"))
     total = [0 for x in dims]
     keys = app.keys()

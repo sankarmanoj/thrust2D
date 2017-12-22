@@ -7,7 +7,7 @@ app_name = os.getcwd().split("/")[-1]+".o"
 os.chdir(path)
 print path, app_name
 results = []
-execs = [ "opencv/"+app_name,"texture/"+app_name,"shared/"+app_name ]
+execs = [ "opencv/"+app_name,"texture/"+app_name,"shared/"+app_name,"non_shared/"+app_name]
 print execs
 dims = range(10,1000,20)
 for texec in execs:
@@ -26,7 +26,7 @@ for texec in execs:
             line = cr.next()
             values = len(line)
             while values >= 6 :
-                if "memcpy" not in line[6] and "memset" not in line[6]:
+                if "memcpy" not in line[6] and "memset" not in line[6] and "fill_functor" not in line[6]:
                     try:
                         times[line[6]]
                     except:

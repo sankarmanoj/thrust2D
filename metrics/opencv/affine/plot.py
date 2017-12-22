@@ -6,7 +6,7 @@ plt.title("Affine")
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
-names = {"shared/affine.o":"Shared","opencv/affine.o":"Native","texture/affine.o":"Texture"}
+names = {"shared/affine.o":"Shared","opencv/affine.o":"Native","texture/affine.o":"Texture","non_shared/affine.o":"Non Shared"}
 colors = {"Non Shared":"r","Shared":"g","Native":"b","Texture":'y'}
 for app in data:
     if app[".name"] not in names.keys():

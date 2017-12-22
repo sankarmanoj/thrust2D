@@ -7,10 +7,15 @@ plt.title("Pyrup")
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
-names = {"non_shared/pyrup.o":"Non Shared","shared/pyrup.o":"Shared","opencv/pyrup.o":"Native"}
+names = {
+        # "non_shared/pyrup.o":"Non Shared",
+        "shared/pyrup.o":"Shared",
+        "opencv/pyrup.o":"Native"}
 colors = {"Non Shared":"r","Shared":"g","Native":"b"}
 dims = json.load(open("dims.json","r"))
 for app in data:
+    if app[".name"] not in names.keys():
+        continue
     total = [0 for x in dims]
     keys = app.keys()
     print app['.name']

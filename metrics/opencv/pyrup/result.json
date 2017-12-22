@@ -4,103 +4,103 @@
         "void thrust::convolutionColumnsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)": [
             [
                 128,
-                6.24
+                6.176
             ],
             [
                 256,
-                10.144
+                10.336
             ],
             [
                 384,
-                20.768
+                23.042
             ],
             [
                 512,
-                36.192
+                37.187
             ],
             [
                 640,
-                55.52
+                57.252
             ],
             [
                 768,
-                77.665
+                78.854
             ],
             [
                 896,
-                103.745
+                105.865
             ],
             [
                 1024,
-                133.504
+                135.915
             ]
         ],
         "void thrust::convolutionRowsKernel<unsigned char, float>(unsigned char*, unsigned char, int, int, int, int, thrust::constant_vector<float>)": [
             [
                 128,
-                5.632
+                5.952
             ],
             [
                 256,
-                9.792
+                10.657
             ],
             [
                 384,
-                19.2
+                20.417
             ],
             [
                 512,
-                34.721
+                36.099
             ],
             [
                 640,
-                52.032
+                53.093
             ],
             [
                 768,
-                73.376
+                75.078
             ],
             [
                 896,
-                97.153
+                100.328
             ],
             [
                 1024,
-                126.113
+                129.226
             ]
         ],
-        "void thrust::for_each_kernel<unsigned char, pyrupTransformFunctor>(thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<thrust::window_iterator>>*, thrust::warp_launcher_config, pyrupTransformFunctor)": [
+        "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::detail::wrapped_function<pyrupTransformFunctor, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
             [
                 128,
-                10.272
+                4.416
             ],
             [
                 256,
-                31.232
+                12.065
             ],
             [
                 384,
-                66.113
+                23.874
             ],
             [
                 512,
-                115.136
+                37.475
             ],
             [
                 640,
-                177.889
+                66.565
             ],
             [
                 768,
-                258.849
+                96.104
             ],
             [
                 896,
-                348.066
+                110.856
             ],
             [
                 1024,
-                454.243
+                143.052
             ]
         ]
     },
@@ -109,69 +109,69 @@
         "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::detail::wrapped_function<pyrupTransformFunctor, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
             [
                 128,
-                3.008
+                2.817
             ],
             [
                 256,
-                7.36
+                4.96
             ],
             [
                 384,
-                15.456
+                8.865
             ],
             [
                 512,
-                25.408
+                14.338
             ],
             [
                 640,
-                39.233
+                20.578
             ],
             [
                 768,
-                55.328
+                28.994
             ],
             [
                 896,
-                74.592
+                38.787
             ],
             [
                 1024,
-                97.633
+                50.052
             ]
         ],
         "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::window_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::block_iterator<unsigned char, thrust::device_malloc_allocator<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<convolutionFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
             [
                 128,
-                18.656
+                17.57
             ],
             [
                 256,
-                54.752
+                53.957
             ],
             [
                 384,
-                132.256
+                117.609
             ],
             [
                 512,
-                227.362
+                205.776
             ],
             [
                 640,
-                360.962
+                319.578
             ],
             [
                 768,
-                516.387
+                456.901
             ],
             [
                 896,
-                701.252
+                622.418
             ],
             [
                 1024,
-                924.614
+                816.322
             ]
         ]
     },
@@ -180,35 +180,35 @@
         "void cv::cuda::device::imgproc::pyrUp<unsigned char>(cv::cuda::PtrStepSz<unsigned char>, unsigned char)": [
             [
                 128,
-                5.824
+                6.145
             ],
             [
                 256,
-                16.192
+                16.385
             ],
             [
                 384,
-                32.96
+                33.571
             ],
             [
                 512,
-                56.768
+                57.828
             ],
             [
                 640,
-                86.689
+                88.231
             ],
             [
                 768,
-                123.617
+                125.962
             ],
             [
                 896,
-                167.489
+                170.478
             ],
             [
                 1024,
-                217.985
+                221.81
             ]
         ]
     }

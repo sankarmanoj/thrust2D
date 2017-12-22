@@ -7,8 +7,12 @@ plt.title("SRAD")
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
-names = {"srad_shared.out":"Shared","srad.out":"Native","srad_texture.out":"Texture"}
-colors = {"Non Shared":"r","Shared":"g","Native":"b","Texture":'y'}
+names = {
+            # "srad_shared.out":"Shared",
+            "srad.out":"Native",
+            # "srad_texture.out":"Texture",
+            "srad_non_shared.out":"Thrust2D "}
+colors = {"Thrust2D ":"r","Shared":"g","Native":"b","Texture":'y'}
 for app in data:
     if app['.name'] not in names.keys():
         continue

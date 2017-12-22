@@ -65,7 +65,7 @@ runTest( int argc, char** argv)
 
 	float * image_ori = (float*)malloc(sizeof(float) * image_ori_elem);
 
-	read_graphics(	"./image.pgm",
+	read_graphics(	(char *)"./image.pgm",
 								image_ori,
 								image_ori_rows,
 								image_ori_cols,
@@ -108,6 +108,6 @@ runTest( int argc, char** argv)
 	// printf("Computation Done\n");
 	thrust::for_each(J_cuda.begin(),J_cuda.end(),compressFunctor());
 	J_cuda.download(&J);
-	write_graphics("./image_out.pgm",J,rows,cols,0,255);
+	write_graphics((char *)"./image_out.pgm",J,rows,cols,0,255);
 	free(J);
 }

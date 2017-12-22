@@ -4,67 +4,67 @@
         "void cv::cudev::grid_transform_detail::transformSmart<int=4, unsigned char, unsigned char, unsigned char, _GLOBAL__N__58_tmpxft_000009f8_00000000_9_add_weighted_compute_61_cpp1_ii_71482d89::AddWeightedOp<unsigned char, unsigned char, unsigned char, float>, cv::cudev::WithOutMask>(cv::cudev::GlobPtr<unsigned char>, cv::cudev::grid_transform_detail::transformSmart<int=4, unsigned char, unsigned char, unsigned char, _GLOBAL__N__58_tmpxft_000009f8_00000000_9_add_weighted_compute_61_cpp1_ii_71482d89::AddWeightedOp<unsigned char, unsigned char, unsigned char, float, unsigned char>, cv::cudev::WithOutMask>, cv::cudev::grid_transform_detail::transformSmart<int=4, unsigned char, unsigned char, unsigned char, _GLOBAL__N__58_tmpxft_000009f8_00000000_9_add_weighted_compute_61_cpp1_ii_71482d89::AddWeightedOp<unsigned char, unsigned char, unsigned char, float, unsigned char>, cv::cudev::WithOutMask>, unsigned char, unsigned char, int, int)": [
             [
                 10,
-                4.64
+                4.32
             ],
             [
                 30,
-                4.544
-            ],
-            [
-                50,
-                4.576
-            ],
-            [
-                70,
-                4.352
-            ],
-            [
-                90,
-                4.417
-            ],
-            [
-                110,
-                4.353
-            ],
-            [
-                130,
-                3.265
-            ],
-            [
-                150,
                 4.48
             ],
             [
+                50,
+                4.608
+            ],
+            [
+                70,
+                4.576
+            ],
+            [
+                90,
+                4.288
+            ],
+            [
+                110,
+                4.384
+            ],
+            [
+                130,
+                3.328
+            ],
+            [
+                150,
+                4.512
+            ],
+            [
                 170,
-                3.936
+                4.512
             ],
             [
                 190,
-                4.16
+                4.8
             ],
             [
                 210,
-                4.704
+                4.8
             ],
             [
                 230,
-                4.608
+                3.808
             ],
             [
                 250,
-                4.672
+                4.512
             ],
             [
                 270,
-                4.608
+                5.088
             ],
             [
                 290,
-                5.28
+                5.344
             ],
             [
                 310,
-                5.248
+                5.152
             ],
             [
                 330,
@@ -72,135 +72,135 @@
             ],
             [
                 350,
-                5.28
+                5.152
             ],
             [
                 370,
-                5.344
+                5.12
             ],
             [
                 390,
-                6.176
+                5.472
             ],
             [
                 410,
-                6.08
+                6.048
             ],
             [
                 430,
-                6.241
+                6.176
             ],
             [
                 450,
-                6.368
+                6.912
             ],
             [
                 470,
-                6.432
+                6.368
             ],
             [
                 490,
-                6.944
+                6.56
             ],
             [
                 510,
-                7.104
+                6.816
             ],
             [
                 530,
-                7.36
+                7.584
             ],
             [
                 550,
-                8.192
+                7.52
             ],
             [
                 570,
-                7.968
+                8.32
             ],
             [
                 590,
-                8.48
+                8.16
             ],
             [
                 610,
-                8.416
+                8.16
             ],
             [
                 630,
-                8.576
+                8.225
             ],
             [
                 650,
-                9.728
+                9.312
             ],
             [
                 670,
-                9.632
+                9.728
             ],
             [
                 690,
-                11.105
+                9.888
             ],
             [
                 710,
-                10.24
+                10.305
             ],
             [
                 730,
-                10.08
+                10.848
             ],
             [
                 750,
-                12.352
+                10.593
             ],
             [
                 770,
-                11.072
+                10.624
             ],
             [
                 790,
-                12.128
+                12.032
             ],
             [
                 810,
-                11.936
+                12.96
             ],
             [
                 830,
-                12.896
+                12.928
             ],
             [
                 850,
-                13.504
+                13.568
             ],
             [
                 870,
-                13.344
+                13.568
             ],
             [
                 890,
-                14.048
+                13.281
             ],
             [
                 910,
-                15.136
+                15.424
             ],
             [
                 930,
-                15.584
+                16.288
             ],
             [
                 950,
-                15.968
+                16.064
             ],
             [
                 970,
-                17.856
+                16.16
             ],
             [
                 990,
-                16.545
+                16.576
             ]
         ]
     },
@@ -209,203 +209,203 @@
         "void thrust::transform_texture_kernel<unsigned char, blendFunctor>(unsigned __int64, unsigned __int64, unsigned char*, int, thrust::warp_launcher_config, blendFunctor)": [
             [
                 10,
-                2.912
+                2.848
             ],
             [
                 30,
-                3.296
-            ],
-            [
-                50,
-                3.232
-            ],
-            [
-                70,
-                3.36
-            ],
-            [
-                90,
                 3.328
             ],
             [
+                50,
+                3.296
+            ],
+            [
+                70,
+                3.296
+            ],
+            [
+                90,
+                3.296
+            ],
+            [
                 110,
-                3.552
+                3.584
             ],
             [
                 130,
-                4.32
+                4.224
             ],
             [
                 150,
-                4.192
+                4.16
             ],
             [
                 170,
-                5.152
+                4.928
             ],
             [
                 190,
-                5.281
+                5.568
             ],
             [
                 210,
-                5.952
+                5.92
             ],
             [
                 230,
-                6.912
+                6.848
             ],
             [
                 250,
-                7.457
+                7.328
             ],
             [
                 270,
-                8.064
+                7.904
             ],
             [
                 290,
-                8.896
+                8.96
             ],
             [
                 310,
-                9.536
+                9.504
             ],
             [
                 330,
-                10.944
+                10.784
             ],
             [
                 350,
-                11.68
+                11.52
             ],
             [
                 370,
-                12.512
+                12.576
             ],
             [
                 390,
-                14.304
+                14.016
             ],
             [
                 410,
-                14.912
+                14.976
             ],
             [
                 430,
-                16.288
+                16.384
             ],
             [
                 450,
-                18.017
+                17.792
             ],
             [
                 470,
-                18.465
+                18.208
             ],
             [
                 490,
-                20.128
+                20.384
             ],
             [
                 510,
-                21.248
+                21.344
             ],
             [
                 530,
-                22.848
+                22.912
             ],
             [
                 550,
-                25.024
+                25.12
             ],
             [
                 570,
-                25.664
+                25.792
             ],
             [
                 590,
-                27.809
+                27.872
             ],
             [
                 610,
-                30.401
+                30.592
             ],
             [
                 630,
-                30.816
+                31.136
             ],
             [
                 650,
-                33.472
+                33.632
             ],
             [
                 670,
-                34.433
+                34.368
             ],
             [
                 690,
-                37.889
+                36.928
             ],
             [
                 710,
-                39.425
+                39.616
             ],
             [
                 730,
-                40.705
+                40.608
             ],
             [
                 750,
-                44.353
+                43.232
             ],
             [
                 770,
-                47.169
+                46.081
             ],
             [
                 790,
-                46.977
+                47.041
             ],
             [
                 810,
-                50.017
+                50.369
             ],
             [
                 830,
-                51.264
+                51.072
             ],
             [
                 850,
-                54.528
+                54.368
             ],
             [
                 870,
-                57.825
+                57.632
             ],
             [
                 890,
-                58.817
+                59.168
             ],
             [
                 910,
-                62.433
+                62.721
             ],
             [
                 930,
-                66.433
+                66.305
             ],
             [
                 950,
-                67.585
+                67.329
             ],
             [
                 970,
-                71.425
+                71.169
             ],
             [
                 990,
-                72.258
+                72.897
             ]
         ]
     },
@@ -414,11 +414,11 @@
         "void thrust::binary_transform_kernel<unsigned char, unsigned char, unsigned char, blendFunctor>(thrust::block_2d<unsigned char, thrust::device_malloc_allocator<thrust::block_2d>>, thrust::binary_transform_kernel<unsigned char, unsigned char, unsigned char, blendFunctor, unsigned char, unsigned char>, unsigned char*, int, thrust::warp_launcher_config, blendFunctor)": [
             [
                 10,
-                2.656
+                2.72
             ],
             [
                 30,
-                2.848
+                2.72
             ],
             [
                 50,
@@ -426,15 +426,15 @@
             ],
             [
                 70,
-                2.72
+                2.624
             ],
             [
                 90,
-                2.72
+                2.624
             ],
             [
                 110,
-                3.36
+                3.328
             ],
             [
                 130,
@@ -442,7 +442,7 @@
             ],
             [
                 150,
-                3.456
+                3.424
             ],
             [
                 170,
@@ -450,59 +450,59 @@
             ],
             [
                 190,
-                4.32
+                4.352
             ],
             [
                 210,
-                5.152
+                5.216
             ],
             [
                 230,
-                5.984
+                6.016
             ],
             [
                 250,
-                6.081
+                6.145
             ],
             [
                 270,
-                7.009
+                7.201
             ],
             [
                 290,
-                7.904
+                7.84
             ],
             [
                 310,
-                8.064
+                7.968
             ],
             [
                 330,
-                9.824
+                9.696
             ],
             [
                 350,
-                9.632
+                9.728
             ],
             [
                 370,
-                10.752
+                10.688
             ],
             [
                 390,
-                12.352
+                12.256
             ],
             [
                 410,
-                12.416
+                12.32
             ],
             [
                 430,
-                14.048
+                13.92
             ],
             [
                 450,
-                15.265
+                15.2
             ],
             [
                 470,
@@ -510,107 +510,312 @@
             ],
             [
                 490,
-                17.281
+                17.216
             ],
             [
                 510,
-                17.281
+                17.408
             ],
             [
                 530,
-                19.104
+                19.168
             ],
             [
                 550,
-                21.088
+                21.536
             ],
             [
                 570,
-                21.472
+                21.248
             ],
             [
                 590,
-                23.393
+                23.457
             ],
             [
                 610,
-                25.569
+                25.921
             ],
             [
                 630,
-                25.792
+                26.016
             ],
             [
                 650,
-                28.161
+                27.872
             ],
             [
                 670,
-                28.16
+                28.417
             ],
             [
                 690,
-                30.369
+                30.688
             ],
             [
                 710,
-                33.249
+                32.928
             ],
             [
                 730,
-                33.216
+                32.736
             ],
             [
                 750,
-                36.16
+                35.808
             ],
             [
                 770,
-                38.945
+                38.464
             ],
             [
                 790,
-                38.529
+                38.721
             ],
             [
                 810,
-                41.793
+                41.44
             ],
             [
                 830,
-                41.569
+                41.857
             ],
             [
                 850,
-                44.608
+                44.481
             ],
             [
                 870,
-                48.064
+                48.128
             ],
             [
                 890,
-                48.129
+                47.392
             ],
             [
                 910,
-                51.649
+                51.904
             ],
             [
                 930,
-                54.88
+                55.008
             ],
             [
                 950,
-                55.105
+                54.752
             ],
             [
                 970,
-                58.753
+                58.689
             ],
             [
                 990,
-                59.169
+                58.689
+            ]
+        ]
+    },
+    {
+        ".name": "non_shared/blend.o",
+        "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::detail::normal_iterator<thrust::device_ptr<unsigned char>>, thrust::detail::normal_iterator<thrust::device_ptr<unsigned char>>, thrust::detail::normal_iterator<thrust::device_ptr<unsigned char>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<blendFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
+            [
+                10,
+                1.184
+            ],
+            [
+                30,
+                1.283
+            ],
+            [
+                50,
+                1.267
+            ],
+            [
+                70,
+                1.254
+            ],
+            [
+                90,
+                1.222
+            ],
+            [
+                110,
+                1.264
+            ],
+            [
+                130,
+                1.44
+            ],
+            [
+                150,
+                1.468
+            ],
+            [
+                170,
+                1.488
+            ],
+            [
+                190,
+                1.622
+            ],
+            [
+                210,
+                1.622
+            ],
+            [
+                230,
+                1.923
+            ],
+            [
+                250,
+                1.926
+            ],
+            [
+                270,
+                2.025
+            ],
+            [
+                290,
+                2.256
+            ],
+            [
+                310,
+                2.326
+            ],
+            [
+                330,
+                2.505
+            ],
+            [
+                350,
+                2.684
+            ],
+            [
+                370,
+                2.736
+            ],
+            [
+                390,
+                2.976
+            ],
+            [
+                410,
+                3.104
+            ],
+            [
+                430,
+                3.337
+            ],
+            [
+                450,
+                3.609
+            ],
+            [
+                470,
+                3.776
+            ],
+            [
+                490,
+                4.032
+            ],
+            [
+                510,
+                4.166
+            ],
+            [
+                530,
+                4.48
+            ],
+            [
+                550,
+                4.71
+            ],
+            [
+                570,
+                4.985
+            ],
+            [
+                590,
+                5.158
+            ],
+            [
+                610,
+                5.548
+            ],
+            [
+                630,
+                5.724
+            ],
+            [
+                650,
+                6.086
+            ],
+            [
+                670,
+                6.422
+            ],
+            [
+                690,
+                6.582
+            ],
+            [
+                710,
+                6.944
+            ],
+            [
+                730,
+                7.241
+            ],
+            [
+                750,
+                7.6
+            ],
+            [
+                770,
+                7.939
+            ],
+            [
+                790,
+                8.31
+            ],
+            [
+                810,
+                8.63
+            ],
+            [
+                830,
+                10.227
+            ],
+            [
+                850,
+                11.171
+            ],
+            [
+                870,
+                12.185
+            ],
+            [
+                890,
+                12.838
+            ],
+            [
+                910,
+                13.26
+            ],
+            [
+                930,
+                13.948
+            ],
+            [
+                950,
+                14.643
+            ],
+            [
+                970,
+                15.654
+            ],
+            [
+                990,
+                15.894
             ]
         ]
     }

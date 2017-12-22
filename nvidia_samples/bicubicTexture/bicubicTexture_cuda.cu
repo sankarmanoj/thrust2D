@@ -20,6 +20,7 @@
 #include <helper_math.h>
 #include <thrust/window_2d.h>
 #include <thrust/window_transform.h>
+#include <thrust/window_for_each.h>
 // includes, cuda
 #include <helper_cuda.h>
 

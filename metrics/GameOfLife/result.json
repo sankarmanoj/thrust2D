@@ -1,5 +1,90 @@
 [
     {
+        ".name": "thrust.o",
+        "void thrust::system::cuda::detail::bulk_::detail::launch_by_value<unsigned int=0, thrust::system::cuda::detail::bulk_::detail::cuda_task<thrust::system::cuda::detail::bulk_::parallel_group<thrust::system::cuda::detail::bulk_::concurrent_group<thrust::system::cuda::detail::bulk_::agent<unsigned long=1>, unsigned long=0>, unsigned long=0>, thrust::system::cuda::detail::bulk_::detail::closure<thrust::system::cuda::detail::for_each_n_detail::for_each_kernel, thrust::tuple<thrust::system::cuda::detail::bulk_::detail::cursor<unsigned int=0>, thrust::zip_iterator<thrust::tuple<thrust::window_iterator<bool, thrust::device_malloc_allocator<bool>>, thrust::window_iterator<bool, thrust::device_malloc_allocator<bool>>, thrust::detail::normal_iterator<thrust::device_ptr<bool>>, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>, thrust::detail::wrapped_function<thrust::detail::binary_transform_functor<GOLFunctor>, void>, unsigned int, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type, thrust::null_type>>>>(unsigned long=1)": [
+            [
+                10,
+                2.384
+            ],
+            [
+                60,
+                2.784
+            ],
+            [
+                110,
+                2.768
+            ],
+            [
+                160,
+                4.048
+            ],
+            [
+                210,
+                5.232
+            ],
+            [
+                260,
+                7.344
+            ],
+            [
+                310,
+                9.488
+            ],
+            [
+                360,
+                11.824
+            ],
+            [
+                410,
+                14.0
+            ],
+            [
+                460,
+                17.2
+            ],
+            [
+                510,
+                20.704
+            ],
+            [
+                560,
+                25.008
+            ],
+            [
+                610,
+                28.976
+            ],
+            [
+                660,
+                33.36
+            ],
+            [
+                710,
+                37.856
+            ],
+            [
+                760,
+                43.456
+            ],
+            [
+                810,
+                48.847
+            ],
+            [
+                860,
+                55.487
+            ],
+            [
+                910,
+                60.719
+            ],
+            [
+                960,
+                67.328
+            ]
+        ]
+    },
+    {
         ".name": "native.o",
         "GOL(int, int*, int*)": [
             [
@@ -8,19 +93,19 @@
             ],
             [
                 60,
-                1.808
+                1.792
             ],
             [
                 110,
-                2.288
+                2.272
             ],
             [
                 160,
-                3.36
+                3.392
             ],
             [
                 210,
-                5.392
+                5.248
             ],
             [
                 260,
@@ -28,60 +113,59 @@
             ],
             [
                 310,
-                9.168
+                8.976
             ],
             [
                 360,
-                11.728
+                11.744
             ],
             [
                 410,
-                14.544
+                14.32
             ],
             [
                 460,
-                17.824
+                18.624
             ],
             [
                 510,
-                19.072
+                19.056
             ],
             [
                 560,
-                28.209
+                27.119
             ],
             [
                 610,
-                32.16
+                32.032
             ],
             [
                 660,
-                37.729
+                38.272
             ],
             [
                 710,
-                44.657
+                44.0
             ],
             [
                 760,
-                49.857
+                49.84
             ],
             [
                 810,
-                55.393
+                55.663
             ],
             [
                 860,
-                63.201
+                63.664
             ],
             [
                 910,
-                66.577
+                66.783
             ],
             [
                 960,
-                78.657
-
+                78.383
             ]
         ]
     },
@@ -90,83 +174,83 @@
         "void thrust::transform_texture_kernel<short, short, GOLFunctor>(unsigned __int64, short*, int, thrust::warp_launcher_config, GOLFunctor)": [
             [
                 10,
-                1.648
+                1.664
             ],
             [
                 60,
-                2.496
+                2.48
             ],
             [
                 110,
-                2.784
+                2.848
             ],
             [
                 160,
-                3.488
+                3.52
             ],
             [
                 210,
-                5.344
+                5.408
             ],
             [
                 260,
-                10.576
+                7.344
             ],
             [
                 310,
-                9.296
+                9.439
             ],
             [
                 360,
-                11.777
+                11.888
             ],
             [
                 410,
-                14.097
+                14.064
             ],
             [
                 460,
-                17.36
+                17.424
             ],
             [
                 510,
-                21.488
+                20.448
             ],
             [
                 560,
-                24.513
+                24.383
             ],
             [
                 610,
-                30.8
+                29.536
             ],
             [
                 660,
-                34.688
+                33.184
             ],
             [
                 710,
-                40.512
+                40.591
             ],
             [
                 760,
-                47.249
+                47.072
             ],
             [
                 810,
-                52.897
+                53.344
             ],
             [
                 860,
-                58.881
+                59.231
             ],
             [
                 910,
-                66.834
+                66.688
             ],
             [
                 960,
-                73.601
+                73.471
             ]
         ]
     },
@@ -175,84 +259,253 @@
         "GOL(int, int*)": [
             [
                 10,
-                2.304
+                2.336
             ],
             [
                 60,
-                2.544
+                2.464
             ],
             [
                 110,
-                3.264
+                3.232
             ],
             [
                 160,
-                4.512
+                4.48
             ],
             [
                 210,
-                6.592
+                6.32
             ],
             [
                 260,
-                8.272
+                8.224
             ],
             [
                 310,
-                10.768
+                10.864
             ],
             [
                 360,
-                13.088
+                13.104
             ],
             [
                 410,
-                16.88
+                16.719
             ],
             [
                 460,
-                20.336
+                19.712
             ],
             [
                 510,
-                23.873
+                23.968
             ],
             [
                 560,
-                28.097
+                28.144
             ],
             [
                 610,
-                34.017
+                33.728
             ],
             [
                 660,
-                38.673
+                38.432
             ],
             [
                 710,
-                44.993
+                44.56
             ],
             [
                 760,
-                50.065
+                49.872
             ],
             [
                 810,
-                57.249
+                57.184
             ],
             [
                 860,
-                63.265
+                62.895
             ],
             [
                 910,
-                70.353
+                71.136
             ],
             [
                 960,
-                78.305
-
+                78.175
+            ]
+        ]
+    },
+    {
+        ".name": "shared-native.o",
+        "GOL(int, int*, int*)": [
+            [
+                10,
+                1.536
+            ],
+            [
+                60,
+                1.84
+            ],
+            [
+                110,
+                2.256
+            ],
+            [
+                160,
+                3.104
+            ],
+            [
+                210,
+                3.76
+            ],
+            [
+                260,
+                5.136
+            ],
+            [
+                310,
+                6.88
+            ],
+            [
+                360,
+                8.256
+            ],
+            [
+                410,
+                10.576
+            ],
+            [
+                460,
+                12.848
+            ],
+            [
+                510,
+                15.168
+            ],
+            [
+                560,
+                19.008
+            ],
+            [
+                610,
+                22.8
+            ],
+            [
+                660,
+                26.496
+            ],
+            [
+                710,
+                30.976
+            ],
+            [
+                760,
+                35.312
+            ],
+            [
+                810,
+                38.832
+            ],
+            [
+                860,
+                44.368
+            ],
+            [
+                910,
+                49.792
+            ],
+            [
+                960,
+                54.96
+            ]
+        ]
+    },
+    {
+        ".name": "shared-thrust.o",
+        "void thrust::transform_kernel<short, short, GOLFunctor>(thrust::block_2d<short, thrust::device_malloc_allocator<thrust::block_2d>>, int, short*, int, thrust::warp_launcher_config, GOLFunctor)": [
+            [
+                10,
+                1.744
+            ],
+            [
+                60,
+                2.144
+            ],
+            [
+                110,
+                2.912
+            ],
+            [
+                160,
+                3.808
+            ],
+            [
+                210,
+                5.408
+            ],
+            [
+                260,
+                6.976
+            ],
+            [
+                310,
+                9.632
+            ],
+            [
+                360,
+                12.144
+            ],
+            [
+                410,
+                14.815
+            ],
+            [
+                460,
+                18.672
+            ],
+            [
+                510,
+                22.208
+            ],
+            [
+                560,
+                25.664
+            ],
+            [
+                610,
+                30.4
+            ],
+            [
+                660,
+                35.599
+            ],
+            [
+                710,
+                39.743
+            ],
+            [
+                760,
+                46.224
+            ],
+            [
+                810,
+                52.495
+            ],
+            [
+                860,
+                57.375
+            ],
+            [
+                910,
+                64.944
+            ],
+            [
+                960,
+                72.111
             ]
         ]
     }

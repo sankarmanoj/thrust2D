@@ -42,7 +42,7 @@
 #include <helper_math.h>
 
 #include <thrust/window_2d.h>
-
+#include <thrust/window_transform.h>
 #include "recursiveGaussian_kernel.cuh"
 cudaEvent_t start, stop;
 float time_in_ms;

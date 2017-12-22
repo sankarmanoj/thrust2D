@@ -7,8 +7,12 @@ plt.title("Blend")
 
 plt.xlabel("Dimension")
 plt.ylabel("Time in Microseconds")
-names = {"shared/blend.o":"Shared","opencv/blend.o":"Native","texture/blend.o":"Texture"}
-colors = {"Non Shared":"r","Shared":"g","Native":"b","Texture":'y'}
+names = {
+        # "shared/blend.o":"Shared",
+        "opencv/blend.o":"Native",
+        # "texture/blend.o":"Texture",
+        "non_shared/blend.o":"Thrust2D"}
+colors = {"Thrust2D":"r","Shared":"g","Native":"b","Texture":'y'}
 for app in data:
     if app['.name'] not in names.keys():
         continue

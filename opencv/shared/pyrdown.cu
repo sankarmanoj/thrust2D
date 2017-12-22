@@ -50,7 +50,7 @@ int main(int argc, char const *argv[])
   thrust::convolve(thrust::cuda::shared,&uchar_image_block,kernel,kernel,5,&convolve_image_block);
   thrust::window_vector<uchar> outputVector(&outBlock,1,1,1,1);
   pyrdownTransformFunctor ptf(&convolve_image_block);
-  thrust::for_each(thrust::cuda::shared,outputVector.begin(),outputVector.end(),ptf);
+  thrust::for_each(outputVector.begin(),outputVector.end(),ptf);
   outBlock.download(&img);
   Mat output (Size(image.cols/2,image.rows/2),CV_8UC1,img);
   #ifdef OWRITE
