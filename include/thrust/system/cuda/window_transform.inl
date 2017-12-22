@@ -13,13 +13,13 @@ namespace thrust
   {
     extern __shared__ T1 shared_memory [];
     T2* shared_memory_2 = (T2 * )&(shared_memory[mConfiguration.shared_total_size]);
+    if((mConfiguration.block_dim_x<blockIdx.x*mConfiguration.warp_size + threadIdx.x+mConfiguration.window_dim_x)||(mConfiguration.block_dim_y<blockIdx.y*mConfiguration.warp_size + threadIdx.y+mConfiguration.window_dim_y))
+    return;
     shared_memory[threadIdx.y*mConfiguration.shared_size_x+threadIdx.x]=input1[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y)];
     shared_memory_2[ threadIdx.y*mConfiguration.shared_size_x+threadIdx.x]=input2[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y)];
     if((blockIdx.x*mConfiguration.warp_size + threadIdx.x)%mConfiguration.stride_x||(blockIdx.y*mConfiguration.warp_size + threadIdx.y)%mConfiguration.stride_y)
       return;
     if(threadIdx.x>=mConfiguration.warp_size||threadIdx.y>=mConfiguration.warp_size)
-      return;
-    if((mConfiguration.block_dim_x<blockIdx.x*mConfiguration.warp_size + threadIdx.x+mConfiguration.window_dim_x)||(mConfiguration.block_dim_y<blockIdx.y*mConfiguration.warp_size + threadIdx.y+mConfiguration.window_dim_y))
       return;
     __syncthreads();
     window_2d<T1> shared_window1(shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,mConfiguration.window_dim_x,mConfiguration.window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+mConfiguration.padding,input1.pitch);
@@ -72,12 +72,12 @@ namespace thrust
   void transform_kernel (block_2d<T1> input,int pitch1, T2* output,int pitch2, warp_launcher_config mConfiguration, Func f)
   {
     extern __shared__ T1 shared_memory [];
+    if((mConfiguration.block_dim_x<blockIdx.x*mConfiguration.warp_size + threadIdx.x+mConfiguration.window_dim_x)||(mConfiguration.block_dim_y<blockIdx.y*mConfiguration.warp_size + threadIdx.y+mConfiguration.window_dim_y))
+      return;
     shared_memory[threadIdx.y*mConfiguration.shared_size_x+threadIdx.x]=(input)[make_int2(blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y)];
     if((blockIdx.x*mConfiguration.warp_size + threadIdx.x)%mConfiguration.stride_x||(blockIdx.y*mConfiguration.warp_size + threadIdx.y)%mConfiguration.stride_y)
       return;
     if(threadIdx.x>=mConfiguration.warp_size||threadIdx.y>=mConfiguration.warp_size)
-      return;
-    if((mConfiguration.block_dim_x<blockIdx.x*mConfiguration.warp_size + threadIdx.x+mConfiguration.window_dim_x)||(mConfiguration.block_dim_y<blockIdx.y*mConfiguration.warp_size + threadIdx.y+mConfiguration.window_dim_y))
       return;
     __syncthreads();
     window_2d<T1> shared_window(shared_memory,blockIdx.x*mConfiguration.warp_size + threadIdx.x,blockIdx.y*mConfiguration.warp_size + threadIdx.y,threadIdx.x,threadIdx.y,mConfiguration.window_dim_x,mConfiguration.window_dim_y,mConfiguration.shared_size_x,mConfiguration.warp_size+mConfiguration.padding,pitch1);
