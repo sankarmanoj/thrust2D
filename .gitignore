@@ -9,3 +9,4 @@
 *.gch
 values.txt
 *.log
+.ropeproject
