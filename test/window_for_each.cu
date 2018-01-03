@@ -3,12 +3,12 @@
 #include <thrust/sequence.h>
 #include <thrust/window_for_each.h>
 #include <thrust/window_transform.h>
-#define X 70
-#define Y 70
-#define XSTART 25
-#define XRANGE 40
-#define YSTART 25
-#define YRANGE 40
+#define X 512
+#define Y 3
+#define XSTART 2
+#define XRANGE 0
+#define YSTART 2
+#define YRANGE 0
 
 class printFunctor
 {
@@ -30,7 +30,7 @@ public:
                 inputWindow[make_int2(1,0)]+inputWindow[make_int2(1,2)]+
                 inputWindow[make_int2(0,0)]+inputWindow[make_int2(2,2)]+
                 inputWindow[make_int2(0,2)]+inputWindow[make_int2(2,0)];
-    printf("@ %dx%d, val = %d (%d x %d):(%d x %d)\n",outputWindow.start_x,outputWindow.start_y,outputWindow[1][1],blockIdx.x,blockIdx.y,threadIdx.x,threadIdx.y);
+    // printf("@ %dx%d, val = %d (%d x %d):(%d x %d)\n",outputWindow.start_x,outputWindow.start_y,outputWindow[1][1],blockIdx.x,blockIdx.y,threadIdx.x,threadIdx.y);
 
   }
 };
@@ -71,29 +71,29 @@ int main()
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
   cudaEventRecord(start);
-  thrust::transform(thrust::cuda::shared,myVector.begin(),myVector.end(),mySecondVector.begin(),printFunctor1());
+  thrust::transform(thrust::cuda::global,myVector.begin(),myVector.end(),mySecondVector.begin(),printFunctor1());
   cudaEventRecord(stop);
   cudaEventSynchronize(stop);
   float milliseconds = 0;
   cudaEventElapsedTime(&milliseconds, start, stop);
   h_outBlock = outBlock;
   printf("\nTime Taken = %f\n",milliseconds);
-
-  printf("   " );
-  for (int i=XSTART; i<XSTART + XRANGE;i++)
-  {
-      printf("%d  ",i);
-  }
-  std::cout<<"\n";
-
-  for (int j=YSTART;j<YSTART + YRANGE;j++)
-  {printf("%d  ",j);
-    for (int i=XSTART; i<XSTART + XRANGE;i++)
-    {
-        int2 pos = make_int2(i,j);
-        printf("%d   ",(int)h_outBlock[pos]);
-
-    }
-    std::cout<<"\n";
-  }
+  //
+  // printf("   " );
+  // for (int i=XSTART; i<XSTART + XRANGE;i++)
+  // {
+  //     printf("%d  ",i);
+  // }
+  // std::cout<<"\n";
+  //
+  // for (int j=YSTART;j<YSTART + YRANGE;j++)
+  // {printf("%d  ",j);
+  //   for (int i=XSTART; i<XSTART + XRANGE;i++)
+  //   {
+  //       int2 pos = make_int2(i,j);
+  //       printf("%d   ",(int)h_outBlock[pos]);
+  //
+  //   }
+  //   std::cout<<"\n";
+  // }
 }

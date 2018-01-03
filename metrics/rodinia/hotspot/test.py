@@ -10,11 +10,11 @@ execs = [ x for x in  os.listdir(path) if x.partition(".")[2]=="out" ]
 print execs
 for texec in execs:
     results[texec]=[]
-dims = range(10,1020,15)
+dims = range(50,1020,15)
 for dim in dims:
     print str(dim)+"  ",
     for texec in execs:
-        print texec,
+        print "nvprof -u us --csv --log-file log.txt ./%s %d 1 6 temp_512 power_512 result"%(texec,dim)
         print os.popen("nvprof -u us --csv --log-file log.txt ./%s %d 1 6 temp_512 power_512 result"%(texec,dim)).read()
         with open("log.txt","r") as x:
             cr = csv.reader(x)

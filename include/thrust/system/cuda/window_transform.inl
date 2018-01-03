@@ -278,5 +278,52 @@ namespace thrust
     cudaCreateTextureObject(&texref, &resDesc, &texDesc, NULL);
     transform_texture_kernel<T1,T2><<<dim3(iDivUp(begin1.block_dim_x,mConfiguration.warp_size),iDivUp(begin1.block_dim_y,mConfiguration.warp_size),1),dim3(mConfiguration.warp_size,mConfiguration.warp_size,1),(size_along_y+mConfiguration.padding)*(mConfiguration.padding+size_along_x)*sizeof(T2)>>>(texref,begin2.data_pointer,begin2.pitch,mConfiguration,f);
   }
+  //Unary Global Transform
+  template<typename T1, typename T2 , class Func>
+  __global__
+  // __launch_bounds__(maxThreadsPerBlock1, minBlocksPerMultiprocessor)
+  void transform_kernel (T1* input,int pitch1, T2* output,int pitch2, int windows_along_x,int windows_along_y, int stride_x,int stride_y,int window_dim_x,int window_dim_y,Func f)
+  {
+    int index_x = blockIdx.x*blockDim.x + threadIdx.x;
+    int index_y = blockIdx.y*blockDim.y + threadIdx.y;
+    if(index_x>=windows_along_x)
+      return;
+    if(index_y>=windows_along_y)
+      return;
+    window_2d<T1>input_window(input,index_x*stride_x,index_y*stride_y,window_dim_x,window_dim_y,pitch1);
+    window_2d<T2>output_window(output,index_x*stride_x,index_y*stride_y,window_dim_x,window_dim_y,pitch2);
+    f(input_window,output_window);
+  }
 
+  template <class Iterator1, class Iterator2, class Func>
+  void transform(cuda::global_policy,Iterator1 begin1, Iterator1 end1, Iterator2 begin2, Func f)
+  {
+    typedef typename Iterator1::base_value_type T1;
+    typedef typename Iterator2::base_value_type T2;
+    static cudaDeviceProp properties;
+    if (properties.maxThreadsPerBlock == 0)
+      cudaGetDeviceProperties(&properties,0);
+    int size_along_x = begin1.windows_along_x;
+    int size_along_y = begin1.windows_along_y;
+    printf("Input Dimensions = %dx%d",size_along_x,size_along_y);
+    int processor_dim = ceil(sqrt(2*properties.multiProcessorCount));
+    int cuda_thread_x = min(size_along_x,min(iDivUp(size_along_x,processor_dim),32));
+    int cuda_thread_y = min(size_along_y,min(iDivUp(size_along_y,processor_dim),32));
+    int cuda_block_x = iDivUp(size_along_x,cuda_thread_x);
+    int cuda_block_y = iDivUp(size_along_y,cuda_thread_y);
+
+    // assert(!(begin1.block_dim_y%mConfiguration.warp_size));
+    // assert(!(begin1.block_dim_x%mConfiguration.warp_size));
+    assert(begin1.window_dim_x>=begin1.stride_x);
+    assert(begin1.window_dim_y>=begin1.stride_y);
+    assert(begin1.block_dim_x == begin2.block_dim_x);
+    assert(begin1.block_dim_y == begin2.block_dim_y);
+    assert(begin1.window_dim_x == begin2.window_dim_x);
+    assert(begin1.window_dim_y == begin2.window_dim_y);
+    assert(begin1.stride_x == begin2.stride_x);
+    assert(begin1.stride_y == begin2.stride_y);
+    printf("Launch Parameters = ");
+    printf("%dx%d - %dx%d\n",cuda_block_x,cuda_block_y,cuda_thread_x,cuda_thread_y);
+    transform_kernel<<<dim3(cuda_block_x,cuda_block_y,1),dim3(cuda_thread_x,cuda_thread_y,1)>>>(begin1.data_pointer,begin1.pitch,begin2.data_pointer,begin2.pitch,size_along_x,size_along_y,begin1.stride_x,begin1.stride_y,begin1.window_dim_x,begin1.window_dim_y,f);
+  }
 }

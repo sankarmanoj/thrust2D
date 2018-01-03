@@ -29,6 +29,8 @@ namespace thrust
     shared_first_policy shared_first;
     struct texture_policy : device_execution_policy<texture_policy> {};
     texture_policy texture;
+    struct global_policy : device_execution_policy<global_policy> {};
+    global_policy global;
   }
   struct warp_launcher_config
   {

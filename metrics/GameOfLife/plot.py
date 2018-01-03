@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import sys
 import json
 data = json.load(open("result.json","r"))
-plt.title("Game Of Life")
+Title="Game Of Life"
+plt.title(Title,y=0.92)
 
 
 plt.xlabel("Dimension")
@@ -11,9 +12,10 @@ names={
         "thrust.o":"Thrust2D",
         # "shared-thrust.o":"Thrust2D Shared",
         # "shared-native.o":"Native Shared",
-        "texture-thrust.o":"Thrust2D Texture",
+        # "texture-thrust.o":"Thrust2D Texture",
         "native.o":"Native",
-        "texture-native.o":"Native Texture"}
+        # "texture-native.o":"Native Texture"
+        }
 colors = {"Thrust2D":'r',"Thrust2D Shared":"g","Thrust2D Texture":"y","Native Shared":"c","Native":"b","Native Texture":"m"}
 for app in  data: #sorted(data,key=lambda x: names[x[".name"]]):
     if app[".name"] not in names.keys():
@@ -36,5 +38,5 @@ for app in  data: #sorted(data,key=lambda x: names[x[".name"]]):
 
 
 plt.legend(loc=2)
-
+plt.savefig("/home/sankarmanoj/Pictures/NT2D/"+Title+".png")
 plt.show()
